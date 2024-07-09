@@ -1,0 +1,26 @@
+[package]
+name = "servicentral"
+version = "0.1.0"
+authors = ["dxps <marius.ileana@gmail.com>"]
+edition = "2021"
+
+##############
+[dependencies]
+##############
+
+serde = { version = "1.0.197", features = ["derive"] }
+
+dioxus = { version = "0.5", features = ["fullstack", "router"] }
+
+tracing = "0.1.40"
+dioxus-logger = "0.5.0"
+
+##############
+[features]
+##############
+
+default = []
+
+server = ["dioxus/axum"]
+
+web = ["dioxus/web"]
