@@ -1,6 +1,13 @@
 # servicentral
 
-TBD
+ServiCentral provides:
+
+-   a service registry
+    -   exposing API for services self registration
+    -   and for service discovery
+-   a service catalog
+    -   that includes all the services, gathering their metadata
+    -   their dependencies, and their deployments
 
 <br/>
 
@@ -18,7 +25,7 @@ Note: These are needed during development. In other words, if you don't change a
 
 ### Back-end related
 
-TBD
+Have `rust` installed using [rustup.rs](https://rustup.rs/).
 
 <br/>
 
@@ -27,3 +34,5 @@ TBD
 Launch the app using `./run-dev.sh`.
 
 In case of compilation error that remain hidden behind Dioxus CLI, run `cargo check --features server,web` to reveal them.
+
+For further development, as previously mentioned, make sure you have `./run_css.sh` running, to pick up the newly used Tailwind CSS utility classes.
