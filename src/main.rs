@@ -10,5 +10,5 @@ fn main() {
     dioxus::launch(crate::ui::App);
 
     #[cfg(feature = "server")]
-    server::server_start(crate::ui::App);
+    server::start_web_server(crate::ui::App);
 }
