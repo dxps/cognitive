@@ -1,4 +1,4 @@
-# servicentral
+# ServiCentral
 
 ServiCentral provides:
 
@@ -36,3 +36,9 @@ Launch the app using `./run-dev.sh`.
 In case of compilation error that remain hidden behind Dioxus CLI, run `cargo check --features server,web` to reveal them.
 
 For further development, as previously mentioned, make sure you have `./run_css.sh` running, to pick up the newly used Tailwind CSS utility classes.
+
+<br/>
+
+### The Domain Model
+
+TBD
