@@ -2,8 +2,8 @@ mod server;
 #[cfg(feature = "server")]
 pub use server::*;
 
-mod websocket_server;
+mod websockets;
 #[cfg(feature = "server")]
-pub use websocket_server::*;
+pub use websockets::*;
 
 pub mod fns;

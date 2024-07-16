@@ -45,7 +45,7 @@ pub async fn ws_handler(
 async fn handle_socket(mut socket: WebSocket, who: SocketAddr) {
     // send a ping (unsupported by some browsers) just to kick things off and get a response
     if socket.send(Message::Ping(vec![1, 2, 3])).await.is_ok() {
-        println!("Pinged {who}...");
+        println!("Pinged {who} ...");
     } else {
         println!("Could not send ping {who}!");
         // no Error here since the only thing we can do is to close the connection.
@@ -63,7 +63,7 @@ async fn handle_socket(mut socket: WebSocket, who: SocketAddr) {
                 return;
             }
         } else {
-            println!("client {who} abruptly disconnected");
+            println!("Client {who} abruptly disconnected.");
             return;
         }
     }
@@ -74,7 +74,7 @@ async fn handle_socket(mut socket: WebSocket, who: SocketAddr) {
     // connecting to server and receiving their greetings.
     for i in 1..5 {
         if socket.send(Message::Text(format!("Hi {i} times!"))).await.is_err() {
-            println!("client {who} abruptly disconnected");
+            println!("Client {who} abruptly disconnected.");
             return;
         }
         tokio::time::sleep(std::time::Duration::from_millis(100)).await;
@@ -96,11 +96,11 @@ async fn handle_socket(mut socket: WebSocket, who: SocketAddr) {
             tokio::time::sleep(std::time::Duration::from_millis(300)).await;
         }
 
-        println!("Sending close to {who}...");
+        println!("Sending close to {who} ...");
         if let Err(e) = sender
             .send(Message::Close(Some(CloseFrame {
                 code: axum::extract::ws::close_code::NORMAL,
-                reason: Cow::from("Goodbye"),
+                reason: Cow::from("Bye!"),
             })))
             .await
         {
