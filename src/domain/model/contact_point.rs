@@ -2,8 +2,8 @@ use serde::{Deserialize, Serialize};
 
 use super::Protocol;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ContactPoint {
     pub name: String,
-    pub protocol: Box<dyn Protocol>,
+    pub protocol: Protocol,
 }

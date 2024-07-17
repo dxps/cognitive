@@ -1,13 +1,12 @@
 #![allow(non_snake_case)]
 
-mod server;
-mod ui;
+use servicentral::{server, ui};
 
 fn main() {
     //
     #[cfg(feature = "web")]
-    dioxus::launch(crate::ui::App);
+    dioxus::launch(ui::App);
 
     #[cfg(feature = "server")]
-    server::start_web_server(crate::ui::App);
+    server::start_web_server(ui::App);
 }

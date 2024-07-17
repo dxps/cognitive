@@ -1,14 +1,17 @@
 use dioxus::prelude::*;
 
+use crate::domain::model::ContactPoint;
+
 #[component]
 pub fn Home() -> Element {
     use crate::ui::ui_global_state::COUNT;
     use crate::{
-        server::fns::{get_server_data, post_server_data},
+        server::fns::{get_server_data, post_server_data, test_get_contact_point},
         ui::routes::Route,
     };
 
-    let mut text = use_signal(|| String::from("..."));
+    let mut server_data_text = use_signal(|| "".to_string());
+    let mut contact_point_text = use_signal::<Option<ContactPoint>>(|| None);
 
     rsx! {
         div { class: "bg-gray-100",
@@ -35,17 +38,30 @@ pub fn Home() -> Element {
                     }
                     div { class: "pt-4",
                         button {
-                            class: "bg-slate-100 rounded-lg px-2 py-1",
+                            class: "bg-slate-200 rounded-lg px-2 py-1",
                             onclick: move |_| async move {
                                 if let Ok(data) = get_server_data().await {
-                                    tracing::info!("Client received: {}", data);
-                                    text.set(data.clone());
+                                    log::debug!(">>> Received from get_server_data: {}", data);
+                                    server_data_text.set(data.clone());
                                     post_server_data(data).await.unwrap();
                                 }
                             },
                             "Get Server Data"
                         }
-                        p { class: "pt-2", "Server data: {text}" }
+                        p { class: "pt-2", "Server data: {server_data_text}" }
+                    }
+                    div { class: "pt-4",
+                        button {
+                            class: "bg-slate-200 rounded-lg px-2 py-1",
+                            onclick: move |_| async move {
+                                if let Ok(data) = test_get_contact_point().await {
+                                    log::debug!(">>> Received from test_get_contact_point: {:?}", data);
+                                    contact_point_text.set(Some(data));
+                                }
+                            },
+                            "Test Get Contact Point"
+                        }
+                        p { class: "pt-2", "Contact Point: {contact_point_text:?}" }
                     }
                 }
             }
