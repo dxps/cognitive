@@ -2,7 +2,7 @@ CREATE TABLE entity_link_defs
 (
     id                      CHAR(10)         PRIMARY KEY,
     name                    VARCHAR(32),
-    description             VARCHAR(128),
+    description             VARCHAR(256),
     arity                   VARCHAR(32),
     entity_def_source_id    CHAR(10)         NOT NULL,
     entity_def_target_id    CHAR(10)         NOT NULL,
