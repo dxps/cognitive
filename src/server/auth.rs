@@ -5,8 +5,9 @@ use axum_session_sqlx::SessionPgPool;
 use sqlx::PgPool;
 use std::sync::Arc;
 
+use crate::domain::model::UserAccount;
 use crate::server::user_mgmt::UserMgmt;
-use crate::server::{ServerState, UserAccount, UsersRepo};
+use crate::server::{ServerState, UsersRepo};
 
 #[async_trait]
 impl Authentication<UserAccount, String, PgPool> for UserAccount {

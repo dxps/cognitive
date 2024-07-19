@@ -1,6 +1,9 @@
 use std::sync::Arc;
 
-use crate::server::{AppError, AppResult, AppUseCase, UserAccount, UsersRepo};
+use crate::{
+    domain::model::UserAccount,
+    server::{AppError, AppResult, AppUseCase, UsersRepo},
+};
 
 #[derive(Clone)]
 pub struct UserMgmt {

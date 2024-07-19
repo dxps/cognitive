@@ -1,6 +1,9 @@
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 
+#[cfg(feature = "server")]
+use crate::server::id::create_id;
+
 /// User account contains most of the details of a user (except password related ones).
 #[derive(Debug, Clone, PartialEq, Props, Serialize, Deserialize)]
 pub struct UserAccount {
@@ -16,7 +19,7 @@ pub struct UserAccount {
 impl Default for UserAccount {
     fn default() -> Self {
         Self {
-            id: super::create_id(),
+            id: create_id(),
             is_anonymous: true,
             username: "Guest".into(),
             email: "".into(),

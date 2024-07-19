@@ -1,7 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Tag {
+    pub id: String,
     pub name: String,
-    pub description: String,
+    pub description: Option<String>,
 }

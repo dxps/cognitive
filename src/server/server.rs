@@ -4,7 +4,10 @@ use dioxus::dioxus_core::Element;
 #[cfg(feature = "server")]
 pub fn start_web_server(app_fn: fn() -> Element) {
     //
-    use crate::server::{connect_to_pgdb, ws_handler, ServerState, UserAccount};
+    use crate::{
+        domain::model::UserAccount,
+        server::{connect_to_pgdb, ws_handler, ServerState},
+    };
     use axum::{routing::*, Extension};
     use axum_session::{SessionConfig, SessionLayer};
     use axum_session_auth::{AuthConfig, AuthSessionLayer};

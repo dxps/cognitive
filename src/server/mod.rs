@@ -1,8 +1,5 @@
-mod app_error;
-pub use app_error::*;
-
-mod domain;
-pub use domain::*;
+mod app_err_uc;
+pub use app_err_uc::*;
 
 pub mod fns;
 
@@ -13,6 +10,9 @@ mod auth;
 
 #[cfg(feature = "server")]
 mod database;
+
+#[cfg(feature = "server")]
+mod logic;
 
 #[cfg(feature = "server")]
 mod server;
@@ -27,4 +27,4 @@ mod repos;
 mod state;
 
 #[cfg(feature = "server")]
-pub use {auth::*, database::*, repos::*, server::*, state::*, websockets::*};
+pub use {auth::*, database::*, logic::*, repos::*, server::*, state::*, websockets::*};

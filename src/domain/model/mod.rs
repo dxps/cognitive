@@ -7,5 +7,11 @@ pub use protocol::*;
 mod service;
 pub use service::*;
 
+mod attribute_def;
+pub use attribute_def::*;
+
 mod tag;
 pub use tag::*;
+
+mod user;
+pub use user::*;
