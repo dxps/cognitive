@@ -28,42 +28,40 @@ pub async fn ws_handler(
     ConnectInfo(addr): ConnectInfo<SocketAddr>,
 ) -> impl IntoResponse {
     //
-    tracing::debug!("WebSocket conn handler.");
     let user_agent = if let Some(TypedHeader(user_agent)) = user_agent {
         user_agent.to_string()
     } else {
         String::from("Unknown browser")
     };
-    println!("WebSocket {user_agent} at {addr} connected.");
-    // finalize the upgrade process by returning upgrade callback.
-    // we can customize the callback by sending additional info such as address.
+    log::debug!("WebSocket client user agent '{user_agent}' at address '{addr}' connected.");
+    // Finalize the upgrade process by returning upgrade callback.
+    // We can customize the callback by sending additional info such as address.
     ws.on_upgrade(move |socket| handle_socket(socket, addr))
 }
 
 /// Actual websocket statemachine (one will be spawned per connection).
 #[cfg(feature = "server")]
 async fn handle_socket(mut socket: WebSocket, who: SocketAddr) {
-    // send a ping (unsupported by some browsers) just to kick things off and get a response
+    // Send a ping (unsupported by some browsers) just to kick things off and get a response.
     if socket.send(Message::Ping(vec![1, 2, 3])).await.is_ok() {
-        println!("Pinged {who} ...");
+        log::debug!("Pinged {who} ...");
     } else {
-        println!("Could not send ping {who}!");
-        // no Error here since the only thing we can do is to close the connection.
+        log::debug!("Could not send ping {who}!");
+        // No error here since the only thing we can do is to close the connection.
         // If we can not send messages, there is no way to salvage the statemachine anyway.
         return;
     }
 
-    // receive single message from a client (we can either receive or send with socket).
-    // this will likely be the Pong for our Ping or a hello message from client.
-    // waiting for message from a client will block this task, but will not block other client's
-    // connections.
+    // Receive a single message from a client (we can either receive or send with socket).
+    // This will likely be the Pong for our Ping or a hello message from client.
+    // Waiting for message from a client will block this task, but will not block other client's connections.
     if let Some(msg) = socket.recv().await {
         if let Ok(msg) = msg {
             if process_message(msg, who).is_break() {
                 return;
             }
         } else {
-            println!("Client {who} abruptly disconnected.");
+            log::debug!("Client {who} abruptly disconnected.");
             return;
         }
     }
@@ -74,7 +72,7 @@ async fn handle_socket(mut socket: WebSocket, who: SocketAddr) {
     // connecting to server and receiving their greetings.
     for i in 1..5 {
         if socket.send(Message::Text(format!("Hi {i} times!"))).await.is_err() {
-            println!("Client {who} abruptly disconnected.");
+            log::debug!("WebSocket client '{who}' abruptly disconnected.");
             return;
         }
         tokio::time::sleep(std::time::Duration::from_millis(100)).await;
@@ -96,7 +94,7 @@ async fn handle_socket(mut socket: WebSocket, who: SocketAddr) {
             tokio::time::sleep(std::time::Duration::from_millis(300)).await;
         }
 
-        println!("Sending close to {who} ...");
+        log::debug!("Sending close to client '{who}' ...");
         if let Err(e) = sender
             .send(Message::Close(Some(CloseFrame {
                 code: axum::extract::ws::close_code::NORMAL,
@@ -104,12 +102,12 @@ async fn handle_socket(mut socket: WebSocket, who: SocketAddr) {
             })))
             .await
         {
-            println!("Could not send Close due to {e}, probably it is ok?");
+            log::debug!("Could not send Close due to {e}, probably it is ok?");
         }
         n_msg
     });
 
-    // This second task will receive messages from client and print them on server console
+    // This second task will receive messages from client and print them on server console.
     let mut recv_task = tokio::spawn(async move {
         let mut cnt = 0;
         while let Some(Ok(msg)) = receiver.next().await {
@@ -126,22 +124,22 @@ async fn handle_socket(mut socket: WebSocket, who: SocketAddr) {
     tokio::select! {
         rv_a = (&mut send_task) => {
             match rv_a {
-                Ok(a) => println!("{a} messages sent to {who}"),
-                Err(a) => println!("Error sending messages {a:?}")
+                Ok(a) => log::debug!("{a} messages sent to {who}"),
+                Err(a) => log::debug!("Error sending messages {a:?}")
             }
             recv_task.abort();
         },
         rv_b = (&mut recv_task) => {
             match rv_b {
-                Ok(b) => println!("Received {b} messages"),
-                Err(b) => println!("Error receiving messages {b:?}")
+                Ok(b) => log::debug!("Received {b} messages"),
+                Err(b) => log::debug!("Error receiving messages {b:?}")
             }
             send_task.abort();
         }
     }
 
-    // returning from the handler closes the websocket connection
-    println!("Websocket context {who} destroyed");
+    // Returning from the handler closes the Websocket connection.
+    log::debug!("Websocket context {who} destroyed");
 }
 
 /// helper to print contents of messages to stdout. Has special treatment for Close.
@@ -149,28 +147,33 @@ async fn handle_socket(mut socket: WebSocket, who: SocketAddr) {
 fn process_message(msg: Message, who: SocketAddr) -> ControlFlow<(), ()> {
     match msg {
         Message::Text(t) => {
-            println!(">>> {who} sent str: {t:?}");
+            log::debug!("Websocket client '{who}' sent str: {t:?}");
         }
         Message::Binary(d) => {
-            println!(">>> {} sent {} bytes: {:?}", who, d.len(), d);
+            log::debug!("Websocket client '{}' sent {} bytes: {:?}", who, d.len(), d);
         }
         Message::Close(c) => {
             if let Some(cf) = c {
-                println!(">>> {} sent close with code {} and reason `{}`", who, cf.code, cf.reason);
+                log::debug!(
+                    "Websocket client '{}' sent close with code {} and reason `{}`",
+                    who,
+                    cf.code,
+                    cf.reason
+                );
             } else {
-                println!(">>> {who} somehow sent close message without CloseFrame");
+                log::debug!("Websocket client '{who}' somehow sent close message without CloseFrame");
             }
             return ControlFlow::Break(());
         }
 
         Message::Pong(v) => {
-            println!(">>> {who} sent pong with {v:?}");
+            log::debug!("Websocket client '{who}' sent pong with {v:?}");
         }
         // You should never need to manually handle Message::Ping, as axum's websocket library
         // will do so for you automagically by replying with Pong and copying the v according to
         // spec. But if you need the contents of the pings you can see them here.
         Message::Ping(v) => {
-            println!(">>> {who} sent ping with {v:?}");
+            log::debug!("Websocket client '{who}' sent ping with {v:?}");
         }
     }
     ControlFlow::Continue(())
