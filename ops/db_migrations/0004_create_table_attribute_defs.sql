@@ -7,6 +7,7 @@ CREATE TABLE attribute_defs
     default_value   VARCHAR(20),
     multivalued     BOOLEAN       DEFAULT false,
     composite       BOOLEAN       DEFAULT false,
+    value_rules     VARCHAR(256),
     required        BOOLEAN       DEFAULT false,
     tag_id          CHAR(10),
     CONSTRAINT tag_fk FOREIGN KEY(tag_id) REFERENCES tags(id)
