@@ -1,17 +1,20 @@
 use dioxus::prelude::*;
 
-use crate::domain::model::ContactPoint;
+use crate::{
+    domain::model::{ContactPoint, Tag},
+    server::fns::test_list_tags,
+};
 
 #[component]
 pub fn Home() -> Element {
     use crate::ui::ui_global_state::COUNT;
     use crate::{
-        server::fns::{get_server_data, post_server_data, test_get_contact_point},
+        server::fns::{get_server_data, post_server_data},
         ui::routes::Route,
     };
 
     let mut server_data_text = use_signal(|| "".to_string());
-    let mut contact_point_text = use_signal::<Option<ContactPoint>>(|| None);
+    let mut tags_text = use_signal::<Option<Vec<Tag>>>(|| None);
 
     rsx! {
         div { class: "bg-gray-100",
@@ -54,14 +57,14 @@ pub fn Home() -> Element {
                         button {
                             class: "bg-slate-200 rounded-lg px-2 py-1",
                             onclick: move |_| async move {
-                                if let Ok(data) = test_get_contact_point().await {
-                                    log::debug!(">>> Received from test_get_contact_point: {:?}", data);
-                                    contact_point_text.set(Some(data));
+                                if let Ok(tags) = test_list_tags().await {
+                                    log::debug!(">>> Received from test_get_contact_point: {:?}", tags);
+                                    tags_text.set(Some(tags));
                                 }
                             },
-                            "Test Get Contact Point"
+                            "Test Get Tags"
                         }
-                        p { class: "pt-2", "Contact Point: {contact_point_text:?}" }
+                        p { class: "pt-2", "Tags: {tags_text:?}" }
                     }
                 }
             }

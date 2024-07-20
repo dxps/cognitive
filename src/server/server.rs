@@ -43,7 +43,7 @@ pub fn start_web_server(app_fn: fn() -> Element) {
         let state = ServerState::new(Arc::new(pg_pool.clone()));
 
         state
-            .auth_mgr
+            .user_mgmt
             .register_admin_user("admin@localhost".into(), "admin".into(), "admin".into())
             .await
             .expect("Self registering admin user failed");

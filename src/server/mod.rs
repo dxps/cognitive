@@ -24,7 +24,10 @@ mod websockets;
 mod repos;
 
 #[cfg(feature = "server")]
+mod session;
+
+#[cfg(feature = "server")]
 mod state;
 
 #[cfg(feature = "server")]
-pub use {auth::*, database::*, logic::*, repos::*, server::*, state::*, websockets::*};
+pub use {auth::*, database::*, logic::*, repos::*, server::*, session::*, state::*, websockets::*};

@@ -1,5 +1,7 @@
-#[cfg(feature = "server")]
-pub mod id;
+mod tag_mgmt;
+mod user_mgmt;
+
+pub mod utils;
 
 #[cfg(feature = "server")]
-pub mod user_mgmt;
+pub use {tag_mgmt::*, user_mgmt::*};
