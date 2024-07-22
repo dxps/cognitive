@@ -1,5 +1,9 @@
-use super::Tag;
+use crate::domain::model::Tag;
 
+use super::{Item, ItemType};
+
+#[derive(Debug)]
+/// An attribute definition.
 pub struct AttributeDef {
     pub id: String,
     pub name: String,
@@ -13,12 +17,24 @@ pub struct AttributeDef {
     pub tag: Option<Tag>,
 }
 
+impl Item for AttributeDef {
+    fn item_type(&self) -> ItemType {
+        ItemType::AttributeDef
+    }
+}
+
 #[derive(Debug)]
+/// The type of a value of an attribute.
 pub enum AttributeValueType {
     Text,
+    // TODO: not-yet-implemented
     Integer,
+    // TODO: not-yet-implemented
     IntegerPositiveOnly,
+    // TODO: not-yet-implemented
     Boolean,
+    // TODO: not-yet-implemented
     Date,
+    // TODO: not-yet-implemented
     DateTime,
 }

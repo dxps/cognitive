@@ -634,6 +634,18 @@ textarea:focus {
   min-height: 100vh;
 }
 
+.max-w-lg {
+  max-width: 32rem;
+}
+
+.max-w-sm {
+  max-width: 24rem;
+}
+
+.max-w-xl {
+  max-width: 36rem;
+}
+
 .flex-col {
   flex-direction: column;
 }

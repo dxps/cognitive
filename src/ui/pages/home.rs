@@ -1,9 +1,6 @@
 use dioxus::prelude::*;
 
-use crate::{
-    domain::model::{ContactPoint, Tag},
-    server::fns::test_list_tags,
-};
+use crate::{domain::model::Tag, server::fns::test_list_tags};
 
 #[component]
 pub fn Home() -> Element {
@@ -19,7 +16,7 @@ pub fn Home() -> Element {
     rsx! {
         div { class: "bg-gray-100",
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
-                div { class: "bg-white rounded-md p-4 space-y-4",
+                div { class: "bg-white rounded-md p-4 space-y-4 max-w-xl",
                     div {
                         h1 { class: "text-center text-4xl text-bold pb-4", "{COUNT}" }
                         button {
@@ -58,7 +55,7 @@ pub fn Home() -> Element {
                             class: "bg-slate-200 rounded-lg px-2 py-1",
                             onclick: move |_| async move {
                                 if let Ok(tags) = test_list_tags().await {
-                                    log::debug!(">>> Received from test_get_contact_point: {:?}", tags);
+                                    log::debug!(">>> Received from test_list_tags: {:?}", tags);
                                     tags_text.set(Some(tags));
                                 }
                             },
