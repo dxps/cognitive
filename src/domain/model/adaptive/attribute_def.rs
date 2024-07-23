@@ -26,15 +26,27 @@ impl Item for AttributeDef {
 #[derive(Debug)]
 /// The type of a value of an attribute.
 pub enum AttributeValueType {
+    /// This is mapped to PostgreSQL's `varchar(10485760)` (not `text`) type.
     Text,
-    // TODO: not-yet-implemented
-    Integer,
-    // TODO: not-yet-implemented
-    IntegerPositiveOnly,
-    // TODO: not-yet-implemented
+
+    /// This is mapped to PostgreSQL's `smallint` type. The range is `[-32768, 32767]`.
+    Integer16bit,
+
+    /// This is mapped to PostgreSQL's `integer` type. The range is `[-2147483648, 2147483647]`.
+    Integer32bit,
+
+    /// This is mapped to PostgreSQL's `bigint` type. The range is `[-9223372036854775808, 9223372036854775807]`.
+    Integer64bit,
+
+    /// This is mapped to PostgreSQL's `real` type. The range is `[-3.402823466E+38, 3.402823466E+38]`.
+    Decimal32bit,
+
+    /// This is mapped to PostgreSQL's `boolean` type. The range is `[false, true]`.
     Boolean,
-    // TODO: not-yet-implemented
+
+    /// This is mapped to PostgreSQL's `date` type.
     Date,
-    // TODO: not-yet-implemented
+
+    /// This is mapped to PostgreSQL's `timestamp` (without time zone) type.
     DateTime,
 }

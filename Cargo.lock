@@ -3189,6 +3189,7 @@ dependencies = [
  "md5",
  "nid",
  "serde",
+ "serde_json",
  "simple_logger",
  "sqlx",
  "thiserror",

@@ -1,3 +1,3 @@
-use dioxus::signals::{GlobalSignal, Signal};
+use dioxus::signals::GlobalSignal;
 
-pub static COUNT: GlobalSignal<i32> = Signal::global(|| 0);
+pub static APP_READY: GlobalSignal<bool> = GlobalSignal::new(|| false);

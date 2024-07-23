@@ -18,7 +18,7 @@ impl UsersRepo {
     pub async fn get_by_email(&self, email: &String, usecase: AppUseCase) -> AppResult<UserEntry> {
         //
         sqlx::query_as::<_, UserEntry>(
-            "SELECT id, email, username, password, salt, bio, image, is_anonymous FROM user_accounts 
+            "SELECT id, email, username, password, salt, bio, is_anonymous FROM user_accounts 
              WHERE email = $1",
         )
         .bind(email)
@@ -29,13 +29,12 @@ impl UsersRepo {
 
     pub async fn get_by_id(id: String, pool: &PgPool) -> Option<UserAccount> {
         //
-        let mut user_account = sqlx::query_as::<_, UserAccount>(
-            "SELECT id, email, username, bio, image, is_anyonymous FROM user_accounts WHERE id = $1",
-        )
-        .bind(id)
-        .fetch_one(pool)
-        .await
-        .ok()?;
+        let mut user_account =
+            sqlx::query_as::<_, UserAccount>("SELECT id, email, username, bio, is_anyonymous FROM user_accounts WHERE id = $1")
+                .bind(id)
+                .fetch_one(pool)
+                .await
+                .ok()?;
 
         let mut permissions = sqlx::query("SELECT permission FROM user_permissions WHERE user_id = $1;")
             .map(|r: PgRow| r.get("permission"))
