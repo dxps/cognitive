@@ -1,4 +1,3 @@
-use crate::domain::model::UserAccount;
 use dioxus_fullstack::prelude::*;
 
 #[cfg(feature = "server")]
@@ -15,6 +14,8 @@ pub async fn save_user_profile_primary_info(
     bio: String,
 ) -> Result<(), ServerFnError> {
     //
+    use crate::domain::model::UserAccount;
+
     debug!(
         "[save_user_profile_primary_info] Received: id: {}, username: {}, email: {}, bio: {}",
         id, username, email, bio

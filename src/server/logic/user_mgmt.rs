@@ -22,15 +22,15 @@ impl UserMgmt {
         self.user_repo.save(email, username, pwd, salt).await
     }
 
-    pub async fn register_admin_user(&self, email: String, username: String, pwd: String) -> AppResult<String> {
+    pub async fn register_admin_user(&self, email: &String, username: &String, pwd: String) -> AppResult<String> {
         //
         let (pwd, salt) = Self::generate_password(pwd);
         self.user_repo
             .save_with_permissions(
                 email,
                 username,
-                pwd,
-                salt,
+                &pwd,
+                &salt,
                 vec!["Admin::Read".to_string(), "Admin::Write".to_string()],
             )
             .await

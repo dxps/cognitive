@@ -1,6 +1,8 @@
 #[cfg(feature = "server")]
 use dioxus::dioxus_core::Element;
 
+use super::{AppError, AppResult, UserMgmt};
+
 #[cfg(feature = "server")]
 pub fn start_web_server(app_fn: fn() -> Element) {
     //
@@ -42,9 +44,7 @@ pub fn start_web_server(app_fn: fn() -> Element) {
 
         let state = ServerState::new(Arc::new(pg_pool.clone()));
 
-        state
-            .user_mgmt
-            .register_admin_user("admin@localhost".into(), "admin".into(), "admin".into())
+        register_admin_user(&state.user_mgmt)
             .await
             .expect("Self registering admin user failed");
 
@@ -70,6 +70,26 @@ pub fn start_web_server(app_fn: fn() -> Element) {
             .await
             .unwrap();
     });
+}
+
+async fn register_admin_user(user_mgmt: &UserMgmt) -> AppResult<()> {
+    //
+    let email = "admin@localhost".to_string();
+    let username = "admin".to_string();
+    let password = "admin".to_string();
+    match user_mgmt.register_admin_user(&email, &username, password).await {
+        Ok(id) => {
+            log::debug!("Registered admin user w/ email: {}, id: {}", email, id);
+            Ok(())
+        }
+        Err(app_err) => match app_err {
+            AppError::AlreadyExists(_) => {
+                log::debug!("Admin user is already registered.");
+                Ok(())
+            }
+            _ => Err(app_err),
+        },
+    }
 }
 
 #[cfg(feature = "server")]

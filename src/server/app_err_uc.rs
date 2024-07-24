@@ -9,12 +9,6 @@
 
 use thiserror::Error;
 
-// #[derive(Debug)]
-// pub enum AppUseCase {
-//     UserRegistration,
-//     UserLogin,
-// }
-
 pub type AppResult<T> = std::result::Result<T, AppError>;
 
 #[derive(Debug, Error)]

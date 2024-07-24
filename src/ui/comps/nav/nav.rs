@@ -1,4 +1,4 @@
-use crate::ui::comps::nav::common::{style_nav_item_link, NavProps};
+use crate::ui::comps::nav::common::style_nav_item_link;
 use crate::ui::comps::NavUserMenu;
 use crate::ui::routes::Route;
 use dioxus::prelude::*;
@@ -22,6 +22,30 @@ pub fn Nav(props: NavProps) -> Element {
             }
             NavUserMenu { active_path: &props.active_path }
         }
+    }
+}
+
+#[derive(PartialEq, Props, Clone)]
+pub struct NavProps {
+    #[props(default = "home".to_string())]
+    pub active_path: String,
+}
+
+impl NavProps {
+    pub fn home() -> String {
+        "home".to_string()
+    }
+    pub fn blog() -> String {
+        "blog".to_string()
+    }
+    pub fn sample() -> String {
+        "sample".to_string()
+    }
+    pub fn login() -> String {
+        "login".to_string()
+    }
+    pub fn users_section() -> String {
+        "/users/".to_string()
     }
 }
 

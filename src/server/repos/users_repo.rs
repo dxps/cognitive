@@ -91,43 +91,53 @@ impl UsersRepo {
 
     pub async fn save_with_permissions(
         &self,
-        email: String,
-        username: String,
-        pwd: String,
-        salt: String,
+        email: &String,
+        username: &String,
+        pwd: &String,
+        salt: &String,
         permissions: Vec<String>,
     ) -> AppResult<String> {
         //
         let id = create_id();
-        let account_res = match sqlx::query(
+        let res = sqlx::query(
             "INSERT INTO user_accounts (id, email, username, password, salt) 
              VALUES ($1, $2, $3, $4, $5)",
         )
         .bind(&id)
-        .bind(email)
-        .bind(username)
+        .bind(&email)
+        .bind(&username)
         .bind(pwd)
         .bind(salt)
         .execute(self.dbcp.as_ref())
         .await
-        {
-            Ok(_) => Ok(&id),
-            Err(err) => Err(AppError::from((err, AppUseCase::UserRegistration))),
-        };
-        if account_res.is_ok() {
+        .map_err(|err| {
+            AppError::from((
+                err,
+                AppUseCase::UserRegistration,
+                "Self registration of admin user account".to_string(),
+            ))
+        });
+
+        if res.is_ok() {
             for permission in permissions.iter() {
-                match sqlx::query("INSERT INTO user_permissions (user_id, permission) VALUES ($1, $2)")
+                let res = sqlx::query("INSERT INTO user_permissions (user_id, permission) VALUES ($1, $2)")
                     .bind(&id)
-                    .bind(permission)
+                    .bind(&permission)
                     .execute(self.dbcp.as_ref())
                     .await
-                {
-                    Ok(_) => {}
-                    Err(err) => {
-                        return Err(AppError::from((err, AppUseCase::UserRegistration)));
-                    }
+                    .map_err(|err| {
+                        AppError::from((
+                            err,
+                            AppUseCase::UserRegistration,
+                            "Self registration of admin user permissions".to_string(),
+                        ))
+                    });
+                if res.is_err() {
+                    return AppResult::Err(res.err().unwrap());
                 }
             }
+        } else {
+            return AppResult::Err(res.err().unwrap());
         }
         AppResult::Ok(id)
     }
@@ -199,12 +209,12 @@ impl From<(sqlx::Error, AppUseCase)> for AppError {
     fn from(ctx: (sqlx::Error, AppUseCase)) -> Self {
         //
         let err = &ctx.0;
-        // Start with the use case as the context, and then cover the possible errors within.
-        match ctx.1 {
+        let uc = &ctx.1;
+        match uc {
             AppUseCase::UserRegistration => match &err.as_database_error() {
                 Some(e) => match e.code() {
                     Some(code) => match code.as_ref() {
-                        "23505" => AppError::AlreadyExists("email".into()),
+                        "23505" => AppError::AlreadyExists("".into()),
                         _ => log_and_return_internal_err(ctx),
                     },
                     None => log_and_return_internal_err(ctx),
@@ -220,8 +230,43 @@ impl From<(sqlx::Error, AppUseCase)> for AppError {
     }
 }
 
+impl From<(sqlx::Error, AppUseCase, String)> for AppError {
+    //
+    fn from(ctx: (sqlx::Error, AppUseCase, String)) -> Self {
+        //
+        let err = &ctx.0;
+        let uc_info = &ctx.2;
+        match ctx.1 {
+            AppUseCase::UserRegistration => match &err.as_database_error() {
+                Some(e) => match e.code() {
+                    Some(code) => match code.as_ref() {
+                        "23505" => AppError::AlreadyExists(uc_info.clone()),
+                        _ => log_and_return_internal_err_ext(ctx),
+                    },
+                    None => log_and_return_internal_err_ext(ctx),
+                },
+                None => log_and_return_internal_err_ext(ctx),
+            },
+            AppUseCase::UserLogin => match &err {
+                sqlx::Error::RowNotFound => AppError::Unauthorized("wrong credentials".into()),
+                _ => log_and_return_internal_err_ext(ctx),
+            },
+        }
+    }
+}
+
 fn log_and_return_internal_err(ctx: (sqlx::Error, AppUseCase)) -> AppError {
-    log::debug!("InternalErr due to err={:?} on usecase:{:?}.", ctx.0, ctx.1);
+    log::debug!("InternalErr due to sql err={:?} on usecase:{:?}.", ctx.0, ctx.1);
+    AppError::InternalErr
+}
+
+fn log_and_return_internal_err_ext(ctx: (sqlx::Error, AppUseCase, String)) -> AppError {
+    log::debug!(
+        "InternalErr due to sql err={:?} on usecase:{:?} and info:'{}'.",
+        ctx.0,
+        ctx.1,
+        ctx.2
+    );
     AppError::InternalErr
 }
 

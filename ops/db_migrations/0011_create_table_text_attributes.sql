@@ -3,7 +3,7 @@ CREATE TABLE text_attributes
     id             CHAR(10)              PRIMARY KEY,
     def_id         CHAR(10),
     owner_type     CHAR(3),
-    value          VARCHAR(10485760),
+    value          TEXT,
     CONSTRAINT def_fk FOREIGN KEY(def_id) REFERENCES attribute_defs(id)
 );
 
