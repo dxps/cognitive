@@ -10,7 +10,7 @@ pub struct UiState {
 
     #[serde(skip_serializing)]
     #[serde(skip_deserializing)]
-    localstorage: Option<web_sys::Storage>,
+    pub localstorage: Option<web_sys::Storage>,
 }
 
 impl UiState {

@@ -1,18 +1,17 @@
-use crate::ui::{routes::Route, ui_global_state::APP_READY, UiState};
+use crate::{
+    server::fns::config::get_ui_config,
+    ui::{routes::Route, ui_global_state::APP_READY, UiState},
+};
 use dioxus::prelude::*;
 
 #[component]
-pub fn App(props: AppProps) -> Element {
+pub fn App() -> Element {
     //
     _ = console_log::init_with_level(log::Level::Debug);
 
     // Unfortunately, using this it fails with "wasm-bindgen: imported JS function that was not marked as `catch` threw an error: root is undefined"
     // let state = State::new().expect("Failed to get access to browser's localstorage!");
-    log::debug!(">>> [App] Got {:?}.", props);
-    let state = match props.logo_path {
-        Some(logo_path) => UiState::new_with_logo(logo_path),
-        None => UiState::default(),
-    };
+    let state = UiState::default();
 
     _ = use_context_provider(|| Signal::new(state));
 
@@ -26,12 +25,20 @@ pub fn App(props: AppProps) -> Element {
         }
     });
 
+    // Fetch the UI config.
+    use_future(move || async move {
+        let ui_config = get_ui_config().await;
+        log::debug!(">>> [App] Got UI config: {:?}", ui_config);
+        if ui_config.is_ok() {
+            let mut state = use_context::<Signal<UiState>>();
+            *state.write() = UiState {
+                logo: ui_config.unwrap().logo_path,
+                ..state().clone()
+            };
+        }
+    });
+
     rsx! {
         Router::<Route> {}
     }
-}
-
-#[derive(Debug, PartialEq, Props, Clone)]
-pub struct AppProps {
-    pub logo_path: Option<String>,
 }

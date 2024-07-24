@@ -38,7 +38,7 @@ watch_path = [ "src", "assets" ]
 
 # It includes `assets` in web platform.
 # CSS style file
-style = [ "main.css" ]
+style = [ "/main.css" ]
 
 # Javascript code file
 script = []
