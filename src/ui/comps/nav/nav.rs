@@ -1,6 +1,7 @@
 use crate::ui::comps::nav::common::style_nav_item_link;
 use crate::ui::comps::NavUserMenu;
 use crate::ui::routes::Route;
+use crate::ui::UiState;
 use dioxus::prelude::*;
 
 pub fn Nav(props: NavProps) -> Element {
@@ -65,6 +66,9 @@ fn NavSep() -> Element {
 }
 
 fn Logo() -> Element {
+    let state = use_context::<Signal<UiState>>();
+    let logo = state().logo;
+    log::debug!(">>> [nav.Logo()] logo: {:?}", logo);
     rsx! {
         div {
             dangerous_inner_html: r#"

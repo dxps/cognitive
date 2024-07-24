@@ -3,11 +3,11 @@ use dioxus::prelude::*;
 use crate::server::fns::auth::has_admin_permissions;
 use crate::ui::comps::{style_nav_item_link, style_nav_item_user_menu, NavProps};
 use crate::ui::routes::Route;
-use crate::ui::{State, APP_READY};
+use crate::ui::{UiState, APP_READY};
 
 pub fn NavUserMenu(props: NavProps) -> Element {
     //
-    let state = use_context::<Signal<State>>();
+    let state = use_context::<Signal<UiState>>();
     let mut show_dropdown = use_signal(|| false);
 
     if *APP_READY.read() == false {

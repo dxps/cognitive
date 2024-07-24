@@ -29,12 +29,12 @@ pub fn Logout() -> Element {
 
 async fn handle_logout() {
     use crate::server::fns::auth::logout;
-    use crate::ui::State;
+    use crate::ui::UiState;
 
     log::debug!(">>> Handling the logout ...");
     logout().await.unwrap(); // TODO: Handle this if it fails.
-    let mut state = State::new().unwrap();
+    let mut state = UiState::new().unwrap();
     state.save_to_localstorage();
-    let mut state_sgnl = use_context::<Signal<State>>();
+    let mut state_sgnl = use_context::<Signal<UiState>>();
     *state_sgnl.write() = state;
 }

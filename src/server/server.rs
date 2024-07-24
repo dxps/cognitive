@@ -62,7 +62,7 @@ pub fn start_web_server(app_fn: fn() -> Element) {
 
         let router = web_api_router.nest("/ws", ws_router);
 
-        let addr = std::net::SocketAddr::from(([127, 0, 0, 1], 3000));
+        let addr = std::net::SocketAddr::from(([127, 0, 0, 1], 3001));
         let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
 
         axum::serve(listener, router.into_make_service_with_connect_info::<SocketAddr>())

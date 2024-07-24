@@ -5,7 +5,7 @@ use crate::server::fns::user_profile::{save_user_profile_primary_info, set_user_
 
 use crate::ui::comps::{render_go_to_login, Nav, NavProps};
 use crate::ui::ui_global_state::APP_READY;
-use crate::ui::State;
+use crate::ui::UiState;
 
 #[component]
 pub fn UserProfile(username: String) -> Element {
@@ -13,7 +13,7 @@ pub fn UserProfile(username: String) -> Element {
     if *APP_READY.read() == false {
         return rsx! {};
     };
-    let state = use_context::<Signal<State>>();
+    let state = use_context::<Signal<UiState>>();
     if state().current_user.is_none() {
         log::debug!(">>> [UserProfile] There is no locally saved user.");
         render_go_to_login()
@@ -136,7 +136,7 @@ fn PrimaryInfo(ua: UserAccount) -> Element {
                                     ua.username = username();
                                     ua.email = email();
                                     ua.bio = bio();
-                                    let mut state_sgnl = use_context::<Signal<State>>();
+                                    let mut state_sgnl = use_context::<Signal<UiState>>();
                                     let mut state = state_sgnl();
                                     state.current_user = Some(ua);
                                     state.save_to_localstorage();

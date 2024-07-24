@@ -1,42 +1,50 @@
-use log::debug;
+use log::{debug, error};
 use serde::{Deserialize, Serialize};
 
 use crate::domain::model::UserAccount;
 
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
-pub struct State {
+pub struct UiState {
     pub current_user: Option<UserAccount>,
+    pub logo: Option<String>,
 
     #[serde(skip_serializing)]
     #[serde(skip_deserializing)]
     localstorage: Option<web_sys::Storage>,
 }
 
-impl State {
+impl UiState {
     /// Browser's localstorage key.
     const LS_KEY: &'static str = "tmc";
 
     pub fn new() -> Result<Self, String> {
         let window = web_sys::window().expect("No global `window` exists!");
         if let Ok(Some(storage)) = window.local_storage() {
-            let state = State {
+            let state = UiState {
                 current_user: None,
+                logo: None,
                 localstorage: Some(storage),
             };
             Ok(state)
         } else {
-            debug!(">>> [State::new] Error: No browser's localstorage found!");
+            error!(">>> [State::new] Error: No browser's localstorage found!");
             Err("No localstorage found".into())
         }
     }
 
+    pub fn new_with_logo(logo_path: String) -> Self {
+        let mut state = UiState::default();
+        state.logo = Some(logo_path);
+        state
+    }
+
     pub fn load_from_localstorage() -> Result<Self, String> {
-        let mut state = State::new()?;
+        let mut state = UiState::new()?;
         if let Ok(Some(value)) = state.localstorage.as_ref().unwrap().get(Self::LS_KEY) {
             debug!(">>> [State::load_from_localstorage] Loaded value={:?}", value);
             state.current_user = Some(serde_json::from_str(&value).unwrap());
         } else {
-            debug!(">>> [State::load_from_localstorage] No value exists in localstorage.");
+            error!(">>> [State::load_from_localstorage] No value exists in localstorage.");
         }
         Ok(state)
     }
@@ -65,13 +73,13 @@ impl State {
             self.localstorage = Some(storage);
             Ok(())
         } else {
-            debug!(">>> [State::new] Error: No browser's localstorage found!");
+            error!(">>> [State::new] Error: No browser's localstorage found!");
             Err("No localstorage found".into())
         }
     }
 }
 
-impl std::fmt::Display for State {
+impl std::fmt::Display for UiState {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:?}", self)
     }
