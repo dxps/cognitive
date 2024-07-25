@@ -717,6 +717,10 @@ textarea:focus {
   height: 1.25rem;
 }
 
+.h-9 {
+  height: 2.25rem;
+}
+
 .max-h-96 {
   max-height: 24rem;
 }

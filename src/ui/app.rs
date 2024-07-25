@@ -1,7 +1,4 @@
-use crate::{
-    server::fns::config::get_ui_config,
-    ui::{routes::Route, ui_global_state::APP_READY, UiState},
-};
+use crate::ui::{routes::Route, ui_global_state::APP_READY, UiState};
 use dioxus::prelude::*;
 
 #[component]
@@ -22,19 +19,6 @@ pub fn App() -> Element {
             local_state.logo = state().logo;
             *state.write() = local_state;
             *APP_READY.write() = true;
-        }
-    });
-
-    // Fetch the UI config.
-    use_future(move || async move {
-        let ui_config = get_ui_config().await;
-        log::debug!(">>> [App] Got UI config: {:?}", ui_config);
-        if ui_config.is_ok() {
-            let mut state = use_context::<Signal<UiState>>();
-            *state.write() = UiState {
-                logo: ui_config.unwrap().logo_path,
-                ..state().clone()
-            };
         }
     });
 
