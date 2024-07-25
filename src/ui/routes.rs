@@ -1,4 +1,4 @@
-use crate::ui::pages::{AdminArea, Home, Login, Logout, UserProfile};
+use crate::ui::pages::{Admin, AttributeDefsPage, Home, Login, Logout, UserProfile};
 use dioxus::prelude::*;
 
 #[derive(Clone, Routable, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
@@ -16,5 +16,8 @@ pub enum Route {
     UserProfile { username: String },
 
     #[route("/admin")]
-    AdminArea {},
+    Admin {},
+
+    #[route("/admin/definitions/attributes")]
+    AttributeDefsPage {},
 }

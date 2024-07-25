@@ -1,5 +1,5 @@
-mod admin_area;
-pub use admin_area::*;
+mod admin;
+pub use admin::*;
 
 mod user_profile;
 pub use user_profile::*;
