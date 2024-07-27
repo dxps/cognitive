@@ -1,11 +1,10 @@
 use dioxus::prelude::*;
 
 use crate::server::fns::auth::has_admin_permissions;
-use crate::ui::comps::{style_nav_item_link, style_nav_item_user_menu, NavProps};
 use crate::ui::routes::Route;
 use crate::ui::{UiState, APP_READY};
 
-pub fn NavUserMenu(props: NavProps) -> Element {
+pub fn NavUserMenu() -> Element {
     //
     let state = use_context::<Signal<UiState>>();
     let mut show_dropdown = use_signal(|| false);
@@ -18,8 +17,7 @@ pub fn NavUserMenu(props: NavProps) -> Element {
         log::debug!(">>> [NavUserMenu] There is no locally saved user.");
         rsx! {
             Link {
-                class: style_nav_item_link(&props.active_path, NavProps::login()).to_owned()
-                    + "sm:inline-block sm:ml-auto sm:mr-3",
+                class: "text-sm text-gray-600 py-2 px-4 hover:bg-gray-100 rounded-lg transition duration-200 sm:inline-block sm:ml-auto sm:mr-3",
                 to: Route::Login {},
                 "Login"
             }
@@ -31,9 +29,7 @@ pub fn NavUserMenu(props: NavProps) -> Element {
             username
         );
         rsx! {
-            div {
-                class: style_nav_item_user_menu(&props.active_path).to_owned()
-                    + " flex flex-col items-end overflow-visible",
+            div { class: "text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition duration-200 flex flex-col items-end overflow-visible",
                 button {
                     class: "px-8 py-2 align rounded-lg text-sm outline-none",
                     onclick: move |_| {

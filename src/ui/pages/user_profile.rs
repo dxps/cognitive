@@ -3,7 +3,7 @@ use dioxus::prelude::*;
 use crate::domain::model::UserAccount;
 use crate::server::fns::user_profile::{save_user_profile_primary_info, set_user_profile_new_password};
 
-use crate::ui::comps::{render_go_to_login, Nav, NavProps};
+use crate::ui::comps::{render_go_to_login, Nav};
 use crate::ui::ui_global_state::APP_READY;
 use crate::ui::UiState;
 
@@ -29,7 +29,7 @@ fn render_user_profile_page(username: String, ua: UserAccount) -> Element {
 
     rsx! {
         div { class: "flex flex-col min-h-screen bg-gray-100",
-            Nav { active_path: NavProps::users_section() }
+            Nav {}
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
                 div { class: "bg-white rounded-md p-6 mt-24 mb-8 min-w-[600px]",
                     h1 { class: "text-3xl text-[#333] font-bold text-center",

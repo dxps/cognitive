@@ -1,9 +1,8 @@
-use crate::ui::comps::nav::common::style_nav_item_link;
 use crate::ui::comps::NavUserMenu;
 use crate::ui::routes::Route;
 use dioxus::prelude::*;
 
-pub fn Nav(props: NavProps) -> Element {
+pub fn Nav() -> Element {
     //
     rsx! {
         nav { class: "absolute w-full px-4 py-3 flex justify-between items-center bg-white z-40",
@@ -13,39 +12,15 @@ pub fn Nav(props: NavProps) -> Element {
                         sm:flex sm:mx-auto sm:flex sm:items-center sm:w-auto sm:space-x-3 lg:space-x-6",
                 li {
                     Link {
-                        class: style_nav_item_link(&props.active_path, NavProps::home()),
+                        class: "text-sm text-gray-600 py-2 px-4 hover:bg-gray-100 rounded-lg transition duration-200",
                         to: Route::Home {},
                         "Home"
                     }
                 }
                 NavSep {}
             }
-            NavUserMenu { active_path: &props.active_path }
+            NavUserMenu {}
         }
-    }
-}
-
-#[derive(PartialEq, Props, Clone)]
-pub struct NavProps {
-    #[props(default = "home".to_string())]
-    pub active_path: String,
-}
-
-impl NavProps {
-    pub fn home() -> String {
-        "home".to_string()
-    }
-    pub fn blog() -> String {
-        "blog".to_string()
-    }
-    pub fn sample() -> String {
-        "sample".to_string()
-    }
-    pub fn login() -> String {
-        "login".to_string()
-    }
-    pub fn users_section() -> String {
-        "/users/".to_string()
     }
 }
 
