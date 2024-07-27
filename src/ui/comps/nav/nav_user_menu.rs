@@ -35,7 +35,7 @@ pub fn NavUserMenu(props: NavProps) -> Element {
                 class: style_nav_item_user_menu(&props.active_path).to_owned()
                     + " flex flex-col items-end overflow-visible",
                 button {
-                    class: "px-8 align  rounded-lg text-sm outline-none",
+                    class: "px-8 py-2 align rounded-lg text-sm outline-none",
                     onclick: move |_| {
                         let curr_val = show_dropdown();
                         *show_dropdown.write() = !curr_val;
