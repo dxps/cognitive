@@ -5,7 +5,7 @@ use dioxus::prelude::*;
 pub fn Nav() -> Element {
     //
     rsx! {
-        nav { class: "absolute w-full px-4 py-3 flex justify-between items-center bg-white z-40",
+        nav { class: "absolute w-full px-4 py-2 flex justify-between items-center bg-white z-40",
             Link { class: "text-3xl font-bold leading-none", to: Route::Home {}, Logo {} }
             ul { class: "hidden absolute top-1/2 sm:left-1/3 sm:pl-16 md:left-1/2 lg:left-1/2
                         transform -translate-y-1/2 -translate-x-1/2
@@ -42,7 +42,7 @@ fn NavSep() -> Element {
 fn Logo() -> Element {
     rsx! {
         div {
-            img { src: "/logo.png", alt: "logo", class: "h-9" }
+            img { src: "/logo.png", alt: "logo", class: "h-8" }
         }
     }
 }

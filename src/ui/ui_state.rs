@@ -6,7 +6,6 @@ use crate::domain::model::UserAccount;
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
 pub struct UiState {
     pub current_user: Option<UserAccount>,
-    pub logo: Option<String>,
 
     #[serde(skip_serializing)]
     #[serde(skip_deserializing)]
@@ -22,7 +21,6 @@ impl UiState {
         if let Ok(Some(storage)) = window.local_storage() {
             let state = UiState {
                 current_user: None,
-                logo: None,
                 localstorage: Some(storage),
             };
             Ok(state)
@@ -30,12 +28,6 @@ impl UiState {
             error!(">>> [State::new] Error: No browser's localstorage found!");
             Err("No localstorage found".into())
         }
-    }
-
-    pub fn new_with_logo(logo_path: String) -> Self {
-        let mut state = UiState::default();
-        state.logo = Some(logo_path);
-        state
     }
 
     pub fn load_from_localstorage() -> Result<Self, String> {

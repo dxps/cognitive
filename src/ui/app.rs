@@ -15,8 +15,7 @@ pub fn App() -> Element {
     // Asynchronously loading state from localstorage and notify its value through the global signal.
     use_future(move || async move {
         let mut state = use_context::<Signal<UiState>>();
-        if let Ok(mut local_state) = UiState::load_from_localstorage() {
-            local_state.logo = state().logo;
+        if let Ok(local_state) = UiState::load_from_localstorage() {
             *state.write() = local_state;
             *APP_READY.write() = true;
         }
