@@ -52,3 +52,19 @@ pub enum AttributeValueType {
     /// This is mapped to PostgreSQL's `timestamp` (without time zone) type.
     DateTime,
 }
+
+impl From<&str> for AttributeValueType {
+    fn from(value: &str) -> Self {
+        match value {
+            "text" => Self::Text,
+            "smallint" => Self::SmallInteger,
+            "integer" => Self::Integer,
+            "bigint" => Self::BigInteger,
+            "real" => Self::Decimal,
+            "boolean" => Self::Boolean,
+            "date" => Self::Date,
+            "timestamp" => Self::DateTime,
+            _ => Self::Text,
+        }
+    }
+}
