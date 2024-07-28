@@ -684,6 +684,10 @@ textarea:focus {
   margin-right: 0.75rem;
 }
 
+.mr-\[72px\] {
+  margin-right: 72px;
+}
+
 .mt-14 {
   margin-top: 3.5rem;
 }
@@ -712,16 +716,16 @@ textarea:focus {
   margin-top: 2rem;
 }
 
-.mr-\[72px\] {
-  margin-right: 72px;
-}
-
 .block {
   display: block;
 }
 
 .flex {
   display: flex;
+}
+
+.table {
+  display: table;
 }
 
 .contents {
@@ -945,6 +949,10 @@ textarea:focus {
   padding: 2.5rem;
 }
 
+.p-2 {
+  padding: 0.5rem;
+}
+
 .p-3 {
   padding: 0.75rem;
 }
@@ -1006,6 +1014,11 @@ textarea:focus {
   padding-bottom: 0.75rem;
 }
 
+.px-6 {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
 .pb-1 {
   padding-bottom: 0.25rem;
 }
@@ -1024,6 +1037,10 @@ textarea:focus {
 
 .pt-8 {
   padding-top: 2rem;
+}
+
+.text-left {
+  text-align: left;
 }
 
 .text-center {
@@ -1078,6 +1095,10 @@ textarea:focus {
 
 .font-medium {
   font-weight: 500;
+}
+
+.font-normal {
+  font-weight: 400;
 }
 
 .font-semibold {
