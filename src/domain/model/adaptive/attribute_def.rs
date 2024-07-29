@@ -1,10 +1,11 @@
+use serde::{Deserialize, Serialize};
 use strum::Display;
 
 use crate::domain::model::Tag;
 
 use super::{Item, ItemType};
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 /// An attribute definition.
 pub struct AttributeDef {
     pub id: String,
@@ -25,7 +26,7 @@ impl Item for AttributeDef {
     }
 }
 
-#[derive(Debug, PartialEq, Clone, Display)]
+#[derive(Debug, PartialEq, Clone, Display, Serialize, Deserialize)]
 /// The type of a value of an attribute.
 pub enum AttributeValueType {
     /// This is mapped to PostgreSQL's `text` type.
