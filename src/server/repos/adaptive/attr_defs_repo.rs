@@ -43,6 +43,33 @@ impl AttributeDefRepo {
             .ok()
             .unwrap_or_default()
     }
+
+    pub async fn add(
+        &self,
+        name: String,
+        description: String,
+        value_type: String,
+        default_value: String,
+        is_required: bool,
+        is_multivalued: bool,
+        tag_id: String,
+    ) -> AttributeDef {
+        //
+        sqlx::query_as::<_, AttributeDef>(
+            "INSERT INTO attribute_defs (name, description, value_type, default_value, required, multivalued, tag_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *"
+        )
+            .bind(name)
+            .bind(description)
+            .bind(value_type)
+            .bind(default_value)
+            .bind(is_required)
+            .bind(is_multivalued)
+            .bind(tag_id)
+            .fetch_one(self.dbcp.as_ref())
+            .await
+            .ok()
+            .unwrap()
+    }
 }
 
 impl FromRow<'_, PgRow> for AttributeDef {

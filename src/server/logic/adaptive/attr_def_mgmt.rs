@@ -21,4 +21,28 @@ impl AttributeDefMgmt {
         //
         self.attr_repo.list(None).await
     }
+
+    pub async fn add(
+        &self,
+        name: String,
+        description: String,
+        value_type: String,
+        default_value: String,
+        is_required: bool,
+        is_multivalued: bool,
+        tag_id: String,
+    ) -> AttributeDef {
+        //
+        self.attr_repo
+            .add(
+                name,
+                description,
+                value_type,
+                default_value,
+                is_required,
+                is_multivalued,
+                tag_id,
+            )
+            .await
+    }
 }

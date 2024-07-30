@@ -2,7 +2,7 @@ use dioxus::prelude::*;
 
 use crate::{
     domain::model::AttributeDef,
-    server::fns::list_attribute_defs,
+    server::fns::get_attribute_defs,
     ui::{
         comps::{Breadcrumb, Nav},
         routes::Route,
@@ -14,7 +14,7 @@ pub fn AttributeDefListPage() -> Element {
     //
     let mut entries = use_signal::<Vec<AttributeDef>>(|| vec![]);
     use_future(move || async move {
-        if let Ok(attr_defs) = list_attribute_defs().await {
+        if let Ok(attr_defs) = get_attribute_defs().await {
             log::debug!(">>> Received from list_attribute_defs: {:?}", attr_defs);
             entries.set(attr_defs);
         }

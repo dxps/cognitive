@@ -1,6 +1,6 @@
 use dioxus::prelude::*;
 
-use crate::{domain::model::Tag, server::fns::tags::test_list_tags, ui::comps::Nav};
+use crate::{domain::model::Tag, server::fns::tags::get_tags, ui::comps::Nav};
 
 #[component]
 pub fn Home() -> Element {
@@ -16,7 +16,7 @@ pub fn Home() -> Element {
                         button {
                             class: "bg-slate-200 rounded-lg px-2 py-1",
                             onclick: move |_| async move {
-                                if let Ok(tags) = test_list_tags().await {
+                                if let Ok(tags) = get_tags().await {
                                     log::debug!(">>> Received from test_list_tags: {:?}", tags);
                                     tags_text.set(Some(tags));
                                 }

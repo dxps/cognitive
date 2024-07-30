@@ -781,8 +781,16 @@ textarea:focus {
   min-width: 4rem;
 }
 
+.min-w-28 {
+  min-width: 7rem;
+}
+
 .min-w-32 {
   min-width: 8rem;
+}
+
+.min-w-80 {
+  min-width: 20rem;
 }
 
 .min-w-96 {
@@ -795,22 +803,6 @@ textarea:focus {
 
 .min-w-full {
   min-width: 100%;
-}
-
-.min-w-64 {
-  min-width: 16rem;
-}
-
-.min-w-28 {
-  min-width: 7rem;
-}
-
-.min-w-72 {
-  min-width: 18rem;
-}
-
-.min-w-80 {
-  min-width: 20rem;
 }
 
 .max-w-xl {
@@ -939,6 +931,11 @@ textarea:focus {
   border-color: rgb(243 244 246 / var(--tw-border-opacity));
 }
 
+.border-gray-300 {
+  --tw-border-opacity: 1;
+  border-color: rgb(209 213 219 / var(--tw-border-opacity));
+}
+
 .border-green-400 {
   --tw-border-opacity: 1;
   border-color: rgb(74 222 128 / var(--tw-border-opacity));
@@ -947,11 +944,6 @@ textarea:focus {
 .border-slate-300 {
   --tw-border-opacity: 1;
   border-color: rgb(203 213 225 / var(--tw-border-opacity));
-}
-
-.border-gray-300 {
-  --tw-border-opacity: 1;
-  border-color: rgb(209 213 219 / var(--tw-border-opacity));
 }
 
 .bg-blue-50 {
@@ -964,6 +956,11 @@ textarea:focus {
   background-color: rgb(243 244 246 / var(--tw-bg-opacity));
 }
 
+.bg-slate-100 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(241 245 249 / var(--tw-bg-opacity));
+}
+
 .bg-slate-200 {
   --tw-bg-opacity: 1;
   background-color: rgb(226 232 240 / var(--tw-bg-opacity));
@@ -972,16 +969,6 @@ textarea:focus {
 .bg-white {
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
-}
-
-.bg-slate-50 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(248 250 252 / var(--tw-bg-opacity));
-}
-
-.bg-slate-100 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(241 245 249 / var(--tw-bg-opacity));
 }
 
 .fill-gray-400 {
@@ -1074,12 +1061,20 @@ textarea:focus {
   padding-left: 0.25rem;
 }
 
+.pl-3 {
+  padding-left: 0.75rem;
+}
+
 .pl-4 {
   padding-left: 1rem;
 }
 
 .pr-2 {
   padding-right: 0.5rem;
+}
+
+.pr-3 {
+  padding-right: 0.75rem;
 }
 
 .pt-2 {
@@ -1092,14 +1087,6 @@ textarea:focus {
 
 .pt-8 {
   padding-top: 2rem;
-}
-
-.pr-3 {
-  padding-right: 0.75rem;
-}
-
-.pl-3 {
-  padding-left: 0.75rem;
 }
 
 .text-left {

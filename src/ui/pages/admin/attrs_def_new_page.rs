@@ -1,9 +1,12 @@
 use dioxus::prelude::*;
 use log::debug;
 
-use crate::ui::{
-    comps::{Breadcrumb, Nav},
-    routes::Route,
+use crate::{
+    server::fns::{create_attribute_def, tags::get_tags},
+    ui::{
+        comps::{Breadcrumb, Nav},
+        routes::Route,
+    },
 };
 
 #[component]
@@ -16,6 +19,14 @@ pub fn AttributeDefNewPage() -> Element {
     let mut is_required = use_signal(|| false);
     let mut is_multivalued = use_signal(|| false);
     let mut tag_id = use_signal(|| "".to_string());
+    let mut tags = use_signal(|| vec![]);
+
+    let mut err: Signal<Option<String>> = use_signal(|| None);
+    let mut saved = use_signal(|| false);
+
+    use_future(move || async move {
+        tags.set(get_tags().await.unwrap_or_default());
+    });
 
     rsx! {
         div { class: "flex flex-col min-h-screen bg-gray-100",
@@ -57,11 +68,11 @@ pub fn AttributeDefNewPage() -> Element {
                             div { class: "flex",
                                 label { class: "pr-3 py-2 min-w-28", "Description:" }
                                 textarea {
-                                    class: "px-3 py-1 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
+                                    class: "px-3 py-2 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
                                     rows: 4,
                                     cols: 32,
                                     placeholder: "an optional description",
-                                    value: "{name}",
+                                    value: "{description}",
                                     maxlength: 256,
                                     oninput: move |evt| {
                                         description.set(evt.value());
@@ -84,43 +95,96 @@ pub fn AttributeDefNewPage() -> Element {
                                     option { value: "real", "Decimal" }
                                 }
                             }
-                        }
-                        div { class: "flex py-2",
-                            label { class: "pr-3 py-2 min-w-28", "Default Value:" }
-                            input {
-                                class: "px-3 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
-                                r#type: "text",
-                                placeholder: "an optional default value",
-                                value: "{default_value}",
-                                maxlength: 64,
-                                oninput: move |evt| {
-                                    default_value.set(evt.value());
+                            div { class: "flex py-2",
+                                label { class: "pr-3 py-2 min-w-28", "Default Value:" }
+                                input {
+                                    class: "px-3 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
+                                    r#type: "text",
+                                    placeholder: "an optional default value",
+                                    value: "{default_value}",
+                                    maxlength: 64,
+                                    oninput: move |evt| {
+                                        default_value.set(evt.value());
+                                    }
+                                }
+                            }
+                            div { class: "flex ",
+                                input {
+                                    class: "px-3 rounded-lg outline-none border-1 focus:border-green-300",
+                                    r#type: "checkbox",
+                                    value: "{is_required}",
+                                    oninput: move |evt| {
+                                        is_required.set(evt.value().parse().unwrap_or_default());
+                                    }
+                                }
+                                label { class: "pl-3 py-2 min-w-28", "Required" }
+                            }
+                            div { class: "flex",
+                                input {
+                                    class: "px-3 rounded-lg outline-none border-1 focus:border-green-300",
+                                    r#type: "checkbox",
+                                    value: "{is_multivalued}",
+                                    oninput: move |evt| {
+                                        is_multivalued.set(evt.value().parse().unwrap_or_default());
+                                    }
+                                }
+                                label { class: "pl-3 min-w-28", "Multivalued" }
+                            }
+                            div { class: "flex",
+                                label { class: "pr-3 py-1 min-w-28", "Tag:" }
+                                select {
+                                    class: "px-3 py-2 bg-slate-100 rounded-lg outline-none border-1 border-gray-300 focus:border-green-300 min-w-80",
+                                    multiple: false,
+                                    oninput: move |evt| {
+                                        tag_id.set(evt.value());
+                                        log::debug!("selected tag_id: {:?}", evt.value());
+                                    },
+                                    option { value: "", "" }
+                                    for tag in tags.iter() {
+                                        option { value: "{tag.id}", "{tag.name}" }
+                                    }
                                 }
                             }
                         }
-                        div { class: "flex py-2",
-                            input {
-                                class: "px-3 rounded-lg outline-none border-1 focus:border-green-300",
-                                r#type: "checkbox",
-                                placeholder: "an optional default value",
-                                value: "{is_required}",
-                                oninput: move |evt| {
-                                    is_required.set(evt.value().parse().unwrap_or_default());
-                                }
+                        div { class: "text-center my-8",
+                            button {
+                                class: "bg-gray-100 hover:bg-green-100 drop-shadow-sm px-4 py-2 rounded-md",
+                                onclick: move |_| {
+                                    async move {
+                                        match create_attribute_def(
+                                                name(),
+                                                description(),
+                                                value_type(),
+                                                default_value(),
+                                                is_required(),
+                                                is_multivalued(),
+                                                tag_id(),
+                                            )
+                                            .await
+                                        {
+                                            Ok(_) => {
+                                                saved.set(true);
+                                                err.set(None);
+                                            }
+                                            Err(e) => {
+                                                saved.set(false);
+                                                err.set(Some(e.to_string()));
+                                            }
+                                        }
+                                    }
+                                },
+                                "Create"
                             }
-                            label { class: "pl-3 py-2 min-w-28", "Required" }
                         }
-                        div { class: "flex py-2",
-                            input {
-                                class: "px-3 rounded-lg outline-none border-1 focus:border-green-300",
-                                r#type: "checkbox",
-                                placeholder: "an optional default value",
-                                value: "{is_multivalued}",
-                                oninput: move |evt| {
-                                    is_multivalued.set(evt.value().parse().unwrap_or_default());
-                                }
+                        // Show the button's action result in the UI.
+                        if err().is_some() {
+                            div { class: "text-center text-red-600 my-8",
+                                span { {err().unwrap()} }
                             }
-                            label { class: "pl-3 min-w-28", "Multivalued" }
+                        } else if saved() {
+                            div { class: "text-center text-green-600 my-8",
+                                span { { "Successfully created" } }
+                            }
                         }
                     }
                 }
