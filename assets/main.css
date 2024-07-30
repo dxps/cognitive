@@ -777,6 +777,14 @@ textarea:focus {
   width: max-content;
 }
 
+.min-w-16 {
+  min-width: 4rem;
+}
+
+.min-w-32 {
+  min-width: 8rem;
+}
+
 .min-w-96 {
   min-width: 24rem;
 }
@@ -789,12 +797,20 @@ textarea:focus {
   min-width: 100%;
 }
 
-.min-w-32 {
-  min-width: 8rem;
+.min-w-64 {
+  min-width: 16rem;
 }
 
-.min-w-16 {
-  min-width: 4rem;
+.min-w-28 {
+  min-width: 7rem;
+}
+
+.min-w-72 {
+  min-width: 18rem;
+}
+
+.min-w-80 {
+  min-width: 20rem;
 }
 
 .max-w-xl {
@@ -902,6 +918,10 @@ textarea:focus {
   border-radius: 0.125rem;
 }
 
+.rounded-xl {
+  border-radius: 0.75rem;
+}
+
 .border-2 {
   border-width: 2px;
 }
@@ -929,6 +949,11 @@ textarea:focus {
   border-color: rgb(203 213 225 / var(--tw-border-opacity));
 }
 
+.border-gray-300 {
+  --tw-border-opacity: 1;
+  border-color: rgb(209 213 219 / var(--tw-border-opacity));
+}
+
 .bg-blue-50 {
   --tw-bg-opacity: 1;
   background-color: rgb(239 246 255 / var(--tw-bg-opacity));
@@ -947,6 +972,16 @@ textarea:focus {
 .bg-white {
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+}
+
+.bg-slate-50 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(248 250 252 / var(--tw-bg-opacity));
+}
+
+.bg-slate-100 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(241 245 249 / var(--tw-bg-opacity));
 }
 
 .fill-gray-400 {
@@ -997,6 +1032,11 @@ textarea:focus {
   padding-right: 1.25rem;
 }
 
+.px-6 {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
 .px-8 {
   padding-left: 2rem;
   padding-right: 2rem;
@@ -1022,17 +1062,24 @@ textarea:focus {
   padding-bottom: 0.75rem;
 }
 
-.px-6 {
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
-}
-
 .pb-1 {
   padding-bottom: 0.25rem;
 }
 
+.pb-2 {
+  padding-bottom: 0.5rem;
+}
+
+.pl-1 {
+  padding-left: 0.25rem;
+}
+
 .pl-4 {
   padding-left: 1rem;
+}
+
+.pr-2 {
+  padding-right: 0.5rem;
 }
 
 .pt-2 {
@@ -1047,8 +1094,8 @@ textarea:focus {
   padding-top: 2rem;
 }
 
-.pr-2 {
-  padding-right: 0.5rem;
+.pr-3 {
+  padding-right: 0.75rem;
 }
 
 .text-left {
@@ -1232,6 +1279,11 @@ textarea:focus {
 .hover\:bg-white:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+}
+
+.hover\:text-gray-800:hover {
+  --tw-text-opacity: 1;
+  color: rgb(31 41 55 / var(--tw-text-opacity));
 }
 
 .hover\:text-lilac:hover {

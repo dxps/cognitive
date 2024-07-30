@@ -1,4 +1,4 @@
-use crate::ui::pages::{Admin, AttributeDefsPage, Home, Login, Logout, UserProfile};
+use crate::ui::pages::{Admin, AttributeDefListPage, AttributeDefNewPage, Home, Login, Logout, UserProfile};
 use dioxus::prelude::*;
 
 #[derive(Clone, Routable, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
@@ -19,7 +19,10 @@ pub enum Route {
     Admin {},
 
     #[route("/admin/definitions/attributes")]
-    AttributeDefsPage {},
+    AttributeDefListPage {},
+
+    #[route("/admin/definitions/attributes/new")]
+    AttributeDefNewPage {},
 }
 
 impl Route {
@@ -30,10 +33,16 @@ impl Route {
             Route::Logout {} => vec![("Home".into(), Route::Home {}), ("Logout".into(), to)],
             Route::UserProfile { username: _ } => vec![("Home".into(), Route::Home {}), ("User Profile".into(), to)],
             Route::Admin {} => vec![("Home".into(), Route::Home {}), ("Admin".into(), to)],
-            Route::AttributeDefsPage {} => vec![
+            Route::AttributeDefListPage {} => vec![
                 ("Home".into(), Route::Home {}),
                 ("Admin".into(), Route::Admin {}),
                 ("Attributes Definitions".into(), to),
+            ],
+            Route::AttributeDefNewPage {} => vec![
+                ("Home".into(), Route::Home {}),
+                ("Admin".into(), Route::Admin {}),
+                ("Attributes Definitions".into(), Route::AttributeDefListPage {}),
+                ("New".into(), to),
             ],
         }
     }

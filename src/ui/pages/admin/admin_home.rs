@@ -25,13 +25,13 @@ pub fn Admin() -> Element {
                                 }
                                 Link {
                                     class: "py-2 px-4 rounded-sm transition duration-200",
-                                    to: Route::AttributeDefsPage {},
+                                    to: Route::AttributeDefListPage {},
                                     "Attributes Definitions"
                                 }
                                 hr { class: "my-2" }
                                 Link {
                                     class: "py-2 px-4 rounded-sm transition duration-200",
-                                    to: Route::AttributeDefsPage {},
+                                    to: Route::AttributeDefListPage {},
                                     "Entities Definitions"
                                 }
                             }
@@ -41,13 +41,13 @@ pub fn Admin() -> Element {
                                 }
                                 Link {
                                     class: "py-2 px-4 rounded-sm transition duration-200",
-                                    to: Route::AttributeDefsPage {},
+                                    to: Route::AttributeDefListPage {},
                                     "Attributes Instances"
                                 }
                                 hr { class: "my-2" }
                                 Link {
                                     class: "py-2 px-4 rounded-sm transition duration-200",
-                                    to: Route::AttributeDefsPage {},
+                                    to: Route::AttributeDefListPage {},
                                     "Entities Instances"
                                 }
                             }
