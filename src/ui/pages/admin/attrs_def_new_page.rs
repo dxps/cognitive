@@ -99,7 +99,6 @@ pub fn AttributeDefNewPage() -> Element {
                             }
                         }
                         div { class: "flex py-2",
-                            label { class: "pr-3 py-2 min-w-28", "Is Required ?" }
                             input {
                                 class: "px-3 rounded-lg outline-none border-1 focus:border-green-300",
                                 r#type: "checkbox",
@@ -109,6 +108,19 @@ pub fn AttributeDefNewPage() -> Element {
                                     is_required.set(evt.value().parse().unwrap_or_default());
                                 }
                             }
+                            label { class: "pl-3 py-2 min-w-28", "Required" }
+                        }
+                        div { class: "flex py-2",
+                            input {
+                                class: "px-3 rounded-lg outline-none border-1 focus:border-green-300",
+                                r#type: "checkbox",
+                                placeholder: "an optional default value",
+                                value: "{is_multivalued}",
+                                oninput: move |evt| {
+                                    is_multivalued.set(evt.value().parse().unwrap_or_default());
+                                }
+                            }
+                            label { class: "pl-3 min-w-28", "Multivalued" }
                         }
                     }
                 }
