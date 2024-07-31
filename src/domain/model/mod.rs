@@ -1,5 +1,5 @@
-mod adaptive;
-pub use adaptive::*;
+mod metamodel;
+pub use metamodel::*;
 
 mod contact_point;
 pub use contact_point::*;

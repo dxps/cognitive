@@ -620,12 +620,12 @@ textarea:focus {
   position: absolute;
 }
 
-.top-1\/2 {
-  top: 50%;
-}
-
 .left-1\/2 {
   left: 50%;
+}
+
+.top-1\/2 {
+  top: 50%;
 }
 
 .z-40 {

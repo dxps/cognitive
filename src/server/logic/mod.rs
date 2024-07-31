@@ -1,5 +1,5 @@
-mod adaptive;
-pub use adaptive::*;
+mod metamodel;
+pub use metamodel::*;
 
 mod id;
 pub use id::*;
