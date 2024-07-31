@@ -1,12 +1,16 @@
 use dioxus::prelude::*;
 
-use crate::ui::{comps::Nav, routes::Route};
+use crate::ui::{
+    comps::{Breadcrumb, Nav},
+    routes::Route,
+};
 
 #[component]
 pub fn Admin() -> Element {
     rsx! {
         div { class: "flex flex-col min-h-screen bg-gray-100",
             Nav {}
+            Breadcrumb { paths: Route::get_path(Route::Admin {}) }
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
                 div { class: "bg-white rounded-md p-3",
                     div { class: "p-6",

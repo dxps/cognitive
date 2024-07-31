@@ -624,6 +624,10 @@ textarea:focus {
   top: 50%;
 }
 
+.left-1\/2 {
+  left: 50%;
+}
+
 .z-40 {
   z-index: 40;
 }

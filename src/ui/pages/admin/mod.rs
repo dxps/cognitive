@@ -4,5 +4,5 @@ pub use attrs_def_list_page::*;
 mod attrs_def_new_page;
 pub use attrs_def_new_page::*;
 
-pub mod admin_home;
-pub use admin_home::*;
+mod admin_page;
+pub use admin_page::*;
