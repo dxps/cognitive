@@ -13,12 +13,20 @@ use crate::{
 pub fn AttributeDefListPage() -> Element {
     //
     let mut entries = use_signal::<Vec<AttributeDef>>(|| vec![]);
-    use_future(move || async move {
-        if let Ok(attr_defs) = get_attribute_defs().await {
-            log::debug!(">>> Received from list_attribute_defs: {:?}", attr_defs);
-            entries.set(attr_defs);
-        }
-    });
+
+    // FYI: This is not as efficient as `use_server_future`, at least in this case.
+    //      See https://dioxuslabs.com/learn/0.5/reference/fullstack/server_functions for details.
+    // use_future(move || async move {
+    //     if let Ok(attr_defs) = get_attribute_defs().await {
+    //         log::debug!(">>> Received from list_attribute_defs: {:?}", attr_defs);
+    //         entries.set(attr_defs);
+    //     }
+    // });
+
+    let res = use_server_future(get_attribute_defs)?().unwrap();
+    if let Ok(data) = res {
+        entries.set(data);
+    }
 
     rsx! {
         div { class: "flex flex-col min-h-screen bg-gray-100",
