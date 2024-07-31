@@ -1,6 +1,6 @@
 use crate::{
     domain::model::{UserAccount, UserEntry, UserPasswordSalt},
-    server::{logic::utils::create_id, AppError, AppResult, AppUseCase},
+    server::{create_id, AppError, AppResult, AppUseCase},
 };
 use sqlx::{postgres::PgRow, FromRow, PgPool, Row};
 use std::sync::Arc;

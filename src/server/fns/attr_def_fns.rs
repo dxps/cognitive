@@ -1,6 +1,6 @@
 use dioxus_fullstack::prelude::*;
 
-use crate::domain::model::AttributeDef;
+use crate::domain::model::{AttributeDef, Id};
 #[cfg(feature = "server")]
 use crate::server::Session;
 
@@ -11,7 +11,7 @@ pub async fn get_attribute_defs() -> Result<Vec<AttributeDef>, ServerFnError> {
     Ok(attr_defs)
 }
 
-#[server(PostCreateAttributeDef)]
+#[server]
 pub async fn create_attribute_def(
     name: String,
     description: String,
@@ -20,9 +20,10 @@ pub async fn create_attribute_def(
     is_required: bool,
     is_multivalued: bool,
     tag_id: String,
-) -> Result<AttributeDef, ServerFnError> {
+) -> Result<Id, ServerFnError> {
+    //
     let session: Session = extract().await?;
-    let attr_def = session
+    session
         .3
         .add(
             name,
@@ -33,6 +34,6 @@ pub async fn create_attribute_def(
             is_multivalued,
             tag_id,
         )
-        .await;
-    Ok(attr_def)
+        .await
+        .map(|id| Ok(id))?
 }

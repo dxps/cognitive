@@ -1,6 +1,6 @@
 use crate::{
-    domain::model::{AttributeDef, AttributeValueType},
-    server::PaginationOpts,
+    domain::model::{AttributeDef, AttributeValueType, Id},
+    server::{create_id, AppError, AppResult, PaginationOpts},
 };
 use sqlx::{postgres::PgRow, FromRow, PgPool, Row};
 use std::sync::Arc;
@@ -44,6 +44,7 @@ impl AttributeDefRepo {
             .unwrap_or_default()
     }
 
+    /// Add a new attribute definition. It returns the id of the repository entry.
     pub async fn add(
         &self,
         name: String,
@@ -53,22 +54,31 @@ impl AttributeDefRepo {
         is_required: bool,
         is_multivalued: bool,
         tag_id: String,
-    ) -> AttributeDef {
+    ) -> AppResult<Id> {
         //
-        sqlx::query_as::<_, AttributeDef>(
-            "INSERT INTO attribute_defs (name, description, value_type, default_value, required, multivalued, tag_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *"
+        let id = create_id();
+        let tag_id = if tag_id.is_empty() { None } else { Some(tag_id) };
+        match sqlx::query(
+            "INSERT INTO attribute_defs (id, name, description, value_type, default_value, required, multivalued, tag_id) 
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
         )
-            .bind(name)
-            .bind(description)
-            .bind(value_type)
-            .bind(default_value)
-            .bind(is_required)
-            .bind(is_multivalued)
-            .bind(tag_id)
-            .fetch_one(self.dbcp.as_ref())
-            .await
-            .ok()
-            .unwrap()
+        .bind(&id)
+        .bind(name)
+        .bind(description)
+        .bind(value_type)
+        .bind(default_value)
+        .bind(is_required)
+        .bind(is_multivalued)
+        .bind(tag_id)
+        .execute(self.dbcp.as_ref())
+        .await
+        {
+            Ok(_) => AppResult::Ok(id),
+            Err(e) => {
+                log::error!("Failed to add entry: {}", e);
+                AppResult::Err(AppError::InternalErr)
+            }
+        }
     }
 }
 

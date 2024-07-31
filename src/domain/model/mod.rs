@@ -4,6 +4,9 @@ pub use adaptive::*;
 mod contact_point;
 pub use contact_point::*;
 
+mod id;
+pub use id::*;
+
 mod protocol;
 pub use protocol::*;
 

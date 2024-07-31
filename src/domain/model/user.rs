@@ -2,7 +2,7 @@ use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "server")]
-use crate::server::utils::create_id;
+use crate::server::create_id;
 
 /// User account contains most of the details of a user (except password related ones).
 #[derive(Debug, Clone, PartialEq, Props, Serialize, Deserialize)]

@@ -1,9 +1,10 @@
 mod adaptive;
 pub use adaptive::*;
 
-mod user_mgmt;
+mod id;
+pub use id::*;
 
-pub mod utils;
+mod user_mgmt;
 
 #[cfg(feature = "server")]
 pub use user_mgmt::*;

@@ -1,5 +1,4 @@
 use dioxus::prelude::*;
-use log::debug;
 
 use crate::{
     server::fns::{create_attribute_def, tags::get_tags},

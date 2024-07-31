@@ -1,6 +1,9 @@
 use std::sync::Arc;
 
-use crate::{domain::model::AttributeDef, server::AttributeDefRepo};
+use crate::{
+    domain::model::{AttributeDef, Id},
+    server::{AppResult, AttributeDefRepo},
+};
 
 pub struct AttributeDefMgmt {
     attr_repo: Arc<AttributeDefRepo>,
@@ -22,6 +25,7 @@ impl AttributeDefMgmt {
         self.attr_repo.list(None).await
     }
 
+    /// Add a new attribute definition. It returns the id of the repository entry.
     pub async fn add(
         &self,
         name: String,
@@ -31,7 +35,7 @@ impl AttributeDefMgmt {
         is_required: bool,
         is_multivalued: bool,
         tag_id: String,
-    ) -> AttributeDef {
+    ) -> AppResult<Id> {
         //
         self.attr_repo
             .add(
