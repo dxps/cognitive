@@ -1,5 +1,5 @@
-mod attribute_def;
-pub use attribute_def::*;
+mod attr_def;
+pub use attr_def::*;
 
 mod entity_def;
 pub use entity_def::*;

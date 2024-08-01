@@ -6,3 +6,9 @@ pub struct Tag {
     pub name: String,
     pub description: Option<String>,
 }
+
+impl Tag {
+    pub fn new(id: String, name: String, description: Option<String>) -> Self {
+        Self { id, name, description }
+    }
+}

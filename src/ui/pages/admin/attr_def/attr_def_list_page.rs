@@ -14,7 +14,7 @@ pub fn AttributeDefListPage() -> Element {
     //
     let mut entries = use_signal::<Vec<AttributeDef>>(|| vec![]);
 
-    // FYI: This is not as efficient as `use_server_future`, at least in this case.
+    // TODO: This is not as efficient as `use_server_future`, at least in this case.
     //  See https://dioxuslabs.com/learn/0.5/reference/fullstack/server_functions for details.
     use_future(move || async move {
         if let Ok(attr_defs) = get_attribute_defs().await {
@@ -23,7 +23,7 @@ pub fn AttributeDefListPage() -> Element {
         }
     });
 
-    // TODO: To be considered.
+    // TODO: To be considered. Currently, if you do multiple refreshes (F5) on the page, a never ending JS loop is triggered.
     // let res = use_server_future(get_attribute_defs)?().unwrap();
     // if let Ok(data) = res {
     //     entries.set(data);
@@ -64,25 +64,25 @@ fn Table(props: TableProps) -> Element {
         div { class: "px-6",
             table { class: "min-w-96 bg-white",
                 tr { key: "{_th_key}", class: "pr-2 text-left text-sm font-normal text-gray-500",
-                    th { class: "min-w-16 pr-2", "name" }
-                    th { class: "min-w-32 px-2", "description" }
-                    th { "value type" }
-                    th { "tag" }
+                    th { class: "min-w-32 pr-2", "name" }
+                    th { class: "min-w-64 px-2", "description" }
+                    th { class: "min-w-32 px-2", "value type" }
+                    th { class: "pl-2", "tag" }
                 }
                 for attr in props.rows {
                     tr { key: "{attr.id}", class: "p-2 text-left text-sm text-gray-600",
-                        td { class: "min-w-16 pr-2",
+                        td { class: "pr-2",
                             Link { to: Route::AttributeDefListPage {}, "{attr.name}" }
                         }
-                        td { class: "min-w-32 px-2",
+                        td { class: "px-2",
                             if attr.description.is_some() {
                                 {attr.description.unwrap()}
                             } else {
                                 "-"
                             }
                         }
-                        td { "{attr.value_type}" }
-                        td { {attr.tag.unwrap_or_default().name} }
+                        td { class: "px-2", "{attr.value_type}" }
+                        td { class: "pl-2", {attr.tag.unwrap_or_default().name} }
                     }
                 }
             }

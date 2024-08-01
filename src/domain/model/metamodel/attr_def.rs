@@ -14,9 +14,7 @@ pub struct AttributeDef {
     pub value_type: AttributeValueType,
     pub default_value: String,
     pub is_multivalued: bool,
-    pub is_composite: bool,
     pub is_required: bool,
-    pub value_rules: Option<String>,
     pub tag: Option<Tag>,
 }
 
@@ -33,12 +31,14 @@ pub enum AttributeValueType {
     Text,
 
     /// This is mapped to PostgreSQL's `smallint` type. The range is `[-32768, 32767]`.
+    #[strum(to_string = "Small Integer")]
     SmallInteger, // used as Rust u16
 
     /// This is mapped to PostgreSQL's `integer` type. The range is `[-2147483648, 2147483647]`.
     Integer, // used as Rust u32
 
     /// This is mapped to PostgreSQL's `bigint` type. The range is `[-9223372036854775808, 9223372036854775807]`.
+    #[strum(to_string = "Big Integer")]
     BigInteger, // used as Rust u64
 
     /// This is mapped to PostgreSQL's `real` type. The range is `[-3.402823466E+38, 3.402823466E+38]`.
