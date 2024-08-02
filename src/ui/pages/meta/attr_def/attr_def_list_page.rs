@@ -72,7 +72,12 @@ fn Table(props: TableProps) -> Element {
                 for attr in props.rows {
                     tr { key: "{attr.id}", class: "p-2 text-left text-sm text-gray-600",
                         td { class: "pr-2",
-                            Link { to: Route::AttributeDefListPage {}, "{attr.name}" }
+                            Link {
+                                to: Route::AttributeDefEditPage {
+                                    attr_def_id: attr.id,
+                                },
+                                "{attr.name}"
+                            }
                         }
                         td { class: "px-2",
                             if attr.description.is_some() {

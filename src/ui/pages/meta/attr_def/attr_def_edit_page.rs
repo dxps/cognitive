@@ -1,23 +1,30 @@
 use dioxus::prelude::*;
 
 use crate::{
-    server::fns::{create_attribute_def, tags::get_tags},
+    domain::model::AttributeDef,
+    server::fns::{create_attribute_def, get_attribute_def, get_attribute_defs, tags::get_tags},
     ui::{
         comps::{AttributeDefForm, Breadcrumb, Nav},
         routes::Route,
     },
 };
 
+#[derive(PartialEq, Props, Clone)]
+pub struct AttributeDefEditPageProps {
+    attr_def_id: String,
+}
+
 #[component]
-pub fn AttributeDefEditPage() -> Element {
+pub fn AttributeDefEditPage(props: AttributeDefEditPageProps) -> Element {
     //
-    let name = use_signal(|| "".to_string());
-    let description = use_signal(|| "".to_string());
-    let value_type = use_signal(|| "".to_string());
-    let default_value = use_signal(|| "".to_string());
-    let is_required = use_signal(|| false);
-    let is_multivalued = use_signal(|| false);
-    let tag_id = use_signal(|| "".to_string());
+    let mut attr_def = use_signal(|| None);
+    let mut name = use_signal(|| "".to_string());
+    let mut description = use_signal(|| "".to_string());
+    let mut value_type = use_signal(|| "".to_string());
+    let mut default_value = use_signal(|| "".to_string());
+    let mut is_required = use_signal(|| false);
+    let mut is_multivalued = use_signal(|| false);
+    let mut tag_id = use_signal(|| "".to_string());
     let mut tags = use_signal(|| vec![]);
 
     let mut err: Signal<Option<String>> = use_signal(|| None);
@@ -25,6 +32,20 @@ pub fn AttributeDefEditPage() -> Element {
 
     use_future(move || async move {
         tags.set(get_tags().await.unwrap_or_default());
+    });
+    let id = use_signal(|| props.attr_def_id.clone());
+    use_future(move || async move {
+        attr_def.set(get_attribute_def(id()).await.unwrap_or_default());
+        if attr_def().is_some() {
+            let item = attr_def().unwrap();
+            name.set(item.name);
+            description.set(item.description.unwrap_or_default());
+            value_type.set(item.value_type.to_string());
+            default_value.set(item.default_value);
+            is_required.set(item.is_required);
+            is_multivalued.set(item.is_multivalued);
+            tag_id.set(item.tag.unwrap_or_default().id);
+        }
     });
 
     rsx! {
@@ -36,7 +57,7 @@ pub fn AttributeDefEditPage() -> Element {
                     div { class: "p-6",
                         div { class: "flex justify-between mb-4",
                             p { class: "text-lg font-medium leading-snug tracking-normal text-gray-500 antialiased",
-                                "Create an Attribute Definition"
+                                "Edit an Attribute Definition"
                             }
                             Link {
                                 class: "text-gray-500 hover:text-gray-800 px-2 rounded-xl transition duration-200",
@@ -45,7 +66,7 @@ pub fn AttributeDefEditPage() -> Element {
                             }
                         }
                         hr { class: "pb-2" }
-                        "Fill in the following form to create a new attribute definition."
+                        "Change any of the fields below to update the attribute definition."
                         AttributeDefForm {
                             name,
                             description,

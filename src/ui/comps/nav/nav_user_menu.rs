@@ -89,7 +89,7 @@ fn NavUserDropdown(mut props: NavUserDropdownProps) -> Element {
                                         Link {
                                             class: "py-2.5 px-5 min-w-full w-max min-h-full flex text-[#333]",
                                             to: Route::Admin {},
-                                            div { class: "mr-3",           dangerous_inner_html: admin_icon() }
+                                            div { class: "mr-3", dangerous_inner_html: admin_icon() }
                                             "  Admin Area"
                                         }
                                     }

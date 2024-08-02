@@ -15,7 +15,7 @@ impl AttributeDefRepo {
         Self { dbcp }
     }
 
-    pub async fn get(&self, id: String) -> Option<AttributeDef> {
+    pub async fn get(&self, id: &String) -> Option<AttributeDef> {
         //
         sqlx::query_as::<_, AttributeDef>(
             "SELECT id, name, description, value_type, default_value, required, multivalued, tag_id FROM attribute_defs WHERE id = $1"

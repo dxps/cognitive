@@ -15,7 +15,7 @@ impl AttributeDefMgmt {
         Self { attr_repo }
     }
 
-    pub async fn get(&self, id: String) -> Option<AttributeDef> {
+    pub async fn get(&self, id: &String) -> Option<AttributeDef> {
         //
         self.attr_repo.get(id).await
     }

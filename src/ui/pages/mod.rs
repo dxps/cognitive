@@ -1,3 +1,6 @@
+mod meta;
+pub use meta::*;
+
 mod admin;
 pub use admin::*;
 
