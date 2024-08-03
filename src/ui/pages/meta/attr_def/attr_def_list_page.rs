@@ -1,11 +1,14 @@
+use std::sync::Arc;
+
 use dioxus::prelude::*;
 
 use crate::{
-    domain::model::AttributeDef,
+    domain::model::{AttributeDef, Tag},
     server::fns::get_attribute_defs,
     ui::{
         comps::{Breadcrumb, Nav},
         routes::Route,
+        UI_GLOBAL_SIGNALS,
     },
 };
 
@@ -13,6 +16,12 @@ use crate::{
 pub fn AttributeDefListPage() -> Element {
     //
     let mut entries = use_signal::<Vec<AttributeDef>>(|| vec![]);
+
+    let mut tags = use_signal(|| Arc::new(vec![]));
+
+    use_future(move || async move {
+        tags.set(UI_GLOBAL_SIGNALS.get_tags().await);
+    });
 
     // TODO: This is not as efficient as `use_server_future`, at least in this case.
     //  See https://dioxuslabs.com/learn/0.5/reference/fullstack/server_functions for details.
@@ -49,7 +58,7 @@ pub fn AttributeDefListPage() -> Element {
                         hr { class: "pb-2" }
                         "The following table lists the existing attributes definitions."
                     }
-                    Table { rows: entries() }
+                    Table { rows: entries(), tags: tags() }
                 }
             }
         }
@@ -87,7 +96,25 @@ fn Table(props: TableProps) -> Element {
                             }
                         }
                         td { class: "px-2", "{attr.value_type}" }
-                        td { class: "pl-2", {attr.tag_id.unwrap_or_default()} }
+                        td { class: "pl-2",
+                            { if attr.tag_id.is_some() {
+                                let tag_id = attr.tag_id.unwrap();
+                                log::debug!(">>> tag_id: {}", tag_id);
+                                match props.tags.iter().find(|tag| tag.id == tag_id) {
+                                    Some(tag) => {
+                                        log::debug!(">>> tag: {:?}", tag);
+                                        tag.name.clone()
+                                    }
+                                    None => {
+                                        log::error!(">>> Failed to find tag with id: {}", tag_id);
+                                        tag_id
+                                    }
+                                }
+                            }
+                            else {
+                                attr.tag_id.unwrap_or_default()}
+                            }
+                        }
                     }
                 }
             }
@@ -98,4 +125,5 @@ fn Table(props: TableProps) -> Element {
 #[derive(Props, PartialEq, Clone)]
 pub struct TableProps {
     pub rows: Vec<AttributeDef>,
+    pub tags: Arc<Vec<Tag>>,
 }

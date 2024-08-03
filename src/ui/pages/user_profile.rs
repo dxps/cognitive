@@ -1,16 +1,13 @@
-use dioxus::prelude::*;
-
 use crate::domain::model::UserAccount;
 use crate::server::fns::user_profile::{save_user_profile_primary_info, set_user_profile_new_password};
-
 use crate::ui::comps::{render_go_to_login, Nav};
-use crate::ui::ui_global_state::APP_READY;
-use crate::ui::UiState;
+use crate::ui::{UiState, UI_GLOBAL_SIGNALS};
+use dioxus::prelude::*;
 
 #[component]
 pub fn UserProfile(username: String) -> Element {
     //
-    if *APP_READY.read() == false {
+    if *UI_GLOBAL_SIGNALS.app_ready.read() == false {
         return rsx! {};
     };
     let state = use_context::<Signal<UiState>>();

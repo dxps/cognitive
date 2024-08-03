@@ -2,14 +2,14 @@ use dioxus::prelude::*;
 
 use crate::server::fns::auth::has_admin_permissions;
 use crate::ui::routes::Route;
-use crate::ui::{UiState, APP_READY};
+use crate::ui::{UiState, UI_GLOBAL_SIGNALS};
 
 pub fn NavUserMenu() -> Element {
     //
     let state = use_context::<Signal<UiState>>();
     let mut show_dropdown = use_signal(|| false);
 
-    if *APP_READY.read() == false {
+    if *UI_GLOBAL_SIGNALS.app_ready.read() == false {
         return rsx! {};
     };
 
@@ -24,7 +24,7 @@ pub fn NavUserMenu() -> Element {
         }
     } else {
         let username = state().current_user.unwrap().username;
-        log::debug!(
+        log::trace!(
             ">>> [NavUserMenu] There is a locally saved user with username: {:?}.",
             username
         );
