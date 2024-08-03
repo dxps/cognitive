@@ -31,8 +31,8 @@ pub fn AttributeDefNewPage() -> Element {
     let tag_id = use_signal(|| "".to_string());
     let mut tags = use_signal(|| vec![]);
 
-    let mut err: Signal<Option<String>> = use_signal(|| None);
-    let mut saved = use_signal(|| false);
+    let err: Signal<Option<String>> = use_signal(|| None);
+    let saved = use_signal(|| false);
 
     use_future(move || async move {
         tags.set(get_tags().await.unwrap_or_default());

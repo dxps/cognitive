@@ -44,7 +44,7 @@ pub fn AttributeDefEditPage(props: AttributeDefEditPageProps) -> Element {
             default_value.set(item.default_value);
             is_required.set(item.is_required);
             is_multivalued.set(item.is_multivalued);
-            tag_id.set(item.tag.unwrap_or_default().id);
+            tag_id.set(item.tag_id.unwrap_or_default());
         }
     });
 

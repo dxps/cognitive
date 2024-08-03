@@ -92,7 +92,7 @@ impl FromRow<'_, PgRow> for AttributeDef {
             default_value: row.get("default_value"),
             is_multivalued: row.get("multivalued"),
             is_required: row.get("required"),
-            tag: None,
+            tag_id: row.get("tag_id"),
         })
     }
 }

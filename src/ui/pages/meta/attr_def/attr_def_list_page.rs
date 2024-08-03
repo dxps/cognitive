@@ -18,7 +18,7 @@ pub fn AttributeDefListPage() -> Element {
     //  See https://dioxuslabs.com/learn/0.5/reference/fullstack/server_functions for details.
     use_future(move || async move {
         if let Ok(attr_defs) = get_attribute_defs().await {
-            log::debug!(">>> Received from list_attribute_defs: {:?}", attr_defs);
+            log::debug!(">>> Got from get_attribute_defs(): {:?}", attr_defs);
             entries.set(attr_defs);
         }
     });
@@ -87,7 +87,7 @@ fn Table(props: TableProps) -> Element {
                             }
                         }
                         td { class: "px-2", "{attr.value_type}" }
-                        td { class: "pl-2", {attr.tag.unwrap_or_default().name} }
+                        td { class: "pl-2", {attr.tag_id.unwrap_or_default()} }
                     }
                 }
             }

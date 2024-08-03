@@ -1,19 +1,19 @@
 use super::{Item, ItemType};
-use crate::domain::model::Tag;
+use crate::domain::model::Id;
 use serde::{Deserialize, Serialize};
 use strum::Display;
 
 #[derive(Debug, Default, PartialEq, Clone, Serialize, Deserialize)]
 /// An attribute definition.
 pub struct AttributeDef {
-    pub id: String,
+    pub id: Id,
     pub name: String,
     pub description: Option<String>,
     pub value_type: AttributeValueType,
     pub default_value: String,
     pub is_multivalued: bool,
     pub is_required: bool,
-    pub tag: Option<Tag>,
+    pub tag_id: Option<Id>,
 }
 
 impl Item for AttributeDef {
