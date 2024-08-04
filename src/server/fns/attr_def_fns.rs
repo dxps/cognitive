@@ -1,4 +1,3 @@
-use dioxus::prelude::Attribute;
 use dioxus_fullstack::prelude::*;
 use server_fn::codec::GetUrl;
 
@@ -54,6 +53,7 @@ pub async fn create_attribute_def(
 #[server(endpoint = "admin/update_attr_def")]
 pub async fn update_attribute_def(item: AttributeDef) -> Result<(), ServerFnError> {
     //
+    log::debug!("Updating attribute def: {:?}", item);
     let session: Session = extract().await?;
     session.3.update(item).await.map(|_| Ok(()))?
 }

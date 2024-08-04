@@ -81,7 +81,7 @@ fn AttrDefCard(attr_def: AttributeDef, tags: Arc<Vec<Tag>>) -> Element {
                         "{attr_def.name}"
                     }
                     p { class: "text-xs text-slate-500 leading-snug tracking-normal antialiased pr-1",
-                        "{attr_def.value_type}"
+                        "{attr_def.value_type.label()}"
                     }
                 }
                 div { class: "flex justify-between text-gray-600",

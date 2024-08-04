@@ -504,6 +504,15 @@ textarea:focus {
   outline-offset: 2px;
 }
 
+/** Defaults for buttons. */
+
+button {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
 *, ::before, ::after {
   --tw-border-spacing-x: 0;
   --tw-border-spacing-y: 0;
@@ -723,14 +732,6 @@ textarea:focus {
 
 .mt-8 {
   margin-top: 2rem;
-}
-
-.mt-\[min\(20px\)\] {
-  margin-top: min(20px);
-}
-
-.mt-\[min\(80px\)\] {
-  margin-top: min(80px);
 }
 
 .mt-\[min\(100px\)\] {

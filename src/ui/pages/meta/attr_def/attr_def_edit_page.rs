@@ -80,14 +80,14 @@ pub fn AttributeDefEditPage(props: AttributeDefEditPageProps) -> Element {
                             tag_id,
                             tags
                         }
-                        div { class: "flex justify-between my-8",
+                        div { class: "flex justify-between mt-8",
                             button {
-                                class: "text-red-200 bg-slate-50 hover:text-red-600 hover:bg-red-100 drop-shadow-sm px-4 py-2 rounded-md",
+                                class: "text-red-200 bg-slate-50 hover:text-red-600 hover:bg-red-100 drop-shadow-sm px-4 rounded-md",
                                 onclick: move |_| { async move { todo!() } },
                                 "Delete"
                             }
                             button {
-                                class: "bg-gray-100 hover:bg-green-100 drop-shadow-sm px-4 py-2 rounded-md",
+                                class: "bg-gray-100 hover:bg-green-100 drop-shadow-sm px-4 rounded-md",
                                 onclick: move |_| {
                                     let description = match description().is_empty() {
                                         true => None,
@@ -98,6 +98,7 @@ pub fn AttributeDefEditPage(props: AttributeDefEditPageProps) -> Element {
                                         false => Some(tag_id()),
                                     };
                                     async move {
+                                        log::debug!(">>> value_type: {}", value_type());
                                         match update_attribute_def(
                                                 AttributeDef::new(
                                                     id(),

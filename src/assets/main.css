@@ -26,4 +26,9 @@
 	textarea:focus {
 		@apply border-green-400 outline-none;
 	}
+
+	/** Defaults for buttons. */
+	button {
+		@apply px-2 py-1;
+	}
 }

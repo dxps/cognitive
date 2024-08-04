@@ -1,7 +1,6 @@
 use dioxus::prelude::*;
 
 use crate::{
-    domain::model::{AttributeDef, Tag},
     server::fns::{create_attribute_def, tags::get_tags},
     ui::{
         comps::{AttributeDefForm, Breadcrumb, Nav},
@@ -9,6 +8,7 @@ use crate::{
     },
 };
 
+#[derive(Debug)]
 struct CreateAttributeDef {
     name: String,
     description: String,
@@ -24,7 +24,7 @@ pub fn AttributeDefNewPage() -> Element {
     //
     let name = use_signal(|| "".to_string());
     let description = use_signal(|| "".to_string());
-    let value_type = use_signal(|| "".to_string());
+    let value_type = use_signal(|| "text".to_string());
     let default_value = use_signal(|| "".to_string());
     let is_required = use_signal(|| false);
     let is_multivalued = use_signal(|| false);
@@ -43,7 +43,7 @@ pub fn AttributeDefNewPage() -> Element {
             Nav {}
             Breadcrumb { paths: Route::get_path(Route::AttributeDefNewPage {}) }
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
-                div { class: "bg-white rounded-md p-3 min-w-[600px]",
+                div { class: "bg-white rounded-md p-3 min-w-[600px] mt-[min(100px)]",
                     div { class: "p-6",
                         div { class: "flex justify-between mb-4",
                             p { class: "text-lg font-medium leading-snug tracking-normal text-gray-500 antialiased",
@@ -105,6 +105,7 @@ pub fn AttributeDefNewPage() -> Element {
 }
 
 async fn create_handler(input: CreateAttributeDef, mut saved: Signal<bool>, mut err: Signal<Option<String>>) {
+    log::debug!("Creating an attribute definition {:?}: ", input);
     match create_attribute_def(
         input.name,
         input.description,

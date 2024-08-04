@@ -13,7 +13,6 @@ pub fn AttributeDefForm(
     tag_id: Signal<String>,
     tags: Signal<Vec<Tag>>,
 ) -> Element {
-    log::debug!(">>> [AttributeDefForm] value_type: {:?}", value_type());
     rsx! {
         div { class: "mt-4 space-y-4",
             div { class: "flex",
@@ -56,27 +55,23 @@ pub fn AttributeDefForm(
                         value_type.set(evt.value());
                         log::debug!("selected value type: {:?}", evt.value());
                     },
-                    option { value: "text", selected: "{value_type() == \"Text\"}", "Text" }
+                    option { value: "text", selected: "{value_type() == \"text\"}", "Text" }
                     option {
                         value: "smallint",
-                        selected: "{value_type() == \"Small Integer\"}",
+                        selected: "{value_type() == \"smallint\"}",
                         "Small Integer"
                     }
                     option {
                         value: "integer",
-                        selected: "{value_type() == \"Integer\"}",
+                        selected: "{value_type() == \"integer\"}",
                         "Integer"
                     }
                     option {
                         value: "bigint",
-                        selected: "{value_type() == \"Big Integer\"}",
+                        selected: "{value_type() == \"bigint\"}",
                         "Big Integer"
                     }
-                    option {
-                        value: "real",
-                        selected: "{value_type() == \"Decimal\"}",
-                        "Decimal"
-                    }
+                    option { value: "real", selected: "{value_type() == \"real\"}", "Decimal" }
                 }
             }
             div { class: "flex py-2",
