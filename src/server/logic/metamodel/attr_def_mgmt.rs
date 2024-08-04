@@ -26,26 +26,17 @@ impl AttributeDefMgmt {
     }
 
     /// Add a new attribute definition. It returns the id of the repository entry.
-    pub async fn add(
-        &self,
-        name: String,
-        description: String,
-        value_type: String,
-        default_value: String,
-        is_required: bool,
-        is_multivalued: bool,
-        tag_id: String,
-    ) -> AppResult<Id> {
+    pub async fn add(&self, item: AttributeDef) -> AppResult<Id> {
         //
         self.attr_repo
             .add(
-                name,
-                description,
-                value_type,
-                default_value,
-                is_required,
-                is_multivalued,
-                tag_id,
+                item.name,
+                item.description.unwrap_or_default(),
+                item.value_type.to_string(),
+                item.default_value,
+                item.is_required,
+                item.is_multivalued,
+                item.tag_id.unwrap_or_default(),
             )
             .await
     }

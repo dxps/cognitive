@@ -23,30 +23,10 @@ pub async fn get_attribute_def(id: String) -> Result<Option<AttributeDef>, Serve
 
 /// Create an attribute definition.
 #[server(endpoint = "admin/create_attr_def")]
-pub async fn create_attribute_def(
-    name: String,
-    description: String,
-    value_type: String,
-    default_value: String,
-    is_required: bool,
-    is_multivalued: bool,
-    tag_id: String,
-) -> Result<Id, ServerFnError> {
+pub async fn create_attribute_def(item: AttributeDef) -> Result<Id, ServerFnError> {
     //
     let session: Session = extract().await?;
-    session
-        .3
-        .add(
-            name,
-            description,
-            value_type,
-            default_value,
-            is_required,
-            is_multivalued,
-            tag_id,
-        )
-        .await
-        .map(|id| Ok(id))?
+    session.3.add(item).await.map(|id| Ok(id))?
 }
 
 /// Create an attribute definition.

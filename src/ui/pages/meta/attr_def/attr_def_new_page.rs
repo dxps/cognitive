@@ -1,23 +1,13 @@
 use dioxus::prelude::*;
 
 use crate::{
+    domain::model::AttributeDef,
     server::fns::{create_attribute_def, tags::get_tags},
     ui::{
         comps::{AttributeDefForm, Breadcrumb, Nav},
         routes::Route,
     },
 };
-
-#[derive(Debug)]
-struct CreateAttributeDef {
-    name: String,
-    description: String,
-    value_type: String,
-    default_value: String,
-    is_required: bool,
-    is_multivalued: bool,
-    tag_id: String,
-}
 
 #[component]
 pub fn AttributeDefNewPage() -> Element {
@@ -71,17 +61,26 @@ pub fn AttributeDefNewPage() -> Element {
                             button {
                                 class: "bg-gray-100 hover:bg-green-100 drop-shadow-sm px-4 py-2 rounded-md",
                                 onclick: move |_| {
+                                    let description = match description().is_empty() {
+                                        true => None,
+                                        false => Some(description()),
+                                    };
+                                    let tag_id = match tag_id().is_empty() {
+                                        true => None,
+                                        false => Some(tag_id()),
+                                    };
                                     async move {
-                                        let input = CreateAttributeDef {
+                                        let item = AttributeDef {
+                                            id: "".to_string(),
                                             name: name(),
-                                            description: description(),
-                                            value_type: value_type(),
+                                            description,
+                                            value_type: value_type().into(),
                                             default_value: default_value(),
                                             is_required: is_required(),
                                             is_multivalued: is_multivalued(),
-                                            tag_id: tag_id(),
+                                            tag_id,
                                         };
-                                        create_handler(input, saved, err).await;
+                                        create_handler(item, saved, err).await;
                                     }
                                 },
                                 "Create"
@@ -104,19 +103,9 @@ pub fn AttributeDefNewPage() -> Element {
     }
 }
 
-async fn create_handler(input: CreateAttributeDef, mut saved: Signal<bool>, mut err: Signal<Option<String>>) {
-    log::debug!("Creating an attribute definition {:?}: ", input);
-    match create_attribute_def(
-        input.name,
-        input.description,
-        input.value_type,
-        input.default_value,
-        input.is_required,
-        input.is_multivalued,
-        input.tag_id,
-    )
-    .await
-    {
+async fn create_handler(item: AttributeDef, mut saved: Signal<bool>, mut err: Signal<Option<String>>) {
+    log::debug!("Creating an attribute definition {:?}: ", item);
+    match create_attribute_def(item).await {
         Ok(_) => {
             saved.set(true);
             err.set(None);
