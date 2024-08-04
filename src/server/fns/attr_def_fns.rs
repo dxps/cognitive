@@ -1,19 +1,20 @@
 use dioxus_fullstack::prelude::*;
+use server_fn::codec::GetUrl;
 
 use crate::domain::model::{AttributeDef, Id};
 #[cfg(feature = "server")]
 use crate::server::Session;
 
-/// Get all the attribute definitions.
-#[server(GetAttributeDefs)]
-pub async fn get_attribute_defs() -> Result<Vec<AttributeDef>, ServerFnError> {
+/// List the attribute definitions.
+#[server(endpoint = "admin/list_attr_defs", input = GetUrl)]
+pub async fn list_attribute_defs() -> Result<Vec<AttributeDef>, ServerFnError> {
     let session: Session = extract().await?;
     let attr_defs = session.3.list().await;
     Ok(attr_defs)
 }
 
 /// Get an attribute definitions.
-#[server(GetAttributeDef)]
+#[server(endpoint = "admin/get_attr_def", input = GetUrl)]
 pub async fn get_attribute_def(id: String) -> Result<Option<AttributeDef>, ServerFnError> {
     let session: Session = extract().await?;
     let attr_def = session.3.get(&id).await;
@@ -21,7 +22,7 @@ pub async fn get_attribute_def(id: String) -> Result<Option<AttributeDef>, Serve
 }
 
 /// Create an attribute definition.
-#[server]
+#[server(endpoint = "admin/create_attr_def")]
 pub async fn create_attribute_def(
     name: String,
     description: String,

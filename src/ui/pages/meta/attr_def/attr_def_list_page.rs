@@ -4,7 +4,7 @@ use dioxus::prelude::*;
 
 use crate::{
     domain::model::{AttributeDef, Tag},
-    server::fns::get_attribute_defs,
+    server::fns::list_attribute_defs,
     ui::{
         comps::{Breadcrumb, Nav},
         routes::Route,
@@ -21,18 +21,16 @@ pub fn AttributeDefListPage() -> Element {
 
     use_future(move || async move {
         tags.set(UI_GLOBAL_SIGNALS.get_tags().await);
-    });
 
-    // TODO: This is not as efficient as `use_server_future`, at least in this case.
-    //  See https://dioxuslabs.com/learn/0.5/reference/fullstack/server_functions for details.
-    use_future(move || async move {
-        if let Ok(attr_defs) = get_attribute_defs().await {
+        // TODO: This is not as efficient as `use_server_future` (see below), at least in this case.
+        //  See https://dioxuslabs.com/learn/0.5/reference/fullstack/server_functions for details.
+        if let Ok(attr_defs) = list_attribute_defs().await {
             log::debug!(">>> Got from get_attribute_defs(): {:?}", attr_defs);
             entries.set(attr_defs);
         }
     });
 
-    // TODO: To be considered. Currently, if you do multiple refreshes (F5) on the page, a never ending JS loop is triggered.
+    // TODO: This is better! But currently, if you do multiple refreshes (F5) on the page, a never ending JS loop is triggered.
     // let res = use_server_future(get_attribute_defs)?().unwrap();
     // if let Ok(data) = res {
     //     entries.set(data);
@@ -56,9 +54,14 @@ pub fn AttributeDefListPage() -> Element {
                             }
                         }
                         hr { class: "pb-2" }
-                        "The following table lists the existing attributes definitions."
+                        p { class: "pb-4",
+                            "The following table lists the existing attributes definitions."
+                        }
+                        // Table { rows: entries(), tags: tags() }
+                        for attr in entries() {
+                            AttrDefCard { attr_def: attr.clone(), tags: tags() }
+                        }
                     }
-                    Table { rows: entries(), tags: tags() }
                 }
             }
         }
@@ -66,55 +69,42 @@ pub fn AttributeDefListPage() -> Element {
 }
 
 #[component]
-fn Table(props: TableProps) -> Element {
-    //
-    let _th_key = "#theader";
+fn AttrDefCard(attr_def: AttributeDef, tags: Arc<Vec<Tag>>) -> Element {
     rsx! {
-        div { class: "px-6",
-            table { class: "min-w-96 bg-white",
-                tr { key: "{_th_key}", class: "pr-2 text-left text-sm font-normal text-gray-500",
-                    th { class: "min-w-32 pr-2", "name" }
-                    th { class: "min-w-64 px-2", "description" }
-                    th { class: "min-w-32 px-2", "value type" }
-                    th { class: "pl-2", "tag" }
+        Link {
+            to: Route::AttributeDefEditPage {
+                attr_def_id: attr_def.id,
+            },
+            div { class: "flex flex-col p-2 my-3 bg-white rounded border hover:bg-slate-100 transition duration-200",
+                div { class: "flex justify-between text-gray-600",
+                    p { class: "font-medium leading-snug tracking-normal antialiased",
+                        "{attr_def.name}"
+                    }
+                    p { class: "text-xs text-slate-500 leading-snug tracking-normal antialiased pr-1",
+                        "{attr_def.value_type}"
+                    }
                 }
-                for attr in props.rows {
-                    tr { key: "{attr.id}", class: "p-2 text-left text-sm text-gray-600",
-                        td { class: "pr-2",
-                            Link {
-                                to: Route::AttributeDefEditPage {
-                                    attr_def_id: attr.id,
-                                },
-                                "{attr.name}"
-                            }
-                        }
-                        td { class: "px-2",
-                            if attr.description.is_some() {
-                                {attr.description.unwrap()}
-                            } else {
-                                "-"
-                            }
-                        }
-                        td { class: "px-2", "{attr.value_type}" }
-                        td { class: "pl-2",
-                            { if attr.tag_id.is_some() {
-                                let tag_id = attr.tag_id.unwrap();
-                                log::debug!(">>> tag_id: {}", tag_id);
-                                match props.tags.iter().find(|tag| tag.id == tag_id) {
-                                    Some(tag) => {
-                                        log::debug!(">>> tag: {:?}", tag);
-                                        tag.name.clone()
-                                    }
-                                    None => {
-                                        log::error!(">>> Failed to find tag with id: {}", tag_id);
-                                        tag_id
-                                    }
+                div { class: "flex justify-between text-gray-600",
+                    p { class: "text-xs leading-5 text-gray-600 pt-1",
+                        "{attr_def.description.unwrap_or_default()}"
+                    }
+                    {   if attr_def.tag_id.is_some() {
+                        let tag_id = attr_def.tag_id.unwrap();
+                        log::debug!(">>> tag_id: {}", tag_id);
+                        match tags.iter().find(|tag| tag.id == tag_id) {
+                                Some(tag) => {
+                                    log::debug!(">>> tag: {:?}", tag);
+                                    rsx! { p { class: "text-xs leading-5 bg-slate-100 rounded-lg px-2", {tag.name.clone()} } }
+                                }
+                                None => {
+                                    log::error!(">>> Failed to find tag with id: {}", tag_id);
+                                    rsx! {}
                                 }
                             }
-                            else {
-                                attr.tag_id.unwrap_or_default()}
-                            }
                         }
+                    else {
+                        rsx! { p { {attr_def.tag_id.unwrap_or_default()} } }
+                    }
                     }
                 }
             }

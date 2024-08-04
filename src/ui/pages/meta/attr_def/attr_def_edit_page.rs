@@ -2,7 +2,7 @@ use dioxus::prelude::*;
 
 use crate::{
     domain::model::AttributeDef,
-    server::fns::{create_attribute_def, get_attribute_def, get_attribute_defs, tags::get_tags},
+    server::fns::{create_attribute_def, get_attribute_def, list_attribute_defs, tags::get_tags},
     ui::{
         comps::{AttributeDefForm, Breadcrumb, Nav},
         routes::Route,
