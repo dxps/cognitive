@@ -49,4 +49,10 @@ impl AttributeDefMgmt {
             )
             .await
     }
+
+    /// Update an existing attribute definition.
+    pub async fn update(&self, item: AttributeDef) -> AppResult<()> {
+        //
+        self.attr_repo.update(item).await
+    }
 }

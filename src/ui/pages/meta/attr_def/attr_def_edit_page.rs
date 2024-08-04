@@ -1,13 +1,12 @@
-use dioxus::prelude::*;
-
 use crate::{
     domain::model::AttributeDef,
-    server::fns::{create_attribute_def, get_attribute_def, list_attribute_defs, tags::get_tags},
+    server::fns::{get_attribute_def, tags::get_tags, update_attribute_def},
     ui::{
         comps::{AttributeDefForm, Breadcrumb, Nav},
         routes::Route,
     },
 };
+use dioxus::prelude::*;
 
 #[derive(PartialEq, Props, Clone)]
 pub struct AttributeDefEditPageProps {
@@ -51,9 +50,13 @@ pub fn AttributeDefEditPage(props: AttributeDefEditPageProps) -> Element {
     rsx! {
         div { class: "flex flex-col min-h-screen bg-gray-100",
             Nav {}
-            Breadcrumb { paths: Route::get_path(Route::AttributeDefNewPage {}) }
+            Breadcrumb {
+                paths: Route::get_path(Route::AttributeDefEditPage {
+                    attr_def_id: id(),
+                })
+            }
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
-                div { class: "bg-white rounded-md p-3 min-w-[600px]",
+                div { class: "bg-white rounded-md p-3 min-w-[600px] mt-[min(100px)]",
                     div { class: "p-6",
                         div { class: "flex justify-between mb-4",
                             p { class: "text-lg font-medium leading-snug tracking-normal text-gray-500 antialiased",
@@ -77,19 +80,35 @@ pub fn AttributeDefEditPage(props: AttributeDefEditPageProps) -> Element {
                             tag_id,
                             tags
                         }
-                        div { class: "text-center my-8",
+                        div { class: "flex justify-between my-8",
+                            button {
+                                class: "text-red-200 bg-slate-50 hover:text-red-600 hover:bg-red-100 drop-shadow-sm px-4 py-2 rounded-md",
+                                onclick: move |_| { async move { todo!() } },
+                                "Delete"
+                            }
                             button {
                                 class: "bg-gray-100 hover:bg-green-100 drop-shadow-sm px-4 py-2 rounded-md",
                                 onclick: move |_| {
+                                    let description = match description().is_empty() {
+                                        true => None,
+                                        false => Some(description()),
+                                    };
+                                    let tag_id = match tag_id().is_empty() {
+                                        true => None,
+                                        false => Some(tag_id()),
+                                    };
                                     async move {
-                                        match create_attribute_def(
-                                                name(),
-                                                description(),
-                                                value_type(),
-                                                default_value(),
-                                                is_required(),
-                                                is_multivalued(),
-                                                tag_id(),
+                                        match update_attribute_def(
+                                                AttributeDef::new(
+                                                    id(),
+                                                    name(),
+                                                    description,
+                                                    value_type().into(),
+                                                    default_value(),
+                                                    is_required(),
+                                                    is_multivalued(),
+                                                    tag_id,
+                                                ),
                                             )
                                             .await
                                         {
@@ -104,7 +123,7 @@ pub fn AttributeDefEditPage(props: AttributeDefEditPageProps) -> Element {
                                         }
                                     }
                                 },
-                                "Create"
+                                "Update"
                             }
                         }
                         // Show the button's action result in the UI.
@@ -114,7 +133,7 @@ pub fn AttributeDefEditPage(props: AttributeDefEditPageProps) -> Element {
                             }
                         } else if saved() {
                             div { class: "text-center text-green-600 my-8",
-                                span { { "Successfully created" } }
+                                span { { "Successfully updated" } }
                             }
                         }
                     }

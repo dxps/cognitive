@@ -16,6 +16,30 @@ pub struct AttributeDef {
     pub tag_id: Option<Id>,
 }
 
+impl AttributeDef {
+    pub fn new(
+        id: Id,
+        name: String,
+        description: Option<String>,
+        value_type: AttributeValueType,
+        default_value: String,
+        is_multivalued: bool,
+        is_required: bool,
+        tag_id: Option<Id>,
+    ) -> Self {
+        Self {
+            id,
+            name,
+            description,
+            value_type,
+            default_value,
+            is_multivalued,
+            is_required,
+            tag_id,
+        }
+    }
+}
+
 impl Item for AttributeDef {
     fn item_type(&self) -> ItemType {
         ItemType::AttributeDef
@@ -68,5 +92,11 @@ impl From<&str> for AttributeValueType {
             "timestamp" => Self::DateTime,
             _ => Self::Text,
         }
+    }
+}
+
+impl From<String> for AttributeValueType {
+    fn from(value: String) -> Self {
+        Self::from(value.as_str())
     }
 }

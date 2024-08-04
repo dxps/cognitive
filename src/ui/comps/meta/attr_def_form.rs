@@ -13,6 +13,7 @@ pub fn AttributeDefForm(
     tag_id: Signal<String>,
     tags: Signal<Vec<Tag>>,
 ) -> Element {
+    log::debug!(">>> [AttributeDefForm] value_type: {:?}", value_type());
     rsx! {
         div { class: "mt-4 space-y-4",
             div { class: "flex",
@@ -55,11 +56,27 @@ pub fn AttributeDefForm(
                         value_type.set(evt.value());
                         log::debug!("selected value type: {:?}", evt.value());
                     },
-                    option { value: "text", "Text" }
-                    option { value: "smallint", "SmallInteger" }
-                    option { value: "integer", "Integer" }
-                    option { value: "bigint", "BigInteger" }
-                    option { value: "real", "Decimal" }
+                    option { value: "text", selected: "{value_type() == \"Text\"}", "Text" }
+                    option {
+                        value: "smallint",
+                        selected: "{value_type() == \"Small Integer\"}",
+                        "Small Integer"
+                    }
+                    option {
+                        value: "integer",
+                        selected: "{value_type() == \"Integer\"}",
+                        "Integer"
+                    }
+                    option {
+                        value: "bigint",
+                        selected: "{value_type() == \"Big Integer\"}",
+                        "Big Integer"
+                    }
+                    option {
+                        value: "real",
+                        selected: "{value_type() == \"Decimal\"}",
+                        "Decimal"
+                    }
                 }
             }
             div { class: "flex py-2",
@@ -80,6 +97,7 @@ pub fn AttributeDefForm(
                     class: "px-3 rounded-lg outline-none border-1 focus:border-green-300",
                     r#type: "checkbox",
                     value: "{is_required}",
+                    checked: "{is_required()}",
                     oninput: move |evt| {
                         is_required.set(evt.value().parse().unwrap_or_default());
                     }
@@ -91,6 +109,7 @@ pub fn AttributeDefForm(
                     class: "px-3 rounded-lg outline-none border-1 focus:border-green-300",
                     r#type: "checkbox",
                     value: "{is_multivalued}",
+                    checked: "{is_multivalued()}",
                     oninput: move |evt| {
                         is_multivalued.set(evt.value().parse().unwrap_or_default());
                     }
@@ -108,7 +127,11 @@ pub fn AttributeDefForm(
                     },
                     option { value: "", "" }
                     for tag in tags.iter() {
-                        option { value: "{tag.id}", "{tag.name}" }
+                        option {
+                            value: "{tag.id}",
+                            selected: "{tag_id() == tag.id}",
+                            "{tag.name}"
+                        }
                     }
                 }
             }
