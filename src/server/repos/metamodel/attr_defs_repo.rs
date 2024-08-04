@@ -33,7 +33,7 @@ impl AttributeDefRepo {
         let limit = pagination_opts.limit.unwrap_or(10);
         let offset = (pagination_opts.page.unwrap_or(1) - 1) * limit;
         let query = format!(
-            "SELECT id, name, description, value_type, default_value, required, multivalued, tag_id FROM attribute_defs ORDER BY id LIMIT {limit} OFFSET {offset}"
+            "SELECT id, name, description, value_type, default_value, required, multivalued, tag_id FROM attribute_defs ORDER BY name LIMIT {limit} OFFSET {offset}"
         );
         log::debug!("Listing attribute defs w/ limit: {}, offset: {}.", limit, offset);
 
