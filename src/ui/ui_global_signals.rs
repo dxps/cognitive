@@ -6,6 +6,7 @@ use dioxus::signals::{GlobalSignal, Readable};
 pub struct UiGlobalSignals {
     pub app_ready: GlobalSignal<bool>,
     pub tags: GlobalSignal<Arc<HashMap<String, Tag>>>,
+    pub tags_loaded: GlobalSignal<bool>,
 }
 
 impl UiGlobalSignals {
@@ -13,6 +14,7 @@ impl UiGlobalSignals {
         Self {
             app_ready: GlobalSignal::new(|| false),
             tags: GlobalSignal::new(|| Arc::new(HashMap::new())),
+            tags_loaded: GlobalSignal::new(|| false),
         }
     }
 
@@ -21,7 +23,6 @@ impl UiGlobalSignals {
             let res = get_tags().await;
             match res {
                 Ok(tags) => {
-                    log::debug!(">>> [UiGlobalSignals.get_tags] Got tags: {:?}", tags);
                     let tags_map: HashMap<String, Tag> = tags.into_iter().map(|tag| (tag.id.clone(), tag)).collect();
                     let tags_map = Arc::new(tags_map);
                     *self.tags.write() = tags_map;
@@ -37,6 +38,21 @@ impl UiGlobalSignals {
             _ = self.get_tags().await;
         }
         self.tags.read().get(&id).cloned()
+    }
+
+    pub async fn update_tag(&self, tag: Tag) {
+        let tags = self.tags.read().clone();
+        let updated_tags: HashMap<String, Tag> = tags
+            .iter()
+            .map(|(k, v)| {
+                if v.id == tag.id {
+                    (k.clone(), tag.clone())
+                } else {
+                    (k.clone(), v.clone())
+                }
+            })
+            .collect();
+        *self.tags.write() = Arc::new(updated_tags);
     }
 }
 

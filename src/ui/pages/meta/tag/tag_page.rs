@@ -11,7 +11,7 @@ use crate::{
 };
 
 #[component]
-pub fn TagEditPage(id: Id) -> Element {
+pub fn TagPage(id: Id) -> Element {
     //
     let mut name = use_signal(|| "".to_string());
     let mut description = use_signal(|| "".to_string());
@@ -26,19 +26,16 @@ pub fn TagEditPage(id: Id) -> Element {
         let id = tid.clone();
         async move {
             if let Some(t) = UI_GLOBAL_SIGNALS.get_tag(id).await {
-                log::debug!(">>> Got tag: {:?}", t);
                 name.set(t.name.clone());
                 description.set(t.description.unwrap_or_default());
             }
         }
     });
 
-    log::debug!(">>> mode: {:?}", mode.read().to_string());
-
     rsx! {
         div { class: "flex flex-col min-h-screen bg-gray-100",
             Nav {}
-            Breadcrumb { paths: Route::get_path(Route::TagListPage {}) }
+            Breadcrumb { paths: Route::get_path(Route::TagPage { id: id.clone() }) }
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
                 div { class: "bg-white rounded-md p-3 min-w-[600px] mt-[min(100px)]",
                     div { class: "p-6",
@@ -59,24 +56,25 @@ pub fn TagEditPage(id: Id) -> Element {
                             "Change any of the fields below to update the tag."
                         }
                         TagForm { name, description, mode }
-                        div { class: "text-center my-8",
+                        div { class: "flex justify-between mt-8",
                             button {
-                                class: "bg-gray-100 hover:bg-green-100 drop-shadow-sm px-4 py-2 rounded-md",
+                                class: "text-red-400 bg-slate-50 hover:text-red-700 hover:bg-red-100 drop-shadow-sm px-4 rounded-md",
+                                onclick: move |_| { async move { todo!() } },
+                                "Delete"
+                            }
+                            button {
+                                class: "bg-gray-100 hover:bg-green-100 drop-shadow-sm px-4 rounded-md",
                                 onclick: move |_| {
-                                    if mode.read().to_string() == "View" {
-                                        mode.set(Mode::Edit);
-                                        log::debug!(
-                                            ">>> After setting to Mode::Edit, mode: {:?}", mode.read().to_string()
-                                        );
-                                    }
                                     let id = id.clone();
                                     let description = match description().is_empty() {
                                         true => None,
                                         false => Some(description()),
                                     };
-                                    let mode = mode.read().to_string().clone();
+                                    let usage_mode = mode.read().to_string().clone();
                                     async move {
-                                        if mode == "Edit" {
+                                        if usage_mode == "View" {
+                                            mode.set(Mode::Edit);
+                                        } else {
                                             let tag = Tag::new(id, name(), description);
                                             update_handler(tag, saved, err).await;
                                         }
@@ -91,11 +89,11 @@ pub fn TagEditPage(id: Id) -> Element {
                         }
                         // Show the button's action result in the UI.
                         if err().is_some() {
-                            div { class: "text-center text-red-600 my-8",
+                            div { class: "text-center text-red-600 mt-8",
                                 span { {err().unwrap()} }
                             }
                         } else if saved() {
-                            div { class: "text-center text-green-600 my-8",
+                            div { class: "text-center text-green-600 mt-8",
                                 span { { "Successfully updated" } }
                             }
                         }
@@ -107,10 +105,13 @@ pub fn TagEditPage(id: Id) -> Element {
 }
 
 async fn update_handler(tag: Tag, mut saved: Signal<bool>, mut err: Signal<Option<String>>) {
-    match update_tag(tag).await {
+    //
+    log::debug!(">>> Updating tag: {:?}", tag);
+    match update_tag(tag.clone()).await {
         Ok(_) => {
             saved.set(true);
             err.set(None);
+            UI_GLOBAL_SIGNALS.update_tag(tag).await;
         }
         Err(e) => {
             saved.set(false);

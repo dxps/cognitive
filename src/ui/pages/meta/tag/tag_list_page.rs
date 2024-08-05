@@ -14,9 +14,11 @@ use dioxus::prelude::*;
 pub fn TagListPage() -> Element {
     //
     let mut tags = use_signal(|| Arc::new(HashMap::new()));
+    let mut tags_loaded = use_signal(|| false);
 
     use_future(move || async move {
         tags.set(UI_GLOBAL_SIGNALS.get_tags().await);
+        tags_loaded.set(true);
     });
 
     rsx! {
@@ -37,12 +39,16 @@ pub fn TagListPage() -> Element {
                             }
                         }
                         hr { class: "pb-2" }
-                        if tags().is_empty() {
-                            p { class: "pb-4", "There are no tags defined." }
+                        if !tags_loaded() {
+                            p { class: "pb-4", "Loading tags ..." }
                         } else {
-                            p { class: "pb-4", "The following tags exist." }
-                            for item in tags().values() {
-                                TagCard { item: item.clone() }
+                            if tags().is_empty() {
+                                p { class: "pb-4", "No tags exist." }
+                            } else {
+                                p { class: "pb-4", "The following tags exist." }
+                                for item in tags().values() {
+                                    TagCard { item: item.clone() }
+                                }
                             }
                         }
                     }
@@ -55,7 +61,7 @@ pub fn TagListPage() -> Element {
 #[component]
 fn TagCard(item: Tag) -> Element {
     rsx! {
-        Link { to: Route::TagEditPage { id: item.id },
+        Link { to: Route::TagPage { id: item.id },
             div { class: "flex flex-col p-2 my-3 bg-white rounded border hover:bg-slate-100 transition duration-200",
                 div { class: "flex justify-between text-gray-600",
                     p { class: "font-medium leading-snug tracking-normal antialiased",

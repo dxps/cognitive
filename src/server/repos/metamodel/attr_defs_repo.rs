@@ -85,7 +85,8 @@ impl AttributeDefRepo {
     /// Edit an existing attribute definition.
     pub async fn update(&self, item: AttributeDef) -> AppResult<()> {
         //
-        match sqlx::query(
+        // match
+        sqlx::query(
             "UPDATE attribute_defs SET name=$2, description=$3, value_type=$4, default_value=$5, required=$6, multivalued=$7, tag_id=$8 WHERE id = $1",
         )
         .bind(&item.id)
@@ -98,13 +99,14 @@ impl AttributeDefRepo {
         .bind(item.tag_id)
         .execute(self.dbcp.as_ref())
         .await
-        {
-            Ok(_) => AppResult::Ok(()),
-            Err(e) => {
-                log::error!("Failed to edit entry (with id:{}): {}", item.id,e);
-                AppResult::Err(AppError::InternalErr)
-            }
-        }
+        .map(|_| Ok(()))?
+        // {
+        //     Ok(_) => AppResult::Ok(()),
+        //     Err(e) => {
+        //         log::error!("Failed to edit entry (with id:{}): {}", item.id,e);
+        //         AppResult::Err(AppError::InternalErr)
+        //     }
+        // }
     }
 
     /// Remove (delete) an existing attribute definition.

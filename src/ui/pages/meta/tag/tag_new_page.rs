@@ -20,7 +20,7 @@ pub fn TagNewPage() -> Element {
     rsx! {
         div { class: "flex flex-col min-h-screen bg-gray-100",
             Nav {}
-            Breadcrumb { paths: Route::get_path(Route::Admin {}) }
+            Breadcrumb { paths: Route::get_path(Route::TagNewPage {}) }
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
                 div { class: "bg-white rounded-md p-3 min-w-[600px] mt-[min(100px)]",
                     div { class: "p-6",
@@ -36,7 +36,7 @@ pub fn TagNewPage() -> Element {
                         }
                         hr { class: "pb-2" }
                         "Fill in the following form to create a new tag."
-                        TagForm { name, description,  }
+                        TagForm { name, description, mode: "View" }
                         div { class: "text-center my-8",
                             button {
                                 class: "bg-gray-100 hover:bg-green-100 drop-shadow-sm px-4 py-2 rounded-md",

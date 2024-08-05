@@ -1,9 +1,9 @@
 use dioxus::prelude::*;
 
-use crate::ui::Mode;
-
 #[component]
-pub fn TagForm(name: Signal<String>, description: Signal<String>, mode: Option<Signal<Mode>>) -> Element {
+pub fn TagForm(name: Signal<String>, description: Signal<String>, mode: String) -> Element {
+    //
+    let is_view_mode = mode == "View";
     rsx! {
         div { class: "mt-4 space-y-4",
             div { class: "flex",
@@ -14,7 +14,8 @@ pub fn TagForm(name: Signal<String>, description: Signal<String>, mode: Option<S
                     placeholder: "its name",
                     value: "{name}",
                     maxlength: 64,
-                    autofocus: "true",
+                    readonly: is_view_mode,
+                    autofocus: !is_view_mode,
                     oninput: move |evt| {
                         name.set(evt.value());
                     },
@@ -31,6 +32,7 @@ pub fn TagForm(name: Signal<String>, description: Signal<String>, mode: Option<S
                     cols: 32,
                     placeholder: "an optional description",
                     value: "{description}",
+                    readonly: is_view_mode,
                     maxlength: 256,
                     oninput: move |evt| {
                         description.set(evt.value());

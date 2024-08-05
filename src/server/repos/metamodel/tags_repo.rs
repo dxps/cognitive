@@ -47,6 +47,7 @@ impl TagsRepo {
 
     pub async fn update(&self, tag: Tag) -> AppResult<()> {
         //
+        log::debug!("Updating tag: {:?}", tag);
         sqlx::query("UPDATE tags SET name=$1, description=$2 WHERE id = $3")
             .bind(tag.name)
             .bind(tag.description)

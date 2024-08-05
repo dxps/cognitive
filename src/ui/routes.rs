@@ -1,8 +1,8 @@
 use crate::{
     domain::model::Id,
     ui::pages::{
-        Admin, AttributeDefEditPage, AttributeDefListPage, AttributeDefNewPage, Home, Login, Logout, TagEditPage, TagListPage,
-        TagNewPage, UserProfile,
+        Admin, AttributeDefEditPage, AttributeDefListPage, AttributeDefNewPage, Home, Login, Logout, TagListPage, TagNewPage,
+        TagPage, UserProfile,
     },
 };
 use dioxus::prelude::*;
@@ -40,7 +40,7 @@ pub enum Route {
     TagNewPage {},
 
     #[route("/admin/tags/:id")]
-    TagEditPage { id: Id },
+    TagPage { id: Id },
 }
 
 impl Route {
@@ -79,7 +79,7 @@ impl Route {
                 ("Tags".into(), Route::TagListPage {}),
                 ("New".into(), to),
             ],
-            Route::TagEditPage { id: _ } => vec![
+            Route::TagPage { id: _ } => vec![
                 ("Home".into(), Route::Home {}),
                 ("Admin".into(), Route::Admin {}),
                 ("Tags".into(), Route::TagListPage {}),
