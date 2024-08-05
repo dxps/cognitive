@@ -1,5 +1,5 @@
 use crate::domain::model::UserAccount;
-use crate::server::fns::user_profile::{save_user_profile_primary_info, set_user_profile_new_password};
+use crate::server::fns::{save_user_profile_primary_info, set_user_profile_new_password};
 use crate::ui::comps::{render_go_to_login, Nav};
 use crate::ui::{UiState, UI_GLOBAL_SIGNALS};
 use dioxus::prelude::*;

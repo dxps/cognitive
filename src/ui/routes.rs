@@ -1,5 +1,9 @@
-use crate::ui::pages::{
-    Admin, AttributeDefEditPage, AttributeDefListPage, AttributeDefNewPage, Home, Login, Logout, UserProfile,
+use crate::{
+    domain::model::Id,
+    ui::pages::{
+        Admin, AttributeDefEditPage, AttributeDefListPage, AttributeDefNewPage, Home, Login, Logout, TagEditPage, TagListPage,
+        TagNewPage, UserProfile,
+    },
 };
 use dioxus::prelude::*;
 
@@ -28,6 +32,15 @@ pub enum Route {
 
     #[route("/admin/definitions/attributes/:attr_def_id/edit")]
     AttributeDefEditPage { attr_def_id: String },
+
+    #[route("/admin/tags")]
+    TagListPage {},
+
+    #[route("/admin/tags/new")]
+    TagNewPage {},
+
+    #[route("/admin/tags/:id")]
+    TagEditPage { id: Id },
 }
 
 impl Route {
@@ -53,6 +66,23 @@ impl Route {
                 ("Home".into(), Route::Home {}),
                 ("Admin".into(), Route::Admin {}),
                 ("Attributes Definitions".into(), Route::AttributeDefListPage {}),
+                ("Edit".into(), to),
+            ],
+            Route::TagListPage {} => vec![
+                ("Home".into(), Route::Home {}),
+                ("Admin".into(), Route::Admin {}),
+                ("Tags".into(), to),
+            ],
+            Route::TagNewPage {} => vec![
+                ("Home".into(), Route::Home {}),
+                ("Admin".into(), Route::Admin {}),
+                ("Tags".into(), Route::TagListPage {}),
+                ("New".into(), to),
+            ],
+            Route::TagEditPage { id: _ } => vec![
+                ("Home".into(), Route::Home {}),
+                ("Admin".into(), Route::Admin {}),
+                ("Tags".into(), Route::TagListPage {}),
                 ("Edit".into(), to),
             ],
         }

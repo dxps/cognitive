@@ -1,0 +1,29 @@
+use crate::domain::model::{Id, Tag};
+use dioxus_fullstack::prelude::*;
+
+#[cfg(feature = "server")]
+use crate::server::Session;
+
+#[server(endpoint = "get_tags")]
+pub async fn get_tags() -> Result<Vec<Tag>, ServerFnError> {
+    //
+    let session: Session = extract().await?;
+    let tags = session.2.list().await?;
+    log::debug!(">>> [get_tags srvfn] Got tags: {:?}", tags);
+    Ok(tags)
+}
+
+#[server(endpoint = "create_tag")]
+pub async fn create_tag(name: String, description: Option<String>) -> Result<Id, ServerFnError> {
+    //
+    let session: Session = extract().await?;
+    let tags = session.2.add(name, description).await?;
+    Ok(tags)
+}
+
+#[server(endpoint = "update_tag")]
+pub async fn update_tag(tag: Tag) -> Result<(), ServerFnError> {
+    //
+    let session: Session = extract().await?;
+    session.2.update(tag).await.map(|_| Ok(()))?
+}

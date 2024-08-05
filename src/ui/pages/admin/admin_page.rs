@@ -18,14 +18,14 @@ pub fn Admin() -> Element {
                             "Data Management"
                         }
                         p { class: "block font-sans text-base font-light leading-relaxed text-inherit antialiased",
-                            "Manage your data such as definitions of attributes, entities, and links,
-                            plus the instances of these elements."
+                            "Manage the data model, that is thes definitions of attributes, entities, and links,
+                            plus the instances of model."
                         }
                         hr { class: "mt-2 mb-4" }
                         div { class: "flex",
                             div { class: "border-4 border-gray-100 rounded-md p-3 flex flex-col grow mr-1",
                                 h6 { class: "mb-2 pl-4 block font-medium leading-snug tracking-normal text-gray-500 antialiased",
-                                    "Definitions"
+                                    "Data Model"
                                 }
                                 Link {
                                     class: "py-2 px-4 rounded-sm transition duration-200",
@@ -41,7 +41,7 @@ pub fn Admin() -> Element {
                             }
                             div { class: "border-4 border-gray-100 rounded-md p-3 flex flex-col grow ml-1",
                                 h6 { class: "mb-2 pl-4 block font-medium leading-snug tracking-normal text-gray-500 antialiased",
-                                    "Instances"
+                                    "Model Instances"
                                 }
                                 Link {
                                     class: "py-2 px-4 rounded-sm transition duration-200",
@@ -53,6 +53,12 @@ pub fn Admin() -> Element {
                                     class: "py-2 px-4 rounded-sm transition duration-200",
                                     to: Route::AttributeDefListPage {},
                                     "Entities Instances"
+                                }
+                                hr { class: "my-2" }
+                                Link {
+                                    class: "py-2 px-4 rounded-sm transition duration-200",
+                                    to: Route::TagListPage {},
+                                    "Tags"
                                 }
                             }
                         }

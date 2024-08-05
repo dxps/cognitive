@@ -1,6 +1,6 @@
 use crate::{
     domain::model::AttributeDef,
-    server::fns::{get_attribute_def, tags::get_tags, update_attribute_def},
+    server::fns::{get_attribute_def, get_tags, update_attribute_def},
     ui::{
         comps::{AttributeDefForm, Breadcrumb, Nav},
         routes::Route,

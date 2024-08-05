@@ -1,62 +1,42 @@
 use dioxus::prelude::*;
 
 use crate::{
-    domain::model::AttributeDef,
-    server::fns::{create_attribute_def, get_tags},
+    server::fns::create_tag,
     ui::{
-        comps::{AttributeDefForm, Breadcrumb, Nav},
+        comps::{Breadcrumb, Nav, TagForm},
         routes::Route,
     },
 };
 
 #[component]
-pub fn AttributeDefNewPage() -> Element {
+pub fn TagNewPage() -> Element {
     //
     let name = use_signal(|| "".to_string());
     let description = use_signal(|| "".to_string());
-    let value_type = use_signal(|| "text".to_string());
-    let default_value = use_signal(|| "".to_string());
-    let is_required = use_signal(|| false);
-    let is_multivalued = use_signal(|| false);
-    let tag_id = use_signal(|| "".to_string());
-    let mut tags = use_signal(|| vec![]);
 
     let err: Signal<Option<String>> = use_signal(|| None);
     let saved = use_signal(|| false);
 
-    use_future(move || async move {
-        tags.set(get_tags().await.unwrap_or_default());
-    });
-
     rsx! {
         div { class: "flex flex-col min-h-screen bg-gray-100",
             Nav {}
-            Breadcrumb { paths: Route::get_path(Route::AttributeDefNewPage {}) }
+            Breadcrumb { paths: Route::get_path(Route::Admin {}) }
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
                 div { class: "bg-white rounded-md p-3 min-w-[600px] mt-[min(100px)]",
                     div { class: "p-6",
                         div { class: "flex justify-between mb-4",
                             p { class: "text-lg font-medium leading-snug tracking-normal text-gray-500 antialiased",
-                                "Create an Attribute Definition"
+                                "Create a Tag"
                             }
                             Link {
                                 class: "text-gray-500 hover:text-gray-800 px-2 rounded-xl transition duration-200",
-                                to: Route::AttributeDefListPage {},
+                                to: Route::TagListPage {},
                                 "x"
                             }
                         }
                         hr { class: "pb-2" }
-                        "Fill in the following form to create a new attribute definition."
-                        AttributeDefForm {
-                            name,
-                            description,
-                            value_type,
-                            default_value,
-                            is_required,
-                            is_multivalued,
-                            tag_id,
-                            tags
-                        }
+                        "Fill in the following form to create a new tag."
+                        TagForm { name, description }
                         div { class: "text-center my-8",
                             button {
                                 class: "bg-gray-100 hover:bg-green-100 drop-shadow-sm px-4 py-2 rounded-md",
@@ -65,22 +45,8 @@ pub fn AttributeDefNewPage() -> Element {
                                         true => None,
                                         false => Some(description()),
                                     };
-                                    let tag_id = match tag_id().is_empty() {
-                                        true => None,
-                                        false => Some(tag_id()),
-                                    };
                                     async move {
-                                        let item = AttributeDef {
-                                            id: "".to_string(),
-                                            name: name(),
-                                            description,
-                                            value_type: value_type().into(),
-                                            default_value: default_value(),
-                                            is_required: is_required(),
-                                            is_multivalued: is_multivalued(),
-                                            tag_id,
-                                        };
-                                        create_handler(item, saved, err).await;
+                                        create_handler(name(), description, saved, err).await;
                                     }
                                 },
                                 "Create"
@@ -103,9 +69,8 @@ pub fn AttributeDefNewPage() -> Element {
     }
 }
 
-async fn create_handler(item: AttributeDef, mut saved: Signal<bool>, mut err: Signal<Option<String>>) {
-    log::debug!("Creating an attribute definition {:?}: ", item);
-    match create_attribute_def(item).await {
+async fn create_handler(name: String, description: Option<String>, mut saved: Signal<bool>, mut err: Signal<Option<String>>) {
+    match create_tag(name, description).await {
         Ok(_) => {
             saved.set(true);
             err.set(None);

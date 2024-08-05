@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::{domain::model::Tag, server::fns::tags::get_tags};
+use crate::{domain::model::Tag, server::fns::get_tags};
 use dioxus::signals::{GlobalSignal, Readable};
 
 pub struct UiGlobalSignals {
@@ -20,11 +20,23 @@ impl UiGlobalSignals {
         if self.tags.read().is_empty() {
             let res = get_tags().await;
             match res {
-                Ok(tags) => *self.tags.write() = Arc::new(tags),
-                Err(e) => log::error!(">>> Failed to get tags: {}", e),
+                Ok(tags) => {
+                    log::debug!(">>> [UiGlobalSignals.get_tags] Got tags: {:?}", tags);
+                    let tags = Arc::new(tags);
+                    *self.tags.write() = tags.clone();
+                    return tags.clone();
+                }
+                Err(e) => log::error!(">>> [UiGlobalSignals.get_tags] Failed to get tags: {}", e),
             }
         }
         self.tags.read().clone()
+    }
+
+    pub async fn get_tag(&self, id: String) -> Option<Tag> {
+        if self.tags.read().is_empty() {
+            _ = self.get_tags().await;
+        }
+        self.tags.read().iter().find(|t| t.id == id).cloned()
     }
 }
 

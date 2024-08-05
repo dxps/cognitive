@@ -36,6 +36,18 @@ impl From<&str> for AppError {
     }
 }
 
+impl From<String> for AppError {
+    fn from(s: String) -> Self {
+        Self::from(s.as_str())
+    }
+}
+
+impl From<anyhow::Error> for AppError {
+    fn from(err: anyhow::Error) -> Self {
+        Self::from(err.to_string())
+    }
+}
+
 #[derive(Debug)]
 pub enum AppUseCase {
     UserRegistration,

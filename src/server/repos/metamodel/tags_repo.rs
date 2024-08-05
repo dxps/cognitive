@@ -2,7 +2,10 @@ use std::sync::Arc;
 
 use sqlx::{postgres::PgRow, FromRow, PgPool, Row};
 
-use crate::{domain::model::Tag, server::PaginationOpts};
+use crate::{
+    domain::model::Tag,
+    server::{AppError, AppResult, PaginationOpts},
+};
 
 pub struct TagsRepo {
     pub dbcp: Arc<PgPool>,
@@ -14,16 +17,20 @@ impl TagsRepo {
         Self { dbcp }
     }
 
-    pub async fn get(&self, id: String) -> Option<Tag> {
+    pub async fn get(&self, id: String) -> AppResult<Option<Tag>> {
         //
-        sqlx::query_as::<_, Tag>("SELECT id, name, description FROM tags WHERE id = $1")
+        match sqlx::query_as::<_, Tag>("SELECT id, name, description FROM tags WHERE id = $1")
             .bind(id)
             .fetch_one(self.dbcp.as_ref())
             .await
-            .ok()
+        {
+            Ok(tag) => Ok(Some(tag)),
+            Err(sqlx::Error::RowNotFound) => Ok(None),
+            Err(err) => Err(AppError::from(err)),
+        }
     }
 
-    pub async fn list(&self, pagination_opts: Option<&PaginationOpts>) -> Vec<Tag> {
+    pub async fn list(&self, pagination_opts: Option<&PaginationOpts>) -> AppResult<Vec<Tag>> {
         //
         let default_opts = PaginationOpts::default();
         let pagination_opts = pagination_opts.unwrap_or(&default_opts);
@@ -35,17 +42,43 @@ impl TagsRepo {
         sqlx::query_as::<_, Tag>(query.as_str()) // FYI: Binding (such as .bind(limit) didn't work, that's why the query.
             .fetch_all(self.dbcp.as_ref())
             .await
-            .ok()
-            .unwrap_or_default()
+            .map(|res| AppResult::Ok(res))?
+    }
+
+    pub async fn update(&self, tag: Tag) -> AppResult<()> {
+        //
+        sqlx::query("UPDATE tags SET name=$1, description=$2 WHERE id = $3")
+            .bind(tag.name)
+            .bind(tag.description)
+            .bind(tag.id)
+            .execute(self.dbcp.as_ref())
+            .await
+            .map(|_| Ok(()))?
+    }
+
+    pub async fn add(&self, tag: Tag) -> AppResult<()> {
+        //
+        sqlx::query("INSERT INTO tags (id, name, description) VALUES ($1, $2, $3)")
+            .bind(tag.id)
+            .bind(tag.name)
+            .bind(tag.description)
+            .execute(self.dbcp.as_ref())
+            .await
+            .map(|_| Ok(()))?
+    }
+
+    pub async fn remove(&self, id: String) -> AppResult<()> {
+        //
+        sqlx::query("DELETE FROM tags WHERE id = $1")
+            .bind(id)
+            .execute(self.dbcp.as_ref())
+            .await
+            .map(|_| Ok(()))?
     }
 }
 
 impl FromRow<'_, PgRow> for Tag {
     fn from_row(row: &PgRow) -> Result<Self, sqlx::Error> {
-        Ok(Self {
-            id: row.get("id"),
-            name: row.get("name"),
-            description: row.get("description"),
-        })
+        Ok(Tag::new(row.get("id"), row.get("name"), row.get("description")))
     }
 }

@@ -1,6 +1,6 @@
 use dioxus::prelude::*;
 
-use crate::{domain::model::Tag, server::fns::tags::get_tags, ui::comps::Nav};
+use crate::{domain::model::Tag, server::fns::get_tags, ui::comps::Nav};
 
 #[component]
 pub fn Home() -> Element {
