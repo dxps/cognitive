@@ -9,7 +9,6 @@ pub async fn get_tags() -> Result<Vec<Tag>, ServerFnError> {
     //
     let session: Session = extract().await?;
     let tags = session.2.list().await?;
-    log::debug!(">>> [get_tags srvfn] Got tags: {:?}", tags);
     Ok(tags)
 }
 

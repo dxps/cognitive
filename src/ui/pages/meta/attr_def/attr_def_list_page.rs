@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 use dioxus::prelude::*;
 
@@ -17,24 +17,16 @@ pub fn AttributeDefListPage() -> Element {
     //
     let mut entries = use_signal::<Vec<AttributeDef>>(|| vec![]);
 
-    let mut tags = use_signal(|| Arc::new(vec![]));
+    let mut tags = use_signal(|| Arc::new(HashMap::new()));
 
     use_future(move || async move {
         tags.set(UI_GLOBAL_SIGNALS.get_tags().await);
 
-        // TODO: This is not as efficient as `use_server_future` (see below), at least in this case.
-        //  See https://dioxuslabs.com/learn/0.5/reference/fullstack/server_functions for details.
         if let Ok(attr_defs) = list_attribute_defs().await {
             log::debug!(">>> Got from get_attribute_defs(): {:?}", attr_defs);
             entries.set(attr_defs);
         }
     });
-
-    // TODO: This is better! But currently, if you do multiple refreshes (F5) on the page, a never ending JS loop is triggered.
-    // let res = use_server_future(get_attribute_defs)?().unwrap();
-    // if let Ok(data) = res {
-    //     entries.set(data);
-    // }
 
     rsx! {
         div { class: "flex flex-col min-h-screen bg-gray-100",
@@ -57,7 +49,6 @@ pub fn AttributeDefListPage() -> Element {
                         p { class: "pb-4",
                             "The following table lists the existing attributes definitions."
                         }
-                        // Table { rows: entries(), tags: tags() }
                         for attr in entries() {
                             AttrDefCard { attr_def: attr.clone(), tags: tags() }
                         }
@@ -69,7 +60,7 @@ pub fn AttributeDefListPage() -> Element {
 }
 
 #[component]
-fn AttrDefCard(attr_def: AttributeDef, tags: Arc<Vec<Tag>>) -> Element {
+fn AttrDefCard(attr_def: AttributeDef, tags: Arc<HashMap<String, Tag>>) -> Element {
     rsx! {
         Link {
             to: Route::AttributeDefEditPage {
@@ -91,7 +82,7 @@ fn AttrDefCard(attr_def: AttributeDef, tags: Arc<Vec<Tag>>) -> Element {
                     {   if attr_def.tag_id.is_some() {
                         let tag_id = attr_def.tag_id.unwrap();
                         log::debug!(">>> tag_id: {}", tag_id);
-                        match tags.iter().find(|tag| tag.id == tag_id) {
+                        match tags.get(&tag_id) {
                                 Some(tag) => {
                                     log::debug!(">>> tag: {:?}", tag);
                                     rsx! { p { class: "text-xs leading-5 bg-slate-100 rounded-lg px-2", {tag.name.clone()} } }
@@ -102,18 +93,12 @@ fn AttrDefCard(attr_def: AttributeDef, tags: Arc<Vec<Tag>>) -> Element {
                                 }
                             }
                         }
-                    else {
-                        rsx! { p { {attr_def.tag_id.unwrap_or_default()} } }
-                    }
+                        else {
+                            rsx! { p { {attr_def.tag_id.unwrap_or_default()} } }
+                        }
                     }
                 }
             }
         }
     }
-}
-
-#[derive(Props, PartialEq, Clone)]
-pub struct TableProps {
-    pub rows: Vec<AttributeDef>,
-    pub tags: Arc<Vec<Tag>>,
 }

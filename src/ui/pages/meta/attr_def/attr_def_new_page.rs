@@ -1,11 +1,14 @@
+use std::{collections::HashMap, sync::Arc};
+
 use dioxus::prelude::*;
 
 use crate::{
     domain::model::AttributeDef,
-    server::fns::{create_attribute_def, get_tags},
+    server::fns::create_attribute_def,
     ui::{
         comps::{AttributeDefForm, Breadcrumb, Nav},
         routes::Route,
+        UI_GLOBAL_SIGNALS,
     },
 };
 
@@ -19,13 +22,13 @@ pub fn AttributeDefNewPage() -> Element {
     let is_required = use_signal(|| false);
     let is_multivalued = use_signal(|| false);
     let tag_id = use_signal(|| "".to_string());
-    let mut tags = use_signal(|| vec![]);
+    let mut tags = use_signal(|| Arc::new(HashMap::new()));
 
     let err: Signal<Option<String>> = use_signal(|| None);
     let saved = use_signal(|| false);
 
     use_future(move || async move {
-        tags.set(get_tags().await.unwrap_or_default());
+        tags.set(UI_GLOBAL_SIGNALS.get_tags().await);
     });
 
     rsx! {
@@ -55,7 +58,7 @@ pub fn AttributeDefNewPage() -> Element {
                             is_required,
                             is_multivalued,
                             tag_id,
-                            tags
+                            tags: tags()
                         }
                         div { class: "text-center my-8",
                             button {

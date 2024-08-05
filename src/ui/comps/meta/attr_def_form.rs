@@ -1,3 +1,5 @@
+use std::{collections::HashMap, sync::Arc};
+
 use dioxus::prelude::*;
 
 use crate::domain::model::Tag;
@@ -11,7 +13,7 @@ pub fn AttributeDefForm(
     is_required: Signal<bool>,
     is_multivalued: Signal<bool>,
     tag_id: Signal<String>,
-    tags: Signal<Vec<Tag>>,
+    tags: Arc<HashMap<String, Tag>>,
 ) -> Element {
     rsx! {
         div { class: "mt-4 space-y-4",
@@ -121,7 +123,7 @@ pub fn AttributeDefForm(
                         log::debug!("selected tag_id: {:?}", evt.value());
                     },
                     option { value: "", "" }
-                    for tag in tags.iter() {
+                    for tag in tags.values() {
                         option {
                             value: "{tag.id}",
                             selected: "{tag_id() == tag.id}",

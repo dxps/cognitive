@@ -75,7 +75,7 @@ pub fn TagEditPage(id: Id) -> Element {
                             }
                         } else if saved() {
                             div { class: "text-center text-green-600 my-8",
-                                span { { "Successfully created" } }
+                                span { { "Successfully updated" } }
                             }
                         }
                     }

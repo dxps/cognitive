@@ -1,3 +1,5 @@
+use std::{collections::HashMap, sync::Arc};
+
 use crate::{
     domain::model::Tag,
     ui::{
@@ -7,12 +9,11 @@ use crate::{
     },
 };
 use dioxus::prelude::*;
-use std::sync::Arc;
 
 #[component]
 pub fn TagListPage() -> Element {
     //
-    let mut tags = use_signal(|| Arc::new(vec![]));
+    let mut tags = use_signal(|| Arc::new(HashMap::new()));
 
     use_future(move || async move {
         tags.set(UI_GLOBAL_SIGNALS.get_tags().await);
@@ -40,7 +41,7 @@ pub fn TagListPage() -> Element {
                             p { class: "pb-4", "There are no tags defined." }
                         } else {
                             p { class: "pb-4", "The following tags exist." }
-                            for item in tags().iter() {
+                            for item in tags().values() {
                                 TagCard { item: item.clone() }
                             }
                         }

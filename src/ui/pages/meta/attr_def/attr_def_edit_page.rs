@@ -1,9 +1,12 @@
+use std::{collections::HashMap, sync::Arc};
+
 use crate::{
     domain::model::AttributeDef,
-    server::fns::{get_attribute_def, get_tags, update_attribute_def},
+    server::fns::{get_attribute_def, update_attribute_def},
     ui::{
         comps::{AttributeDefForm, Breadcrumb, Nav},
         routes::Route,
+        UI_GLOBAL_SIGNALS,
     },
 };
 use dioxus::prelude::*;
@@ -16,6 +19,7 @@ pub struct AttributeDefEditPageProps {
 #[component]
 pub fn AttributeDefEditPage(props: AttributeDefEditPageProps) -> Element {
     //
+    let id = use_signal(|| props.attr_def_id.clone());
     let mut attr_def = use_signal(|| None);
     let mut name = use_signal(|| "".to_string());
     let mut description = use_signal(|| "".to_string());
@@ -24,15 +28,15 @@ pub fn AttributeDefEditPage(props: AttributeDefEditPageProps) -> Element {
     let mut is_required = use_signal(|| false);
     let mut is_multivalued = use_signal(|| false);
     let mut tag_id = use_signal(|| "".to_string());
-    let mut tags = use_signal(|| vec![]);
+    let mut tags = use_signal(|| Arc::new(HashMap::new()));
 
     let mut err: Signal<Option<String>> = use_signal(|| None);
     let mut saved = use_signal(|| false);
 
     use_future(move || async move {
-        tags.set(get_tags().await.unwrap_or_default());
+        tags.set(UI_GLOBAL_SIGNALS.get_tags().await);
     });
-    let id = use_signal(|| props.attr_def_id.clone());
+
     use_future(move || async move {
         attr_def.set(get_attribute_def(id()).await.unwrap_or_default());
         if attr_def().is_some() {
@@ -78,7 +82,7 @@ pub fn AttributeDefEditPage(props: AttributeDefEditPageProps) -> Element {
                             is_required,
                             is_multivalued,
                             tag_id,
-                            tags
+                            tags: tags()
                         }
                         div { class: "flex justify-between mt-8",
                             button {
