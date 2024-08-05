@@ -36,7 +36,7 @@ pub fn TagNewPage() -> Element {
                         }
                         hr { class: "pb-2" }
                         "Fill in the following form to create a new tag."
-                        TagForm { name, description }
+                        TagForm { name, description,  }
                         div { class: "text-center my-8",
                             button {
                                 class: "bg-gray-100 hover:bg-green-100 drop-shadow-sm px-4 py-2 rounded-md",

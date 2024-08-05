@@ -6,7 +6,7 @@ use crate::{
     ui::{
         comps::{Breadcrumb, Nav, TagForm},
         routes::Route,
-        UI_GLOBAL_SIGNALS,
+        Mode, UI_GLOBAL_SIGNALS,
     },
 };
 
@@ -15,6 +15,8 @@ pub fn TagEditPage(id: Id) -> Element {
     //
     let mut name = use_signal(|| "".to_string());
     let mut description = use_signal(|| "".to_string());
+
+    let mut mode = use_signal(|| Mode::View);
 
     let err: Signal<Option<String>> = use_signal(|| None);
     let saved = use_signal(|| false);
@@ -31,6 +33,8 @@ pub fn TagEditPage(id: Id) -> Element {
         }
     });
 
+    log::debug!(">>> mode: {:?}", mode.read().to_string());
+
     rsx! {
         div { class: "flex flex-col min-h-screen bg-gray-100",
             Nav {}
@@ -40,7 +44,7 @@ pub fn TagEditPage(id: Id) -> Element {
                     div { class: "p-6",
                         div { class: "flex justify-between mb-4",
                             p { class: "text-lg font-medium leading-snug tracking-normal text-gray-500 antialiased",
-                                "Edit a Tag"
+                                "{mode.read().to_string()} Tag"
                             }
                             Link {
                                 class: "text-gray-500 hover:text-gray-800 px-2 rounded-xl transition duration-200",
@@ -49,23 +53,40 @@ pub fn TagEditPage(id: Id) -> Element {
                             }
                         }
                         hr { class: "pb-2" }
-                        "Change any of the fields below to update the tag."
-                        TagForm { name, description }
+                        if mode.read().to_string() == "View" {
+                            "This tag has the following details:"
+                        } else {
+                            "Change any of the fields below to update the tag."
+                        }
+                        TagForm { name, description, mode }
                         div { class: "text-center my-8",
                             button {
                                 class: "bg-gray-100 hover:bg-green-100 drop-shadow-sm px-4 py-2 rounded-md",
                                 onclick: move |_| {
+                                    if mode.read().to_string() == "View" {
+                                        mode.set(Mode::Edit);
+                                        log::debug!(
+                                            ">>> After setting to Mode::Edit, mode: {:?}", mode.read().to_string()
+                                        );
+                                    }
                                     let id = id.clone();
                                     let description = match description().is_empty() {
                                         true => None,
                                         false => Some(description()),
                                     };
+                                    let mode = mode.read().to_string().clone();
                                     async move {
-                                        let tag = Tag::new(id, name(), description);
-                                        update_handler(tag, saved, err).await;
+                                        if mode == "Edit" {
+                                            let tag = Tag::new(id, name(), description);
+                                            update_handler(tag, saved, err).await;
+                                        }
                                     }
                                 },
-                                "Update"
+                                if mode.read().to_string() == "View" {
+                                    "Edit"
+                                } else {
+                                    "Update"
+                                }
                             }
                         }
                         // Show the button's action result in the UI.

@@ -1,7 +1,9 @@
 use dioxus::prelude::*;
 
+use crate::ui::Mode;
+
 #[component]
-pub fn TagForm(name: Signal<String>, description: Signal<String>) -> Element {
+pub fn TagForm(name: Signal<String>, description: Signal<String>, mode: Option<Signal<Mode>>) -> Element {
     rsx! {
         div { class: "mt-4 space-y-4",
             div { class: "flex",
