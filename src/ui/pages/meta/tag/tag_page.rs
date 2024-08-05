@@ -1,5 +1,3 @@
-use dioxus::prelude::*;
-
 use crate::{
     domain::model::{Id, Tag},
     server::fns::update_tag,
@@ -9,6 +7,7 @@ use crate::{
         Mode, UI_GLOBAL_SIGNALS,
     },
 };
+use dioxus::prelude::*;
 
 #[component]
 pub fn TagPage(id: Id) -> Element {
@@ -41,21 +40,21 @@ pub fn TagPage(id: Id) -> Element {
                     div { class: "p-6",
                         div { class: "flex justify-between mb-4",
                             p { class: "text-lg font-medium leading-snug tracking-normal text-gray-500 antialiased",
-                                "{mode.read().to_string()} Tag"
+                                "{mode} Tag"
                             }
                             Link {
                                 class: "text-gray-500 hover:text-gray-800 px-2 rounded-xl transition duration-200",
                                 to: Route::TagListPage {},
-                                "x"
+                                "X"
                             }
                         }
                         hr { class: "pb-2" }
-                        if mode.read().to_string() == "View" {
+                        if mode() == Mode::View {
                             "This tag has the following details:"
                         } else {
                             "Change any of the fields below to update the tag."
                         }
-                        TagForm { name, description, mode }
+                        TagForm { name, description, mode: mode() }
                         div { class: "flex justify-between mt-8",
                             button {
                                 class: "text-red-400 bg-slate-50 hover:text-red-700 hover:bg-red-100 drop-shadow-sm px-4 rounded-md",
@@ -70,9 +69,9 @@ pub fn TagPage(id: Id) -> Element {
                                         true => None,
                                         false => Some(description()),
                                     };
-                                    let usage_mode = mode.read().to_string().clone();
+                                    let curr_mode = mode().clone();
                                     async move {
-                                        if usage_mode == "View" {
+                                        if curr_mode == Mode::View {
                                             mode.set(Mode::Edit);
                                         } else {
                                             let tag = Tag::new(id, name(), description);
@@ -80,7 +79,7 @@ pub fn TagPage(id: Id) -> Element {
                                         }
                                     }
                                 },
-                                if mode.read().to_string() == "View" {
+                                if mode() == Mode::View {
                                     "Edit"
                                 } else {
                                     "Update"

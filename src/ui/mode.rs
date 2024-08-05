@@ -1,6 +1,6 @@
 use strum::Display;
 
-#[derive(Debug, Display)]
+#[derive(Clone, Debug, Display, PartialEq)]
 pub enum Mode {
     //
     #[strum(to_string = "View")]

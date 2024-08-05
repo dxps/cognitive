@@ -1,5 +1,3 @@
-use std::{collections::HashMap, sync::Arc};
-
 use crate::{
     domain::model::Tag,
     ui::{
@@ -9,6 +7,7 @@ use crate::{
     },
 };
 use dioxus::prelude::*;
+use std::{collections::HashMap, sync::Arc};
 
 #[component]
 pub fn TagListPage() -> Element {
@@ -26,14 +25,14 @@ pub fn TagListPage() -> Element {
             Nav {}
             Breadcrumb { paths: Route::get_path(Route::TagListPage {}) }
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
-                div { class: "bg-white rounded-md p-3 min-w-[600px]",
+                div { class: "bg-white rounded-md p-3 min-w-[600px] mt-[min(100px)]",
                     div { class: "p-6",
                         div { class: "flex justify-between mb-4",
                             p { class: "text-lg font-medium leading-snug tracking-normal text-gray-500 antialiased",
                                 "Tags"
                             }
                             Link {
-                                class: "text-gray-500 font-semibold hover:text-gray-800 px-2 rounded-xl transition duration-200",
+                                class: "text-gray-500 text-3xl font-extralight hover:text-gray-800 px-2 rounded-xl transition duration-200",
                                 to: Route::TagNewPage {},
                                 "+"
                             }
