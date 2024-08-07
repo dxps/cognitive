@@ -34,7 +34,7 @@ pub fn TagPage(id: Id) -> Element {
     rsx! {
         div { class: "flex flex-col min-h-screen bg-gray-100",
             Nav {}
-            Breadcrumb { paths: Route::get_path(Route::TagPage { id: id.clone() }) }
+            Breadcrumb { paths: Route::get_path_to_tag(Route::TagPage { id: id.clone() }, name()) }
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
                 div { class: "bg-white rounded-md p-3 min-w-[600px] mt-[min(100px)]",
                     div { class: "p-6",

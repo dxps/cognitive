@@ -79,12 +79,20 @@ impl Route {
                 ("Tags".into(), Route::TagListPage {}),
                 ("New".into(), to),
             ],
-            Route::TagPage { id: _ } => vec![
-                ("Home".into(), Route::Home {}),
-                ("Admin".into(), Route::Admin {}),
-                ("Tags".into(), Route::TagListPage {}),
-                ("Edit".into(), to),
-            ],
+            Route::TagPage { id } => {
+                let to = Route::TagPage { id: id.clone() };
+                let tag_name = format!("id:{}", id);
+                Route::get_path_to_tag(to, tag_name)
+            }
         }
+    }
+
+    pub fn get_path_to_tag(to: Route, tag_name: String) -> Vec<(String, Route)> {
+        vec![
+            ("Home".into(), Route::Home {}),
+            ("Admin".into(), Route::Admin {}),
+            ("Tags".into(), Route::TagListPage {}),
+            (tag_name, to),
+        ]
     }
 }
