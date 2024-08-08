@@ -14,7 +14,7 @@ pub fn TagNewPage() -> Element {
     let name = use_signal(|| "".to_string());
     let description = use_signal(|| "".to_string());
 
-    let err: Signal<Option<String>> = use_signal(|| None);
+    let mut err: Signal<Option<String>> = use_signal(|| None);
     let saved = use_signal(|| false);
 
     rsx! {
@@ -54,6 +54,10 @@ pub fn TagNewPage() -> Element {
                                         false => Some(description()),
                                     };
                                     async move {
+                                        if name().is_empty() {
+                                            err.set(Some("Name cannot be empty".to_string()));
+                                            return;
+                                        }
                                         create_handler(name(), description, saved, err).await;
                                     }
                                 },

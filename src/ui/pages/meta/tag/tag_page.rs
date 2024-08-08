@@ -17,7 +17,7 @@ pub fn TagPage(id: Id) -> Element {
 
     let mut mode = use_signal(|| Mode::View);
 
-    let err: Signal<Option<String>> = use_signal(|| None);
+    let mut err: Signal<Option<String>> = use_signal(|| None);
     let saved = use_signal(|| false);
 
     let tid = id.clone();
@@ -62,7 +62,7 @@ pub fn TagPage(id: Id) -> Element {
                                 "Delete"
                             }
                             // Show the buttons' action result in the UI.
-                            div { class: "min-w-[440px] max-w-[440px]",
+                            div { class: "min-w-[350px] max-w-[350px] mt-1 pl-2",
                                 if err().is_some() {
                                     span { class: "text-red-600", { err().unwrap() } }
                                 } else if saved() {
@@ -82,6 +82,10 @@ pub fn TagPage(id: Id) -> Element {
                                         if curr_mode == Mode::View {
                                             mode.set(Mode::Edit);
                                         } else {
+                                            if name().is_empty() {
+                                                err.set(Some("Name cannot be empty".to_string()));
+                                                return;
+                                            }
                                             let tag = Tag::new(id, name(), description);
                                             update_handler(tag, saved, err).await;
                                         }

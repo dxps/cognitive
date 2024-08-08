@@ -706,6 +706,10 @@ button {
   margin-right: 72px;
 }
 
+.mt-1 {
+  margin-top: 0.25rem;
+}
+
 .mt-14 {
   margin-top: 3.5rem;
 }
@@ -807,6 +811,14 @@ button {
   min-width: 20rem;
 }
 
+.min-w-\[350px\] {
+  min-width: 350px;
+}
+
+.min-w-\[440px\] {
+  min-width: 440px;
+}
+
 .min-w-\[600px\] {
   min-width: 600px;
 }
@@ -815,28 +827,16 @@ button {
   min-width: 100%;
 }
 
-.min-w-96 {
-  min-width: 24rem;
-}
-
-.min-w-\[500px\] {
-  min-width: 500px;
-}
-
-.min-w-\[440px\] {
-  min-width: 440px;
-}
-
-.max-w-xl {
-  max-width: 36rem;
-}
-
-.max-w-96 {
-  max-width: 24rem;
+.max-w-\[350px\] {
+  max-width: 350px;
 }
 
 .max-w-\[440px\] {
   max-width: 440px;
+}
+
+.max-w-xl {
+  max-width: 36rem;
 }
 
 .grow {
@@ -1101,6 +1101,10 @@ button {
 
 .pl-1 {
   padding-left: 0.25rem;
+}
+
+.pl-2 {
+  padding-left: 0.5rem;
 }
 
 .pl-3 {
