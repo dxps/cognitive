@@ -1,9 +1,10 @@
 use crate::{
+    domain::model::{Id, Tag},
     server::fns::create_tag,
     ui::{
         comps::{Breadcrumb, Nav, TagForm},
         routes::Route,
-        Mode,
+        Mode, UI_GLOBAL_SIGNALS,
     },
 };
 use dioxus::prelude::*;
@@ -58,7 +59,12 @@ pub fn TagNewPage() -> Element {
                                             err.set(Some("Name cannot be empty".to_string()));
                                             return;
                                         }
-                                        create_handler(name(), description, saved, err).await;
+                                        let id = handle_create_tag(name(), description.clone(), saved, err).await;
+                                        if id.is_some() {
+                                            UI_GLOBAL_SIGNALS
+                                                .add_tag(Tag::new(id.unwrap(), name(), description))
+                                                .await;
+                                        }
                                     }
                                 },
                                 "Create"
@@ -71,15 +77,22 @@ pub fn TagNewPage() -> Element {
     }
 }
 
-async fn create_handler(name: String, description: Option<String>, mut saved: Signal<bool>, mut err: Signal<Option<String>>) {
+async fn handle_create_tag(
+    name: String,
+    description: Option<String>,
+    mut saved: Signal<bool>,
+    mut err: Signal<Option<String>>,
+) -> Option<Id> {
     match create_tag(name, description).await {
-        Ok(_) => {
+        Ok(id) => {
             saved.set(true);
             err.set(None);
+            Some(id)
         }
         Err(e) => {
             saved.set(false);
             err.set(Some(e.to_string()));
+            None
         }
     }
 }

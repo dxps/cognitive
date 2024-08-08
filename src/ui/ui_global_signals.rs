@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::Arc};
+use std::{collections::HashMap, ops::Deref, sync::Arc};
 
 use crate::{domain::model::Tag, server::fns::get_tags};
 use dioxus::signals::{GlobalSignal, Readable};
@@ -38,6 +38,13 @@ impl UiGlobalSignals {
             _ = self.get_tags().await;
         }
         self.tags.read().get(&id).cloned()
+    }
+
+    pub async fn add_tag(&self, tag: Tag) {
+        let tags = self.tags.read().clone();
+        let mut tags = tags.deref().clone();
+        tags.insert(tag.id.clone(), tag);
+        *self.tags.write() = Arc::new(tags);
     }
 
     pub async fn update_tag(&self, tag: Tag) {
