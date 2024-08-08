@@ -61,6 +61,14 @@ pub fn TagPage(id: Id) -> Element {
                                 onclick: move |_| { async move { todo!() } },
                                 "Delete"
                             }
+                            // Show the buttons' action result in the UI.
+                            div { class: "min-w-[440px] max-w-[440px]",
+                                if err().is_some() {
+                                    span { class: "text-red-600", { err().unwrap() } }
+                                } else if saved() {
+                                    span { class: "text-green-600", { "Successfully created" } }
+                                }
+                            }
                             button {
                                 class: "bg-gray-100 hover:bg-green-100 drop-shadow-sm px-4 rounded-md",
                                 onclick: move |_| {
@@ -84,16 +92,6 @@ pub fn TagPage(id: Id) -> Element {
                                 } else {
                                     "Update"
                                 }
-                            }
-                        }
-                        // Show the button's action result in the UI.
-                        if err().is_some() {
-                            div { class: "text-center text-red-600 mt-8",
-                                span { {err().unwrap()} }
-                            }
-                        } else if saved() {
-                            div { class: "text-center text-green-600 mt-8",
-                                span { { "Successfully updated" } }
                             }
                         }
                     }

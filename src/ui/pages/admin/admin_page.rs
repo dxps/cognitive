@@ -15,17 +15,16 @@ pub fn Admin() -> Element {
                 div { class: "bg-white rounded-md p-3",
                     div { class: "p-6",
                         h5 { class: "mb-2 block text-lg font-semibold leading snug tracking-normal text-gray-500 antialiased",
-                            "Data Management"
+                            "Model Management"
                         }
                         p { class: "block font-sans text-base font-light leading-relaxed text-inherit antialiased",
-                            "Manage the data model, that is thes definitions of attributes, entities, and links,
-                            plus the instances of model."
+                            "Manage the definitions of attributes, entities, and links, plus the instances of the model."
                         }
                         hr { class: "mt-2 mb-4" }
                         div { class: "flex",
                             div { class: "border-4 border-gray-100 rounded-md p-3 flex flex-col grow mr-1",
                                 h6 { class: "mb-2 pl-4 block font-medium leading-snug tracking-normal text-gray-500 antialiased",
-                                    "Data Model"
+                                    "Model Definitions"
                                 }
                                 Link {
                                     class: "py-2 px-4 rounded-sm transition duration-200",
