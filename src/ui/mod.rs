@@ -11,5 +11,5 @@ pub use ui_global_signals::*;
 mod ui_state;
 pub use ui_state::*;
 
-mod mode;
-pub use mode::*;
+mod action;
+pub use action::*;

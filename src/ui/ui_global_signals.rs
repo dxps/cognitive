@@ -61,6 +61,16 @@ impl UiGlobals {
             .collect();
         *self.tags.write() = Arc::new(updated_tags);
     }
+
+    pub async fn remove_tag(&self, id: String) {
+        let tags = self.tags.read().clone();
+        let updated_tags: HashMap<String, Tag> = tags
+            .iter()
+            .filter(|(_, v)| v.id != id)
+            .map(|(k, v)| (k.clone(), v.clone()))
+            .collect();
+        *self.tags.write() = Arc::new(updated_tags);
+    }
 }
 
 pub static UI_GLOBALS: UiGlobals = UiGlobals::new();

@@ -4,7 +4,7 @@ use crate::{
     ui::{
         comps::{Breadcrumb, Nav, TagForm},
         routes::Route,
-        Mode, UI_GLOBALS,
+        Action, UI_GLOBALS,
     },
 };
 use dioxus::prelude::*;
@@ -37,7 +37,7 @@ pub fn TagNewPage() -> Element {
                         }
                         hr { class: "pb-2" }
                         "Fill in the following form to create a new tag."
-                        TagForm { name, description, mode: Mode::Edit }
+                        TagForm { name, description, action: Action::Edit }
                         div { class: "flex justify-betweent mt-8",
                             // Show the button's action result in the UI.
                             div { class: "min-w-[440px] max-w-[440px]",
@@ -61,9 +61,7 @@ pub fn TagNewPage() -> Element {
                                         }
                                         let id = handle_create_tag(name(), description.clone(), saved, err).await;
                                         if id.is_some() {
-                                            UI_GLOBALS
-                                                .add_tag(Tag::new(id.unwrap(), name(), description))
-                                                .await;
+                                            UI_GLOBALS.add_tag(Tag::new(id.unwrap(), name(), description)).await;
                                         }
                                     }
                                 },

@@ -39,6 +39,11 @@ impl TagMgmt {
         //
         self.tag_repo.update(tag).await
     }
+
+    pub async fn remove(&self, id: Id) -> AppResult<()> {
+        //
+        self.tag_repo.remove(id).await
+    }
 }
 
 #[derive(Debug, Default, Deserialize)]

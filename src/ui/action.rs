@@ -1,11 +1,14 @@
 use strum::Display;
 
 #[derive(Clone, Debug, Display, PartialEq)]
-pub enum Mode {
+pub enum Action {
     //
-    #[strum(to_string = "View")]
-    View,
+    #[strum(to_string = "Delete")]
+    Delete,
 
     #[strum(to_string = "Edit")]
     Edit,
+
+    #[strum(to_string = "View")]
+    View,
 }

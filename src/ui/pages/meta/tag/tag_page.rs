@@ -1,10 +1,10 @@
 use crate::{
     domain::model::{Id, Tag},
-    server::fns::update_tag,
+    server::fns::{remove_tag, update_tag},
     ui::{
         comps::{Breadcrumb, Nav, TagForm},
         routes::Route,
-        Mode, UI_GLOBALS,
+        Action, UI_GLOBALS,
     },
 };
 use dioxus::prelude::*;
@@ -15,12 +15,13 @@ pub fn TagPage(id: Id) -> Element {
     let mut name = use_signal(|| "".to_string());
     let mut description = use_signal(|| "".to_string());
 
-    let mut mode = use_signal(|| Mode::View);
+    let mut action = use_signal(|| Action::View);
 
     let mut err: Signal<Option<String>> = use_signal(|| None);
     let saved = use_signal(|| false);
 
     let tid = id.clone();
+    let did = id.clone();
     use_future(move || {
         let id = tid.clone();
         async move {
@@ -40,7 +41,7 @@ pub fn TagPage(id: Id) -> Element {
                     div { class: "p-6",
                         div { class: "flex justify-between mb-4",
                             p { class: "text-lg font-medium leading-snug tracking-normal text-gray-500 antialiased",
-                                "{mode} Tag"
+                                "{action} Tag"
                             }
                             Link {
                                 class: "text-gray-500 hover:text-gray-800 px-2 rounded-xl transition duration-200",
@@ -49,16 +50,20 @@ pub fn TagPage(id: Id) -> Element {
                             }
                         }
                         hr { class: "pb-2" }
-                        if mode() == Mode::View {
+                        if action() == Action::View {
                             "This tag has the following details:"
                         } else {
                             "Change any of the fields below to update the tag."
                         }
-                        TagForm { name, description, mode: mode() }
+                        TagForm { name, description, action: action() }
                         div { class: "flex justify-between mt-8",
                             button {
                                 class: "text-red-400 bg-slate-50 hover:text-red-700 hover:bg-red-100 drop-shadow-sm px-4 rounded-md",
-                                onclick: move |_| { async move { todo!() } },
+                                onclick: move |_| {
+                                    let id = did.clone();
+                                    action.set(Action::Delete);
+                                    async move { handle_delete(id, saved, err).await }
+                                },
                                 "Delete"
                             }
                             // Show the buttons' action result in the UI.
@@ -66,32 +71,43 @@ pub fn TagPage(id: Id) -> Element {
                                 if err().is_some() {
                                     span { class: "text-red-600", { err().unwrap() } }
                                 } else if saved() {
-                                    span { class: "text-green-600", { "Successfully created" } }
+                                    span { class: "text-green-600",
+                                        {
+                                            if action() == Action::Edit {
+                                                "Successfully updated"
+                                            } else if action() == Action::Delete {
+                                                "Successfully deleted"
+                                            } else {
+                                                ""
+                                            }
+                                        }
+                                    }
                                 }
                             }
                             button {
-                                class: "bg-gray-100 hover:bg-green-100 drop-shadow-sm px-4 rounded-md",
+                                class: "bg-gray-100 enabled:hover:bg-green-100 disabled:text-gray-400 drop-shadow-sm px-4 rounded-md",
+                                disabled: action() == Action::Delete,
                                 onclick: move |_| {
                                     let id = id.clone();
                                     let description = match description().is_empty() {
                                         true => None,
                                         false => Some(description()),
                                     };
-                                    let curr_mode = mode().clone();
+                                    let curr_action = action().clone();
                                     async move {
-                                        if curr_mode == Mode::View {
-                                            mode.set(Mode::Edit);
+                                        if curr_action == Action::View {
+                                            action.set(Action::Edit);
                                         } else {
                                             if name().is_empty() {
                                                 err.set(Some("Name cannot be empty".to_string()));
                                                 return;
                                             }
                                             let tag = Tag::new(id, name(), description);
-                                            update_handler(tag, saved, err).await;
+                                            handle_update(tag, saved, err).await;
                                         }
                                     }
                                 },
-                                if mode() == Mode::View {
+                                if action() == Action::View {
                                     "Edit"
                                 } else {
                                     "Update"
@@ -105,7 +121,7 @@ pub fn TagPage(id: Id) -> Element {
     }
 }
 
-async fn update_handler(tag: Tag, mut saved: Signal<bool>, mut err: Signal<Option<String>>) {
+async fn handle_update(tag: Tag, mut saved: Signal<bool>, mut err: Signal<Option<String>>) {
     //
     log::debug!(">>> Updating tag: {:?}", tag);
     match update_tag(tag.clone()).await {
@@ -113,6 +129,22 @@ async fn update_handler(tag: Tag, mut saved: Signal<bool>, mut err: Signal<Optio
             saved.set(true);
             err.set(None);
             UI_GLOBALS.update_tag(tag).await;
+        }
+        Err(e) => {
+            saved.set(false);
+            err.set(Some(e.to_string()));
+        }
+    }
+}
+
+async fn handle_delete(id: String, mut saved: Signal<bool>, mut err: Signal<Option<String>>) {
+    //
+    log::debug!(">>> Deleting tag: {:?}", id);
+    match remove_tag(id.clone()).await {
+        Ok(_) => {
+            saved.set(true);
+            err.set(None);
+            UI_GLOBALS.remove_tag(id).await;
         }
         Err(e) => {
             saved.set(false);

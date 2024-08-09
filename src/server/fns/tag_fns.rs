@@ -26,3 +26,10 @@ pub async fn update_tag(tag: Tag) -> Result<(), ServerFnError> {
     let session: Session = extract().await?;
     session.2.update(tag).await.map(|_| Ok(()))?
 }
+
+#[server(endpoint = "remove_tag")]
+pub async fn remove_tag(id: Id) -> Result<(), ServerFnError> {
+    //
+    let session: Session = extract().await?;
+    session.2.remove(id).await.map(|_| Ok(()))?
+}
