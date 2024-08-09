@@ -3,13 +3,13 @@ use std::{collections::HashMap, ops::Deref, sync::Arc};
 use crate::{domain::model::Tag, server::fns::get_tags};
 use dioxus::signals::{GlobalSignal, Readable};
 
-pub struct UiGlobalSignals {
+pub struct UiGlobals {
     pub app_ready: GlobalSignal<bool>,
     pub tags: GlobalSignal<Arc<HashMap<String, Tag>>>,
     pub tags_loaded: GlobalSignal<bool>,
 }
 
-impl UiGlobalSignals {
+impl UiGlobals {
     pub const fn new() -> Self {
         Self {
             app_ready: GlobalSignal::new(|| false),
@@ -63,4 +63,4 @@ impl UiGlobalSignals {
     }
 }
 
-pub static UI_GLOBAL_SIGNALS: UiGlobalSignals = UiGlobalSignals::new();
+pub static UI_GLOBALS: UiGlobals = UiGlobals::new();

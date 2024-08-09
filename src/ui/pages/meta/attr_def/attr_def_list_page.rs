@@ -4,7 +4,7 @@ use crate::{
     ui::{
         comps::{Breadcrumb, Nav},
         routes::Route,
-        UI_GLOBAL_SIGNALS,
+        UI_GLOBALS,
     },
 };
 use dioxus::prelude::*;
@@ -18,7 +18,7 @@ pub fn AttributeDefListPage() -> Element {
     let mut tags = use_signal(|| Arc::new(HashMap::new()));
 
     use_future(move || async move {
-        tags.set(UI_GLOBAL_SIGNALS.get_tags().await);
+        tags.set(UI_GLOBALS.get_tags().await);
 
         if let Ok(attr_defs) = list_attribute_defs().await {
             log::debug!(">>> Got from get_attribute_defs(): {:?}", attr_defs);

@@ -6,7 +6,7 @@ use crate::{
     ui::{
         comps::{AttributeDefForm, Breadcrumb, Nav},
         routes::Route,
-        UI_GLOBAL_SIGNALS,
+        UI_GLOBALS,
     },
 };
 use dioxus::prelude::*;
@@ -34,7 +34,7 @@ pub fn AttributeDefEditPage(props: AttributeDefEditPageProps) -> Element {
     let mut saved = use_signal(|| false);
 
     use_future(move || async move {
-        tags.set(UI_GLOBAL_SIGNALS.get_tags().await);
+        tags.set(UI_GLOBALS.get_tags().await);
     });
 
     use_future(move || async move {

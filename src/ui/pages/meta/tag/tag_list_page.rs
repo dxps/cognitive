@@ -3,7 +3,7 @@ use crate::{
     ui::{
         comps::{Breadcrumb, Nav},
         routes::Route,
-        UI_GLOBAL_SIGNALS,
+        UI_GLOBALS,
     },
 };
 use dioxus::prelude::*;
@@ -16,7 +16,7 @@ pub fn TagListPage() -> Element {
     let mut tags_loaded = use_signal(|| false);
 
     use_future(move || async move {
-        tags.set(UI_GLOBAL_SIGNALS.get_tags().await);
+        tags.set(UI_GLOBALS.get_tags().await);
         tags_loaded.set(true);
     });
 

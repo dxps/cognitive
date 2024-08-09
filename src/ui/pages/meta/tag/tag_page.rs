@@ -4,7 +4,7 @@ use crate::{
     ui::{
         comps::{Breadcrumb, Nav, TagForm},
         routes::Route,
-        Mode, UI_GLOBAL_SIGNALS,
+        Mode, UI_GLOBALS,
     },
 };
 use dioxus::prelude::*;
@@ -24,7 +24,7 @@ pub fn TagPage(id: Id) -> Element {
     use_future(move || {
         let id = tid.clone();
         async move {
-            if let Some(t) = UI_GLOBAL_SIGNALS.get_tag(id).await {
+            if let Some(t) = UI_GLOBALS.get_tag(id).await {
                 name.set(t.name.clone());
                 description.set(t.description.unwrap_or_default());
             }
@@ -112,7 +112,7 @@ async fn update_handler(tag: Tag, mut saved: Signal<bool>, mut err: Signal<Optio
         Ok(_) => {
             saved.set(true);
             err.set(None);
-            UI_GLOBAL_SIGNALS.update_tag(tag).await;
+            UI_GLOBALS.update_tag(tag).await;
         }
         Err(e) => {
             saved.set(false);

@@ -2,14 +2,14 @@ use dioxus::prelude::*;
 
 use crate::server::fns::auth::has_admin_permissions;
 use crate::ui::routes::Route;
-use crate::ui::{UiState, UI_GLOBAL_SIGNALS};
+use crate::ui::{UiState, UI_GLOBALS};
 
 pub fn NavUserMenu() -> Element {
     //
     let state = use_context::<Signal<UiState>>();
     let mut show_dropdown = use_signal(|| false);
 
-    if *UI_GLOBAL_SIGNALS.app_ready.read() == false {
+    if *UI_GLOBALS.app_ready.read() == false {
         return rsx! {};
     };
 

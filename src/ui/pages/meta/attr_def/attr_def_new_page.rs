@@ -8,7 +8,7 @@ use crate::{
     ui::{
         comps::{AttributeDefForm, Breadcrumb, Nav},
         routes::Route,
-        UI_GLOBAL_SIGNALS,
+        UI_GLOBALS,
     },
 };
 
@@ -28,7 +28,7 @@ pub fn AttributeDefNewPage() -> Element {
     let saved = use_signal(|| false);
 
     use_future(move || async move {
-        tags.set(UI_GLOBAL_SIGNALS.get_tags().await);
+        tags.set(UI_GLOBALS.get_tags().await);
     });
 
     rsx! {

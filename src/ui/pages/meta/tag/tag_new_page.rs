@@ -4,7 +4,7 @@ use crate::{
     ui::{
         comps::{Breadcrumb, Nav, TagForm},
         routes::Route,
-        Mode, UI_GLOBAL_SIGNALS,
+        Mode, UI_GLOBALS,
     },
 };
 use dioxus::prelude::*;
@@ -61,7 +61,7 @@ pub fn TagNewPage() -> Element {
                                         }
                                         let id = handle_create_tag(name(), description.clone(), saved, err).await;
                                         if id.is_some() {
-                                            UI_GLOBAL_SIGNALS
+                                            UI_GLOBALS
                                                 .add_tag(Tag::new(id.unwrap(), name(), description))
                                                 .await;
                                         }
