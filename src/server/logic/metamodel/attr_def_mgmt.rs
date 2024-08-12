@@ -46,4 +46,10 @@ impl AttributeDefMgmt {
         //
         self.attr_repo.update(item).await
     }
+
+    /// Remove an existing attribute definition.
+    pub async fn remove(&self, id: Id) -> AppResult<()> {
+        //
+        self.attr_repo.remove(&id).await
+    }
 }

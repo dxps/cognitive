@@ -29,11 +29,19 @@ pub async fn create_attribute_def(item: AttributeDef) -> Result<Id, ServerFnErro
     session.3.add(item).await.map(|id| Ok(id))?
 }
 
-/// Create an attribute definition.
+/// Update an attribute definition.
 #[server(endpoint = "admin/update_attr_def")]
 pub async fn update_attribute_def(item: AttributeDef) -> Result<(), ServerFnError> {
     //
     log::debug!("Updating attribute def: {:?}", item);
     let session: Session = extract().await?;
     session.3.update(item).await.map(|_| Ok(()))?
+}
+
+/// Remove an attribute definition.
+#[server(endpoint = "remove_attr_def")]
+pub async fn remove_attr_def(id: Id) -> Result<(), ServerFnError> {
+    //
+    let session: Session = extract().await?;
+    session.3.remove(id).await.map(|_| Ok(()))?
 }

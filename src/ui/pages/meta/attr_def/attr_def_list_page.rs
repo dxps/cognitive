@@ -61,7 +61,7 @@ pub fn AttributeDefListPage() -> Element {
 fn AttrDefCard(attr_def: AttributeDef, tags: Arc<HashMap<String, Tag>>) -> Element {
     rsx! {
         Link {
-            to: Route::AttributeDefEditPage {
+            to: Route::AttributeDefPage {
                 attr_def_id: attr_def.id,
             },
             div { class: "flex flex-col p-2 my-3 bg-white rounded border hover:bg-slate-100 transition duration-200",

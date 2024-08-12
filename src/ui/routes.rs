@@ -1,7 +1,7 @@
 use crate::{
     domain::model::Id,
     ui::pages::{
-        Admin, AttributeDefEditPage, AttributeDefListPage, AttributeDefNewPage, Home, Login, Logout, TagListPage, TagNewPage,
+        Admin, AttributeDefListPage, AttributeDefNewPage, AttributeDefPage, Home, Login, Logout, TagListPage, TagNewPage,
         TagPage, UserProfile,
     },
 };
@@ -31,7 +31,7 @@ pub enum Route {
     AttributeDefNewPage {},
 
     #[route("/admin/definitions/attributes/:attr_def_id/edit")]
-    AttributeDefEditPage { attr_def_id: String },
+    AttributeDefPage { attr_def_id: String },
 
     #[route("/admin/tags")]
     TagListPage {},
@@ -62,7 +62,7 @@ impl Route {
                 ("Attributes Definitions".into(), Route::AttributeDefListPage {}),
                 ("New".into(), to),
             ],
-            Route::AttributeDefEditPage { attr_def_id: _ } => vec![
+            Route::AttributeDefPage { attr_def_id: _ } => vec![
                 ("Home".into(), Route::Home {}),
                 ("Admin".into(), Route::Admin {}),
                 ("Attributes Definitions".into(), Route::AttributeDefListPage {}),

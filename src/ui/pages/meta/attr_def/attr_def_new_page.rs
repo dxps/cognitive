@@ -1,16 +1,14 @@
-use std::{collections::HashMap, sync::Arc};
-
-use dioxus::prelude::*;
-
 use crate::{
     domain::model::AttributeDef,
     server::fns::create_attribute_def,
     ui::{
         comps::{AttributeDefForm, Breadcrumb, Nav},
         routes::Route,
-        UI_GLOBALS,
+        Action, UI_GLOBALS,
     },
 };
+use dioxus::prelude::*;
+use std::{collections::HashMap, sync::Arc};
 
 #[component]
 pub fn AttributeDefNewPage() -> Element {
@@ -58,9 +56,22 @@ pub fn AttributeDefNewPage() -> Element {
                             is_required,
                             is_multivalued,
                             tag_id,
-                            tags: tags()
+                            tags: tags(),
+                            action: Action::Edit
                         }
-                        div { class: "text-center my-8",
+                        div { class: "flex justify-betweent mt-8",
+                            // Show the button's action result in the UI.
+                            div { class: "min-w-[440px] max-w-[440px]",
+                                if err().is_some() {
+                                    span { class: "text-red-600 flex justify-center",
+                                        { err().unwrap() }
+                                    }
+                                } else if saved() {
+                                    span { class: "text-green-600 flex justify-center",
+                                        { "Successfully created" }
+                                    }
+                                }
+                            }
                             button {
                                 class: "bg-gray-100 hover:bg-green-100 drop-shadow-sm px-4 py-2 rounded-md",
                                 onclick: move |_| {
@@ -87,16 +98,6 @@ pub fn AttributeDefNewPage() -> Element {
                                     }
                                 },
                                 "Create"
-                            }
-                        }
-                        // Show the button's action result in the UI.
-                        if err().is_some() {
-                            div { class: "text-center text-red-600 my-8",
-                                span { {err().unwrap()} }
-                            }
-                        } else if saved() {
-                            div { class: "text-center text-green-600 my-8",
-                                span { { "Successfully created" } }
                             }
                         }
                     }

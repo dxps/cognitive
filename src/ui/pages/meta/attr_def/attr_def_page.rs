@@ -1,0 +1,203 @@
+use std::{collections::HashMap, sync::Arc};
+
+use crate::{
+    domain::model::AttributeDef,
+    server::fns::{get_attribute_def, remove_attr_def, update_attribute_def},
+    ui::{
+        comps::{AttributeDefForm, Breadcrumb, Nav},
+        routes::Route,
+        Action, UI_GLOBALS,
+    },
+};
+use dioxus::prelude::*;
+
+#[derive(PartialEq, Props, Clone)]
+pub struct AttributeDefEditPageProps {
+    attr_def_id: String,
+}
+
+#[component]
+pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
+    //
+    let id = use_signal(|| props.attr_def_id.clone());
+    let mut attr_def = use_signal(|| None);
+    let mut name = use_signal(|| "".to_string());
+    let mut description = use_signal(|| "".to_string());
+    let mut value_type = use_signal(|| "".to_string());
+    let mut default_value = use_signal(|| "".to_string());
+    let mut is_required = use_signal(|| false);
+    let mut is_multivalued = use_signal(|| false);
+    let mut tag_id = use_signal(|| "".to_string());
+    let mut tags = use_signal(|| Arc::new(HashMap::new()));
+
+    let mut action = use_signal(|| Action::View);
+
+    let mut err: Signal<Option<String>> = use_signal(|| None);
+    let saved = use_signal(|| false);
+
+    use_future(move || async move {
+        tags.set(UI_GLOBALS.get_tags().await);
+    });
+
+    use_future(move || async move {
+        attr_def.set(get_attribute_def(id()).await.unwrap_or_default());
+        if attr_def().is_some() {
+            let item = attr_def().unwrap();
+            name.set(item.name);
+            description.set(item.description.unwrap_or_default());
+            value_type.set(item.value_type.to_string());
+            default_value.set(item.default_value);
+            is_required.set(item.is_required);
+            is_multivalued.set(item.is_multivalued);
+            tag_id.set(item.tag_id.unwrap_or_default());
+        }
+    });
+
+    rsx! {
+        div { class: "flex flex-col min-h-screen bg-gray-100",
+            Nav {}
+            Breadcrumb {
+                paths: Route::get_path(Route::AttributeDefPage {
+                    attr_def_id: id(),
+                })
+            }
+            div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
+                div { class: "bg-white rounded-md p-3 min-w-[600px] mt-[min(100px)]",
+                    div { class: "p-6",
+                        div { class: "flex justify-between mb-4",
+                            p { class: "text-lg font-medium leading-snug tracking-normal text-gray-500 antialiased",
+                                "{action} Attribute Definition"
+                            }
+                            Link {
+                                class: "text-gray-500 hover:text-gray-800 px-2 rounded-xl transition duration-200",
+                                to: Route::AttributeDefListPage {},
+                                "x"
+                            }
+                        }
+                        hr { class: "pb-2" }
+                        if action() == Action::View {
+                            "This tag has the following details:"
+                        } else {
+                            "Change any of the fields below to update the attribute definition."
+                        }
+                        AttributeDefForm {
+                            name,
+                            description,
+                            value_type,
+                            default_value,
+                            is_required,
+                            is_multivalued,
+                            tag_id,
+                            tags: tags(),
+                            action: action()
+                        }
+                        div { class: "flex justify-between mt-8",
+                            button {
+                                class: "text-red-200 bg-slate-50 hover:text-red-600 hover:bg-red-100 drop-shadow-sm px-4 rounded-md",
+                                onclick: move |_| {
+                                    let id = id();
+                                    action.set(Action::Delete);
+                                    async move { handle_delete(id, saved, err).await }
+                                },
+                                "Delete"
+                            }
+                            // Show the buttons' action result in the UI.
+                            div { class: "min-w-[350px] max-w-[350px] mt-1 pl-2",
+                                if err().is_some() {
+                                    span { class: "text-red-600 flex justify-center",
+                                        { err().unwrap() }
+                                    }
+                                } else if saved() {
+                                    span { class: "text-green-600 flex justify-center",
+                                        {
+                                            if action() == Action::Edit {
+                                                "Successfully updated"
+                                            } else if action() == Action::Delete {
+                                                "Successfully deleted"
+                                            } else {
+                                                ""
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            button {
+                                class: "bg-gray-100 hover:bg-green-100 drop-shadow-sm px-4 rounded-md",
+                                disabled: action() == Action::Delete,
+                                onclick: move |_| {
+                                    let curr_action = action().clone();
+                                    async move {
+                                        if curr_action == Action::View {
+                                            action.set(Action::Edit);
+                                        } else {
+                                            if name().is_empty() {
+                                                err.set(Some("Name cannot be empty".to_string()));
+                                                return;
+                                            }
+                                            let description = match description().is_empty() {
+                                                true => None,
+                                                false => Some(description()),
+                                            };
+                                            let tag_id = match tag_id().is_empty() {
+                                                true => None,
+                                                false => Some(tag_id()),
+                                            };
+                                            let item = AttributeDef::new(
+                                                id(),
+                                                name(),
+                                                description,
+                                                value_type().into(),
+                                                default_value(),
+                                                is_required(),
+                                                is_multivalued(),
+                                                tag_id,
+                                            );
+                                            handle_update(item, saved, err).await;
+                                        }
+                                    }
+                                },
+                                if action() == Action::View {
+                                    "Edit"
+                                } else if action() == Action::Delete {
+                                    "  -  "
+                                } else {
+                                    "Update"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+async fn handle_update(item: AttributeDef, mut saved: Signal<bool>, mut err: Signal<Option<String>>) {
+    //
+    log::debug!(">>> Updating attribute definition: {:?}", item);
+    match update_attribute_def(item).await {
+        Ok(_) => {
+            saved.set(true);
+            err.set(None);
+        }
+        Err(e) => {
+            saved.set(false);
+            err.set(Some(e.to_string()));
+        }
+    }
+}
+
+async fn handle_delete(id: String, mut saved: Signal<bool>, mut err: Signal<Option<String>>) {
+    //
+    log::debug!(">>> Deleting attribute definition: {:?}", id);
+    match remove_attr_def(id.clone()).await {
+        Ok(_) => {
+            saved.set(true);
+            err.set(None);
+        }
+        Err(e) => {
+            saved.set(false);
+            err.set(Some(e.to_string()));
+        }
+    }
+}

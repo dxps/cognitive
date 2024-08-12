@@ -14,7 +14,10 @@ pub fn AttributeDefForm(
     is_multivalued: Signal<bool>,
     tag_id: Signal<String>,
     tags: Arc<HashMap<String, Tag>>,
+    action: String,
 ) -> Element {
+    //
+    let is_view = action == "View";
     rsx! {
         div { class: "mt-4 space-y-4",
             div { class: "flex",
@@ -25,7 +28,8 @@ pub fn AttributeDefForm(
                     placeholder: "its name",
                     value: "{name}",
                     maxlength: 64,
-                    autofocus: "true",
+                    readonly: is_view,
+                    autofocus: !is_view,
                     oninput: move |evt| {
                         name.set(evt.value());
                     },
@@ -43,6 +47,7 @@ pub fn AttributeDefForm(
                     placeholder: "an optional description",
                     value: "{description}",
                     maxlength: 256,
+                    readonly: is_view,
                     oninput: move |evt| {
                         description.set(evt.value());
                     }
@@ -53,6 +58,7 @@ pub fn AttributeDefForm(
                 select {
                     class: "px-3 py-2 bg-slate-100 rounded-lg outline-none border-1 border-gray-300 focus:border-green-300 min-w-80",
                     multiple: false,
+                    // readonly: is_view,
                     oninput: move |evt| {
                         value_type.set(evt.value());
                         log::debug!("selected value type: {:?}", evt.value());
@@ -84,6 +90,7 @@ pub fn AttributeDefForm(
                     placeholder: "an optional default value",
                     value: "{default_value}",
                     maxlength: 64,
+                    readonly: is_view,
                     oninput: move |evt| {
                         default_value.set(evt.value());
                     }
@@ -95,6 +102,7 @@ pub fn AttributeDefForm(
                     r#type: "checkbox",
                     value: "{is_required}",
                     checked: "{is_required()}",
+                    readonly: is_view,
                     oninput: move |evt| {
                         is_required.set(evt.value().parse().unwrap_or_default());
                     }
@@ -107,6 +115,7 @@ pub fn AttributeDefForm(
                     r#type: "checkbox",
                     value: "{is_multivalued}",
                     checked: "{is_multivalued()}",
+                    readonly: is_view,
                     oninput: move |evt| {
                         is_multivalued.set(evt.value().parse().unwrap_or_default());
                     }
@@ -118,6 +127,7 @@ pub fn AttributeDefForm(
                 select {
                     class: "px-3 py-2 bg-slate-100 rounded-lg outline-none border-1 border-gray-300 focus:border-green-300 min-w-80",
                     multiple: false,
+                    // readonly: is_view,
                     oninput: move |evt| {
                         tag_id.set(evt.value());
                         log::debug!("selected tag_id: {:?}", evt.value());

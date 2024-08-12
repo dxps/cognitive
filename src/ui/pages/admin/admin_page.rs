@@ -12,7 +12,7 @@ pub fn Admin() -> Element {
             Nav {}
             Breadcrumb { paths: Route::get_path(Route::Admin {}) }
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
-                div { class: "bg-white rounded-md p-3",
+                div { class: "bg-white rounded-md p-3 min-w-[600px] mt-[min(100px)]",
                     div { class: "p-6",
                         h5 { class: "mb-2 block text-lg font-semibold leading snug tracking-normal text-gray-500 antialiased",
                             "Model Management"
