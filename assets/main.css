@@ -894,10 +894,10 @@ button {
   gap: 1rem;
 }
 
-.space-x-3 > :not([hidden]) ~ :not([hidden]) {
+.space-x-2 > :not([hidden]) ~ :not([hidden]) {
   --tw-space-x-reverse: 0;
-  margin-right: calc(0.75rem * var(--tw-space-x-reverse));
-  margin-left: calc(0.75rem * calc(1 - var(--tw-space-x-reverse)));
+  margin-right: calc(0.5rem * var(--tw-space-x-reverse));
+  margin-left: calc(0.5rem * calc(1 - var(--tw-space-x-reverse)));
 }
 
 .space-y-4 > :not([hidden]) ~ :not([hidden]) {
@@ -1099,10 +1099,6 @@ button {
   padding-bottom: 1rem;
 }
 
-.pl-1 {
-  padding-left: 0.25rem;
-}
-
 .pl-2 {
   padding-left: 0.5rem;
 }
@@ -1113,6 +1109,10 @@ button {
 
 .pl-4 {
   padding-left: 1rem;
+}
+
+.pl-\[6px\] {
+  padding-left: 6px;
 }
 
 .pr-1 {
@@ -1384,16 +1384,6 @@ button {
 .enabled\:hover\:bg-green-100:hover:enabled {
   --tw-bg-opacity: 1;
   background-color: rgb(220 252 231 / var(--tw-bg-opacity));
-}
-
-.enabled\:hover\:bg-red-100:hover:enabled {
-  --tw-bg-opacity: 1;
-  background-color: rgb(254 226 226 / var(--tw-bg-opacity));
-}
-
-.disabled\:text-gray-300:disabled {
-  --tw-text-opacity: 1;
-  color: rgb(209 213 219 / var(--tw-text-opacity));
 }
 
 .disabled\:text-gray-400:disabled {

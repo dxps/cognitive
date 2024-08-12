@@ -42,9 +42,13 @@ pub fn TagNewPage() -> Element {
                             // Show the button's action result in the UI.
                             div { class: "min-w-[440px] max-w-[440px]",
                                 if err().is_some() {
-                                    span { class: "text-red-600", { err().unwrap() } }
+                                    span { class: "text-red-600 flex justify-center",
+                                        { err().unwrap() }
+                                    }
                                 } else if saved() {
-                                    span { class: "text-green-600", { "Successfully created" } }
+                                    span { class: "text-green-600 flex justify-center",
+                                        { "Successfully created" }
+                                    }
                                 }
                             }
                             button {

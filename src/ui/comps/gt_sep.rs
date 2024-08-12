@@ -4,7 +4,7 @@ use dioxus::prelude::*;
 pub fn GtSep() -> Element {
     rsx! {
         div {
-            class: "pl-1 pb-1",
+            class: "pl-[6px] pb-1",
             dangerous_inner_html: r##"
         <svg xmlns="http://www.w3.org/2000/svg" class="fill-gray-400 w-3.5 -rotate-90 text-gray-300" viewBox="0 0 32 32">
           <path fill-rule="evenodd"

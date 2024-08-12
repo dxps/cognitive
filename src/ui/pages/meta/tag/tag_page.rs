@@ -69,9 +69,11 @@ pub fn TagPage(id: Id) -> Element {
                             // Show the buttons' action result in the UI.
                             div { class: "min-w-[350px] max-w-[350px] mt-1 pl-2",
                                 if err().is_some() {
-                                    span { class: "text-red-600", { err().unwrap() } }
+                                    span { class: "text-red-600 flex justify-center",
+                                        { err().unwrap() }
+                                    }
                                 } else if saved() {
-                                    span { class: "text-green-600",
+                                    span { class: "text-green-600 flex justify-center",
                                         {
                                             if action() == Action::Edit {
                                                 "Successfully updated"
