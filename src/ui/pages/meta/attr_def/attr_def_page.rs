@@ -57,9 +57,12 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
         div { class: "flex flex-col min-h-screen bg-gray-100",
             Nav {}
             Breadcrumb {
-                paths: Route::get_path(Route::AttributeDefPage {
-                    attr_def_id: id(),
-                })
+                paths: Route::get_path_to_attr_def(
+                    Route::AttributeDefPage {
+                        attr_def_id: id(),
+                    },
+                    name(),
+                )
             }
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
                 div { class: "bg-white rounded-md p-3 min-w-[600px] mt-[min(100px)]",

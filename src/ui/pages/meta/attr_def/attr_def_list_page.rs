@@ -44,9 +44,7 @@ pub fn AttributeDefListPage() -> Element {
                             }
                         }
                         hr { class: "pb-2" }
-                        p { class: "pb-4",
-                            "The following table lists the existing attributes definitions."
-                        }
+                        p { class: "pb-4", "The following attributes definitions are defined." }
                         for attr in entries() {
                             AttrDefCard { attr_def: attr.clone(), tags: tags() }
                         }

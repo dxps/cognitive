@@ -2,7 +2,7 @@ use std::{collections::HashMap, sync::Arc};
 
 use dioxus::prelude::*;
 
-use crate::domain::model::Tag;
+use crate::{domain::model::Tag, ui::Action};
 
 #[component]
 pub fn AttributeDefForm(
@@ -18,6 +18,7 @@ pub fn AttributeDefForm(
 ) -> Element {
     //
     let is_view = action == "View";
+    let is_edit = action == "Edit";
     rsx! {
         div { class: "mt-4 space-y-4",
             div { class: "flex",
@@ -28,7 +29,7 @@ pub fn AttributeDefForm(
                     placeholder: "its name",
                     value: "{name}",
                     maxlength: 64,
-                    readonly: is_view,
+                    disabled: is_view,
                     autofocus: !is_view,
                     oninput: move |evt| {
                         name.set(evt.value());
@@ -47,7 +48,7 @@ pub fn AttributeDefForm(
                     placeholder: "an optional description",
                     value: "{description}",
                     maxlength: 256,
-                    readonly: is_view,
+                    disabled: is_view,
                     oninput: move |evt| {
                         description.set(evt.value());
                     }
@@ -58,7 +59,7 @@ pub fn AttributeDefForm(
                 select {
                     class: "px-3 py-2 bg-slate-100 rounded-lg outline-none border-1 border-gray-300 focus:border-green-300 min-w-80",
                     multiple: false,
-                    // readonly: is_view,
+                    disabled: is_view,
                     oninput: move |evt| {
                         value_type.set(evt.value());
                         log::debug!("selected value type: {:?}", evt.value());
@@ -90,7 +91,7 @@ pub fn AttributeDefForm(
                     placeholder: "an optional default value",
                     value: "{default_value}",
                     maxlength: 64,
-                    readonly: is_view,
+                    disabled: is_view,
                     oninput: move |evt| {
                         default_value.set(evt.value());
                     }
@@ -102,12 +103,23 @@ pub fn AttributeDefForm(
                     r#type: "checkbox",
                     value: "{is_required}",
                     checked: "{is_required()}",
-                    readonly: is_view,
+                    disabled: is_view,
                     oninput: move |evt| {
-                        is_required.set(evt.value().parse().unwrap_or_default());
+                        if is_edit {
+                            is_required.set(evt.value().parse().unwrap_or_default());
+                        }
                     }
                 }
-                label { class: "pl-3 py-2 min-w-28", "Required" }
+                label {
+                    class: "pl-3 py-2 min-w-28",
+                    cursor: if is_edit { "pointer" } else { "default" },
+                    onclick: move |_| {
+                        if is_edit {
+                            is_required.set(!is_required());
+                        }
+                    },
+                    "Required"
+                }
             }
             div { class: "flex",
                 input {
@@ -115,19 +127,28 @@ pub fn AttributeDefForm(
                     r#type: "checkbox",
                     value: "{is_multivalued}",
                     checked: "{is_multivalued()}",
-                    readonly: is_view,
+                    disabled: is_view,
                     oninput: move |evt| {
                         is_multivalued.set(evt.value().parse().unwrap_or_default());
                     }
                 }
-                label { class: "pl-3 min-w-28", "Multivalued" }
+                label {
+                    class: "pl-3 min-w-28",
+                    cursor: if is_edit { "pointer" } else { "default" },
+                    onclick: move |_| {
+                        if is_edit {
+                            is_multivalued.set(!is_multivalued())
+                        }
+                    },
+                    "Multivalued"
+                }
             }
             div { class: "flex",
                 label { class: "pr-3 py-1 min-w-28", "Tag:" }
                 select {
                     class: "px-3 py-2 bg-slate-100 rounded-lg outline-none border-1 border-gray-300 focus:border-green-300 min-w-80",
                     multiple: false,
-                    // readonly: is_view,
+                    disabled: is_view,
                     oninput: move |evt| {
                         tag_id.set(evt.value());
                         log::debug!("selected tag_id: {:?}", evt.value());

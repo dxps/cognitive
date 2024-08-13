@@ -750,10 +750,6 @@ button {
   display: flex;
 }
 
-.table {
-  display: table;
-}
-
 .contents {
   display: contents;
 }

@@ -30,7 +30,7 @@ pub enum Route {
     #[route("/admin/definitions/attributes/new")]
     AttributeDefNewPage {},
 
-    #[route("/admin/definitions/attributes/:attr_def_id/edit")]
+    #[route("/admin/definitions/attributes/:attr_def_id")]
     AttributeDefPage { attr_def_id: String },
 
     #[route("/admin/tags")]
@@ -93,6 +93,15 @@ impl Route {
             ("Admin".into(), Route::Admin {}),
             ("Tags".into(), Route::TagListPage {}),
             (tag_name, to),
+        ]
+    }
+
+    pub fn get_path_to_attr_def(to: Route, attr_def_name: String) -> Vec<(String, Route)> {
+        vec![
+            ("Home".into(), Route::Home {}),
+            ("Admin".into(), Route::Admin {}),
+            ("Attributes Definitions".into(), Route::AttributeDefListPage {}),
+            (attr_def_name, to),
         ]
     }
 }
