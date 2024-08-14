@@ -1,6 +1,7 @@
 use super::{AttributeDef, Item, ItemType};
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug)]
+#[derive(Debug, Default, PartialEq, Clone, Serialize, Deserialize)]
 /// An entity definition.
 pub struct EntityDef {
     pub id: String,

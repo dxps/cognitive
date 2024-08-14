@@ -1,8 +1,8 @@
 use crate::{
     domain::model::Id,
     ui::pages::{
-        Admin, AttributeDefListPage, AttributeDefNewPage, AttributeDefPage, Home, Login, Logout, TagListPage, TagNewPage,
-        TagPage, UserProfile,
+        Admin, AttributeDefListPage, AttributeDefNewPage, AttributeDefPage, EntityDefListPage, EntityDefNewPage, EntityDefPage,
+        Home, Login, Logout, TagListPage, TagNewPage, TagPage, UserProfile,
     },
 };
 use dioxus::prelude::*;
@@ -33,6 +33,15 @@ pub enum Route {
     #[route("/admin/definitions/attributes/:attr_def_id")]
     AttributeDefPage { attr_def_id: String },
 
+    #[route("/admin/definitions/entities")]
+    EntityDefListPage {},
+
+    #[route("/admin/definitions/entities/new")]
+    EntityDefNewPage {},
+
+    #[route("/admin/definitions/entities/:id")]
+    EntityDefPage { id: Id },
+
     #[route("/admin/tags")]
     TagListPage {},
 
@@ -62,11 +71,16 @@ impl Route {
                 ("Attributes Definitions".into(), Route::AttributeDefListPage {}),
                 ("New".into(), to),
             ],
-            Route::AttributeDefPage { attr_def_id: _ } => vec![
+            Route::EntityDefListPage {} => vec![
                 ("Home".into(), Route::Home {}),
                 ("Admin".into(), Route::Admin {}),
-                ("Attributes Definitions".into(), Route::AttributeDefListPage {}),
-                ("Edit".into(), to),
+                ("Entities Definitions".into(), Route::EntityDefListPage {}),
+            ],
+            Route::EntityDefNewPage {} => vec![
+                ("Home".into(), Route::Home {}),
+                ("Admin".into(), Route::Admin {}),
+                ("Entities Definitions".into(), Route::EntityDefListPage {}),
+                ("New".into(), to),
             ],
             Route::TagListPage {} => vec![
                 ("Home".into(), Route::Home {}),
@@ -84,6 +98,7 @@ impl Route {
                 let tag_name = format!("id:{}", id);
                 Route::get_path_to_tag(to, tag_name)
             }
+            _ => vec![("Home".into(), Route::Home {}), ("Admin".into(), Route::Admin {})],
         }
     }
 
@@ -102,6 +117,15 @@ impl Route {
             ("Admin".into(), Route::Admin {}),
             ("Attributes Definitions".into(), Route::AttributeDefListPage {}),
             (attr_def_name, to),
+        ]
+    }
+
+    pub fn get_path_to_ent_def(to: Route, ent_def_name: String) -> Vec<(String, Route)> {
+        vec![
+            ("Home".into(), Route::Home {}),
+            ("Admin".into(), Route::Admin {}),
+            ("Entities Definitions".into(), Route::EntityDefListPage {}),
+            (ent_def_name, to),
         ]
     }
 }

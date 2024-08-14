@@ -2,7 +2,7 @@ use std::{collections::HashMap, sync::Arc};
 
 use dioxus::prelude::*;
 
-use crate::{domain::model::Tag, ui::Action};
+use crate::domain::model::Tag;
 
 #[component]
 pub fn AttributeDefForm(

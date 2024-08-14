@@ -7,5 +7,5 @@ pub use breadcrumb::*;
 mod gt_sep;
 pub use gt_sep::*;
 
-mod meta;
-pub use meta::*;
+mod metamodel;
+pub use metamodel::*;
