@@ -31,7 +31,13 @@ pub fn EntityDefListPage() -> Element {
                             }
                         }
                         hr { class: "pb-2" }
-                        p { class: "pb-4", "The following entities definitions are defined." }
+                        p { class: "pb-4",
+                            if items.is_empty() {
+                                "There are no entities definitions."
+                            } else {
+                                "The following entities definitions are defined."
+                            }
+                        }
                         for item in items() {
                             EntityDefCard { ent_def: item.clone() }
                         }

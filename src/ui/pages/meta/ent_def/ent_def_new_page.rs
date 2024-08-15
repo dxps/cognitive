@@ -1,17 +1,30 @@
-use dioxus::prelude::*;
+use std::collections::HashMap;
 
-use crate::ui::{
-    comps::{Breadcrumb, Nav},
-    routes::Route,
+use crate::{
+    domain::model::Id,
+    server::fns::list_attribute_defs,
+    ui::{
+        comps::{Breadcrumb, Nav},
+        pages::EntityDefForm,
+        routes::Route,
+        Action,
+    },
 };
+use dioxus::prelude::*;
 
 pub fn EntityDefNewPage() -> Element {
     //
-    let mut name = use_signal(|| "".to_string());
-    let mut description = use_signal(|| "".to_string());
+    let name = use_signal(|| "".to_string());
+    let description = use_signal(|| "".to_string());
+    let included_attr_defs: Signal<Vec<(Id, String)>> = use_signal(|| vec![]);
+    let mut all_attr_defs: Signal<HashMap<Id, String>> = use_signal(|| HashMap::new());
 
     let mut err: Signal<Option<String>> = use_signal(|| None);
     let saved = use_signal(|| false);
+
+    use_future(move || async move {
+        all_attr_defs.set(fetch_all_attr_defs().await);
+    });
 
     rsx! {
         div { class: "flex flex-col min-h-screen bg-gray-100",
@@ -31,9 +44,27 @@ pub fn EntityDefNewPage() -> Element {
                             }
                         }
                         hr { class: "pb-2" }
+                        EntityDefForm {
+                            name,
+                            description,
+                            included_attr_defs,
+                            all_attr_defs,
+                            action: Action::Edit
+                        }
                     }
                 }
             }
         }
     }
+}
+
+async fn fetch_all_attr_defs() -> HashMap<Id, String> {
+    //
+    let mut entries = HashMap::new();
+    if let Ok(attr_defs) = list_attribute_defs().await {
+        attr_defs.iter().for_each(|attr_def| {
+            entries.insert(attr_def.id.clone(), attr_def.name.clone());
+        });
+    }
+    entries
 }
