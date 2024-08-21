@@ -2,6 +2,7 @@ use dioxus::prelude::*;
 
 use crate::{
     domain::model::EntityDef,
+    server::fns::list_entities_defs,
     ui::{
         comps::{Breadcrumb, Nav},
         routes::Route,
@@ -12,6 +13,12 @@ use crate::{
 pub fn EntityDefListPage() -> Element {
     //
     let mut items = use_signal::<Vec<EntityDef>>(|| vec![]);
+
+    use_future(move || async move {
+        if let Ok(ent_defs) = list_entities_defs().await {
+            items.set(ent_defs);
+        }
+    });
 
     rsx! {
         div { class: "flex flex-col min-h-screen bg-gray-100",

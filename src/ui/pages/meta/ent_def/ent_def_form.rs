@@ -55,15 +55,20 @@ pub fn EntityDefForm(
             }
             p { "Attributes:" }
             div { class: "space-y-0",
-                for (_ , name) in included_attr_defs() {
+                for (id , name) in included_attr_defs() {
                     div { class: "flex",
                         p { class: "pl-28 pr-3 min-w-[430px]", "{name}" }
                         button {
                             class: "text-slate-300 hover:text-gray-800 hover:bg-slate-100 ml-4 px-3 py-0 rounded-xl transition duration-200",
                             onclick: move |_| {
-                                let mut included = included_attr_defs();
-                                included.retain(|(id, _)| *id != selected_attr_def_id());
-                                included_attr_defs.set(included);
+                                let id = id.clone();
+                                let name = name.clone();
+                                let mut temp = included_attr_defs();
+                                temp.retain(|(iid, _)| *iid != id);
+                                included_attr_defs.set(temp);
+                                let mut temp = all_attr_defs();
+                                temp.insert(id, name);
+                                all_attr_defs.set(temp);
                             },
                             "-"
                         }

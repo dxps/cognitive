@@ -10,6 +10,17 @@ pub struct EntityDef {
     pub attributes: Vec<AttributeDef>,
 }
 
+impl EntityDef {
+    pub fn new(id: String, name: String, description: Option<String>) -> Self {
+        Self {
+            id,
+            name,
+            description,
+            attributes: vec![],
+        }
+    }
+}
+
 impl Item for EntityDef {
     fn item_type(&self) -> ItemType {
         ItemType::EntityDef

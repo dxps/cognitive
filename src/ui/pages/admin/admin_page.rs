@@ -2,7 +2,6 @@ use dioxus::prelude::*;
 
 use crate::ui::{
     comps::{Breadcrumb, Nav},
-    pages::EntityDefListPage,
     routes::Route,
 };
 

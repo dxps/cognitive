@@ -10,7 +10,7 @@ use http::{request::Parts, StatusCode};
 #[cfg(feature = "server")]
 use sqlx::PgPool;
 
-use super::{AttributeDefMgmt, AttributeDefRepo, TagMgmt, TagsRepo, UserMgmt, UsersRepo};
+use super::{AttributeDefMgmt, AttributeDefRepo, EntityDefMgmt, EntityDefRepo, TagMgmt, TagsRepo, UserMgmt, UsersRepo};
 
 #[cfg(feature = "server")]
 #[derive(Clone)]
@@ -18,6 +18,7 @@ pub struct ServerState {
     pub user_mgmt: Arc<UserMgmt>,
     pub tag_mgmt: Arc<TagMgmt>,
     pub attr_def_mgmt: Arc<AttributeDefMgmt>,
+    pub ent_def_mgmt: Arc<EntityDefMgmt>,
 }
 
 impl ServerState {
@@ -32,10 +33,14 @@ impl ServerState {
         let attr_def_repo = Arc::new(AttributeDefRepo::new(db_pool.clone()));
         let attr_def_mgmt = Arc::new(AttributeDefMgmt::new(attr_def_repo));
 
+        let ent_def_repo = Arc::new(EntityDefRepo::new(db_pool.clone()));
+        let ent_def_mgmt = Arc::new(EntityDefMgmt::new(ent_def_repo));
+
         Self {
             user_mgmt,
             tag_mgmt,
             attr_def_mgmt,
+            ent_def_mgmt,
         }
     }
 }
