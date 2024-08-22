@@ -125,7 +125,7 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
                                 }
                             }
                             button {
-                                class: "bg-gray-100 hover:bg-green-100 drop-shadow-sm px-4 rounded-md",
+                                class: "bg-gray-100 enabled:hover:bg-green-100 disabled:text-gray-400 hover:disabled:bg-gray-100 drop-shadow-sm px-4 rounded-md",
                                 disabled: action() == Action::Delete,
                                 onclick: move |_| {
                                     let curr_action = action().clone();
