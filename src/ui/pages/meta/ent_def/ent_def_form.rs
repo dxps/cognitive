@@ -17,6 +17,7 @@ pub fn EntityDefForm(
     let is_view = action == "View";
     let mut selected_attr_def_id = use_signal(|| "".to_string());
     let mut selected_attr_def_name = use_signal(|| "".to_string());
+
     rsx! {
         div { class: "mt-4 space-y-4",
             div { class: "flex",
@@ -61,6 +62,8 @@ pub fn EntityDefForm(
                         p { class: "pl-28 pr-3 min-w-[430px]", "{name}" }
                         button {
                             class: "text-slate-300 hover:text-gray-800 hover:bg-slate-100 ml-4 px-3 py-0 rounded-xl transition duration-200",
+                            disabled: is_view,
+                            // Remove the item from `included_attr_defs` and put it back into `all_attr_defs`.
                             onclick: move |_| {
                                 let id = id.clone();
                                 let name = name.clone();
@@ -96,6 +99,7 @@ pub fn EntityDefForm(
                 }
                 button {
                     class: "bg-slate-100 text-slate-600 hover:text-gray-800 ml-4 px-3 rounded-lg transition duration-200",
+                    disabled: is_view,
                     onclick: move |_| {
                         if selected_attr_def_id().is_empty() {
                             return;

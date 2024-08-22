@@ -20,3 +20,27 @@ pub async fn create_entity_def(item: EntityDef) -> Result<Id, ServerFnError> {
     let result = session.4.add(item).await;
     result.map_err(|e| e.into())
 }
+
+/// Get an entity definition.
+#[server(endpoint = "admin/get_ent_def", input = GetUrl)]
+pub async fn get_entity_def(id: Id) -> Result<Option<EntityDef>, ServerFnError> {
+    let session: Session = extract().await?;
+    let ent_def = session.4.get(&id).await;
+    Ok(ent_def)
+}
+
+/// Update an entity definition.
+#[server(endpoint = "admin/update_ent_defs")]
+pub async fn update_entity_def(ent_def: EntityDef) -> Result<(), ServerFnError> {
+    let session: Session = extract().await?;
+    let result = session.4.update(ent_def).await;
+    result.map_err(|e| e.into())
+}
+
+/// Remove an entity definition.
+#[server(endpoint = "admin/remove_ent_defs")]
+pub async fn remove_entity_def(id: Id) -> Result<(), ServerFnError> {
+    let session: Session = extract().await?;
+    let result = session.4.remove(&id).await;
+    result.map_err(|e| e.into())
+}

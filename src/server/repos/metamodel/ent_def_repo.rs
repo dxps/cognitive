@@ -2,7 +2,7 @@ use sqlx::{postgres::PgRow, FromRow, PgPool, Row};
 use std::sync::Arc;
 
 use crate::{
-    domain::model::EntityDef,
+    domain::model::{AttributeDef, EntityDef, Id},
     server::{AppResult, PaginationOpts},
 };
 
@@ -56,13 +56,111 @@ impl EntityDefRepo {
                     .await
             {
                 txn.rollback().await?;
-                log::error!("Failed to add entity def's attributes: {}", e);
+                log::error!("Failed to add entity def's attribute defs: {}", e);
                 return AppResult::Err(e.into());
             }
         }
 
         txn.commit().await?;
 
+        AppResult::Ok(())
+    }
+
+    pub async fn get(&self, id: &Id) -> Option<EntityDef> {
+        //
+        let mut res = None;
+        if let Ok(res_opt) = sqlx::query_as::<_, EntityDef>("SELECT id, name, description FROM entity_defs WHERE id = $1")
+            .bind(id)
+            .fetch_optional(self.dbcp.as_ref())
+            .await
+        {
+            if let Some(mut ent_def) = res_opt {
+                if let Ok(attrs) = sqlx::query_as::<_, AttributeDef>(
+                    "SELECT id, name, description, value_type, default_value, required, multivalued, tag_id 
+                     FROM attribute_defs ad JOIN entity_defs_attribute_defs_xref ed_ad_xref 
+                     ON ad.id = ed_ad_xref.attribute_def_id where ed_ad_xref.entity_def_id = $1",
+                )
+                .bind(id)
+                .fetch_all(self.dbcp.as_ref())
+                .await
+                {
+                    ent_def.attributes = attrs;
+                    res = Some(ent_def);
+                }
+            }
+        };
+        res
+    }
+
+    pub async fn update(&self, ent_def: &EntityDef) -> AppResult<()> {
+        //
+        let mut txn = self.dbcp.begin().await?;
+        if let Err(e) = sqlx::query("UPDATE entity_defs SET name = $1, description = $2 WHERE id = $3")
+            .bind(ent_def.name.clone())
+            .bind(ent_def.description.clone())
+            .bind(ent_def.id.clone())
+            .execute(&mut *txn)
+            .await
+        {
+            txn.rollback().await?;
+            log::error!("Failed to update entity def: {}", e);
+            return AppResult::Err(e.into());
+        }
+
+        for attr_def in ent_def.attributes.clone() {
+            if let Err(e) =
+                sqlx::query("DELETE FROM entity_defs_attribute_defs_xref WHERE entity_def_id = $1 AND attribute_def_id = $2")
+                    .bind(&ent_def.id)
+                    .bind(&attr_def.id)
+                    .execute(&mut *txn)
+                    .await
+            {
+                txn.rollback().await?;
+                log::error!("Failed to delete entity def's (id:{}) attribute def id: {}", ent_def.id, e);
+                return AppResult::Err(e.into());
+            }
+            if let Err(e) =
+                sqlx::query("INSERT INTO entity_defs_attribute_defs_xref (entity_def_id, attribute_def_id) VALUES ($1, $2)")
+                    .bind(&ent_def.id)
+                    .bind(&attr_def.id)
+                    .execute(&mut *txn)
+                    .await
+            {
+                txn.rollback().await?;
+                log::error!("Failed to update entity def's attribute defs: {}", e);
+                return AppResult::Err(e.into());
+            }
+        }
+
+        txn.commit().await?;
+        AppResult::Ok(())
+    }
+
+    pub async fn remove(&self, id: &Id) -> AppResult<()> {
+        //
+        log::debug!(">>> Deleting entity def: {:?}", id);
+        let mut txn = self.dbcp.begin().await?;
+
+        if let Err(e) = sqlx::query("DELETE FROM entity_defs_attribute_defs_xref WHERE entity_def_id = $1")
+            .bind(id)
+            .execute(&mut *txn)
+            .await
+        {
+            txn.rollback().await?;
+            log::error!("Failed to delete entity def attribute def xref: {}", e);
+            return AppResult::Err(e.into());
+        }
+
+        if let Err(e) = sqlx::query("DELETE FROM entity_defs WHERE id = $1")
+            .bind(id)
+            .execute(&mut *txn)
+            .await
+        {
+            txn.rollback().await?;
+            log::error!("Failed to delete entity def: {}", e);
+            return AppResult::Err(e.into());
+        }
+        txn.commit().await?;
         AppResult::Ok(())
     }
 }

@@ -2,10 +2,9 @@ use std::collections::HashMap;
 
 use crate::{
     domain::model::{EntityDef, Id},
-    server::fns::list_attribute_defs,
     ui::{
         comps::{Breadcrumb, Nav},
-        pages::EntityDefForm,
+        pages::{meta::ent_def::fetch_all_attr_defs, EntityDefForm},
         routes::Route,
         Action,
     },
@@ -16,8 +15,8 @@ pub fn EntityDefNewPage() -> Element {
     //
     let name = use_signal(|| "".to_string());
     let description = use_signal(|| "".to_string());
-    let mut included_attr_defs: Signal<Vec<(Id, String)>> = use_signal(|| vec![]);
-    let mut all_attr_defs: Signal<HashMap<Id, String>> = use_signal(|| HashMap::new());
+    let mut included_attr_defs = use_signal::<Vec<(Id, String)>>(|| vec![]);
+    let mut all_attr_defs = use_signal(|| HashMap::<Id, String>::new());
 
     let mut err: Signal<Option<String>> = use_signal(|| None);
     let saved = use_signal(|| false);
@@ -50,7 +49,7 @@ pub fn EntityDefNewPage() -> Element {
                             included_attr_defs,
                             all_attr_defs,
                             action: Action::Edit,
-                            err,
+                            err
                         }
                         div { class: "flex justify-betweent mt-8",
                             // Show the button's action result in the UI.
@@ -105,17 +104,6 @@ pub fn EntityDefNewPage() -> Element {
             }
         }
     }
-}
-
-async fn fetch_all_attr_defs() -> HashMap<Id, String> {
-    //
-    let mut entries = HashMap::new();
-    if let Ok(attr_defs) = list_attribute_defs().await {
-        attr_defs.iter().for_each(|attr_def| {
-            entries.insert(attr_def.id.clone(), attr_def.name.clone());
-        });
-    }
-    entries
 }
 
 async fn handle_create_ent_def(

@@ -23,4 +23,16 @@ impl EntityDefMgmt {
         self.ent_repo.add(&ent_def).await?;
         Ok(ent_def.id)
     }
+
+    pub async fn get(&self, id: &Id) -> Option<EntityDef> {
+        self.ent_repo.get(id).await
+    }
+
+    pub async fn update(&self, ent_def: EntityDef) -> AppResult<()> {
+        self.ent_repo.update(&ent_def).await
+    }
+
+    pub async fn remove(&self, id: &Id) -> AppResult<()> {
+        self.ent_repo.remove(id).await
+    }
 }
