@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{
-    domain::model::Id,
+    domain::model::{EntityDef, Id},
     server::fns::list_attribute_defs,
     ui::{
         comps::{Breadcrumb, Nav},
@@ -16,7 +16,7 @@ pub fn EntityDefNewPage() -> Element {
     //
     let name = use_signal(|| "".to_string());
     let description = use_signal(|| "".to_string());
-    let included_attr_defs: Signal<Vec<(Id, String)>> = use_signal(|| vec![]);
+    let mut included_attr_defs: Signal<Vec<(Id, String)>> = use_signal(|| vec![]);
     let mut all_attr_defs: Signal<HashMap<Id, String>> = use_signal(|| HashMap::new());
 
     let mut err: Signal<Option<String>> = use_signal(|| None);
@@ -49,7 +49,8 @@ pub fn EntityDefNewPage() -> Element {
                             description,
                             included_attr_defs,
                             all_attr_defs,
-                            action: Action::Edit
+                            action: Action::Edit,
+                            err,
                         }
                         div { class: "flex justify-betweent mt-8",
                             // Show the button's action result in the UI.
@@ -65,7 +66,8 @@ pub fn EntityDefNewPage() -> Element {
                                 }
                             }
                             button {
-                                class: "bg-gray-100 hover:bg-green-100 drop-shadow-sm px-4 rounded-md",
+                                class: "bg-gray-100 hover:bg-green-100 disabled:text-gray-300 hover:disabled:bg-gray-100 drop-shadow-sm px-4 rounded-md",
+                                disabled: included_attr_defs().is_empty(),
                                 onclick: move |_| {
                                     let description = match description().is_empty() {
                                         true => None,
@@ -76,14 +78,23 @@ pub fn EntityDefNewPage() -> Element {
                                             err.set(Some("Name cannot be empty".to_string()));
                                             return;
                                         }
-                                        let id = handle_create_ent_def(
+                                        if included_attr_defs().is_empty() {
+                                            err.set(Some("Include at least one attribute".to_string()));
+                                            return;
+                                        }
+                                        let attributes_ids: Vec<Id> = included_attr_defs()
+                                            .iter()
+                                            .map(|(id, _)| id.clone())
+                                            .collect();
+                                        handle_create_ent_def(
                                                 name(),
                                                 description.clone(),
-                                                included_attr_defs(),
+                                                attributes_ids,
                                                 saved,
                                                 err,
                                             )
                                             .await;
+                                        included_attr_defs.set(vec![]);
                                     }
                                 },
                                 "Create"
@@ -110,9 +121,22 @@ async fn fetch_all_attr_defs() -> HashMap<Id, String> {
 async fn handle_create_ent_def(
     name: String,
     description: Option<String>,
-    included_attr_defs: Vec<(Id, String)>,
+    attr_def_ids: Vec<Id>,
     mut saved: Signal<bool>,
     mut err: Signal<Option<String>>,
 ) -> Option<Id> {
-    None
+    let ent_def = EntityDef::new_with_attr_def_ids("".into(), name, description, attr_def_ids);
+    log::debug!("Creating an entity definition {:?}: ", ent_def);
+    match crate::server::fns::create_entity_def(ent_def).await {
+        Ok(id) => {
+            saved.set(true);
+            err.set(None);
+            Some(id)
+        }
+        Err(e) => {
+            saved.set(false);
+            err.set(Some(e.to_string()));
+            None
+        }
+    }
 }

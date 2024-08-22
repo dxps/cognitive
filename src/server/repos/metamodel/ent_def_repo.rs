@@ -31,16 +31,37 @@ impl EntityDefRepo {
             .map(|res| AppResult::Ok(res))?
     }
 
-    pub async fn add(&self, ent_def: EntityDef) -> AppResult<()> {
+    pub async fn add(&self, ent_def: &EntityDef) -> AppResult<()> {
         //
         let mut txn = self.dbcp.begin().await?;
 
-        sqlx::query("INSERT INTO entity_defs (id, name, description) VALUES ($1, $2, $3)")
-            .bind(ent_def.id)
-            .bind(ent_def.name)
-            .bind(ent_def.description)
+        if let Err(e) = sqlx::query("INSERT INTO entity_defs (id, name, description) VALUES ($1, $2, $3)")
+            .bind(ent_def.id.clone())
+            .bind(ent_def.name.clone())
+            .bind(ent_def.description.clone())
             .execute(&mut *txn)
-            .await?;
+            .await
+        {
+            txn.rollback().await?;
+            log::error!("Failed to add entity def: {}", e);
+            return AppResult::Err(e.into());
+        }
+
+        for attr_def in ent_def.attributes.clone() {
+            if let Err(e) =
+                sqlx::query("INSERT INTO entity_defs_attribute_defs_xref (entity_def_id, attribute_def_id) VALUES ($1, $2)")
+                    .bind(ent_def.id.clone())
+                    .bind(attr_def.id)
+                    .execute(&mut *txn)
+                    .await
+            {
+                txn.rollback().await?;
+                log::error!("Failed to add entity def's attributes: {}", e);
+                return AppResult::Err(e.into());
+            }
+        }
+
+        txn.commit().await?;
 
         AppResult::Ok(())
     }

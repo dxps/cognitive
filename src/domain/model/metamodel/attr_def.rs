@@ -17,6 +17,7 @@ pub struct AttributeDef {
 }
 
 impl AttributeDef {
+    //
     pub fn new(
         id: Id,
         name: String,
@@ -36,6 +37,19 @@ impl AttributeDef {
             is_multivalued,
             is_required,
             tag_id,
+        }
+    }
+
+    pub fn new_with_id(id: Id) -> Self {
+        Self {
+            id,
+            name: "".into(),
+            description: None,
+            value_type: AttributeValueType::Text,
+            default_value: "".into(),
+            is_multivalued: false,
+            is_required: false,
+            tag_id: None,
         }
     }
 }

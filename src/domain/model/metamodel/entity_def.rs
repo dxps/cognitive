@@ -1,3 +1,5 @@
+use crate::domain::model::Id;
+
 use super::{AttributeDef, Item, ItemType};
 use serde::{Deserialize, Serialize};
 
@@ -17,6 +19,15 @@ impl EntityDef {
             name,
             description,
             attributes: vec![],
+        }
+    }
+
+    pub fn new_with_attr_def_ids(id: String, name: String, description: Option<String>, attributes: Vec<Id>) -> Self {
+        Self {
+            id,
+            name,
+            description,
+            attributes: attributes.iter().map(|id| AttributeDef::new_with_id(id.clone())).collect(),
         }
     }
 }

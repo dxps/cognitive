@@ -11,6 +11,7 @@ pub fn EntityDefForm(
     included_attr_defs: Signal<Vec<(Id, String)>>,
     all_attr_defs: Signal<HashMap<Id, String>>,
     action: String,
+    err: Signal<Option<String>>,
 ) -> Element {
     //
     let is_view = action == "View";
@@ -96,12 +97,18 @@ pub fn EntityDefForm(
                 button {
                     class: "bg-slate-100 text-slate-600 hover:text-gray-800 ml-4 px-3 rounded-lg transition duration-200",
                     onclick: move |_| {
+                        if selected_attr_def_id().is_empty() {
+                            return;
+                        }
                         let mut included = included_attr_defs();
                         included.push((selected_attr_def_id(), selected_attr_def_name()));
                         included_attr_defs.set(included);
                         let mut attr_defs = all_attr_defs();
                         attr_defs.remove(&selected_attr_def_id());
                         all_attr_defs.set(attr_defs);
+                        selected_attr_def_id.set("".to_string());
+                        selected_attr_def_name.set("".to_string());
+                        err.set(None);
                     },
                     "+"
                 }
