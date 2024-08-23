@@ -22,34 +22,32 @@ pub fn Admin() -> Element {
                         }
                         hr { class: "mt-2 mb-4" }
                         div { class: "flex",
-                            div { class: "border-4 border-gray-100 rounded-md p-3 flex flex-col grow mr-1",
-                                h6 { class: "mb-2 pl-4 pt-2 pb-1 block font-medium leading-snug tracking-normal text-gray-500 antialiased",
+                            div { class: "pr-3 flex flex-col grow mr-1",
+                                h6 { class: "px-4 mb-2 pt-2 pb-1 block font-medium leading-snug tracking-normal text-gray-500 antialiased",
                                     "Model Definitions"
                                 }
                                 Link {
-                                    class: "py-2 px-4 rounded-sm transition duration-200",
+                                    class: "py-2 px-4 rounded transition duration-200",
                                     to: Route::EntityDefListPage {},
                                     "Entities Definitions"
                                 }
-                                hr { class: "my-2" }
                                 Link {
-                                    class: "py-2 px-4 rounded-sm transition duration-200",
+                                    class: "py-2 px-4 rounded transition duration-200",
                                     to: Route::AttributeDefListPage {},
                                     "Attributes Definitions"
                                 }
                             }
-                            div { class: "border-4 border-gray-100 rounded-md p-3 flex flex-col grow ml-1",
-                                h6 { class: "mb-2 pl-4 pt-2 pb-1 block font-medium leading-snug tracking-normal text-gray-500 antialiased",
+                            div { class: "pr-3 flex flex-col grow ml-1",
+                                h6 { class: "px-4 mb-2 pt-2 pb-1 block font-medium leading-snug tracking-normal text-gray-500 antialiased",
                                     "Model Instances"
                                 }
                                 Link {
-                                    class: "py-2 px-4 rounded-sm transition duration-200",
+                                    class: "py-2 px-4 rounded transition duration-200",
                                     to: Route::AttributeDefListPage {},
                                     "Entities Instances"
                                 }
-                                hr { class: "my-2" }
                                 Link {
-                                    class: "py-2 px-4 rounded-sm transition duration-200",
+                                    class: "py-2 px-4 rounded transition duration-200",
                                     to: Route::TagListPage {},
                                     "Tags"
                                 }
