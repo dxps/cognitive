@@ -67,7 +67,7 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
                             Link {
                                 class: "text-gray-500 hover:text-gray-800 px-2 rounded-xl transition duration-200",
                                 to: Route::EntityDefListPage {},
-                                "x"
+                                "X"
                             }
                         }
                         hr { class: "pb-2" }
@@ -77,11 +77,12 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
                             included_attr_defs,
                             all_attr_defs,
                             action: action(),
+                            saved,
                             err
                         }
                         div { class: "flex justify-between mt-8",
                             button {
-                                class: "text-red-300 bg-slate-50 hover:text-red-600 hover:bg-red-100 drop-shadow-sm px-4 rounded-md",
+                                class: "text-red-300 hover:text-red-600 hover:bg-red-100 drop-shadow-sm px-4 rounded-md",
                                 onclick: move |_| {
                                     action.set(Action::Delete);
                                     async move { handle_delete(id(), saved, err).await }
@@ -89,13 +90,11 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
                                 "Delete"
                             }
                             // Show the buttons's action result in the UI.
-                            div { class: "min-w-[440px] max-w-[440px]",
+                            div { class: "min-w-[400px] max-w-[400px] text-sm flex justify-center items-center",
                                 if err().is_some() {
-                                    span { class: "text-red-600 flex justify-center",
-                                        { err().unwrap() }
-                                    }
+                                    span { class: "text-red-600", { err().unwrap() } }
                                 } else if saved() {
-                                    span { class: "text-green-600 flex justify-center",
+                                    span { class: "text-green-600",
                                         {
                                             if action() == Action::Edit {
                                                 "Successfully updated"
@@ -153,9 +152,9 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
                                         }
                                     }
                                 },
-                                if action() == Action::View {
+                                if action() == Action::View || (action() == Action::Edit && saved()) {
                                     "Edit"
-                                } else if action() == Action::Delete || (action() == Action::Edit && saved()) {
+                                } else if action() == Action::Delete {
                                     "Close"
                                 } else {
                                     "Update"

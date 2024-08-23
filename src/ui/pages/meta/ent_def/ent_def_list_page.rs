@@ -32,7 +32,7 @@ pub fn EntityDefListPage() -> Element {
                                 "Entities Definitions"
                             }
                             Link {
-                                class: "text-gray-500 font-semibold hover:text-gray-800 px-2 rounded-xl transition duration-200",
+                                class: "text-gray-500 text-3xl font-extralight hover:text-gray-800 px-2 rounded-xl transition duration-200",
                                 to: Route::EntityDefNewPage {},
                                 "+"
                             }

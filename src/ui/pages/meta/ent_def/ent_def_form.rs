@@ -11,6 +11,7 @@ pub fn EntityDefForm(
     included_attr_defs: Signal<Vec<(Id, String)>>,
     all_attr_defs: Signal<HashMap<Id, String>>,
     action: String,
+    saved: Signal<bool>,
     err: Signal<Option<String>>,
 ) -> Element {
     //
@@ -60,7 +61,7 @@ pub fn EntityDefForm(
                     div { class: "flex",
                         p { class: "pl-28 pr-3 min-w-[430px]", "{name}" }
                         button {
-                            class: "text-slate-300 hover:text-gray-800 hover:bg-slate-100 ml-4 px-3 py-0 rounded-xl transition duration-200",
+                            class: "text-red-200 hover:text-red-500 hover:bg-red-100 disabled:text-white disabled:hover:bg-white ml-4 px-3 py-0 rounded-xl transition duration-200",
                             disabled: is_view,
                             // Remove the item from `included_attr_defs` and put it back into `all_attr_defs`.
                             onclick: move |_| {
@@ -78,10 +79,18 @@ pub fn EntityDefForm(
                     }
                 }
             }
-            hr { class: "mt-6 mb-1" }
-            p { "Select one of the available attributes definitions to include it." }
-            div { class: "flex",
+            hr { class: "mt-8 mb-1" }
+            div {
+                class: "flex",
+                display: if action == "View" || action == "Delete" || (action == "Edit" && saved()) {
+                    "none"
+                } else {
+                    "block"
+                },
                 label { class: "pr-3 py-1 min-w-28", "" }
+                p { class: "text-gray-500 font-sm",
+                    "Select an attribute definition to include it in this entity definition."
+                }
                 select {
                     class: "px-3 py-2 bg-slate-100 rounded-lg outline-none border-1 border-gray-300 focus:border-green-300 min-w-80",
                     multiple: false,

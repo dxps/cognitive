@@ -38,13 +38,13 @@ pub fn AttributeDefListPage() -> Element {
                                 "Attributes Definitions"
                             }
                             Link {
-                                class: "text-gray-500 font-semibold hover:text-gray-800 px-2 rounded-xl transition duration-200",
+                                class: "text-gray-500 text-3xl font-extralight hover:text-gray-800 px-2 rounded-xl transition duration-200",
                                 to: Route::AttributeDefNewPage {},
                                 "+"
                             }
                         }
                         hr { class: "pb-2" }
-                        p { class: "pb-4", "The following attributes definitions are defined." }
+                        p { class: "pb-4", "The following attributes definitions exist." }
                         for attr in entries() {
                             AttrDefCard { attr_def: attr.clone(), tags: tags() }
                         }
@@ -72,7 +72,7 @@ fn AttrDefCard(attr_def: AttributeDef, tags: Arc<HashMap<String, Tag>>) -> Eleme
                     }
                 }
                 div { class: "flex justify-between text-gray-600",
-                    p { class: "text-xs leading-5 text-gray-600 pt-1",
+                    p { class: "text-xs leading-5 text-gray-500 pt-1",
                         "{attr_def.description.unwrap_or_default()}"
                     }
                     {   if attr_def.tag_id.is_some() {

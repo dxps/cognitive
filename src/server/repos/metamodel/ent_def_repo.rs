@@ -107,18 +107,17 @@ impl EntityDefRepo {
             return AppResult::Err(e.into());
         }
 
+        if let Err(e) = sqlx::query("DELETE FROM entity_defs_attribute_defs_xref WHERE entity_def_id = $1")
+            .bind(&ent_def.id)
+            .execute(&mut *txn)
+            .await
+        {
+            txn.rollback().await?;
+            log::error!("Failed to delete entity def's (id:{}) attribute def id: {}", ent_def.id, e);
+            return AppResult::Err(e.into());
+        }
+
         for attr_def in ent_def.attributes.clone() {
-            if let Err(e) =
-                sqlx::query("DELETE FROM entity_defs_attribute_defs_xref WHERE entity_def_id = $1 AND attribute_def_id = $2")
-                    .bind(&ent_def.id)
-                    .bind(&attr_def.id)
-                    .execute(&mut *txn)
-                    .await
-            {
-                txn.rollback().await?;
-                log::error!("Failed to delete entity def's (id:{}) attribute def id: {}", ent_def.id, e);
-                return AppResult::Err(e.into());
-            }
             if let Err(e) =
                 sqlx::query("INSERT INTO entity_defs_attribute_defs_xref (entity_def_id, attribute_def_id) VALUES ($1, $2)")
                     .bind(&ent_def.id)

@@ -15,7 +15,7 @@ pub fn EntityDefNewPage() -> Element {
     //
     let name = use_signal(|| "".to_string());
     let description = use_signal(|| "".to_string());
-    let mut included_attr_defs = use_signal::<Vec<(Id, String)>>(|| vec![]);
+    let included_attr_defs = use_signal::<Vec<(Id, String)>>(|| vec![]);
     let mut all_attr_defs = use_signal(|| HashMap::<Id, String>::new());
 
     let mut err: Signal<Option<String>> = use_signal(|| None);
@@ -49,19 +49,16 @@ pub fn EntityDefNewPage() -> Element {
                             included_attr_defs,
                             all_attr_defs,
                             action: Action::Edit,
+                            saved,
                             err
                         }
                         div { class: "flex justify-betweent mt-8",
                             // Show the button's action result in the UI.
-                            div { class: "min-w-[440px] max-w-[440px]",
+                            div { class: "min-w-[450px] max-w-[450px] text-sm flex justify-center items-center",
                                 if err().is_some() {
-                                    span { class: "text-red-600 flex justify-center",
-                                        { err().unwrap() }
-                                    }
+                                    span { class: "text-red-600", { err().unwrap() } }
                                 } else if saved() {
-                                    span { class: "text-green-600 flex justify-center",
-                                        { "Successfully created" }
-                                    }
+                                    span { class: "text-green-600", { "Successfully created" } }
                                 }
                             }
                             button {
@@ -73,30 +70,37 @@ pub fn EntityDefNewPage() -> Element {
                                         false => Some(description()),
                                     };
                                     async move {
-                                        if name().is_empty() {
-                                            err.set(Some("Name cannot be empty".to_string()));
-                                            return;
+                                        if saved() {
+                                            navigator().push(Route::EntityDefListPage {});
+                                        } else {
+                                            if name().is_empty() {
+                                                err.set(Some("Name cannot be empty".to_string()));
+                                                return;
+                                            }
+                                            if included_attr_defs().is_empty() {
+                                                err.set(Some("Include at least one attribute".to_string()));
+                                                return;
+                                            }
+                                            let attributes_ids: Vec<Id> = included_attr_defs()
+                                                .iter()
+                                                .map(|(id, _)| id.clone())
+                                                .collect();
+                                            handle_create_ent_def(
+                                                    name(),
+                                                    description.clone(),
+                                                    attributes_ids,
+                                                    saved,
+                                                    err,
+                                                )
+                                                .await;
                                         }
-                                        if included_attr_defs().is_empty() {
-                                            err.set(Some("Include at least one attribute".to_string()));
-                                            return;
-                                        }
-                                        let attributes_ids: Vec<Id> = included_attr_defs()
-                                            .iter()
-                                            .map(|(id, _)| id.clone())
-                                            .collect();
-                                        handle_create_ent_def(
-                                                name(),
-                                                description.clone(),
-                                                attributes_ids,
-                                                saved,
-                                                err,
-                                            )
-                                            .await;
-                                        included_attr_defs.set(vec![]);
                                     }
                                 },
-                                "Create"
+                                if saved() {
+                                    "Close"
+                                } else {
+                                    "Create"
+                                }
                             }
                         }
                     }
