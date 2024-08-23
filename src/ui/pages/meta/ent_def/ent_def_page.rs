@@ -66,7 +66,7 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
                             }
                             Link {
                                 class: "text-gray-500 hover:text-gray-800 px-2 rounded-xl transition duration-200",
-                                to: Route::AttributeDefListPage {},
+                                to: Route::EntityDefListPage {},
                                 "x"
                             }
                         }
@@ -81,7 +81,7 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
                         }
                         div { class: "flex justify-between mt-8",
                             button {
-                                class: "text-red-200 bg-slate-50 hover:text-red-600 hover:bg-red-100 drop-shadow-sm px-4 rounded-md",
+                                class: "text-red-300 bg-slate-50 hover:text-red-600 hover:bg-red-100 drop-shadow-sm px-4 rounded-md",
                                 onclick: move |_| {
                                     action.set(Action::Delete);
                                     async move { handle_delete(id(), saved, err).await }
@@ -109,39 +109,54 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
                                 }
                             }
                             button {
-                                class: "bg-gray-100 hover:bg-green-100 disabled:text-gray-300 hover:disabled:bg-gray-100 drop-shadow-sm px-4 rounded-md",
-                                disabled: included_attr_defs().is_empty(),
+                                class: "bg-gray-100 hover:bg-green-100 min-w-[90px] disabled:text-gray-300 hover:disabled:bg-gray-100 drop-shadow-sm px-4 rounded-md",
                                 onclick: move |_| {
                                     async move {
-                                        if action().clone() == Action::View {
-                                            action.set(Action::Edit);
-                                        } else {
-                                            if name().is_empty() {
-                                                err.set(Some("Name cannot be empty".to_string()));
-                                                return;
+                                        match action().clone() {
+                                            Action::View => {
+                                                action.set(Action::Edit);
                                             }
-                                            let description = match description().is_empty() {
-                                                true => None,
-                                                false => Some(description()),
-                                            };
-                                            if included_attr_defs().is_empty() {
-                                                err.set(Some("Include at least one attribute".to_string()));
-                                                return;
+                                            Action::Delete => {
+                                                navigator().push(Route::EntityDefListPage {});
                                             }
-                                            let attributes_ids: Vec<Id> = included_attr_defs()
-                                                .iter()
-                                                .map(|(id, _)| id.clone())
-                                                .collect();
-                                            handle_update(id(), name(), description, attributes_ids, saved, err)
-                                                .await;
-                                            included_attr_defs.set(vec![]);
+                                            Action::Edit => {
+                                                if saved() {
+                                                    navigator().push(Route::EntityDefListPage {});
+                                                } else {
+                                                    if name().is_empty() {
+                                                        err.set(Some("Name cannot be empty".to_string()));
+                                                        return;
+                                                    }
+                                                    let description = match description().is_empty() {
+                                                        true => None,
+                                                        false => Some(description()),
+                                                    };
+                                                    if included_attr_defs().is_empty() {
+                                                        err.set(Some("Include at least one attribute".to_string()));
+                                                        return;
+                                                    }
+                                                    let attributes_ids: Vec<Id> = included_attr_defs()
+                                                        .iter()
+                                                        .map(|(id, _)| id.clone())
+                                                        .collect();
+                                                    handle_update(
+                                                            id(),
+                                                            name(),
+                                                            description,
+                                                            attributes_ids,
+                                                            saved,
+                                                            err,
+                                                        )
+                                                        .await;
+                                                }
+                                            }
                                         }
                                     }
                                 },
                                 if action() == Action::View {
                                     "Edit"
-                                } else if action() == Action::Delete {
-                                    "  -  "
+                                } else if action() == Action::Delete || (action() == Action::Edit && saved()) {
+                                    "Close"
                                 } else {
                                     "Update"
                                 }

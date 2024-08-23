@@ -835,6 +835,14 @@ button {
   min-width: 100%;
 }
 
+.min-w-\[80px\] {
+  min-width: 80px;
+}
+
+.min-w-\[90px\] {
+  min-width: 90px;
+}
+
 .max-w-\[350px\] {
   max-width: 350px;
 }
@@ -1282,6 +1290,11 @@ button {
   color: rgb(254 202 202 / var(--tw-text-opacity));
 }
 
+.text-red-300 {
+  --tw-text-opacity: 1;
+  color: rgb(252 165 165 / var(--tw-text-opacity));
+}
+
 .text-red-400 {
   --tw-text-opacity: 1;
   color: rgb(248 113 113 / var(--tw-text-opacity));
@@ -1419,14 +1432,14 @@ button {
   background-color: rgb(220 252 231 / var(--tw-bg-opacity));
 }
 
-.disabled\:text-gray-400:disabled {
-  --tw-text-opacity: 1;
-  color: rgb(156 163 175 / var(--tw-text-opacity));
-}
-
 .disabled\:text-gray-300:disabled {
   --tw-text-opacity: 1;
   color: rgb(209 213 219 / var(--tw-text-opacity));
+}
+
+.disabled\:text-gray-400:disabled {
+  --tw-text-opacity: 1;
+  color: rgb(156 163 175 / var(--tw-text-opacity));
 }
 
 .hover\:disabled\:bg-gray-100:disabled:hover {

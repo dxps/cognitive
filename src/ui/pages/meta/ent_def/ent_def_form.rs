@@ -46,7 +46,6 @@ pub fn EntityDefForm(
                     class: "px-3 py-2 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
                     rows: 3,
                     cols: 32,
-                    placeholder: "an optional description",
                     value: "{description}",
                     readonly: is_view,
                     maxlength: 256,
