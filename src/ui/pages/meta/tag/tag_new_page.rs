@@ -54,22 +54,31 @@ pub fn TagNewPage() -> Element {
                             button {
                                 class: "bg-gray-100 hover:bg-green-100 drop-shadow-sm px-4 rounded-md",
                                 onclick: move |_| {
-                                    let description = match description().is_empty() {
-                                        true => None,
-                                        false => Some(description()),
-                                    };
                                     async move {
-                                        if name().is_empty() {
-                                            err.set(Some("Name cannot be empty".to_string()));
-                                            return;
-                                        }
-                                        let id = handle_create_tag(name(), description.clone(), saved, err).await;
-                                        if id.is_some() {
-                                            UI_GLOBALS.add_tag(Tag::new(id.unwrap(), name(), description)).await;
+                                        if saved() {
+                                            navigator().push(Route::TagListPage {});
+                                        } else {
+                                            if name().is_empty() {
+                                                err.set(Some("Name cannot be empty".to_string()));
+                                                return;
+                                            }
+                                            let description = match description().is_empty() {
+                                                true => None,
+                                                false => Some(description()),
+                                            };
+                                            let id = handle_create_tag(name(), description.clone(), saved, err)
+                                                .await;
+                                            if id.is_some() {
+                                                UI_GLOBALS.add_tag(Tag::new(id.unwrap(), name(), description)).await;
+                                            }
                                         }
                                     }
                                 },
-                                "Create"
+                                if saved() {
+                                    "Close"
+                                } else {
+                                    "Create"
+                                }
                             }
                         }
                     }
