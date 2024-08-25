@@ -1,4 +1,4 @@
-use crate::ui::{routes::Route, ui_global_signals::UI_GLOBALS, UiState};
+use crate::ui::{routes::Route, ui_globals::UI_GLOBALS, UiState};
 use dioxus::prelude::*;
 
 #[component]
