@@ -12,7 +12,7 @@ pub fn App() -> Element {
 
     _ = use_context_provider(|| Signal::new(state));
 
-    // Asynchronously loading state from localstorage and notify its value through the global signal.
+    // Asynchronously loading state from localstorage and notify its value through the global signal `app_ready`.
     use_future(move || async move {
         let mut state = use_context::<Signal<UiState>>();
         if let Ok(local_state) = UiState::load_from_localstorage() {

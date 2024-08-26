@@ -1,6 +1,9 @@
 mod attr_def;
 pub use attr_def::*;
 
+mod bool_attr;
+pub use bool_attr::*;
+
 mod entity_def;
 pub use entity_def::*;
 
@@ -19,5 +22,5 @@ pub use item_type::*;
 mod tag;
 pub use tag::*;
 
-mod text_attribute;
-pub use text_attribute::*;
+mod text_attr;
+pub use text_attr::*;

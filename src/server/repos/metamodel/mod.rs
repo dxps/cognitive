@@ -6,3 +6,6 @@ pub use tags_repo::*;
 
 mod ent_def_repo;
 pub use ent_def_repo::*;
+
+mod ent_repo;
+pub use ent_repo::*;

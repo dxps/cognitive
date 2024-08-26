@@ -1,5 +1,7 @@
 use super::{AttributeDef, Item, ItemType};
+use serde::{Deserialize, Serialize};
 
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct TextAttribute {
     /// Its id.
     pub id: String,

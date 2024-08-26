@@ -23,7 +23,6 @@ impl EntityDefRepo {
         let limit = pagination_opts.limit.unwrap_or(10);
         let offset = (pagination_opts.page.unwrap_or(1) - 1) * limit;
         let query = format!("SELECT id, name, description FROM entity_defs ORDER BY name LIMIT {limit} OFFSET {offset}");
-        log::debug!("Listing tags w/ limit: {}, offset: {}.", limit, offset);
 
         sqlx::query_as::<_, EntityDef>(query.as_str()) // FYI: Binding (such as .bind(limit) didn't work, that's why the query.
             .fetch_all(self.dbcp.as_ref())

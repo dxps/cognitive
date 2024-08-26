@@ -1,4 +1,4 @@
-use super::EntityDef;
+use super::{BooleanAttribute, EntityDef, TextAttribute};
 
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Entity {
@@ -10,4 +10,7 @@ pub struct Entity {
 
     /// Its definition.
     pub def: EntityDef,
+
+    pub text_attributes: Vec<TextAttribute>,
+    pub boolean_attributes: Vec<BooleanAttribute>,
 }
