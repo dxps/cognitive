@@ -2,7 +2,7 @@ use sqlx::{postgres::PgRow, FromRow, PgPool, Row};
 use std::sync::Arc;
 
 use crate::{
-    domain::model::{AttributeDef, Entity, EntityDef, Id},
+    domain::model::{Entity, EntityDef, Id},
     server::{AppResult, PaginationOpts},
 };
 
@@ -22,12 +22,81 @@ impl EntityRepo {
         let pagination_opts = pagination_opts.unwrap_or(&default_opts);
         let limit = pagination_opts.limit.unwrap_or(10);
         let offset = (pagination_opts.page.unwrap_or(1) - 1) * limit;
-        let query = format!("SELECT e.id, ed.name as kind from entities e join entity_defs ed on e.def_id = ed.id ORDER BY name LIMIT {limit} OFFSET {offset}");
+        let query = format!("SELECT e.id, ed.name as kind FROM entities e JOIN entity_defs ed ON e.def_id = ed.id ORDER BY name LIMIT {limit} OFFSET {offset}");
 
         sqlx::query_as::<_, Entity>(query.as_str())
             .fetch_all(self.dbcp.as_ref())
             .await
             .map(|res| AppResult::Ok(res))?
+    }
+
+    pub async fn get(&self, id: &Id) -> AppResult<Option<Entity>> {
+        //
+        let mut res = None;
+        if let Ok(ent_opt) = sqlx::query_as::<_, Entity>(
+            "SELECT e.id, ed.name, description FROM entities e JOIN entity_defs ed ON e.def_id = ed.id WHERE id = $1",
+        )
+        .bind(id)
+        .fetch_optional(self.dbcp.as_ref())
+        .await
+        {
+            if let Some(mut ent) = ent_opt {
+                // Get all the attributes for the entity in one shot.
+                let query = r#"""
+                    SELECT ad.name, ad.value_type, a.value as text_value, 0 as smallint_value, 0 as integer_value, 0 as bigint_value, 0 as real_value,
+                        false as bool_value, CURRENT_DATE as date_value, CURRENT_TIMESTAMP as timestamp_value
+                        FROM attribute_defs ad 
+                        JOIN text_attributes a ON a.def_id = ad.id  
+                        WHERE a.owner_id = $1
+                    UNION ALL 
+                    SELECT ad.name, ad.value_type, '' as text_value, a.value as smallint_value, 0 as integer_value, 0 as bigint_value, 0 as real_value,
+                        false as bool_value, CURRENT_DATE as date_value, CURRENT_TIMESTAMP as timestamp_value
+                        FROM attribute_defs ad
+                        JOIN smallint_attributes a ON a.def_id = ad.id
+                        WHERE a.owner_id = $1
+                    UNION ALL 
+                    SELECT ad.name, ad.value_type, '' as text_value, 0 as smallint_value, a.value as integer_value, 0 as bigint_value, 0 as real_value, 
+                        false as bool_value, CURRENT_DATE as date_value, CURRENT_TIMESTAMP as timestamp_value 
+                        FROM attribute_defs ad
+                        JOIN integer_attributes a ON a.def_id = ad.id
+                        WHERE a.owner_id = $1
+                    UNION ALL 
+                    SELECT ad.name, ad.value_type, '' as text_value, 0 as smallint_value, 0 as integer_value, a.value as bigint_value, 0 as real_value,
+                        false as bool_value, CURRENT_DATE as date_value, CURRENT_TIMESTAMP as timestamp_value 
+                        FROM attribute_defs ad
+                        JOIN bigint_attributes a ON a.def_id = ad.id
+                        WHERE a.owner_id = $1
+                    UNION ALL 
+                    SELECT ad.name, ad.value_type, '' as text_value, 0 as smallint_value, 0 integer_value, 0 as bigint_value, a.value as real_value,
+                        false as bool_value, CURRENT_DATE as date_value, CURRENT_TIMESTAMP as timestamp_value
+                        FROM attribute_defs ad
+                        JOIN real_attributes a ON a.def_id = ad.id
+                        WHERE a.owner_id = $1
+                    UNION ALL 
+                    SELECT ad.name, ad.value_type, '' as text_value, 0 as smallint_value, 0 integer_value, 0 as bigint_value, 0 as real_value,
+                        false as bool_value, CURRENT_DATE as date_value, CURRENT_TIMESTAMP as timestamp_value
+                        FROM attribute_defs ad
+                        JOIN boolean_attributes a ON a.def_id = ad.id
+                        WHERE a.owner_id = $1
+                    UNION ALL 
+                    SELECT ad.name, ad.value_type, '' as text_value, 0 as smallint_value, 0 integer_value, 0 as bigint_value, 0 as real_value,
+                        false as bool_value, a.value as date_value, CURRENT_TIMESTAMP as timestamp_value 
+                        FROM attribute_defs ad
+                        JOIN date_attributes a ON a.def_id = ad.id
+                        WHERE a.owner_id = $1
+                    UNION ALL 
+                    SELECT ad.name, ad.value_type, '' as text_value, 0 as smallint_value, 0 integer_value, 0 as bigint_value, 0 as real_value,
+                        false as bool_value, CURRENT_DATE as date_value, a.value as timestamp_value 
+                        FROM attribute_defs ad
+                        JOIN timestamp_attributes a ON a.def_id = ad.id
+                        WHERE a.owner_id = $1;
+                """#;
+                let rows = sqlx::query(query).bind(id).fetch_all(self.dbcp.as_ref()).await?;
+                fill_in_entity_attributes(&mut ent, rows);
+                res = Some(ent);
+            }
+        };
+        Ok(res)
     }
 }
 
@@ -39,6 +108,11 @@ impl FromRow<'_, PgRow> for Entity {
             def: EntityDef::default(),
             text_attributes: vec![],
             boolean_attributes: vec![],
+            smallint_attributes: vec![],
         })
     }
+}
+
+fn fill_in_entity_attributes(ent: &mut Entity, rows: Vec<PgRow>) {
+    // TODO
 }

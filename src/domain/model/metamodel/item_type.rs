@@ -14,6 +14,7 @@ pub enum ItemType {
     EntityLink,
     TextAttribute,
     BooleanAttribute,
+    SmallintAttribute,
 }
 
 impl ItemType {
@@ -25,8 +26,9 @@ impl ItemType {
             ItemType::EntityLinkDef => "eld".to_string(),
             ItemType::Entity => "eni".to_string(),
             ItemType::EntityLink => "enl".to_string(),
-            ItemType::TextAttribute => "tat".to_string(),
-            ItemType::BooleanAttribute => "tat".to_string(),
+            ItemType::TextAttribute => "tea".to_string(),
+            ItemType::BooleanAttribute => "boa".to_string(),
+            ItemType::SmallintAttribute => "sma".to_string(),
         }
     }
 }

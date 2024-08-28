@@ -19,6 +19,9 @@ pub use entity::*;
 mod item_type;
 pub use item_type::*;
 
+mod smallint_attr;
+pub use smallint_attr::*;
+
 mod tag;
 pub use tag::*;
 
