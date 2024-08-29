@@ -2,7 +2,7 @@ use sqlx::{postgres::PgRow, FromRow, PgPool, Row};
 use std::sync::Arc;
 
 use crate::{
-    domain::model::{Entity, EntityDef, Id},
+    domain::model::{Entity, EntityDef, Id, SmallintAttribute, TextAttribute},
     server::{AppResult, PaginationOpts},
 };
 
@@ -14,6 +14,13 @@ impl EntityRepo {
     //
     pub fn new(dbcp: Arc<PgPool>) -> Self {
         Self { dbcp }
+    }
+
+    pub async fn add(&self, ent: &Entity) -> AppResult<()> {
+        //
+        // let mut _txn = self.dbcp.begin().await?;
+        // TODO
+        Ok(())
     }
 
     pub async fn list(&self, pagination_opts: Option<&PaginationOpts>) -> AppResult<Vec<Entity>> {
@@ -114,5 +121,22 @@ impl FromRow<'_, PgRow> for Entity {
 }
 
 fn fill_in_entity_attributes(ent: &mut Entity, rows: Vec<PgRow>) {
-    // TODO
+    //
+    for row in rows {
+        match row.get::<&str, &str>("value_type") {
+            "text" => {
+                log::debug!("Found text attribute '{}'.", row.get::<&str, &str>("name"));
+                ent.text_attributes
+                    .push(TextAttribute::new(row.get("name"), row.get("text_value")));
+            }
+            "smallint" => {
+                log::debug!("Found smallint attribute '{}'.", row.get::<&str, &str>("name"));
+                ent.smallint_attributes
+                    .push(SmallintAttribute::new(row.get("name"), row.get("smallint_value")));
+            }
+            _ => {
+                log::debug!("Found attribute '{}'.", row.get::<&str, &str>("name"));
+            }
+        }
+    }
 }

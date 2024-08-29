@@ -8,13 +8,21 @@ pub struct SmallintAttribute {
     pub id: String,
 
     /// Its definition id.
-    pub def: AttributeDef,
+    // TODO: If needed.
+    // pub def: AttributeDef,
 
     /// Its owner type.
-    pub owner_type: ItemType,
+    // TODO: If needed.
+    // pub owner_type: ItemType,
 
     /// Its value.
     pub value: i8,
+}
+
+impl SmallintAttribute {
+    pub fn new(id: String, value: i8) -> Self {
+        Self { id, value }
+    }
 }
 
 impl Item for SmallintAttribute {

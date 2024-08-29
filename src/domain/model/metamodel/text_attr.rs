@@ -7,13 +7,19 @@ pub struct TextAttribute {
     pub id: String,
 
     /// Its definition id.
-    pub def: AttributeDef,
+    // pub def: AttributeDef,
 
     /// Its owner type.
-    pub owner_type: ItemType,
+    // pub owner_type: ItemType,
 
     /// Its value.
     pub value: String,
+}
+
+impl TextAttribute {
+    pub fn new(id: String, value: String) -> Self {
+        Self { id, value }
+    }
 }
 
 impl Item for TextAttribute {
