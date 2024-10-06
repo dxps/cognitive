@@ -1,10 +1,14 @@
-use super::{AttributeDef, Item, ItemType};
+// use super:{AttributeDef
+use super::{Item, ItemType};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct TextAttribute {
     /// Its id.
     pub id: String,
+
+    /// Its name (inherited from its definition).
+    pub name: String,
 
     /// Its definition id.
     // pub def: AttributeDef,
@@ -17,8 +21,8 @@ pub struct TextAttribute {
 }
 
 impl TextAttribute {
-    pub fn new(id: String, value: String) -> Self {
-        Self { id, value }
+    pub fn new(id: String, name: String, value: String) -> Self {
+        Self { id, name, value }
     }
 }
 

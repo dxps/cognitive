@@ -12,3 +12,6 @@ pub use attr_def_fns::*;
 
 mod ent_def_fns;
 pub use ent_def_fns::*;
+
+mod ent_fns;
+pub use ent_fns::*;

@@ -2,7 +2,7 @@ use crate::{
     domain::model::Id,
     ui::pages::{
         Admin, AttributeDefListPage, AttributeDefNewPage, AttributeDefPage, EntityDefListPage, EntityDefNewPage, EntityDefPage,
-        EntityListPage, EntityPage, Home, Login, Logout, TagListPage, TagNewPage, TagPage, UserProfile,
+        EntityListPage, EntityNewPage, EntityPage, Home, Login, Logout, TagListPage, TagNewPage, TagPage, UserProfile,
     },
 };
 use dioxus::prelude::*;
@@ -44,6 +44,9 @@ pub enum Route {
 
     #[route("/admin/entities")]
     EntityListPage {},
+
+    #[route("/admin/entities/new")]
+    EntityNewPage {},
 
     #[route("/admin/entities/:id")]
     EntityPage { id: Id },

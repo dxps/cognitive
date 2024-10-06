@@ -214,6 +214,8 @@ impl From<(sqlx::Error, AppUseCase)> for AppError {
             AppUseCase::UserRegistration => match &err.as_database_error() {
                 Some(e) => match e.code() {
                     Some(code) => match code.as_ref() {
+                        // 23505 is [postgres specifics](https://www.postgresql.org/docs/9.3/errcodes-appendix.html))
+                        // code for duplicate entry.
                         "23505" => AppError::AlreadyExists("".into()),
                         _ => log_and_return_internal_err(ctx),
                     },

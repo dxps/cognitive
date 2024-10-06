@@ -1,4 +1,5 @@
-use super::{AttributeDef, Item, ItemType};
+// use super::AttributeDef;
+use super::{Item, ItemType};
 use serde::{Deserialize, Serialize};
 
 /// An instance of an attribute of type boolean.

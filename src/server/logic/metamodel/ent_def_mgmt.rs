@@ -14,6 +14,10 @@ impl EntityDefMgmt {
         Self { ent_repo }
     }
 
+    pub async fn list_ids_names(&self) -> AppResult<Vec<(Id, String)>> {
+        self.ent_repo.list_ids_names().await
+    }
+
     pub async fn list(&self) -> AppResult<Vec<EntityDef>> {
         self.ent_repo.list(None).await
     }

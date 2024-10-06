@@ -2,10 +2,6 @@
 //! - `AppError` - to abstract any infrastructure and low-level errors (like database related ones)
 //!                and convert them into an app (domain) specific ones.
 //! - `AppUseCase`s - relevant for the proper conversion from a low-level error to a higher (`AppError`) one.
-//!
-//! Different cases are considered such as:
-//! - for a database error with code 23505
-//!   (see its [postgres specifics](https://www.postgresql.org/docs/9.3/errcodes-appendix.html))
 
 use thiserror::Error;
 

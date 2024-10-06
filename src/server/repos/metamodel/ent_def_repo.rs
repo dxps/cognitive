@@ -16,6 +16,15 @@ impl EntityDefRepo {
         Self { dbcp }
     }
 
+    pub async fn list_ids_names(&self) -> AppResult<Vec<(Id, String)>> {
+        //
+        let query = "SELECT id, name FROM entity_defs ORDER BY name";
+        sqlx::query_as::<_, (Id, String)>(query)
+            .fetch_all(self.dbcp.as_ref())
+            .await
+            .map(|res| AppResult::Ok(res))?
+    }
+
     pub async fn list(&self, pagination_opts: Option<&PaginationOpts>) -> AppResult<Vec<EntityDef>> {
         //
         let default_opts = PaginationOpts::default();
