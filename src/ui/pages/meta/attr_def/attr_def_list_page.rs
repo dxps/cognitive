@@ -55,8 +55,18 @@ pub fn AttributeDefListPage() -> Element {
     }
 }
 
+#[derive(Props, PartialEq, Clone)]
+pub struct AttrDefCardProps {
+    pub attr_def: AttributeDef,
+    pub tags: Arc<HashMap<String, Tag>>,
+}
+
 #[component]
-fn AttrDefCard(attr_def: AttributeDef, tags: Arc<HashMap<String, Tag>>) -> Element {
+fn AttrDefCard(props: AttrDefCardProps) -> Element {
+    //
+    let attr_def = props.attr_def;
+    let tags = props.tags;
+
     rsx! {
         Link {
             to: Route::AttributeDefPage {

@@ -1,8 +1,19 @@
 use dioxus::prelude::*;
 
+#[derive(Props, PartialEq, Clone)]
+pub struct TagFormProps {
+    pub name: Signal<String>,
+    pub description: Signal<String>,
+    pub action: String,
+}
+
 #[component]
-pub fn TagForm(name: Signal<String>, description: Signal<String>, action: String) -> Element {
+pub fn TagForm(props: TagFormProps) -> Element {
     //
+    let mut name = props.name;
+    let mut description = props.description;
+    let action = props.action;
+
     let is_view = action == "View";
     rsx! {
         div { class: "mt-4 space-y-4",

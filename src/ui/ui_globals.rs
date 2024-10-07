@@ -1,12 +1,16 @@
 use std::{collections::HashMap, ops::Deref, sync::Arc};
 
-use crate::{domain::model::Tag, server::fns::get_tags};
+use crate::{
+    domain::model::{Id, Tag},
+    server::fns::{get_tags, list_entities_defs_id_name},
+};
 use dioxus::signals::{GlobalSignal, Readable};
 
 pub struct UiGlobals {
     pub app_ready: GlobalSignal<bool>,
     pub tags: GlobalSignal<Arc<HashMap<String, Tag>>>,
     pub tags_loaded: GlobalSignal<bool>,
+    pub ent_kinds: GlobalSignal<HashMap<Id, String>>,
 }
 
 impl UiGlobals {
@@ -15,6 +19,7 @@ impl UiGlobals {
             app_ready: GlobalSignal::new(|| false),
             tags: GlobalSignal::new(|| Arc::new(HashMap::new())),
             tags_loaded: GlobalSignal::new(|| false),
+            ent_kinds: GlobalSignal::new(|| HashMap::new()),
         }
     }
 
@@ -70,6 +75,16 @@ impl UiGlobals {
             .map(|(k, v)| (k.clone(), v.clone()))
             .collect();
         *self.tags.write() = Arc::new(updated_tags);
+    }
+
+    pub async fn get_ent_kinds(&self) -> HashMap<Id, String> {
+        if self.ent_kinds.read().is_empty() {
+            if let Ok(kinds) = list_entities_defs_id_name().await {
+                log::info!("Got kinds: {:?}", kinds);
+                *self.ent_kinds.write() = kinds;
+            }
+        };
+        self.ent_kinds.read().clone()
     }
 }
 

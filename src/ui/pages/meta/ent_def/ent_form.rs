@@ -4,17 +4,25 @@ use dioxus::prelude::*;
 
 use crate::domain::model::{BooleanAttribute, Id, SmallintAttribute, TextAttribute};
 
+#[derive(Props, PartialEq, Clone)]
+pub struct EntityFormProps {
+    pub kind: Signal<String>,
+    pub text_attrs: Signal<HashMap<Id, (TextAttribute, String)>>,
+    pub smallint_attrs: Signal<HashMap<Id, (SmallintAttribute, String)>>,
+    pub boolean_attrs: Signal<HashMap<Id, (BooleanAttribute, String)>>,
+    pub action: String,
+    pub saved: Signal<bool>,
+    pub err: Signal<Option<String>>,
+}
+
 #[component]
-pub fn EntityForm(
-    kind: Signal<String>,
-    text_attrs: Signal<HashMap<Id, (TextAttribute, String)>>,
-    smallint_attrs: Signal<HashMap<Id, (SmallintAttribute, String)>>,
-    boolean_attrs: Signal<HashMap<Id, (BooleanAttribute, String)>>,
-    action: String,
-    saved: Signal<bool>,
-    err: Signal<Option<String>>,
-) -> Element {
+pub fn EntityForm(props: EntityFormProps) -> Element {
     //
+    let action = props.action;
+    let text_attrs = props.text_attrs;
+    let _saved = props.saved;
+    let _err = props.err;
+
     let is_view = action == "View";
     //let mut text_attr_values = use_signal(|| Vec::<String>::new());
     //let mut smallint_attr_values = use_signal(|| Vec::<i8>::new());

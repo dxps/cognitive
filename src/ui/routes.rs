@@ -91,6 +91,17 @@ impl Route {
                 ("Entities Definitions".into(), Route::EntityDefListPage {}),
                 ("New".into(), to),
             ],
+            Route::EntityListPage {} => vec![
+                ("Home".into(), Route::Home {}),
+                ("Admin".into(), Route::Admin {}),
+                ("Entities".into(), Route::EntityListPage {}),
+            ],
+            Route::EntityNewPage {} => vec![
+                ("Home".into(), Route::Home {}),
+                ("Admin".into(), Route::Admin {}),
+                ("Entities".into(), Route::EntityListPage {}),
+                ("New".into(), to),
+            ],
             Route::TagListPage {} => vec![
                 ("Home".into(), Route::Home {}),
                 ("Admin".into(), Route::Admin {}),

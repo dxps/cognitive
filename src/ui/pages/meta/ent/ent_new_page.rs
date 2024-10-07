@@ -1,22 +1,20 @@
-use std::{collections::HashMap, thread::sleep};
+use std::collections::HashMap;
 
 use crate::{
     domain::model::{BooleanAttribute, Entity, EntityDef, Id, SmallintAttribute, TextAttribute},
-    server::fns::list_entities_defs_id_name,
     ui::{
-        comps::{Breadcrumb, Nav},
+        comps::{Breadcrumb, Nav, Select},
         pages::EntityForm,
         routes::Route,
-        Action,
+        Action, UI_GLOBALS,
     },
 };
 use dioxus::prelude::*;
 
 pub fn EntityNewPage() -> Element {
     //
-    let mut ent_def_id = use_signal(|| "".to_string());
-    let mut kind = use_signal(|| "".to_string());
-    let mut ent_kinds = use_signal::<Vec<(Id, String)>>(|| Vec::new());
+    let mut ent_kinds = use_signal::<HashMap<Id, String>>(|| HashMap::new());
+    let mut selected_kind_id = use_signal(|| "".to_string());
     let ent_attrs = use_signal::<Vec<Entity>>(|| Vec::new());
 
     let text_attrs = use_signal::<HashMap<Id, (TextAttribute, String)>>(|| HashMap::new());
@@ -27,15 +25,13 @@ pub fn EntityNewPage() -> Element {
     let saved = use_signal(|| false);
 
     use_future(move || async move {
-        let kinds = list_entities_defs_id_name().await.unwrap_or_default();
-        log::info!("Got kinds: {:?}", kinds);
-        ent_kinds.set(kinds);
+        ent_kinds.set(UI_GLOBALS.get_ent_kinds().await);
     });
 
     rsx! {
         div { class: "flex flex-col min-h-screen bg-gray-100",
             Nav {}
-            Breadcrumb { paths: Route::get_path(Route::EntityDefNewPage {}) }
+            Breadcrumb { paths: Route::get_path(Route::EntityNewPage {}) }
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
                 div { class: "bg-white rounded-md p-3 min-w-[600px] mt-[min(100px)]",
                     div { class: "p-6",
@@ -50,27 +46,9 @@ pub fn EntityNewPage() -> Element {
                             }
                         }
                         hr { class: "flex" }
-                        div { class: "flex py-2",
-                            p { class: "py-2 pr-4 text-sm text-gray-600 block", "Kind:" }
-                            select {
-                                class: "px-3 bg-slate-100 rounded-lg outline-none border-1 border-gray-300 focus:border-green-300 min-w-80",
-                                multiple: false,
-                                disabled: ent_kinds().is_empty(),
-                                oninput: move |evt| {
-                                    ent_def_id.set(evt.value());
-                                    log::debug!("selected ent_def_id: {:?}", evt.value());
-                                    log::debug!("evt: {:?}", evt);
-                                },
-                                option { value: "", selected: true, "" }
-                                if ent_kinds().is_empty() {
-                                    for (id , kind) in ent_kinds() {
-                                        option { value: "{id}", "{kind}" }
-                                    }
-                                }
-                            }
-                        }
+                        Select { items: ent_kinds, selected_item_id: selected_kind_id }
                         EntityForm {
-                            kind,
+                            kind: selected_kind_id,
                             text_attrs,
                             smallint_attrs,
                             boolean_attrs,

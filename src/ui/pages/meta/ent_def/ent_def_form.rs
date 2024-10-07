@@ -1,21 +1,30 @@
+use crate::domain::model::Id;
+use dioxus::prelude::*;
 use std::collections::HashMap;
 
-use dioxus::prelude::*;
-
-use crate::domain::model::Id;
+#[derive(Props, PartialEq, Clone)]
+pub struct EntityDefFormProps {
+    pub name: Signal<String>,
+    pub description: Signal<String>,
+    pub included_attr_defs: Signal<Vec<(Id, String)>>,
+    pub all_attr_defs: Signal<HashMap<Id, String>>,
+    pub action: String,
+    pub saved: Signal<bool>,
+    pub err: Signal<Option<String>>,
+}
 
 #[component]
-pub fn EntityDefForm(
-    name: Signal<String>,
-    description: Signal<String>,
-    included_attr_defs: Signal<Vec<(Id, String)>>,
-    all_attr_defs: Signal<HashMap<Id, String>>,
-    action: String,
-    saved: Signal<bool>,
-    err: Signal<Option<String>>,
-) -> Element {
+pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
     //
+    let action = props.action;
     let is_view = action == "View";
+    let mut name = props.name;
+    let mut description = props.description;
+    let mut included_attr_defs = props.included_attr_defs;
+    let mut all_attr_defs = props.all_attr_defs;
+    let saved = props.saved;
+    let mut err = props.err;
+
     let mut selected_attr_def_id = use_signal(|| "".to_string());
     let mut selected_attr_def_name = use_signal(|| "".to_string());
 

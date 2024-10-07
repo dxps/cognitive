@@ -1,22 +1,33 @@
+use crate::domain::model::Tag;
+use dioxus::prelude::*;
 use std::{collections::HashMap, sync::Arc};
 
-use dioxus::prelude::*;
-
-use crate::domain::model::Tag;
+#[derive(Props, PartialEq, Clone)]
+pub struct AttributeDefFormProps {
+    pub name: Signal<String>,
+    pub description: Signal<String>,
+    pub value_type: Signal<String>,
+    pub default_value: Signal<String>,
+    pub is_required: Signal<bool>,
+    pub is_multivalued: Signal<bool>,
+    pub tag_id: Signal<String>,
+    pub tags: Arc<HashMap<String, Tag>>,
+    pub action: String,
+}
 
 #[component]
-pub fn AttributeDefForm(
-    name: Signal<String>,
-    description: Signal<String>,
-    value_type: Signal<String>,
-    default_value: Signal<String>,
-    is_required: Signal<bool>,
-    is_multivalued: Signal<bool>,
-    tag_id: Signal<String>,
-    tags: Arc<HashMap<String, Tag>>,
-    action: String,
-) -> Element {
+pub fn AttributeDefForm(props: AttributeDefFormProps) -> Element {
     //
+    let mut name = props.name;
+    let mut description = props.description;
+    let mut value_type = props.value_type;
+    let mut default_value = props.default_value;
+    let mut is_required = props.is_required;
+    let mut is_multivalued = props.is_multivalued;
+    let mut tag_id = props.tag_id;
+    let tags = props.tags;
+    let action = props.action;
+
     let is_view = action == "View";
     let is_edit = action == "Edit";
     rsx! {
