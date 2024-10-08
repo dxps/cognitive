@@ -36,9 +36,9 @@ pub fn EntityListPage() -> Element {
                             p { class: "text-lg font-medium leading-snug tracking-normal text-gray-500 antialiased",
                                 "Entities"
                             }
-                            button {
+                            Link {
                                 class: "text-gray-500 text-3xl font-extralight hover:text-gray-800 px-2 rounded-xl transition duration-200",
-                                onclick: move |_| { show_modal.set(true) },
+                                to: Route::EntityNewPage {},
                                 "+"
                             }
                         }

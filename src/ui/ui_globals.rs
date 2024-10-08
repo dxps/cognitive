@@ -80,7 +80,7 @@ impl UiGlobals {
     pub async fn get_ent_kinds(&self) -> HashMap<Id, String> {
         if self.ent_kinds.read().is_empty() {
             if let Ok(kinds) = list_entities_defs_id_name().await {
-                log::info!("Got kinds: {:?}", kinds);
+                log::debug!("[UiGlobals] Got entity kinds: {:?}", kinds);
                 *self.ent_kinds.write() = kinds;
             }
         };

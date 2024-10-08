@@ -1,3 +1,5 @@
+use crate::domain::model::Id;
+
 use super::{AttributeDef, Item, ItemType};
 use serde::{Deserialize, Serialize};
 
@@ -8,10 +10,7 @@ pub struct BooleanAttribute {
     pub id: String,
 
     /// Its definition id.
-    pub def: AttributeDef,
-
-    /// Its owner type.
-    pub owner_type: ItemType,
+    pub def_id: Id,
 
     /// Its value.
     pub value: bool,
@@ -20,5 +19,15 @@ pub struct BooleanAttribute {
 impl Item for BooleanAttribute {
     fn item_type(&self) -> ItemType {
         ItemType::BooleanAttribute
+    }
+}
+
+impl From<&AttributeDef> for BooleanAttribute {
+    fn from(def: &AttributeDef) -> Self {
+        Self {
+            id: "".to_string(),
+            def_id: def.id.clone(),
+            value: false,
+        }
     }
 }

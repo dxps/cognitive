@@ -666,6 +666,11 @@ button {
   margin-right: auto;
 }
 
+.my-1 {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
 .my-3 {
   margin-top: 0.75rem;
   margin-bottom: 0.75rem;
@@ -820,6 +825,10 @@ button {
 
 .min-w-28 {
   min-width: 7rem;
+}
+
+.min-w-36 {
+  min-width: 9rem;
 }
 
 .min-w-80 {
@@ -1136,6 +1145,11 @@ button {
   padding-bottom: 0.75rem;
 }
 
+.py-4 {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
 .pb-1 {
   padding-bottom: 0.25rem;
 }
@@ -1170,6 +1184,10 @@ button {
 
 .pr-3 {
   padding-right: 0.75rem;
+}
+
+.pr-4 {
+  padding-right: 1rem;
 }
 
 .pt-1 {

@@ -60,6 +60,8 @@ dotenvy = { version = "0.15.7", optional = true }
 
 strum = { version = "0.26.1", features = ["derive"] }
 
+chrono = { version = "0.4.38" }
+
 ##########
 [features]
 ##########

@@ -1,10 +1,12 @@
 use std::collections::HashMap;
 
 use crate::{
-    domain::model::{BooleanAttribute, Entity, EntityDef, Id, SmallintAttribute, TextAttribute},
+    domain::model::{
+        AttributeValueType, BooleanAttribute, Entity, EntityDef, Id, IntegerAttribute, SmallintAttribute, TextAttribute,
+    },
+    server::fns::get_entity_def,
     ui::{
-        comps::{Breadcrumb, Nav, Select},
-        pages::EntityForm,
+        comps::{Breadcrumb, EntityForm, Nav, Select},
         routes::Route,
         Action, UI_GLOBALS,
     },
@@ -15,11 +17,13 @@ pub fn EntityNewPage() -> Element {
     //
     let mut ent_kinds = use_signal::<HashMap<Id, String>>(|| HashMap::new());
     let mut selected_kind_id = use_signal(|| "".to_string());
-    let ent_attrs = use_signal::<Vec<Entity>>(|| Vec::new());
+    let mut selected_kind_id_time = use_signal(|| chrono::Utc::now());
+    let mut previously_selected_kind_id_time = use_signal(|| chrono::Utc::now());
 
-    let text_attrs = use_signal::<HashMap<Id, (TextAttribute, String)>>(|| HashMap::new());
-    let smallint_attrs = use_signal::<HashMap<Id, (SmallintAttribute, String)>>(|| HashMap::new());
-    let boolean_attrs = use_signal::<HashMap<Id, (BooleanAttribute, String)>>(|| HashMap::new());
+    let mut text_attrs = use_signal::<HashMap<Id, (TextAttribute, String)>>(|| HashMap::new());
+    let mut smallint_attrs = use_signal::<HashMap<Id, (SmallintAttribute, String)>>(|| HashMap::new());
+    let mut int_attrs = use_signal::<HashMap<Id, (IntegerAttribute, String)>>(|| HashMap::new());
+    let mut boolean_attrs = use_signal::<HashMap<Id, (BooleanAttribute, String)>>(|| HashMap::new());
 
     let mut err: Signal<Option<String>> = use_signal(|| None);
     let saved = use_signal(|| false);
@@ -27,6 +31,37 @@ pub fn EntityNewPage() -> Element {
     use_future(move || async move {
         ent_kinds.set(UI_GLOBALS.get_ent_kinds().await);
     });
+
+    if selected_kind_id().len() > 0 {
+        use_future(move || async move {
+            if let Ok(Some(ent_def)) = get_entity_def(selected_kind_id().clone()).await {
+                ent_def.attributes.iter().for_each(|attr| match &attr.value_type {
+                    &AttributeValueType::Text => {
+                        text_attrs
+                            .write()
+                            .insert(attr.id.clone(), (attr.clone().into(), "".to_string()));
+                    }
+                    &AttributeValueType::SmallInteger => {
+                        smallint_attrs.write().insert(attr.id.clone(), (attr.into(), "".to_string()));
+                    }
+                    &AttributeValueType::Integer => {
+                        int_attrs.write().insert(attr.id.clone(), (attr.into(), "".to_string()));
+                    }
+                    &AttributeValueType::Boolean => {
+                        boolean_attrs.write().insert(attr.id.clone(), (attr.into(), "".to_string()));
+                    }
+                    _ => {}
+                })
+            }
+        });
+    }
+
+    log::debug!(
+        "[EntityNewPage] selected_kind_id: {:?} selected_kind_id_time: {:?} previously_selected_kind_id_time: {:?}",
+        selected_kind_id(),
+        selected_kind_id_time(),
+        previously_selected_kind_id_time()
+    );
 
     rsx! {
         div { class: "flex flex-col min-h-screen bg-gray-100",
@@ -46,15 +81,33 @@ pub fn EntityNewPage() -> Element {
                             }
                         }
                         hr { class: "flex" }
-                        Select { items: ent_kinds, selected_item_id: selected_kind_id }
-                        EntityForm {
-                            kind: selected_kind_id,
-                            text_attrs,
-                            smallint_attrs,
-                            boolean_attrs,
-                            action: Action::Edit,
-                            saved,
-                            err
+                        div { class: "flex py-4",
+                            p { class: "py-2 pr-4 text-gray-600 block", "Kind:" }
+                            if !ent_kinds().is_empty() {
+                                Select {
+                                    items: ent_kinds,
+                                    selected_item_id: selected_kind_id,
+                                    selected_item_id_time: selected_kind_id_time,
+                                    previously_selected_item_id_time: previously_selected_kind_id_time
+                                }
+                            }
+                        }
+                        if previously_selected_kind_id_time() < selected_kind_id_time()
+                            && selected_kind_id().len() > 0
+                        {
+                            EntityForm {
+                                text_attrs,
+                                smallint_attrs,
+                                int_attrs,
+                                boolean_attrs,
+                                action: Action::Edit,
+                                saved,
+                                err
+                            }
+                        } else {
+                            p { class: "py-2 text-gray-500 block",
+                                "Select a kind to create an entity."
+                            }
                         }
                         div { class: "flex justify-betweent mt-8",
                             // Show the button's action result in the UI.

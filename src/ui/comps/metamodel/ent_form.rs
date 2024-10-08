@@ -2,13 +2,13 @@ use std::collections::HashMap;
 
 use dioxus::prelude::*;
 
-use crate::domain::model::{BooleanAttribute, Id, SmallintAttribute, TextAttribute};
+use crate::domain::model::{BooleanAttribute, Id, IntegerAttribute, SmallintAttribute, TextAttribute};
 
 #[derive(Props, PartialEq, Clone)]
 pub struct EntityFormProps {
-    pub kind: Signal<String>,
     pub text_attrs: Signal<HashMap<Id, (TextAttribute, String)>>,
     pub smallint_attrs: Signal<HashMap<Id, (SmallintAttribute, String)>>,
+    pub int_attrs: Signal<HashMap<Id, (IntegerAttribute, String)>>,
     pub boolean_attrs: Signal<HashMap<Id, (BooleanAttribute, String)>>,
     pub action: String,
     pub saved: Signal<bool>,
@@ -18,10 +18,15 @@ pub struct EntityFormProps {
 #[component]
 pub fn EntityForm(props: EntityFormProps) -> Element {
     //
-    let action = props.action;
-    let text_attrs = props.text_attrs;
-    let _saved = props.saved;
-    let _err = props.err;
+    let EntityFormProps {
+        text_attrs,
+        smallint_attrs,
+        int_attrs,
+        boolean_attrs,
+        action,
+        saved,
+        err,
+    } = props;
 
     let is_view = action == "View";
     //let mut text_attr_values = use_signal(|| Vec::<String>::new());
@@ -49,14 +54,13 @@ pub fn EntityForm(props: EntityFormProps) -> Element {
             //         }
             //     }
             // }
-            p { "Text Attributes:" }
+            hr {}
             div { class: "space-y-0",
                 for (id , (attr , value)) in text_attrs() {
-
                     div { class: "flex",
-                        label { class: "pr-3 py-2 min-w-28", "{attr.name}:" }
+                        label { class: "pr-3 py-2 min-w-36", "{attr.name}:" }
                         textarea {
-                            class: "px-3 py-2 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
+                            class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
                             rows: 1,
                             cols: 32,
                             value: "{value}",
@@ -65,6 +69,38 @@ pub fn EntityForm(props: EntityFormProps) -> Element {
                             oninput: move |evt| {
                                 let id = id.clone();
                                 text_attrs().entry(id).and_modify(|(_, value)| { *value = evt.value() });
+                            }
+                        }
+                    }
+                }
+                for (id , (attr , value)) in smallint_attrs() {
+                    div { class: "flex",
+                        label { class: "pr-3 py-2 min-w-36", "{attr.name}:" }
+                        input {
+                            class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
+                            r#type: "number",
+                            value: "{value}",
+                            readonly: is_view,
+                            maxlength: 3,
+                            oninput: move |evt| {
+                                let id = id.clone();
+                                smallint_attrs().entry(id).and_modify(|(_, value)| { *value = evt.value() });
+                            }
+                        }
+                    }
+                }
+                for (id , (attr , value)) in int_attrs() {
+                    div { class: "flex",
+                        label { class: "pr-3 py-2 min-w-36", "{attr.name}:" }
+                        input {
+                            class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
+                            r#type: "number",
+                            value: "{value}",
+                            readonly: is_view,
+                            maxlength: 10,
+                            oninput: move |evt| {
+                                let id = id.clone();
+                                int_attrs().entry(id).and_modify(|(_, value)| { *value = evt.value() });
                             }
                         }
                     }

@@ -1,5 +1,5 @@
 // use super:{AttributeDef
-use super::{Item, ItemType};
+use super::{AttributeDef, Item, ItemType};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -29,5 +29,11 @@ impl TextAttribute {
 impl Item for TextAttribute {
     fn item_type(&self) -> ItemType {
         ItemType::TextAttribute
+    }
+}
+
+impl From<AttributeDef> for TextAttribute {
+    fn from(attr_def: AttributeDef) -> Self {
+        Self::new(attr_def.id, attr_def.name, attr_def.default_value)
     }
 }

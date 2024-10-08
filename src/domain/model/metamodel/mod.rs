@@ -1,8 +1,8 @@
 mod attr_def;
 pub use attr_def::*;
 
-mod bool_attr;
-pub use bool_attr::*;
+mod boolean_attr;
+pub use boolean_attr::*;
 
 mod entity_def;
 pub use entity_def::*;
@@ -15,6 +15,9 @@ pub use entity_link::*;
 
 mod entity;
 pub use entity::*;
+
+mod int_attr;
+pub use int_attr::*;
 
 mod item_type;
 pub use item_type::*;

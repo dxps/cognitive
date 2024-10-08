@@ -12,6 +12,3 @@ pub use ent_def_page::*;
 
 mod ent_def_form;
 pub use ent_def_form::*;
-
-mod ent_form;
-pub use ent_form::*;

@@ -2,7 +2,7 @@ use sqlx::{postgres::PgRow, FromRow, PgPool, Row};
 use std::sync::Arc;
 
 use crate::{
-    domain::model::{Entity, EntityDef, Id, SmallintAttribute, TextAttribute},
+    domain::model::{Entity, EntityDef, Id, IntegerAttribute, TextAttribute},
     server::{AppResult, PaginationOpts},
 };
 
@@ -140,7 +140,7 @@ fn fill_in_entity_attributes(ent: &mut Entity, rows: Vec<PgRow>) {
             "smallint" => {
                 log::debug!("Found smallint attribute '{}'.", row.get::<&str, &str>("name"));
                 ent.smallint_attributes
-                    .push(SmallintAttribute::new(row.get("name"), row.get("smallint_value")));
+                    .push(IntegerAttribute::new(row.get("name"), row.get("smallint_value")));
             }
             _ => {
                 log::debug!("Found attribute '{}'.", row.get::<&str, &str>("name"));
