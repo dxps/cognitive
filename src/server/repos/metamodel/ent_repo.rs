@@ -120,7 +120,7 @@ impl FromRow<'_, PgRow> for Entity {
         Ok(Self {
             id: row.get("id"),
             kind: row.get("kind"),
-            def: EntityDef::default(),
+            def: None,
             text_attributes: vec![],
             boolean_attributes: vec![],
             smallint_attributes: vec![],

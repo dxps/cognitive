@@ -16,7 +16,7 @@ pub fn EntityListPage() -> Element {
     let mut show_modal = use_signal(|| false);
 
     use_future(move || async move {
-        UI_GLOBALS.get_ent_kinds().await;
+        UI_GLOBALS.get_ent_defs().await;
     });
 
     // use_future(move || async move {

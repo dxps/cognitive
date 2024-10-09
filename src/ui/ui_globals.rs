@@ -1,8 +1,8 @@
 use std::{collections::HashMap, ops::Deref, sync::Arc};
 
 use crate::{
-    domain::model::{Id, Tag},
-    server::fns::{get_tags, list_entities_defs_id_name},
+    domain::model::{EntityDef, Id, Tag},
+    server::fns::{get_tags, list_entities_defs},
 };
 use dioxus::signals::{GlobalSignal, Readable};
 
@@ -10,7 +10,7 @@ pub struct UiGlobals {
     pub app_ready: GlobalSignal<bool>,
     pub tags: GlobalSignal<Arc<HashMap<String, Tag>>>,
     pub tags_loaded: GlobalSignal<bool>,
-    pub ent_kinds: GlobalSignal<HashMap<Id, String>>,
+    pub ent_defs: GlobalSignal<HashMap<Id, EntityDef>>,
 }
 
 impl UiGlobals {
@@ -19,7 +19,7 @@ impl UiGlobals {
             app_ready: GlobalSignal::new(|| false),
             tags: GlobalSignal::new(|| Arc::new(HashMap::new())),
             tags_loaded: GlobalSignal::new(|| false),
-            ent_kinds: GlobalSignal::new(|| HashMap::new()),
+            ent_defs: GlobalSignal::new(|| HashMap::new()),
         }
     }
 
@@ -77,14 +77,30 @@ impl UiGlobals {
         *self.tags.write() = Arc::new(updated_tags);
     }
 
-    pub async fn get_ent_kinds(&self) -> HashMap<Id, String> {
-        if self.ent_kinds.read().is_empty() {
-            if let Ok(kinds) = list_entities_defs_id_name().await {
-                log::debug!("[UiGlobals] Got entity kinds: {:?}", kinds);
-                *self.ent_kinds.write() = kinds;
+    /// Get the entities definitions.
+    /// If they haven't been loaded yet, it fetches them from the server.
+    pub async fn get_ent_defs(&self) -> HashMap<Id, EntityDef> {
+        if self.ent_defs.read().is_empty() {
+            if let Ok(ent_defs) = list_entities_defs().await {
+                log::debug!("[UiGlobals] Got entity defs: {:?}", ent_defs);
+                *self.ent_defs.write() = ent_defs.into_iter().map(|def| (def.id.clone(), def)).collect();
             }
         };
-        self.ent_kinds.read().clone()
+        self.ent_defs.read().clone()
+    }
+
+    pub async fn get_ent_def(&self, id: &Id) -> Option<EntityDef> {
+        if self.ent_defs.read().is_empty() {
+            if let Ok(ent_defs) = list_entities_defs().await {
+                log::debug!("[UiGlobals] Got entity defs: {:?}", ent_defs);
+                *self.ent_defs.write() = ent_defs.into_iter().map(|def| (def.id.clone(), def)).collect();
+            }
+        };
+        self.ent_defs.read().get(id).cloned()
+    }
+
+    pub fn get_ent_def_sync(&self, id: &Id) -> Option<EntityDef> {
+        self.ent_defs.read().get(id).cloned()
     }
 }
 

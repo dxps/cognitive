@@ -29,8 +29,6 @@ pub fn EntityForm(props: EntityFormProps) -> Element {
     } = props;
 
     let is_view = action == "View";
-    //let mut text_attr_values = use_signal(|| Vec::<String>::new());
-    //let mut smallint_attr_values = use_signal(|| Vec::<i8>::new());
 
     rsx! {
         div { class: "mt-4 space-y-4",

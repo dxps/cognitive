@@ -4,7 +4,6 @@ use crate::{
     domain::model::{
         AttributeValueType, BooleanAttribute, Entity, EntityDef, Id, IntegerAttribute, SmallintAttribute, TextAttribute,
     },
-    server::fns::get_entity_def,
     ui::{
         comps::{Breadcrumb, EntityForm, Nav, Select},
         routes::Route,
@@ -15,11 +14,11 @@ use dioxus::prelude::*;
 
 pub fn EntityNewPage() -> Element {
     //
+    let mut ent_defs = use_signal::<HashMap<Id, EntityDef>>(|| HashMap::new());
     let mut ent_kinds = use_signal::<HashMap<Id, String>>(|| HashMap::new());
-    let mut selected_kind_id = use_signal(|| "".to_string());
-    let mut selected_kind_id_time = use_signal(|| chrono::Utc::now());
-    let mut previously_selected_kind_id_time = use_signal(|| chrono::Utc::now());
+    let selected_kind_id = use_signal(|| "".to_string());
 
+    // The attributes and the collected values (as `String`s).
     let mut text_attrs = use_signal::<HashMap<Id, (TextAttribute, String)>>(|| HashMap::new());
     let mut smallint_attrs = use_signal::<HashMap<Id, (SmallintAttribute, String)>>(|| HashMap::new());
     let mut int_attrs = use_signal::<HashMap<Id, (IntegerAttribute, String)>>(|| HashMap::new());
@@ -29,39 +28,51 @@ pub fn EntityNewPage() -> Element {
     let saved = use_signal(|| false);
 
     use_future(move || async move {
-        ent_kinds.set(UI_GLOBALS.get_ent_kinds().await);
+        let defs = UI_GLOBALS.get_ent_defs().await;
+        ent_kinds.set(defs.iter().map(|(id, def)| (id.clone(), def.name.clone())).collect());
+        ent_defs.set(defs);
     });
 
-    if selected_kind_id().len() > 0 {
-        use_future(move || async move {
-            if let Ok(Some(ent_def)) = get_entity_def(selected_kind_id().clone()).await {
+    use_memo(move || {
+        let kind_id = selected_kind_id();
+        log::debug!("[EntityNewPage] Changed selected kind_id: {:?}", kind_id);
+        if kind_id.len() > 0 {
+            log::debug!("[EntityNewPage] Loading attributes from entity def id:'{}' ...", kind_id);
+            let kind_id = kind_id.clone();
+            log::debug!(
+                "[EntityNewPage] Loading attributes from entity def id:'{}' using the global state ...",
+                kind_id
+            );
+            if let Some(ent_def) = UI_GLOBALS.get_ent_def_sync(&kind_id) {
+                let mut txt_attrs = HashMap::new();
+                let mut si_attrs = HashMap::new();
+                let mut i_attrs = HashMap::new();
+                let mut b_attrs = HashMap::new();
                 ent_def.attributes.iter().for_each(|attr| match &attr.value_type {
                     &AttributeValueType::Text => {
-                        text_attrs
-                            .write()
-                            .insert(attr.id.clone(), (attr.clone().into(), "".to_string()));
+                        txt_attrs.insert(attr.id.clone(), (attr.clone().into(), "".to_string()));
                     }
                     &AttributeValueType::SmallInteger => {
-                        smallint_attrs.write().insert(attr.id.clone(), (attr.into(), "".to_string()));
+                        si_attrs.insert(attr.id.clone(), (attr.into(), "".to_string()));
                     }
                     &AttributeValueType::Integer => {
-                        int_attrs.write().insert(attr.id.clone(), (attr.into(), "".to_string()));
+                        i_attrs.insert(attr.id.clone(), (attr.into(), "".to_string()));
                     }
                     &AttributeValueType::Boolean => {
-                        boolean_attrs.write().insert(attr.id.clone(), (attr.into(), "".to_string()));
+                        b_attrs.insert(attr.id.clone(), (attr.into(), "".to_string()));
                     }
                     _ => {}
-                })
+                });
+                text_attrs.set(txt_attrs);
+                smallint_attrs.set(si_attrs);
+                int_attrs.set(i_attrs);
+                boolean_attrs.set(b_attrs);
+                log::debug!("[EntityNewPage] Loaded attributes from entity def id:'{}'", kind_id);
+            } else {
+                log::warn!("[EntityNewPage] Failed to get entity def id:'{}'", kind_id);
             }
-        });
-    }
-
-    log::debug!(
-        "[EntityNewPage] selected_kind_id: {:?} selected_kind_id_time: {:?} previously_selected_kind_id_time: {:?}",
-        selected_kind_id(),
-        selected_kind_id_time(),
-        previously_selected_kind_id_time()
-    );
+        };
+    });
 
     rsx! {
         div { class: "flex flex-col min-h-screen bg-gray-100",
@@ -83,18 +94,15 @@ pub fn EntityNewPage() -> Element {
                         hr { class: "flex" }
                         div { class: "flex py-4",
                             p { class: "py-2 pr-4 text-gray-600 block", "Kind:" }
-                            if !ent_kinds().is_empty() {
-                                Select {
-                                    items: ent_kinds,
-                                    selected_item_id: selected_kind_id,
-                                    selected_item_id_time: selected_kind_id_time,
-                                    previously_selected_item_id_time: previously_selected_kind_id_time
-                                }
+                            if !ent_defs().is_empty() {
+                                Select { items: ent_kinds, selected_item_id: selected_kind_id }
                             }
                         }
-                        if previously_selected_kind_id_time() < selected_kind_id_time()
-                            && selected_kind_id().len() > 0
-                        {
+                        if selected_kind_id().len() == 0 {
+                            p { class: "py-2 text-gray-500 block",
+                                "Select a kind to create an entity."
+                            }
+                        } else {
                             EntityForm {
                                 text_attrs,
                                 smallint_attrs,
@@ -103,10 +111,6 @@ pub fn EntityNewPage() -> Element {
                                 action: Action::Edit,
                                 saved,
                                 err
-                            }
-                        } else {
-                            p { class: "py-2 text-gray-500 block",
-                                "Select a kind to create an entity."
                             }
                         }
                         div { class: "flex justify-betweent mt-8",
@@ -152,16 +156,19 @@ pub fn EntityNewPage() -> Element {
     }
 }
 
-async fn handle_create_ent_def(
-    name: String,
-    description: Option<String>,
-    attr_def_ids: Vec<Id>,
+async fn handle_create_ent(
+    kind: String,
+    text_attrs: Vec<TextAttribute>,
     mut saved: Signal<bool>,
     mut err: Signal<Option<String>>,
 ) -> Option<Id> {
-    let ent_def = EntityDef::new_with_attr_def_ids("".into(), name, description, attr_def_ids);
-    log::debug!("Creating an entity definition {:?}: ", ent_def);
-    match crate::server::fns::create_entity_def(ent_def).await {
+    //
+
+    let ent = Entity::new_from(kind, text_attrs);
+
+    log::debug!("Creating the entity {:?} ...", ent);
+
+    match crate::server::fns::create_entity(ent).await {
         Ok(id) => {
             saved.set(true);
             err.set(None);

@@ -33,10 +33,25 @@ impl EntityDefRepo {
         let offset = (pagination_opts.page.unwrap_or(1) - 1) * limit;
         let query = format!("SELECT id, name, description FROM entity_defs ORDER BY name LIMIT {limit} OFFSET {offset}");
 
-        sqlx::query_as::<_, EntityDef>(query.as_str()) // FYI: Binding (such as .bind(limit) didn't work, that's why the query.
+        let mut ent_defs = sqlx::query_as::<_, EntityDef>(query.as_str()) // FYI: Binding (such as .bind(limit) didn't work, that's why the query.
+            .fetch_all(self.dbcp.as_ref())
+            .await?;
+
+        for ent_def in &mut ent_defs {
+            if let Ok(attrs) = sqlx::query_as::<_, AttributeDef>(
+                "SELECT id, name, description, value_type, default_value, required, multivalued, tag_id
+             FROM attribute_defs ad JOIN entity_defs_attribute_defs_xref ed_ad_xref
+             ON ad.id = ed_ad_xref.attribute_def_id where ed_ad_xref.entity_def_id = $1",
+            )
+            .bind(&ent_def.id)
             .fetch_all(self.dbcp.as_ref())
             .await
-            .map(|res| AppResult::Ok(res))?
+            {
+                ent_def.attributes = attrs;
+            }
+        }
+
+        Ok(ent_defs)
     }
 
     pub async fn add(&self, ent_def: &EntityDef) -> AppResult<()> {
