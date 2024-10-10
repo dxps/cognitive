@@ -11,15 +11,23 @@
 		@apply bg-gray-100 text-green-700;
 	}
 
-	/** Defaults for input elements. */
+	/* Defaults for input elements. */
 	input {
 		@apply border-[1.4px] border-slate-300 text-sm rounded-md py-2.5 px-3;
 	}
 	input:focus {
 		@apply border-green-400 outline-none;
 	}
+	/* Hide the arrows on input of type number */
+	input[type='number']::-webkit-inner-spin-button,
+	input[type='number']::-webkit-outer-spin-button,
+	input[type='number'] {
+		-webkit-appearance: none;
+		/* margin: 0; */
+		-moz-appearance: textfield !important;
+	}
 
-	/** Defaults for textarea elements. */
+	/* Defaults for textarea elements. */
 	textarea {
 		@apply border-[1.4px] border-slate-300 text-sm rounded-md py-2.5 px-3;
 	}
@@ -27,7 +35,7 @@
 		@apply border-green-400 outline-none;
 	}
 
-	/** Defaults for buttons. */
+	/* Defaults for buttons. */
 	button {
 		@apply px-2 py-1;
 	}
