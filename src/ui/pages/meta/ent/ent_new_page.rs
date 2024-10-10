@@ -18,11 +18,10 @@ pub fn EntityNewPage() -> Element {
     let mut ent_kinds = use_signal::<HashMap<Id, String>>(|| HashMap::new());
     let selected_kind_id = use_signal(|| "".to_string());
 
-    // The attributes and the collected values (as `String`s).
-    let mut text_attrs = use_signal::<HashMap<Id, (TextAttribute, String)>>(|| HashMap::new());
-    let mut smallint_attrs = use_signal::<HashMap<Id, (SmallintAttribute, String)>>(|| HashMap::new());
-    let mut int_attrs = use_signal::<HashMap<Id, (IntegerAttribute, String)>>(|| HashMap::new());
-    let mut boolean_attrs = use_signal::<HashMap<Id, (BooleanAttribute, String)>>(|| HashMap::new());
+    let mut text_attrs = use_signal::<HashMap<Id, TextAttribute>>(|| HashMap::new());
+    let mut smallint_attrs = use_signal::<HashMap<Id, SmallintAttribute>>(|| HashMap::new());
+    let mut int_attrs = use_signal::<HashMap<Id, IntegerAttribute>>(|| HashMap::new());
+    let mut boolean_attrs = use_signal::<HashMap<Id, BooleanAttribute>>(|| HashMap::new());
 
     let mut err: Signal<Option<String>> = use_signal(|| None);
     let saved = use_signal(|| false);
@@ -50,16 +49,16 @@ pub fn EntityNewPage() -> Element {
                 let mut b_attrs = HashMap::new();
                 ent_def.attributes.iter().for_each(|attr| match &attr.value_type {
                     &AttributeValueType::Text => {
-                        txt_attrs.insert(attr.id.clone(), (attr.clone().into(), "".to_string()));
+                        txt_attrs.insert(attr.id.clone(), attr.clone().into());
                     }
                     &AttributeValueType::SmallInteger => {
-                        si_attrs.insert(attr.id.clone(), (attr.into(), "".to_string()));
+                        si_attrs.insert(attr.id.clone(), attr.into());
                     }
                     &AttributeValueType::Integer => {
-                        i_attrs.insert(attr.id.clone(), (attr.into(), "".to_string()));
+                        i_attrs.insert(attr.id.clone(), attr.into());
                     }
                     &AttributeValueType::Boolean => {
-                        b_attrs.insert(attr.id.clone(), (attr.into(), "".to_string()));
+                        b_attrs.insert(attr.id.clone(), attr.into());
                     }
                     _ => {}
                 });
@@ -109,7 +108,6 @@ pub fn EntityNewPage() -> Element {
                                 int_attrs,
                                 boolean_attrs,
                                 action: Action::Edit,
-                                saved,
                                 err
                             }
                         }
@@ -122,26 +120,26 @@ pub fn EntityNewPage() -> Element {
                                     span { class: "text-green-600", { "Successfully created" } }
                                 }
                             }
-                            button { class: "bg-gray-100 hover:bg-green-100 disabled:text-gray-300 hover:disabled:bg-gray-100 drop-shadow-sm px-4 rounded-md",
-                                // async move {
-                                //     if saved() {
-                                //         navigator().push(Route::EntityDefListPage {});
-                                //     } else {
-                                //         let attributes_ids: Vec<Id> = included_attr_defs()
-                                //             .iter()
-                                //             .map(|(id, _)| id.clone())
-                                //             .collect();
-                                //         handle_create_ent_def(
-                                //                 name(),
-                                //                 description.clone(),
-                                //                 attributes_ids,
-                                //                 saved,
-                                //                 err,
-                                //             )
-                                //             .await;
-                                //     }
-                                // }
-                                // },
+                            button {
+                                class: "bg-gray-100 hover:bg-green-100 disabled:text-gray-300 hover:disabled:bg-gray-100 drop-shadow-sm px-4 rounded-md",
+                                onclick: move |_| {
+                                    async move {
+                                        if saved() {
+                                            navigator().push(Route::EntityListPage {});
+                                        } else {
+                                            handle_create_ent(
+                                                    selected_kind_id(),
+                                                    text_attrs().values().cloned().collect(),
+                                                    smallint_attrs().values().cloned().collect(),
+                                                    int_attrs().values().cloned().collect(),
+                                                    boolean_attrs().values().cloned().collect(),
+                                                    saved,
+                                                    err,
+                                                )
+                                                .await;
+                                        }
+                                    }
+                                },
                                 if saved() {
                                     "Close"
                                 } else {
@@ -159,12 +157,15 @@ pub fn EntityNewPage() -> Element {
 async fn handle_create_ent(
     kind: String,
     text_attrs: Vec<TextAttribute>,
+    smallint_attrs: Vec<SmallintAttribute>,
+    int_attrs: Vec<IntegerAttribute>,
+    boolean_attrs: Vec<BooleanAttribute>,
     mut saved: Signal<bool>,
     mut err: Signal<Option<String>>,
 ) -> Option<Id> {
     //
 
-    let ent = Entity::new_from(kind, text_attrs);
+    let ent = Entity::new_from(kind, text_attrs, smallint_attrs, int_attrs, boolean_attrs);
 
     log::debug!("Creating the entity {:?} ...", ent);
 

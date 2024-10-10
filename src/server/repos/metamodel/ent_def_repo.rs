@@ -41,7 +41,7 @@ impl EntityDefRepo {
             if let Ok(attrs) = sqlx::query_as::<_, AttributeDef>(
                 "SELECT id, name, description, value_type, default_value, required, multivalued, tag_id
              FROM attribute_defs ad JOIN entity_defs_attribute_defs_xref ed_ad_xref
-             ON ad.id = ed_ad_xref.attribute_def_id where ed_ad_xref.entity_def_id = $1",
+             ON ad.id = ed_ad_xref.attribute_def_id where ed_ad_xref.entity_def_id = $1 ORDER BY name",
             )
             .bind(&ent_def.id)
             .fetch_all(self.dbcp.as_ref())
@@ -66,7 +66,7 @@ impl EntityDefRepo {
             .await
         {
             txn.rollback().await?;
-            log::error!("Failed to add entity def: {}", e);
+            log::error!("Failed to add entity def. Cause: '{}'.", e);
             return AppResult::Err(e.into());
         }
 
@@ -101,7 +101,7 @@ impl EntityDefRepo {
                 if let Ok(attrs) = sqlx::query_as::<_, AttributeDef>(
                     "SELECT id, name, description, value_type, default_value, required, multivalued, tag_id 
                      FROM attribute_defs ad JOIN entity_defs_attribute_defs_xref ed_ad_xref 
-                     ON ad.id = ed_ad_xref.attribute_def_id where ed_ad_xref.entity_def_id = $1",
+                     ON ad.id = ed_ad_xref.attribute_def_id where ed_ad_xref.entity_def_id = $1 ORDER BY name",
                 )
                 .bind(id)
                 .fetch_all(self.dbcp.as_ref())

@@ -6,12 +6,11 @@ use crate::domain::model::{BooleanAttribute, Id, IntegerAttribute, SmallintAttri
 
 #[derive(Props, PartialEq, Clone)]
 pub struct EntityFormProps {
-    pub text_attrs: Signal<HashMap<Id, (TextAttribute, String)>>,
-    pub smallint_attrs: Signal<HashMap<Id, (SmallintAttribute, String)>>,
-    pub int_attrs: Signal<HashMap<Id, (IntegerAttribute, String)>>,
-    pub boolean_attrs: Signal<HashMap<Id, (BooleanAttribute, String)>>,
+    pub text_attrs: Signal<HashMap<Id, TextAttribute>>,
+    pub smallint_attrs: Signal<HashMap<Id, SmallintAttribute>>,
+    pub int_attrs: Signal<HashMap<Id, IntegerAttribute>>,
+    pub boolean_attrs: Signal<HashMap<Id, BooleanAttribute>>,
     pub action: String,
-    pub saved: Signal<bool>,
     pub err: Signal<Option<String>>,
 }
 
@@ -19,12 +18,11 @@ pub struct EntityFormProps {
 pub fn EntityForm(props: EntityFormProps) -> Element {
     //
     let EntityFormProps {
-        text_attrs,
-        smallint_attrs,
-        int_attrs,
-        boolean_attrs,
+        mut text_attrs,
+        mut smallint_attrs,
+        mut int_attrs,
+        mut boolean_attrs,
         action,
-        saved,
         err,
     } = props;
 
@@ -54,51 +52,78 @@ pub fn EntityForm(props: EntityFormProps) -> Element {
             // }
             hr {}
             div { class: "space-y-0",
-                for (id , (attr , value)) in text_attrs() {
+                for (id , attr) in text_attrs() {
                     div { class: "flex",
                         label { class: "pr-3 py-2 min-w-36", "{attr.name}:" }
                         textarea {
                             class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
                             rows: 1,
                             cols: 32,
-                            value: "{value}",
+                            value: "{attr.value}",
                             readonly: is_view,
                             maxlength: 256,
                             oninput: move |evt| {
                                 let id = id.clone();
-                                text_attrs().entry(id).and_modify(|(_, value)| { *value = evt.value() });
+                                text_attrs
+                                    .write()
+                                    .entry(id.clone())
+                                    .and_modify(|attr| { attr.value = evt.value() });
+                                log::debug!(
+                                    "[EntityForm] After the change, text attr is {:?} and all text_attrs are {:?}",
+                                    text_attrs().entry(id), text_attrs()
+                                );
                             }
                         }
                     }
                 }
-                for (id , (attr , value)) in smallint_attrs() {
+                for (id , attr) in smallint_attrs() {
                     div { class: "flex",
                         label { class: "pr-3 py-2 min-w-36", "{attr.name}:" }
                         input {
                             class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
                             r#type: "number",
-                            value: "{value}",
+                            value: "{attr.value}",
                             readonly: is_view,
                             maxlength: 3,
                             oninput: move |evt| {
                                 let id = id.clone();
-                                smallint_attrs().entry(id).and_modify(|(_, value)| { *value = evt.value() });
+                                smallint_attrs
+                                    .write()
+                                    .entry(id)
+                                    .and_modify(|attr| {
+                                        let value = evt.value();
+                                        if let Ok(value) = value.parse::<i8>() {
+                                            attr.value = value
+                                        } else {
+                                            log::warn!("[EntityForm] value {} cannot be parsed as i8", value);
+                                        }
+                                    });
                             }
                         }
                     }
                 }
-                for (id , (attr , value)) in int_attrs() {
+                for (id , attr) in int_attrs() {
                     div { class: "flex",
                         label { class: "pr-3 py-2 min-w-36", "{attr.name}:" }
                         input {
                             class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
                             r#type: "number",
-                            value: "{value}",
+                            value: "{attr.value}",
                             readonly: is_view,
                             maxlength: 10,
                             oninput: move |evt| {
                                 let id = id.clone();
-                                int_attrs().entry(id).and_modify(|(_, value)| { *value = evt.value() });
+                                int_attrs
+                                    .write()
+                                    .entry(id)
+                                    .and_modify(|attr| {
+                                        let value = evt.value();
+                                        if let Ok(value) = value.parse::<i32>() {
+                                            attr.value = value
+                                        } else {
+                                            log::warn!("[EntityForm] value {} cannot be parsed as i32", value);
+                                        }
+                                    });
                             }
                         }
                     }

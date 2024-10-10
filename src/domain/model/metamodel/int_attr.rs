@@ -23,9 +23,9 @@ pub struct IntegerAttribute {
 }
 
 impl IntegerAttribute {
-    pub fn new(name: String, value: i32) -> Self {
+    pub fn new(id: Id, name: String, value: i32) -> Self {
         Self {
-            id: Id::default(),
+            id,
             def_id: Id::default(),
             name,
             value,

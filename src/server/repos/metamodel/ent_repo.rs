@@ -2,7 +2,7 @@ use sqlx::{postgres::PgRow, FromRow, PgPool, Row};
 use std::sync::Arc;
 
 use crate::{
-    domain::model::{Entity, EntityDef, Id, IntegerAttribute, TextAttribute},
+    domain::model::{Entity, EntityDef, Id, IntegerAttribute, Item, ItemType, SmallintAttribute, TextAttribute},
     server::{AppResult, PaginationOpts},
 };
 
@@ -14,13 +14,6 @@ impl EntityRepo {
     //
     pub fn new(dbcp: Arc<PgPool>) -> Self {
         Self { dbcp }
-    }
-
-    pub async fn add(&self, ent: &Entity) -> AppResult<()> {
-        //
-        // let mut _txn = self.dbcp.begin().await?;
-        unimplemented!("TODO: Unimplemented")
-        //Ok(())
     }
 
     pub async fn list(&self, pagination_opts: Option<&PaginationOpts>) -> AppResult<Vec<Entity>> {
@@ -106,6 +99,44 @@ impl EntityRepo {
         Ok(res)
     }
 
+    pub async fn add(&self, ent: &Entity) -> AppResult<()> {
+        //
+        let mut txn = self.dbcp.begin().await?;
+
+        if let Err(e) = sqlx::query("INSERT INTO entities (id, def_id) VALUES ($1, $2)")
+            .bind(ent.id.clone())
+            .bind(ent.kind.clone())
+            .execute(&mut *txn)
+            .await
+        {
+            txn.rollback().await?;
+            log::error!("Failed to add entity. Cause: '{}'.", e);
+            return AppResult::Err(e.into());
+        }
+
+        for attr in ent.text_attributes.clone() {
+            if let Err(e) =
+                sqlx::query("INSERT INTO text_attributes (owner_id, owner_type, def_id, value) VALUES ($1, $2, $3, $4)")
+                    .bind(ent.id.clone())
+                    .bind(ItemType::Entity.value())
+                    .bind(attr.def_id)
+                    .bind(attr.value)
+                    .execute(&mut *txn)
+                    .await
+            {
+                txn.rollback().await?;
+                log::error!("Failed to add entity's text attribute: {}", e);
+                return AppResult::Err(e.into());
+            }
+        }
+
+        // TODO: add the other attributes
+
+        txn.commit().await?;
+
+        Ok(())
+    }
+
     pub async fn update(&self, ent: &Entity) -> AppResult<()> {
         unimplemented!("TODO: Unimplemented")
     }
@@ -122,8 +153,9 @@ impl FromRow<'_, PgRow> for Entity {
             kind: row.get("kind"),
             def: None,
             text_attributes: vec![],
-            boolean_attributes: vec![],
             smallint_attributes: vec![],
+            int_attributes: vec![],
+            boolean_attributes: vec![],
         })
     }
 }
@@ -134,13 +166,29 @@ fn fill_in_entity_attributes(ent: &mut Entity, rows: Vec<PgRow>) {
         match row.get::<&str, &str>("value_type") {
             "text" => {
                 log::debug!("Found text attribute '{}'.", row.get::<&str, &str>("name"));
-                ent.text_attributes
-                    .push(TextAttribute::new(row.get("id"), row.get("name"), row.get("text_value")));
+                ent.text_attributes.push(TextAttribute::new(
+                    row.get("name"),
+                    row.get("text_value"),
+                    row.get("id"),
+                    ent.id.clone(),
+                    ItemType::Entity,
+                ));
             }
             "smallint" => {
                 log::debug!("Found smallint attribute '{}'.", row.get::<&str, &str>("name"));
-                ent.smallint_attributes
-                    .push(IntegerAttribute::new(row.get("name"), row.get("smallint_value")));
+                ent.smallint_attributes.push(SmallintAttribute::new(
+                    row.get("id"),
+                    row.get("name"),
+                    row.get("smallint_value"),
+                ));
+            }
+            "integer" => {
+                log::debug!("Found integer attribute '{}'.", row.get::<&str, &str>("name"));
+                ent.int_attributes.push(IntegerAttribute::new(
+                    row.get("id"),
+                    row.get("name"),
+                    row.get("integer_value"),
+                ));
             }
             _ => {
                 log::debug!("Found attribute '{}'.", row.get::<&str, &str>("name"));

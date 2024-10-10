@@ -2,6 +2,7 @@ use dioxus::prelude::*;
 
 use crate::{
     domain::model::Entity,
+    server::fns::list_entities,
     ui::{
         comps::{Breadcrumb, Modal, Nav},
         routes::Route,
@@ -19,11 +20,11 @@ pub fn EntityListPage() -> Element {
         UI_GLOBALS.get_ent_defs().await;
     });
 
-    // use_future(move || async move {
-    //     if let Ok(ent_defs) = list_entities_defs().await {
-    //         items.set(ent_defs);
-    //     }
-    // });
+    use_future(move || async move {
+        if let Ok(ent_defs) = list_entities().await {
+            items.set(ent_defs);
+        }
+    });
 
     rsx! {
         div { class: "flex flex-col min-h-screen bg-gray-100",
