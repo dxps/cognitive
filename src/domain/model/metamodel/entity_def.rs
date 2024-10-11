@@ -10,23 +10,32 @@ pub struct EntityDef {
     pub name: String,
     pub description: Option<String>,
     pub attributes: Vec<AttributeDef>,
+    pub listing_attr_id: Id,
 }
 
 impl EntityDef {
-    pub fn new(id: String, name: String, description: Option<String>) -> Self {
+    pub fn new(id: String, name: String, description: Option<String>, listing_attr_id: Id) -> Self {
         Self {
             id,
             name,
             description,
             attributes: vec![],
+            listing_attr_id,
         }
     }
 
-    pub fn new_with_attr_def_ids(id: String, name: String, description: Option<String>, attributes: Vec<Id>) -> Self {
+    pub fn new_with_attr_def_ids(
+        id: String,
+        name: String,
+        description: Option<String>,
+        attributes: Vec<Id>,
+        listing_attr_id: Id,
+    ) -> Self {
         Self {
             id,
             name,
             description,
+            listing_attr_id,
             attributes: attributes.iter().map(|id| AttributeDef::new_with_id(id.clone())).collect(),
         }
     }

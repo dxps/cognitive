@@ -25,6 +25,8 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
     let mut name = use_signal(|| "".to_string());
     let mut description = use_signal(|| "".to_string());
     let mut included_attr_defs = use_signal(|| Vec::<(Id, String)>::new());
+    let mut listing_attr_def_id = use_signal(|| Id::default());
+
     let mut all_attr_defs = use_signal(|| HashMap::<Id, String>::new());
 
     let mut action = use_signal(|| Action::View);
@@ -50,6 +52,7 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
             let mut temp = all_attr_defs();
             temp.retain(|id, _| !included_ids.contains(&id));
             all_attr_defs.set(temp);
+            listing_attr_def_id.set(item.listing_attr_id);
         }
     });
 
@@ -75,6 +78,7 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
                             name,
                             description,
                             included_attr_defs,
+                            listing_attr_def_id,
                             all_attr_defs,
                             action: action(),
                             saved,
@@ -143,6 +147,7 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
                                                             name(),
                                                             description,
                                                             attributes_ids,
+                                                            listing_attr_def_id(),
                                                             saved,
                                                             err,
                                                         )
@@ -173,6 +178,7 @@ async fn handle_update(
     name: String,
     description: Option<String>,
     attr_def_ids: Vec<Id>,
+    listing_attr_def_id: Id,
     mut saved: Signal<bool>,
     mut err: Signal<Option<String>>,
 ) {
@@ -183,7 +189,7 @@ async fn handle_update(
         attr_def_ids
     );
 
-    let item = EntityDef::new_with_attr_def_ids(id, name, description, attr_def_ids);
+    let item = EntityDef::new_with_attr_def_ids(id, name, description, attr_def_ids, listing_attr_def_id);
     match update_entity_def(item).await {
         Ok(_) => {
             saved.set(true);

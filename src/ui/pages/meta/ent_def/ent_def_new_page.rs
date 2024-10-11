@@ -16,6 +16,8 @@ pub fn EntityDefNewPage() -> Element {
     let name = use_signal(|| "".to_string());
     let description = use_signal(|| "".to_string());
     let included_attr_defs = use_signal::<Vec<(Id, String)>>(|| vec![]);
+    let mut listing_attr_def_id = use_signal(|| Id::default());
+
     let mut all_attr_defs = use_signal(|| HashMap::<Id, String>::new());
 
     let mut err: Signal<Option<String>> = use_signal(|| None);
@@ -47,6 +49,7 @@ pub fn EntityDefNewPage() -> Element {
                             name,
                             description,
                             included_attr_defs,
+                            listing_attr_def_id,
                             all_attr_defs,
                             action: Action::Edit,
                             saved,
@@ -88,6 +91,7 @@ pub fn EntityDefNewPage() -> Element {
                                             handle_create_ent_def(
                                                     name(),
                                                     description.clone(),
+                                                    listing_attr_def_id(),
                                                     attributes_ids,
                                                     saved,
                                                     err,
@@ -113,11 +117,12 @@ pub fn EntityDefNewPage() -> Element {
 async fn handle_create_ent_def(
     name: String,
     description: Option<String>,
+    listing_attr_def_id: Id,
     attr_def_ids: Vec<Id>,
     mut saved: Signal<bool>,
     mut err: Signal<Option<String>>,
 ) -> Option<Id> {
-    let ent_def = EntityDef::new_with_attr_def_ids("".into(), name, description, attr_def_ids);
+    let ent_def = EntityDef::new_with_attr_def_ids("".into(), name, description, attr_def_ids, listing_attr_def_id);
     log::debug!("Creating an entity definition {:?}: ", ent_def);
     match crate::server::fns::create_entity_def(ent_def).await {
         Ok(id) => {

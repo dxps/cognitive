@@ -31,7 +31,9 @@ impl EntityDefRepo {
         let pagination_opts = pagination_opts.unwrap_or(&default_opts);
         let limit = pagination_opts.limit.unwrap_or(10);
         let offset = (pagination_opts.page.unwrap_or(1) - 1) * limit;
-        let query = format!("SELECT id, name, description FROM entity_defs ORDER BY name LIMIT {limit} OFFSET {offset}");
+        let query = format!(
+            "SELECT id, name, description, listing_attr_def_id FROM entity_defs ORDER BY name LIMIT {limit} OFFSET {offset}"
+        );
 
         let mut ent_defs = sqlx::query_as::<_, EntityDef>(query.as_str()) // FYI: Binding (such as .bind(limit) didn't work, that's why the query.
             .fetch_all(self.dbcp.as_ref())
@@ -58,12 +60,14 @@ impl EntityDefRepo {
         //
         let mut txn = self.dbcp.begin().await?;
 
-        if let Err(e) = sqlx::query("INSERT INTO entity_defs (id, name, description) VALUES ($1, $2, $3)")
-            .bind(ent_def.id.clone())
-            .bind(ent_def.name.clone())
-            .bind(ent_def.description.clone())
-            .execute(&mut *txn)
-            .await
+        if let Err(e) =
+            sqlx::query("INSERT INTO entity_defs (id, name, description, listing_attr_def_id) VALUES ($1, $2, $3, $4)")
+                .bind(ent_def.id.clone())
+                .bind(ent_def.name.clone())
+                .bind(ent_def.description.clone())
+                .bind(ent_def.listing_attr_id.clone())
+                .execute(&mut *txn)
+                .await
         {
             txn.rollback().await?;
             log::error!("Failed to add entity def. Cause: '{}'.", e);
@@ -92,10 +96,11 @@ impl EntityDefRepo {
     pub async fn get(&self, id: &Id) -> Option<EntityDef> {
         //
         let mut res = None;
-        if let Ok(res_opt) = sqlx::query_as::<_, EntityDef>("SELECT id, name, description FROM entity_defs WHERE id = $1")
-            .bind(id)
-            .fetch_optional(self.dbcp.as_ref())
-            .await
+        if let Ok(res_opt) =
+            sqlx::query_as::<_, EntityDef>("SELECT id, name, description, listing_attr_def_id FROM entity_defs WHERE id = $1")
+                .bind(id)
+                .fetch_optional(self.dbcp.as_ref())
+                .await
         {
             if let Some(mut ent_def) = res_opt {
                 if let Ok(attrs) = sqlx::query_as::<_, AttributeDef>(
@@ -118,9 +123,10 @@ impl EntityDefRepo {
     pub async fn update(&self, ent_def: &EntityDef) -> AppResult<()> {
         //
         let mut txn = self.dbcp.begin().await?;
-        if let Err(e) = sqlx::query("UPDATE entity_defs SET name = $1, description = $2 WHERE id = $3")
+        if let Err(e) = sqlx::query("UPDATE entity_defs SET name = $1, description = $2, listing_attr_def_id = $3 WHERE id = $4")
             .bind(ent_def.name.clone())
             .bind(ent_def.description.clone())
+            .bind(ent_def.listing_attr_id.clone())
             .bind(ent_def.id.clone())
             .execute(&mut *txn)
             .await
@@ -189,6 +195,11 @@ impl EntityDefRepo {
 
 impl FromRow<'_, PgRow> for EntityDef {
     fn from_row(row: &PgRow) -> Result<Self, sqlx::Error> {
-        Ok(Self::new(row.get("id"), row.get("name"), row.get("description")))
+        Ok(Self::new(
+            row.get("id"),
+            row.get("name"),
+            row.get("description"),
+            row.get("listing_attr_def_id"),
+        ))
     }
 }

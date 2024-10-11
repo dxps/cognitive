@@ -7,6 +7,7 @@ pub struct EntityDefFormProps {
     pub name: Signal<String>,
     pub description: Signal<String>,
     pub included_attr_defs: Signal<Vec<(Id, String)>>,
+    pub listing_attr_def_id: Signal<Id>,
     pub all_attr_defs: Signal<HashMap<Id, String>>,
     pub action: String,
     pub saved: Signal<bool>,
@@ -21,6 +22,7 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
     let mut name = props.name;
     let mut description = props.description;
     let mut included_attr_defs = props.included_attr_defs;
+    let mut listing_attr_def_id = props.listing_attr_def_id;
     let mut all_attr_defs = props.all_attr_defs;
     let saved = props.saved;
     let mut err = props.err;
@@ -28,10 +30,12 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
     let mut selected_attr_def_id = use_signal(|| "".to_string());
     let mut selected_attr_def_name = use_signal(|| "".to_string());
 
+    log::debug!("[EntityDefForm] listing_attr_def_id: {:?}", listing_attr_def_id);
+
     rsx! {
         div { class: "mt-4 space-y-4",
             div { class: "flex",
-                label { class: "pr-3 py-2 min-w-28", "Name:" }
+                label { class: "pr-3 py-2 min-w-32", "Name:" }
                 input {
                     key: "name_{action}",
                     class: "px-3 py-1 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
@@ -51,7 +55,7 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
                 }
             }
             div { class: "flex",
-                label { class: "pr-3 py-2 min-w-28", "Description:" }
+                label { class: "pr-3 py-2 min-w-32", "Description:" }
                 textarea {
                     class: "px-3 py-2 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
                     rows: 3,
@@ -64,11 +68,11 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
                     }
                 }
             }
-            p { "Attributes:" }
-            div { class: "space-y-0",
+            p { class: "slate-100 text-sm font-medium", "Attributes" }
+            div {
                 for (id , name) in included_attr_defs() {
                     div { class: "flex",
-                        p { class: "pl-28 pr-3 min-w-[430px]", "{name}" }
+                        p { class: "pl-32 pr-3 min-w-[430px]", "{name}" }
                         button {
                             class: "text-red-200 hover:text-red-500 hover:bg-red-100 disabled:text-white disabled:hover:bg-white ml-4 px-3 py-0 rounded-xl transition duration-200",
                             disabled: is_view,
@@ -84,6 +88,25 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
                                 all_attr_defs.set(temp);
                             },
                             "-"
+                        }
+                    }
+                }
+            }
+            div { class: "flex",
+                label { class: "pr-3 py-2 min-w-32", "Listing attribute:" }
+                select {
+                    class: "px-3 py-2 bg-slate-100 rounded-lg outline-none border-1 border-gray-300 focus:border-green-300 min-w-80",
+                    multiple: false,
+                    disabled: is_view,
+                    oninput: move |evt| {
+                        listing_attr_def_id.set(evt.value());
+                        log::debug!("[EntityDefForm] selected_attr_def_id: {:?}", evt.value());
+                    },
+                    for (id , name) in included_attr_defs() {
+                        option {
+                            value: "{id}",
+                            selected: "{listing_attr_def_id() == id}",
+                            "{name}"
                         }
                     }
                 }
@@ -111,7 +134,11 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
                     },
                     option { value: "", selected: true, "" }
                     for (id , name) in all_attr_defs() {
-                        option { value: "{id}", "{name}" }
+                        option {
+                            value: "{id}",
+                            selected: "{selected_attr_def_id() == id}",
+                            "{name}"
+                        }
                     }
                 }
                 button {
