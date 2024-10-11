@@ -837,6 +837,10 @@ button {
   min-width: 7rem;
 }
 
+.min-w-32 {
+  min-width: 8rem;
+}
+
 .min-w-36 {
   min-width: 9rem;
 }
@@ -1176,12 +1180,12 @@ button {
   padding-left: 0.5rem;
 }
 
-.pl-28 {
-  padding-left: 7rem;
-}
-
 .pl-3 {
   padding-left: 0.75rem;
+}
+
+.pl-32 {
+  padding-left: 8rem;
 }
 
 .pl-\[6px\] {

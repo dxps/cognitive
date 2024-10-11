@@ -76,7 +76,7 @@ fn EntityCard(ent: Entity) -> Element {
         Link { to: Route::EntityPage { id: ent.id },
             div { class: "flex flex-col p-2 my-3 bg-white rounded border hover:bg-slate-100 transition duration-200",
                 div { class: "flex justify-between text-gray-600",
-                    p { class: "font-medium leading-snug tracking-normal antialiased",
+                    p { class: "mt-1 text-xs leading-5 bg-slate-100 hover:bg-white rounded-lg px-2 leading-snug tracking-normal antialiased",
                         "{ent.kind}"
                     }
                 }

@@ -2,7 +2,7 @@ use sqlx::{postgres::PgRow, FromRow, PgPool, Row};
 use std::sync::Arc;
 
 use crate::{
-    domain::model::{Entity, EntityDef, Id, IntegerAttribute, Item, ItemType, SmallintAttribute, TextAttribute},
+    domain::model::{Entity, Id, IntegerAttribute, ItemType, SmallintAttribute, TextAttribute},
     server::{AppResult, PaginationOpts},
 };
 
@@ -130,18 +130,64 @@ impl EntityRepo {
             }
         }
 
-        // TODO: add the other attributes
+        for attr in ent.smallint_attributes.clone() {
+            if let Err(e) =
+                sqlx::query("INSERT INTO smallint_attributes (owner_id, owner_type, def_id, value) VALUES ($1, $2, $3, $4)")
+                    .bind(ent.id.clone())
+                    .bind(ItemType::Entity.value())
+                    .bind(attr.def_id)
+                    .bind(attr.value)
+                    .execute(&mut *txn)
+                    .await
+            {
+                txn.rollback().await?;
+                log::error!("Failed to add entity's smallint attribute: {}", e);
+                return AppResult::Err(e.into());
+            }
+        }
+
+        for attr in ent.int_attributes.clone() {
+            if let Err(e) =
+                sqlx::query("INSERT INTO integer_attributes (owner_id, owner_type, def_id, value) VALUES ($1, $2, $3, $4)")
+                    .bind(ent.id.clone())
+                    .bind(ItemType::Entity.value())
+                    .bind(attr.def_id)
+                    .bind(attr.value)
+                    .execute(&mut *txn)
+                    .await
+            {
+                txn.rollback().await?;
+                log::error!("Failed to add entity's integer attribute: {}", e);
+                return AppResult::Err(e.into());
+            }
+        }
+
+        for attr in ent.boolean_attributes.clone() {
+            if let Err(e) =
+                sqlx::query("INSERT INTO boolean_attributes (owner_id, owner_type, def_id, value) VALUES ($1, $2, $3, $4)")
+                    .bind(ent.id.clone())
+                    .bind(ItemType::Entity.value())
+                    .bind(attr.def_id)
+                    .bind(attr.value)
+                    .execute(&mut *txn)
+                    .await
+            {
+                txn.rollback().await?;
+                log::error!("Failed to add entity's boolean attribute: {}", e);
+                return AppResult::Err(e.into());
+            }
+        }
 
         txn.commit().await?;
 
         Ok(())
     }
 
-    pub async fn update(&self, ent: &Entity) -> AppResult<()> {
+    pub async fn update(&self, _ent: &Entity) -> AppResult<()> {
         unimplemented!("TODO: Unimplemented")
     }
 
-    pub async fn remove(&self, id: &Id) -> AppResult<()> {
+    pub async fn remove(&self, _id: &Id) -> AppResult<()> {
         unimplemented!("TODO: Unimplemented")
     }
 }

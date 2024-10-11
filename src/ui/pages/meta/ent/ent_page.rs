@@ -25,6 +25,8 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
     let mut name = use_signal(|| "".to_string());
     let mut description = use_signal(|| "".to_string());
     let mut included_attr_defs = use_signal(|| Vec::<(Id, String)>::new());
+    let mut listing_attr_def_id = use_signal(|| Id::default());
+
     let mut all_attr_defs = use_signal(|| HashMap::<Id, String>::new());
 
     let mut action = use_signal(|| Action::View);
@@ -75,6 +77,7 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
                             name,
                             description,
                             included_attr_defs,
+                            listing_attr_def_id,
                             all_attr_defs,
                             action: action(),
                             saved,
@@ -183,17 +186,17 @@ async fn handle_update(
         attr_def_ids
     );
 
-    let item = EntityDef::new_with_attr_def_ids(id, name, description, attr_def_ids);
-    match update_entity_def(item).await {
-        Ok(_) => {
-            saved.set(true);
-            err.set(None);
-        }
-        Err(e) => {
-            saved.set(false);
-            err.set(Some(e.to_string()));
-        }
-    }
+    // let item = EntityDef::new_with_attr_def_ids(id, name, description, attr_def_ids);
+    // match update_entity_def(item).await {
+    //     Ok(_) => {
+    //         saved.set(true);
+    //         err.set(None);
+    //     }
+    //     Err(e) => {
+    //         saved.set(false);
+    //         err.set(Some(e.to_string()));
+    //     }
+    // }
 }
 
 async fn handle_delete(id: Id, mut saved: Signal<bool>, mut err: Signal<Option<String>>) {
