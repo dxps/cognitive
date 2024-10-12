@@ -10,6 +10,8 @@ pub struct EntityFormProps {
     pub smallint_attrs: Signal<HashMap<Id, SmallintAttribute>>,
     pub int_attrs: Signal<HashMap<Id, IntegerAttribute>>,
     pub boolean_attrs: Signal<HashMap<Id, BooleanAttribute>>,
+    pub listing_attr_name: String,
+    pub listing_attr_value: Signal<String>,
     pub action: String,
     pub err: Signal<Option<String>>,
 }
@@ -22,6 +24,8 @@ pub fn EntityForm(props: EntityFormProps) -> Element {
         mut smallint_attrs,
         mut int_attrs,
         mut boolean_attrs,
+        listing_attr_name,
+        mut listing_attr_value,
         action,
         err,
     } = props;

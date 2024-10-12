@@ -22,7 +22,7 @@ impl EntityRepo {
         let pagination_opts = pagination_opts.unwrap_or(&default_opts);
         let limit = pagination_opts.limit.unwrap_or(10);
         let offset = (pagination_opts.page.unwrap_or(1) - 1) * limit;
-        let query = format!("SELECT e.id, ed.name as kind FROM entities e JOIN entity_defs ed ON e.def_id = ed.id ORDER BY name LIMIT {limit} OFFSET {offset}");
+        let query = format!("SELECT e.id, e.def_id, e.listing_attr_name, e.listing_attr_value, ed.name as kind FROM entities e JOIN entity_defs ed ON e.def_id = ed.id ORDER BY name LIMIT {limit} OFFSET {offset}");
 
         sqlx::query_as::<_, Entity>(query.as_str())
             .fetch_all(self.dbcp.as_ref())
@@ -34,7 +34,7 @@ impl EntityRepo {
         //
         let mut res = None;
         if let Ok(ent_opt) = sqlx::query_as::<_, Entity>(
-            "SELECT e.id, ed.name, description FROM entities e JOIN entity_defs ed ON e.def_id = ed.id WHERE id = $1",
+            "SELECT e.id, e.def_id, e.listing_attr_name, e.listing_attr_value, ed.name, description FROM entities e JOIN entity_defs ed ON e.def_id = ed.id WHERE id = $1",
         )
         .bind(id)
         .fetch_optional(self.dbcp.as_ref())
@@ -103,11 +103,14 @@ impl EntityRepo {
         //
         let mut txn = self.dbcp.begin().await?;
 
-        if let Err(e) = sqlx::query("INSERT INTO entities (id, def_id) VALUES ($1, $2)")
-            .bind(ent.id.clone())
-            .bind(ent.kind.clone())
-            .execute(&mut *txn)
-            .await
+        if let Err(e) =
+            sqlx::query("INSERT INTO entities (id, def_id, listing_attr_name, listing_attr_value) VALUES ($1, $2, $3, $4)")
+                .bind(ent.id.clone())
+                .bind(ent.kind.clone())
+                .bind(ent.listing_attr_name.clone())
+                .bind(ent.listing_attr_value.clone())
+                .execute(&mut *txn)
+                .await
         {
             txn.rollback().await?;
             log::error!("Failed to add entity. Cause: '{}'.", e);
@@ -197,11 +200,13 @@ impl FromRow<'_, PgRow> for Entity {
         Ok(Self {
             id: row.get("id"),
             kind: row.get("kind"),
-            def: None,
+            def_id: row.get("def_id"),
             text_attributes: vec![],
             smallint_attributes: vec![],
             int_attributes: vec![],
             boolean_attributes: vec![],
+            listing_attr_name: row.get("listing_attr_name"),
+            listing_attr_value: row.get("listing_attr_value"),
         })
     }
 }

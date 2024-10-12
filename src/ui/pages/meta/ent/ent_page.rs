@@ -3,8 +3,7 @@ use std::collections::HashMap;
 use dioxus::prelude::*;
 
 use crate::{
-    domain::model::{EntityDef, Id},
-    server::fns::{remove_entity_def, update_entity_def},
+    domain::model::Id,
     ui::{
         comps::{Breadcrumb, Nav},
         pages::EntityDefForm,
@@ -180,11 +179,7 @@ async fn handle_update(
     mut err: Signal<Option<String>>,
 ) {
     //
-    log::debug!(
-        "Updating entity definition with id:'{id}' name:{name} description:{:?} attr_def_ids:{:?}: ",
-        description,
-        attr_def_ids
-    );
+    log::debug!("Updating entity w/ id:'{id}' ... ");
 
     // let item = EntityDef::new_with_attr_def_ids(id, name, description, attr_def_ids);
     // match update_entity_def(item).await {
@@ -199,17 +194,17 @@ async fn handle_update(
     // }
 }
 
-async fn handle_delete(id: Id, mut saved: Signal<bool>, mut err: Signal<Option<String>>) {
+async fn handle_delete(id: Id, mut _saved: Signal<bool>, mut _err: Signal<Option<String>>) {
     //
-    log::debug!(">>> Deleting entity definition: {:?}", id);
-    match remove_entity_def(id.clone()).await {
-        Ok(_) => {
-            saved.set(true);
-            err.set(None);
-        }
-        Err(e) => {
-            saved.set(false);
-            err.set(Some(e.to_string()));
-        }
-    }
+    log::debug!(">>> Deleting entity w/ id {:?}", id);
+    // match remove_entity_def(id.clone()).await {
+    //     Ok(_) => {
+    //         saved.set(true);
+    //         err.set(None);
+    //     }
+    //     Err(e) => {
+    //         saved.set(false);
+    //         err.set(Some(e.to_string()));
+    //     }
+    // }
 }

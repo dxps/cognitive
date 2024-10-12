@@ -4,7 +4,7 @@ use crate::{
     domain::model::Entity,
     server::fns::list_entities,
     ui::{
-        comps::{Breadcrumb, Modal, Nav},
+        comps::{Breadcrumb, Nav},
         routes::Route,
         UI_GLOBALS,
     },
@@ -14,15 +14,11 @@ use crate::{
 pub fn EntityListPage() -> Element {
     //
     let mut items = use_signal::<Vec<Entity>>(|| vec![]);
-    let mut show_modal = use_signal(|| false);
 
     use_future(move || async move {
         UI_GLOBALS.get_ent_defs().await;
-    });
-
-    use_future(move || async move {
-        if let Ok(ent_defs) = list_entities().await {
-            items.set(ent_defs);
+        if let Ok(entitites) = list_entities().await {
+            items.set(entitites);
         }
     });
 
@@ -58,30 +54,26 @@ pub fn EntityListPage() -> Element {
                 }
             }
         }
-        if show_modal() {
-            Modal {
-                title: "Create Entity",
-                content: "Click on the kind of entity you want to create.",
-                children: rsx! {
-                    Link { to: Route::EntityNewPage {}, "Kind X" }
-                }
-            }
-        }
     }
 }
 
 #[component]
 fn EntityCard(ent: Entity) -> Element {
+    //
+    log::debug!("[EntityCard] ent: {:?}", ent);
     rsx! {
-        Link { to: Route::EntityPage { id: ent.id },
+        Link {
+            to: Route::EntityPage {
+                id: ent.id.clone(),
+            },
             div { class: "flex flex-col p-2 my-3 bg-white rounded border hover:bg-slate-100 transition duration-200",
                 div { class: "flex justify-between text-gray-600",
-                    p { class: "mt-1 text-xs leading-5 bg-slate-100 hover:bg-white rounded-lg px-2 leading-snug tracking-normal antialiased",
+                    p { class: "text-sm leading-5 text-gray-600 pt-1 pl-2",
+                        "{ent.listing_attr_name}: {ent.listing_attr_value}"
+                    }
+                    p { class: "mt-1 text-xs bg-slate-100 hover:bg-white rounded-lg px-2 leading-snug tracking-normal antialiased",
                         "{ent.kind}"
                     }
-                }
-                div { class: "flex justify-between text-gray-600",
-                    p { class: "text-xs leading-5 text-gray-600 pt-1", "" }
                 }
             }
         }

@@ -18,10 +18,10 @@ impl EntityMgmt {
         self.repo.list(None).await
     }
 
-    pub async fn add(&self, mut ent_def: Entity) -> AppResult<Id> {
-        ent_def.id = create_id();
-        self.repo.add(&ent_def).await?;
-        Ok(ent_def.id)
+    pub async fn add(&self, mut ent: Entity) -> AppResult<Id> {
+        ent.id = create_id();
+        self.repo.add(&ent).await?;
+        Ok(ent.id)
     }
 
     pub async fn get(&self, id: &Id) -> AppResult<Option<Entity>> {

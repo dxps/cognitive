@@ -52,7 +52,7 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
             let mut temp = all_attr_defs();
             temp.retain(|id, _| !included_ids.contains(&id));
             all_attr_defs.set(temp);
-            listing_attr_def_id.set(item.listing_attr_id);
+            listing_attr_def_id.set(item.listing_attr_def_id);
         }
     });
 

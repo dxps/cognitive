@@ -16,7 +16,7 @@ pub fn EntityDefNewPage() -> Element {
     let name = use_signal(|| "".to_string());
     let description = use_signal(|| "".to_string());
     let included_attr_defs = use_signal::<Vec<(Id, String)>>(|| vec![]);
-    let mut listing_attr_def_id = use_signal(|| Id::default());
+    let listing_attr_def_id = use_signal(|| Id::default());
 
     let mut all_attr_defs = use_signal(|| HashMap::<Id, String>::new());
 

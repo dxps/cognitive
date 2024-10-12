@@ -1,7 +1,9 @@
 CREATE TABLE entities
 (
-    id               CHAR(10)      PRIMARY KEY,
-    def_id           CHAR(10),
+    id                   CHAR(10)      PRIMARY KEY,
+    def_id               CHAR(10),
+    listing_attr_name    VARCHAR(64)   NOT NULL,
+    listing_attr_value   VARCHAR(64),
     CONSTRAINT def_fk FOREIGN KEY(def_id) REFERENCES entity_defs(id)
 );
 

@@ -17,6 +17,8 @@ pub fn EntityNewPage() -> Element {
     let mut ent_defs = use_signal::<HashMap<Id, EntityDef>>(|| HashMap::new());
     let mut ent_kinds = use_signal::<HashMap<Id, String>>(|| HashMap::new());
     let selected_kind_id = use_signal(|| "".to_string());
+    let mut listing_attr_name = use_signal(|| "".to_string());
+    let listing_attr_value = use_signal(|| "".to_string());
 
     let mut text_attrs = use_signal::<HashMap<Id, TextAttribute>>(|| HashMap::new());
     let mut smallint_attrs = use_signal::<HashMap<Id, SmallintAttribute>>(|| HashMap::new());
@@ -47,20 +49,25 @@ pub fn EntityNewPage() -> Element {
                 let mut si_attrs = HashMap::new();
                 let mut i_attrs = HashMap::new();
                 let mut b_attrs = HashMap::new();
-                ent_def.attributes.iter().for_each(|attr| match &attr.value_type {
-                    &AttributeValueType::Text => {
-                        txt_attrs.insert(attr.id.clone(), attr.clone().into());
+                ent_def.attributes.iter().for_each(|attr| {
+                    if attr.id == ent_def.listing_attr_def_id {
+                        listing_attr_name.set(attr.name.clone());
                     }
-                    &AttributeValueType::SmallInteger => {
-                        si_attrs.insert(attr.id.clone(), attr.into());
+                    match &attr.value_type {
+                        &AttributeValueType::Text => {
+                            txt_attrs.insert(attr.id.clone(), attr.clone().into());
+                        }
+                        &AttributeValueType::SmallInteger => {
+                            si_attrs.insert(attr.id.clone(), attr.into());
+                        }
+                        &AttributeValueType::Integer => {
+                            i_attrs.insert(attr.id.clone(), attr.into());
+                        }
+                        &AttributeValueType::Boolean => {
+                            b_attrs.insert(attr.id.clone(), attr.into());
+                        }
+                        _ => {}
                     }
-                    &AttributeValueType::Integer => {
-                        i_attrs.insert(attr.id.clone(), attr.into());
-                    }
-                    &AttributeValueType::Boolean => {
-                        b_attrs.insert(attr.id.clone(), attr.into());
-                    }
-                    _ => {}
                 });
                 text_attrs.set(txt_attrs);
                 smallint_attrs.set(si_attrs);
@@ -107,6 +114,8 @@ pub fn EntityNewPage() -> Element {
                                 smallint_attrs,
                                 int_attrs,
                                 boolean_attrs,
+                                listing_attr_name: listing_attr_name(),
+                                listing_attr_value,
                                 action: Action::Edit,
                                 err
                             }
@@ -129,10 +138,13 @@ pub fn EntityNewPage() -> Element {
                                         } else {
                                             handle_create_ent(
                                                     selected_kind_id(),
+                                                    selected_kind_id(),
                                                     text_attrs().values().cloned().collect(),
                                                     smallint_attrs().values().cloned().collect(),
                                                     int_attrs().values().cloned().collect(),
                                                     boolean_attrs().values().cloned().collect(),
+                                                    listing_attr_name(),
+                                                    listing_attr_value(),
                                                     saved,
                                                     err,
                                                 )
@@ -155,17 +167,29 @@ pub fn EntityNewPage() -> Element {
 }
 
 async fn handle_create_ent(
-    kind: String,
+    kind: String, // TODO: Clarify usage.
+    def_id: Id,
     text_attrs: Vec<TextAttribute>,
     smallint_attrs: Vec<SmallintAttribute>,
     int_attrs: Vec<IntegerAttribute>,
     boolean_attrs: Vec<BooleanAttribute>,
+    listing_attr_name: String,
+    listing_attr_value: String,
     mut saved: Signal<bool>,
     mut err: Signal<Option<String>>,
 ) -> Option<Id> {
     //
 
-    let ent = Entity::new_from(kind, text_attrs, smallint_attrs, int_attrs, boolean_attrs);
+    let ent = Entity::new_from(
+        kind,
+        def_id,
+        text_attrs,
+        smallint_attrs,
+        int_attrs,
+        boolean_attrs,
+        listing_attr_name,
+        listing_attr_value,
+    );
 
     log::debug!("Creating the entity {:?} ...", ent);
 

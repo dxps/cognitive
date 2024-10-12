@@ -65,7 +65,7 @@ impl EntityDefRepo {
                 .bind(ent_def.id.clone())
                 .bind(ent_def.name.clone())
                 .bind(ent_def.description.clone())
-                .bind(ent_def.listing_attr_id.clone())
+                .bind(ent_def.listing_attr_def_id.clone())
                 .execute(&mut *txn)
                 .await
         {
@@ -126,7 +126,7 @@ impl EntityDefRepo {
         if let Err(e) = sqlx::query("UPDATE entity_defs SET name = $1, description = $2, listing_attr_def_id = $3 WHERE id = $4")
             .bind(ent_def.name.clone())
             .bind(ent_def.description.clone())
-            .bind(ent_def.listing_attr_id.clone())
+            .bind(ent_def.listing_attr_def_id.clone())
             .bind(ent_def.id.clone())
             .execute(&mut *txn)
             .await
