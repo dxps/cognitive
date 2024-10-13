@@ -16,6 +16,8 @@ impl EntityRepo {
         Self { dbcp }
     }
 
+    /// List all the entities that are found in the database.
+    /// Note that the attributes of the entities are not loaded.
     pub async fn list(&self, pagination_opts: Option<&PaginationOpts>) -> AppResult<Vec<Entity>> {
         //
         let default_opts = PaginationOpts::default();

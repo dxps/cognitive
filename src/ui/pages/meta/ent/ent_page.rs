@@ -20,66 +20,32 @@ pub struct EntityPageProps {
 #[component]
 pub fn EntityPage(props: EntityPageProps) -> Element {
     //
-    let mut entity = use_signal(|| None);
     let id = use_signal(|| props.id);
 
-    let mut text_attrs = use_signal::<HashMap<Id, TextAttribute>>(|| HashMap::new());
-    let mut smallint_attrs = use_signal::<HashMap<Id, SmallintAttribute>>(|| HashMap::new());
-    let mut int_attrs = use_signal::<HashMap<Id, IntegerAttribute>>(|| HashMap::new());
-    let mut boolean_attrs = use_signal::<HashMap<Id, BooleanAttribute>>(|| HashMap::new());
+    let kind = use_signal(|| "".to_string());
 
-    let mut name = use_signal(|| "".to_string());
-    let mut description = use_signal(|| "".to_string());
-    let mut included_attr_defs = use_signal(|| Vec::<(Id, String)>::new());
-    let mut listing_attr_def_id = use_signal(|| Id::default());
-
-    let mut all_attr_defs = use_signal(|| HashMap::<Id, String>::new());
+    let text_attrs = use_signal::<HashMap<Id, TextAttribute>>(|| HashMap::new());
+    let smallint_attrs = use_signal::<HashMap<Id, SmallintAttribute>>(|| HashMap::new());
+    let int_attrs = use_signal::<HashMap<Id, IntegerAttribute>>(|| HashMap::new());
+    let boolean_attrs = use_signal::<HashMap<Id, BooleanAttribute>>(|| HashMap::new());
 
     let mut action = use_signal(|| Action::View);
     let mut err: Signal<Option<String>> = use_signal(|| None);
     let saved = use_signal(|| false);
 
     use_future(move || async move {
-        match get_entity(id()).await {
-            Ok(Some(ent)) => {
-                log::debug!("[EntityPage] Based on id {id}, got entity {:?}", ent);
-                entity.set(Some(ent));
-            }
-            Ok(None) => {
-                log::error!("[EntityPage] Entity with id '{id}' not found");
-            }
-            Err(err) => {
-                log::error!("[EntityPage] Failed to get entity by id '{id}'. Cause: {err}");
-            }
-        }
+        init(id, kind, text_attrs).await;
     });
-
-    // use_future(move || async move {
-    //     all_attr_defs.set(fetch_all_attr_defs().await);
-    // });
-
-    // use_future(move || async move {
-    //     if let Some(item) = get_entity_def(id()).await.unwrap_or_default() {
-    //         name.set(item.name);
-    //         description.set(item.description.unwrap_or_default());
-    //         let attrs = item
-    //             .attributes
-    //             .iter()
-    //             .map(|attr| (attr.id.clone(), attr.name.clone()))
-    //             .collect();
-    //         included_attr_defs.set(attrs);
-    //         // Remove the items that exist in `included_attr_defs` from `all_attr_defs`.
-    //         let included_ids = included_attr_defs().iter().map(|item| item.0.clone()).collect::<Vec<Id>>();
-    //         let mut temp = all_attr_defs();
-    //         temp.retain(|id, _| !included_ids.contains(&id));
-    //         all_attr_defs.set(temp);
-    //     }
-    // });
 
     rsx! {
         div { class: "flex flex-col min-h-screen bg-gray-100",
             Nav {}
-            Breadcrumb { paths: Route::get_path_to_ent(Route::EntityPage { id: id() }, name()) }
+            Breadcrumb {
+                paths: Route::get_path_to_ent(
+                    Route::EntityPage { id: id() },
+                    format!("{} ({})", kind(), id()),
+                )
+            }
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
                 div { class: "bg-white rounded-md p-3 min-w-[600px] mt-[min(100px)]",
                     div { class: "p-6",
@@ -102,6 +68,7 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
                             action: action(),
                             err
                         }
+                        hr { class: "mt-8 mb-1" }
                         div { class: "flex justify-between mt-8",
                             button {
                                 class: "text-red-300 hover:text-red-600 hover:bg-red-100 drop-shadow-sm px-4 rounded-md",
@@ -144,31 +111,7 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
                                                 if saved() {
                                                     navigator().push(Route::EntityDefListPage {});
                                                 } else {
-                                                    if name().is_empty() {
-                                                        err.set(Some("Name cannot be empty".to_string()));
-                                                        return;
-                                                    }
-                                                    let description = match description().is_empty() {
-                                                        true => None,
-                                                        false => Some(description()),
-                                                    };
-                                                    if included_attr_defs().is_empty() {
-                                                        err.set(Some("Include at least one attribute".to_string()));
-                                                        return;
-                                                    }
-                                                    let attributes_ids: Vec<Id> = included_attr_defs()
-                                                        .iter()
-                                                        .map(|(id, _)| id.clone())
-                                                        .collect();
-                                                    handle_update(
-                                                            id(),
-                                                            name(),
-                                                            description,
-                                                            attributes_ids,
-                                                            saved,
-                                                            err,
-                                                        )
-                                                        .await;
+                                                    handle_update(id(), saved, err).await;
                                                 }
                                             }
                                         }
@@ -190,14 +133,28 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
     }
 }
 
-async fn handle_update(
-    id: Id,
-    name: String,
-    description: Option<String>,
-    attr_def_ids: Vec<Id>,
-    mut saved: Signal<bool>,
-    mut err: Signal<Option<String>>,
-) {
+async fn init(id: Signal<Id>, mut kind: Signal<String>, mut text_attrs: Signal<HashMap<String, TextAttribute>>) {
+    match get_entity(id()).await {
+        Ok(Some(ent)) => {
+            log::debug!("[EntityPage] Based on id {id}, got entity {:?}", ent);
+            let ta: HashMap<String, TextAttribute> = ent
+                .text_attributes
+                .iter()
+                .map(|attr| (attr.name.clone(), attr.clone()))
+                .collect();
+            text_attrs.set(ta);
+            kind.set(ent.kind);
+        }
+        Ok(None) => {
+            log::error!("[EntityPage] Entity with id '{id}' not found");
+        }
+        Err(err) => {
+            log::error!("[EntityPage] Failed to get entity by id '{id}'. Cause: {err}");
+        }
+    }
+}
+
+async fn handle_update(id: Id, mut _saved: Signal<bool>, mut _err: Signal<Option<String>>) {
     //
     log::debug!("Updating entity w/ id:'{id}' ... ");
 

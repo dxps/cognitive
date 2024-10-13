@@ -30,7 +30,6 @@ pub fn EntityForm(props: EntityFormProps) -> Element {
 
     rsx! {
         div { class: "mt-4 space-y-4",
-            hr {}
             div { class: "space-y-0",
                 for (id , attr) in text_attrs() {
                     div { class: "flex",
@@ -109,7 +108,7 @@ pub fn EntityForm(props: EntityFormProps) -> Element {
                     }
                 }
             }
-            hr { class: "mt-8 mb-1" }
+
         }
     }
 }
