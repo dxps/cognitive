@@ -10,8 +10,6 @@ pub struct EntityFormProps {
     pub smallint_attrs: Signal<HashMap<Id, SmallintAttribute>>,
     pub int_attrs: Signal<HashMap<Id, IntegerAttribute>>,
     pub boolean_attrs: Signal<HashMap<Id, BooleanAttribute>>,
-    pub listing_attr_name: String,
-    pub listing_attr_value: Signal<String>,
     pub action: String,
     pub err: Signal<Option<String>>,
 }
@@ -24,8 +22,6 @@ pub fn EntityForm(props: EntityFormProps) -> Element {
         mut smallint_attrs,
         mut int_attrs,
         mut boolean_attrs,
-        listing_attr_name,
-        mut listing_attr_value,
         action,
         err,
     } = props;
@@ -34,26 +30,6 @@ pub fn EntityForm(props: EntityFormProps) -> Element {
 
     rsx! {
         div { class: "mt-4 space-y-4",
-            // div { class: "flex",
-            //     label { class: "pr-3 py-2 min-w-28", "Name:" }
-            //     input {
-            //         key: "name_{action}",
-            //         class: "px-3 py-1 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
-            //         r#type: "text",
-            //         value: "{name}",
-            //         maxlength: 64,
-            //         readonly: is_view,
-            //         autofocus: !is_view,
-            //         oninput: move |evt| {
-            //             name.set(evt.value());
-            //         },
-            //         onmounted: move |evt| async move {
-            //             if !is_view {
-            //                 _ = evt.set_focus(true).await;
-            //             }
-            //         }
-            //     }
-            // }
             hr {}
             div { class: "space-y-0",
                 for (id , attr) in text_attrs() {

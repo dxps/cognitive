@@ -3,10 +3,10 @@ use std::collections::HashMap;
 use dioxus::prelude::*;
 
 use crate::{
-    domain::model::Id,
+    domain::model::{BooleanAttribute, Id, IntegerAttribute, SmallintAttribute, TextAttribute},
+    server::fns::get_entity,
     ui::{
-        comps::{Breadcrumb, Nav},
-        pages::EntityDefForm,
+        comps::{Breadcrumb, EntityForm, Nav},
         routes::Route,
         Action,
     },
@@ -20,7 +20,14 @@ pub struct EntityPageProps {
 #[component]
 pub fn EntityPage(props: EntityPageProps) -> Element {
     //
+    let mut entity = use_signal(|| None);
     let id = use_signal(|| props.id);
+
+    let mut text_attrs = use_signal::<HashMap<Id, TextAttribute>>(|| HashMap::new());
+    let mut smallint_attrs = use_signal::<HashMap<Id, SmallintAttribute>>(|| HashMap::new());
+    let mut int_attrs = use_signal::<HashMap<Id, IntegerAttribute>>(|| HashMap::new());
+    let mut boolean_attrs = use_signal::<HashMap<Id, BooleanAttribute>>(|| HashMap::new());
+
     let mut name = use_signal(|| "".to_string());
     let mut description = use_signal(|| "".to_string());
     let mut included_attr_defs = use_signal(|| Vec::<(Id, String)>::new());
@@ -31,6 +38,21 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
     let mut action = use_signal(|| Action::View);
     let mut err: Signal<Option<String>> = use_signal(|| None);
     let saved = use_signal(|| false);
+
+    use_future(move || async move {
+        match get_entity(id()).await {
+            Ok(Some(ent)) => {
+                log::debug!("[EntityPage] Based on id {id}, got entity {:?}", ent);
+                entity.set(Some(ent));
+            }
+            Ok(None) => {
+                log::error!("[EntityPage] Entity with id '{id}' not found");
+            }
+            Err(err) => {
+                log::error!("[EntityPage] Failed to get entity by id '{id}'. Cause: {err}");
+            }
+        }
+    });
 
     // use_future(move || async move {
     //     all_attr_defs.set(fetch_all_attr_defs().await);
@@ -57,7 +79,7 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
     rsx! {
         div { class: "flex flex-col min-h-screen bg-gray-100",
             Nav {}
-            Breadcrumb { paths: Route::get_path_to_ent_def(Route::EntityDefPage { id: id() }, name()) }
+            Breadcrumb { paths: Route::get_path_to_ent(Route::EntityPage { id: id() }, name()) }
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
                 div { class: "bg-white rounded-md p-3 min-w-[600px] mt-[min(100px)]",
                     div { class: "p-6",
@@ -72,14 +94,12 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
                             }
                         }
                         hr { class: "pb-2" }
-                        EntityDefForm {
-                            name,
-                            description,
-                            included_attr_defs,
-                            listing_attr_def_id,
-                            all_attr_defs,
+                        EntityForm {
+                            text_attrs,
+                            smallint_attrs,
+                            int_attrs,
+                            boolean_attrs,
                             action: action(),
-                            saved,
                             err
                         }
                         div { class: "flex justify-between mt-8",

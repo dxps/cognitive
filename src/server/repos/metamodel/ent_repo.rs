@@ -34,7 +34,7 @@ impl EntityRepo {
         //
         let mut res = None;
         if let Ok(ent_opt) = sqlx::query_as::<_, Entity>(
-            "SELECT e.id, e.def_id, e.listing_attr_name, e.listing_attr_value, ed.name, description FROM entities e JOIN entity_defs ed ON e.def_id = ed.id WHERE id = $1",
+            "SELECT e.id, e.def_id, e.listing_attr_name, e.listing_attr_value, ed.name as kind FROM entities e JOIN entity_defs ed ON e.def_id = ed.id WHERE e.id = $1",
         )
         .bind(id)
         .fetch_optional(self.dbcp.as_ref())
@@ -47,52 +47,52 @@ impl EntityRepo {
                         false as bool_value, CURRENT_DATE as date_value, CURRENT_TIMESTAMP as timestamp_value
                         FROM attribute_defs ad 
                         JOIN text_attributes a ON a.def_id = ad.id  
-                        WHERE a.owner_id = $1
+                        WHERE a.owner_type = 'eni' and a.owner_id = $1
                     UNION ALL 
                     SELECT ad.id, ad.name, ad.value_type, '' as text_value, a.value as smallint_value, 0 as integer_value, 0 as bigint_value, 0 as real_value,
                         false as bool_value, CURRENT_DATE as date_value, CURRENT_TIMESTAMP as timestamp_value
                         FROM attribute_defs ad
                         JOIN smallint_attributes a ON a.def_id = ad.id
-                        WHERE a.owner_id = $1
+                        WHERE a.owner_type = 'eni' and a.owner_id = $1
                     UNION ALL 
                     SELECT ad.id, ad.name, ad.value_type, '' as text_value, 0 as smallint_value, a.value as integer_value, 0 as bigint_value, 0 as real_value, 
                         false as bool_value, CURRENT_DATE as date_value, CURRENT_TIMESTAMP as timestamp_value 
                         FROM attribute_defs ad
                         JOIN integer_attributes a ON a.def_id = ad.id
-                        WHERE a.owner_id = $1
+                        WHERE a.owner_type = 'eni' and a.owner_id = $1
                     UNION ALL 
                     SELECT ad.id, ad.name, ad.value_type, '' as text_value, 0 as smallint_value, 0 as integer_value, a.value as bigint_value, 0 as real_value,
                         false as bool_value, CURRENT_DATE as date_value, CURRENT_TIMESTAMP as timestamp_value 
                         FROM attribute_defs ad
                         JOIN bigint_attributes a ON a.def_id = ad.id
-                        WHERE a.owner_id = $1
+                        WHERE a.owner_type = 'eni' and a.owner_id = $1
                     UNION ALL 
                     SELECT ad.id, ad.name, ad.value_type, '' as text_value, 0 as smallint_value, 0 integer_value, 0 as bigint_value, a.value as real_value,
                         false as bool_value, CURRENT_DATE as date_value, CURRENT_TIMESTAMP as timestamp_value
                         FROM attribute_defs ad
                         JOIN real_attributes a ON a.def_id = ad.id
-                        WHERE a.owner_id = $1
+                        WHERE a.owner_type = 'eni' and a.owner_id = $1
                     UNION ALL 
                     SELECT ad.id, ad.name, ad.value_type, '' as text_value, 0 as smallint_value, 0 integer_value, 0 as bigint_value, 0 as real_value,
                         false as bool_value, CURRENT_DATE as date_value, CURRENT_TIMESTAMP as timestamp_value
                         FROM attribute_defs ad
                         JOIN boolean_attributes a ON a.def_id = ad.id
-                        WHERE a.owner_id = $1
+                        WHERE a.owner_type = 'eni' and a.owner_id = $1
                     UNION ALL 
                     SELECT ad.id, ad.name, ad.value_type, '' as text_value, 0 as smallint_value, 0 integer_value, 0 as bigint_value, 0 as real_value,
                         false as bool_value, a.value as date_value, CURRENT_TIMESTAMP as timestamp_value 
                         FROM attribute_defs ad
                         JOIN date_attributes a ON a.def_id = ad.id
-                        WHERE a.owner_id = $1
+                        WHERE a.owner_type = 'eni' and a.owner_id = $1
                     UNION ALL 
                     SELECT ad.id, ad.name, ad.value_type, '' as text_value, 0 as smallint_value, 0 integer_value, 0 as bigint_value, 0 as real_value,
                         false as bool_value, CURRENT_DATE as date_value, a.value as timestamp_value 
                         FROM attribute_defs ad
                         JOIN timestamp_attributes a ON a.def_id = ad.id
-                        WHERE a.owner_id = $1;
+                        WHERE a.owner_type = 'eni' and a.owner_id = $1;
                 """#;
                 let rows = sqlx::query(query).bind(id).fetch_all(self.dbcp.as_ref()).await?;
-                fill_in_entity_attributes(&mut ent, rows);
+                // fill_in_entity_attributes(&mut ent, rows);
                 res = Some(ent);
             }
         };
@@ -197,6 +197,8 @@ impl EntityRepo {
 
 impl FromRow<'_, PgRow> for Entity {
     fn from_row(row: &PgRow) -> Result<Self, sqlx::Error> {
+        // let ent = ;
+        // log::debug!("[from_row] Constructed entity: {:?}", ent);
         Ok(Self {
             id: row.get("id"),
             kind: row.get("kind"),

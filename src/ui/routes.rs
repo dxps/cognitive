@@ -148,4 +148,13 @@ impl Route {
             (ent_def_name, to),
         ]
     }
+
+    pub fn get_path_to_ent(to: Route, ent_def_name: String) -> Vec<(String, Route)> {
+        vec![
+            ("Home".into(), Route::Home {}),
+            ("Admin".into(), Route::Admin {}),
+            ("Entities".into(), Route::EntityListPage {}),
+            (ent_def_name, to),
+        ]
+    }
 }

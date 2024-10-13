@@ -25,7 +25,7 @@ pub fn EntityNewPage() -> Element {
     let mut int_attrs = use_signal::<HashMap<Id, IntegerAttribute>>(|| HashMap::new());
     let mut boolean_attrs = use_signal::<HashMap<Id, BooleanAttribute>>(|| HashMap::new());
 
-    let mut err: Signal<Option<String>> = use_signal(|| None);
+    let err: Signal<Option<String>> = use_signal(|| None);
     let saved = use_signal(|| false);
 
     use_future(move || async move {
@@ -114,8 +114,6 @@ pub fn EntityNewPage() -> Element {
                                 smallint_attrs,
                                 int_attrs,
                                 boolean_attrs,
-                                listing_attr_name: listing_attr_name(),
-                                listing_attr_value,
                                 action: Action::Edit,
                                 err
                             }
