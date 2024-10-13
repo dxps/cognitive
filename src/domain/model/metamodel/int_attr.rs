@@ -9,35 +9,19 @@ use serde::{Deserialize, Serialize};
 /// stored in PostgreSQL in an `int4` data type.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct IntegerAttribute {
-    /// Its id.
-    pub id: String,
-
-    /// Its definition id.
-    pub def_id: Id,
-
     /// Its name.
     pub name: String,
 
     /// Its value.
     pub value: i32,
+
+    /// Its definition id.
+    pub def_id: Id,
 }
 
 impl IntegerAttribute {
-    pub fn new(id: Id, name: String, value: i32) -> Self {
-        Self {
-            id,
-            def_id: Id::default(),
-            name,
-            value,
-        }
-    }
-    pub fn new_with_def(def_id: Id, name: String, value: i32) -> Self {
-        Self {
-            id: Id::default(),
-            def_id,
-            name,
-            value,
-        }
+    pub fn new(name: String, value: i32, def_id: Id) -> Self {
+        Self { name, value, def_id }
     }
 }
 
@@ -49,6 +33,6 @@ impl Item for IntegerAttribute {
 
 impl From<&AttributeDef> for IntegerAttribute {
     fn from(def: &AttributeDef) -> Self {
-        Self::new_with_def(def.id.clone(), def.name.clone(), 0)
+        Self::new(def.name.clone(), 0, def.id.clone())
     }
 }

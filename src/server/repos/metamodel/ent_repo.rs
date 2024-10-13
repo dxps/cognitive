@@ -42,12 +42,12 @@ impl EntityRepo {
         {
             if let Some(mut ent) = ent_opt {
                 // Get all the attributes of an entity in one shot.
-                let query = r#"""
-                    SELECT ad.id, ad.name, ad.value_type, a.value as text_value, 0 as smallint_value, 0 as integer_value, 0 as bigint_value, 0 as real_value,
+                let query = "
+                    SELECT ad.name, ad.value_type, a.def_id, a.value as text_value, 0 as smallint_value, 0 as integer_value, 0 as bigint_value, 0 as real_value,
                         false as bool_value, CURRENT_DATE as date_value, CURRENT_TIMESTAMP as timestamp_value
                         FROM attribute_defs ad 
                         JOIN text_attributes a ON a.def_id = ad.id  
-                        WHERE a.owner_type = 'eni' and a.owner_id = $1
+                        WHERE a.owner_id = $1
                     UNION ALL 
                     SELECT ad.id, ad.name, ad.value_type, '' as text_value, a.value as smallint_value, 0 as integer_value, 0 as bigint_value, 0 as real_value,
                         false as bool_value, CURRENT_DATE as date_value, CURRENT_TIMESTAMP as timestamp_value
@@ -90,9 +90,9 @@ impl EntityRepo {
                         FROM attribute_defs ad
                         JOIN timestamp_attributes a ON a.def_id = ad.id
                         WHERE a.owner_type = 'eni' and a.owner_id = $1;
-                """#;
+                ";
                 let rows = sqlx::query(query).bind(id).fetch_all(self.dbcp.as_ref()).await?;
-                // fill_in_entity_attributes(&mut ent, rows);
+                fill_in_entity_attributes(&mut ent, rows);
                 res = Some(ent);
             }
         };
@@ -197,8 +197,6 @@ impl EntityRepo {
 
 impl FromRow<'_, PgRow> for Entity {
     fn from_row(row: &PgRow) -> Result<Self, sqlx::Error> {
-        // let ent = ;
-        // log::debug!("[from_row] Constructed entity: {:?}", ent);
         Ok(Self {
             id: row.get("id"),
             kind: row.get("kind"),
@@ -222,7 +220,7 @@ fn fill_in_entity_attributes(ent: &mut Entity, rows: Vec<PgRow>) {
                 ent.text_attributes.push(TextAttribute::new(
                     row.get("name"),
                     row.get("text_value"),
-                    row.get("id"),
+                    row.get("def_id"),
                     ent.id.clone(),
                     ItemType::Entity,
                 ));
@@ -230,17 +228,17 @@ fn fill_in_entity_attributes(ent: &mut Entity, rows: Vec<PgRow>) {
             "smallint" => {
                 log::debug!("Found smallint attribute '{}'.", row.get::<&str, &str>("name"));
                 ent.smallint_attributes.push(SmallintAttribute::new(
-                    row.get("id"),
                     row.get("name"),
                     row.get("smallint_value"),
+                    row.get("def_id"),
                 ));
             }
             "integer" => {
                 log::debug!("Found integer attribute '{}'.", row.get::<&str, &str>("name"));
                 ent.int_attributes.push(IntegerAttribute::new(
-                    row.get("id"),
                     row.get("name"),
                     row.get("integer_value"),
+                    row.get("def_id"),
                 ));
             }
             _ => {
