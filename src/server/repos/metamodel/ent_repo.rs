@@ -16,7 +16,7 @@ impl EntityRepo {
         Self { dbcp }
     }
 
-    /// List all the entities that are found in the database.
+    /// List all the entities.<br/>
     /// Note that the attributes of the entities are not loaded.
     pub async fn list(&self, pagination_opts: Option<&PaginationOpts>) -> AppResult<Vec<Entity>> {
         //
@@ -27,6 +27,20 @@ impl EntityRepo {
         let query = format!("SELECT e.id, e.def_id, e.listing_attr_name, e.listing_attr_value, ed.name as kind FROM entities e JOIN entity_defs ed ON e.def_id = ed.id ORDER BY name LIMIT {limit} OFFSET {offset}");
 
         sqlx::query_as::<_, Entity>(query.as_str())
+            .fetch_all(self.dbcp.as_ref())
+            .await
+            .map(|res| AppResult::Ok(res))?
+    }
+
+    /// List all the entities by `def_id`.<br/>
+    /// Note that the attributes of the entities are not loaded.
+    pub async fn list_by_def_id(&self, def_id: &Id) -> AppResult<Vec<Entity>> {
+        //
+        let query = "SELECT e.id, e.def_id, e.listing_attr_name, e.listing_attr_value, ed.name as kind 
+                FROM entities e JOIN entity_defs ed ON e.def_id = ed.id 
+                WHERE e.def_id = $1";
+        sqlx::query_as::<_, Entity>(query)
+            .bind(&def_id)
             .fetch_all(self.dbcp.as_ref())
             .await
             .map(|res| AppResult::Ok(res))?
@@ -190,6 +204,66 @@ impl EntityRepo {
 
     pub async fn update(&self, _ent: &Entity) -> AppResult<()> {
         unimplemented!("TODO: Unimplemented")
+    }
+
+    pub async fn update_listing_attr_name_value(&self, def_id: Id, attr_id: String) -> AppResult<()> {
+        //
+        let ents = self.list_by_def_id(&def_id).await?;
+        log::debug!("[update_listing_attr_name_value] Found ents: {:?}", ents);
+        if ents.is_empty() {
+            return AppResult::Ok(());
+        }
+        let mut txn = self.dbcp.begin().await?;
+        for mut ent in ents {
+            ent = self.get(&ent.id).await?.unwrap();
+            for attr in ent.text_attributes.clone() {
+                if attr.def_id == attr_id {
+                    ent.listing_attr_name = attr.name;
+                    ent.listing_attr_value = attr.value;
+                }
+            }
+            for attr in ent.smallint_attributes.clone() {
+                if attr.def_id == attr_id {
+                    ent.listing_attr_name = attr.name;
+                    ent.listing_attr_value = format!("{:?}", attr.value);
+                }
+            }
+            for attr in ent.int_attributes.clone() {
+                if attr.def_id == attr_id {
+                    ent.listing_attr_name = attr.name;
+                    ent.listing_attr_value = format!("{:?}", attr.value);
+                }
+            }
+            for attr in ent.boolean_attributes.clone() {
+                if attr.def_id == attr_id {
+                    ent.listing_attr_name = attr.name;
+                    ent.listing_attr_value = format!("{:?}", attr.value);
+                }
+            }
+            if let Err(e) = sqlx::query(
+                "UPDATE entities 
+                    SET listing_attr_name = $1, listing_attr_value = $2 
+                    WHERE entities.id = $3",
+            )
+            .bind(&ent.listing_attr_name)
+            .bind(&ent.listing_attr_value)
+            .bind(&ent.id)
+            .execute(&mut *txn)
+            .await
+            {
+                log::error!("Failed to update listing attr name and value, based on attr_id: '{attr_id}' of all entities with def_id: '{def_id}'. Cause: {e}");
+                return AppResult::Err(e.into());
+            }
+            log::debug!(
+                "Updated listing attr name:'{}' and value:'{}' of entity w/ id: '{}'.",
+                &ent.listing_attr_name,
+                &ent.listing_attr_value,
+                &ent.id
+            );
+        }
+        txn.commit().await?;
+
+        Ok(())
     }
 
     pub async fn remove(&self, _id: &Id) -> AppResult<()> {

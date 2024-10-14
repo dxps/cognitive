@@ -44,7 +44,11 @@ pub async fn get_entity_def(id: Id) -> Result<Option<EntityDef>, ServerFnError> 
 #[server(endpoint = "admin/update_ent_defs")]
 pub async fn update_entity_def(ent_def: EntityDef) -> Result<(), ServerFnError> {
     let session: Session = extract().await?;
-    let result = session.4.update(ent_def).await;
+    let result = session.4.update(&ent_def).await;
+    session
+        .5
+        .update_listing_addr_name(ent_def.id, ent_def.listing_attr_def_id)
+        .await?;
     result.map_err(|e| e.into())
 }
 

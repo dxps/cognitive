@@ -6,14 +6,14 @@ use serde::{Deserialize, Serialize};
 /// An instance of an attribute of type boolean.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct BooleanAttribute {
-    /// Its id.
-    pub id: String,
-
-    /// Its definition id.
-    pub def_id: Id,
+    /// Its name.
+    pub name: String,
 
     /// Its value.
     pub value: bool,
+
+    /// Its definition id.
+    pub def_id: Id,
 }
 
 impl Item for BooleanAttribute {
@@ -25,9 +25,9 @@ impl Item for BooleanAttribute {
 impl From<&AttributeDef> for BooleanAttribute {
     fn from(def: &AttributeDef) -> Self {
         Self {
-            id: "".to_string(),
-            def_id: def.id.clone(),
+            name: def.name.clone(),
             value: false,
+            def_id: def.id.clone(),
         }
     }
 }

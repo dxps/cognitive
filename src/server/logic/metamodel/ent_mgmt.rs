@@ -32,6 +32,10 @@ impl EntityMgmt {
         self.repo.update(&ent).await
     }
 
+    pub async fn update_listing_addr_name(&self, def_id: Id, attr_id: String) -> AppResult<()> {
+        self.repo.update_listing_attr_name_value(def_id, attr_id).await
+    }
+
     pub async fn remove(&self, id: &Id) -> AppResult<()> {
         self.repo.remove(id).await
     }

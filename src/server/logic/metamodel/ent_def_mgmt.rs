@@ -34,7 +34,7 @@ impl EntityDefMgmt {
         self.ent_repo.get(id).await
     }
 
-    pub async fn update(&self, ent_def: EntityDef) -> AppResult<()> {
+    pub async fn update(&self, ent_def: &EntityDef) -> AppResult<()> {
         self.ent_repo.update(&ent_def).await
     }
 
