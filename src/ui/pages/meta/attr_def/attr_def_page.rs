@@ -1,7 +1,5 @@
-use std::{collections::HashMap, sync::Arc};
-
 use crate::{
-    domain::model::AttributeDef,
+    domain::model::{AttributeDef, Id},
     server::fns::{get_attribute_def, remove_attr_def, update_attribute_def},
     ui::{
         comps::{AttributeDefForm, Breadcrumb, Nav},
@@ -10,10 +8,11 @@ use crate::{
     },
 };
 use dioxus::prelude::*;
+use std::{collections::HashMap, sync::Arc};
 
 #[derive(PartialEq, Props, Clone)]
 pub struct AttributeDefEditPageProps {
-    attr_def_id: String,
+    attr_def_id: Id,
 }
 
 #[component]
@@ -27,7 +26,7 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
     let mut default_value = use_signal(|| "".to_string());
     let mut is_required = use_signal(|| false);
     let mut is_multivalued = use_signal(|| false);
-    let mut tag_id = use_signal(|| "".to_string());
+    let mut tag_id = use_signal(|| Id::default());
     let mut tags = use_signal(|| Arc::new(HashMap::new()));
 
     let mut action = use_signal(|| Action::View);
@@ -100,7 +99,7 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
                                 onclick: move |_| {
                                     let id = id();
                                     action.set(Action::Delete);
-                                    async move { handle_delete(id, saved, err).await }
+                                    async move { handle_delete(&id, saved, err).await }
                                 },
                                 "Delete"
                             }
@@ -190,7 +189,7 @@ async fn handle_update(item: AttributeDef, mut saved: Signal<bool>, mut err: Sig
     }
 }
 
-async fn handle_delete(id: String, mut saved: Signal<bool>, mut err: Signal<Option<String>>) {
+async fn handle_delete(id: &Id, mut saved: Signal<bool>, mut err: Signal<Option<String>>) {
     //
     log::debug!(">>> Deleting attribute definition: {:?}", id);
     match remove_attr_def(id.clone()).await {

@@ -1,6 +1,7 @@
+use crate::domain::model::Id;
 use crate::{
-    domain::model::{AttributeDef, AttributeValueType, Id},
-    server::{create_id, AppError, AppResult, PaginationOpts},
+    domain::model::{AttributeDef, AttributeValueType},
+    server::{AppError, AppResult, PaginationOpts},
 };
 use sqlx::{postgres::PgRow, FromRow, PgPool, Row};
 use std::sync::Arc;
@@ -15,12 +16,12 @@ impl AttributeDefRepo {
         Self { dbcp }
     }
 
-    pub async fn get(&self, id: &String) -> Option<AttributeDef> {
+    pub async fn get(&self, id: &Id) -> Option<AttributeDef> {
         //
         sqlx::query_as::<_, AttributeDef>(
             "SELECT id, name, description, value_type, default_value, required, multivalued, tag_id FROM attribute_defs WHERE id = $1"
         )
-            .bind(id)
+            .bind(id.as_str())
             .fetch_one(self.dbcp.as_ref())
             .await
             .ok()
@@ -48,22 +49,22 @@ impl AttributeDefRepo {
     /// Add a new attribute definition. It returns the id of the repository entry.
     pub async fn add(
         &self,
+        id: Id,
         name: String,
         description: String,
         value_type: String,
         default_value: String,
         is_required: bool,
         is_multivalued: bool,
-        tag_id: String,
+        tag_id: Id,
     ) -> AppResult<Id> {
         //
-        let id = create_id();
-        let tag_id = if tag_id.is_empty() { None } else { Some(tag_id) };
+        let tag_id = if tag_id.is_empty() { None } else { Some(tag_id.as_str()) };
         match sqlx::query(
             "INSERT INTO attribute_defs (id, name, description, value_type, default_value, required, multivalued, tag_id) 
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
         )
-        .bind(&id)
+        .bind(&id.as_str())
         .bind(name)
         .bind(description)
         .bind(value_type)
@@ -83,37 +84,30 @@ impl AttributeDefRepo {
     }
 
     /// Edit an existing attribute definition.
-    pub async fn update(&self, item: AttributeDef) -> AppResult<()> {
+    pub async fn update(&self, item: &AttributeDef) -> AppResult<()> {
         //
-        // match
+        let tag_id = item.tag_id.as_ref().map(|id| id.as_str());
         sqlx::query(
             "UPDATE attribute_defs SET name=$2, description=$3, value_type=$4, default_value=$5, required=$6, multivalued=$7, tag_id=$8 WHERE id = $1",
         )
-        .bind(&item.id)
-        .bind(item.name)
-        .bind(item.description)
+        .bind(&item.id.as_str())
+        .bind(&item.name)
+        .bind(&item.description)
         .bind(item.value_type.to_string())
-        .bind(item.default_value)
+        .bind(&item.default_value)
         .bind(item.is_required)
         .bind(item.is_multivalued)
-        .bind(item.tag_id)
+        .bind(tag_id)
         .execute(self.dbcp.as_ref())
         .await
         .map(|_| Ok(()))?
-        // {
-        //     Ok(_) => AppResult::Ok(()),
-        //     Err(e) => {
-        //         log::error!("Failed to edit entry (with id:{}): {}", item.id,e);
-        //         AppResult::Err(AppError::InternalErr)
-        //     }
-        // }
     }
 
     /// Remove (delete) an existing attribute definition.
-    pub async fn remove(&self, id: &String) -> AppResult<()> {
+    pub async fn remove(&self, id: &Id) -> AppResult<()> {
         //
         match sqlx::query("DELETE FROM attribute_defs WHERE id = $1")
-            .bind(id)
+            .bind(id.as_str())
             .execute(self.dbcp.as_ref())
             .await
         {
@@ -128,15 +122,19 @@ impl AttributeDefRepo {
 
 impl FromRow<'_, PgRow> for AttributeDef {
     fn from_row(row: &PgRow) -> Result<Self, sqlx::Error> {
+        let tag_id = match row.try_get("tag_id") {
+            Ok(tag_id) => Some(Id::new_from(tag_id)),
+            Err(_) => None,
+        };
         Ok(Self {
-            id: row.get("id"),
+            id: Id::from(row.get::<&str, &str>("id")),
             name: row.get("name"),
             description: row.get("description"),
             value_type: AttributeValueType::from(row.get::<&str, &str>("value_type")),
             default_value: row.get("default_value"),
             is_multivalued: row.get("multivalued"),
             is_required: row.get("required"),
-            tag_id: row.get("tag_id"),
+            tag_id,
         })
     }
 }

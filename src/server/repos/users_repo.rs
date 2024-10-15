@@ -1,6 +1,6 @@
 use crate::{
-    domain::model::{UserAccount, UserEntry, UserPasswordSalt},
-    server::{create_id, AppError, AppResult, AppUseCase},
+    domain::model::{Id, UserAccount, UserEntry, UserPasswordSalt},
+    server::{AppError, AppResult, AppUseCase},
 };
 use sqlx::{postgres::PgRow, FromRow, PgPool, Row};
 use std::sync::Arc;
@@ -27,11 +27,11 @@ impl UsersRepo {
         .map_err(|err| AppError::from((err, usecase)))
     }
 
-    pub async fn get_by_id(id: String, pool: &PgPool) -> Option<UserAccount> {
+    pub async fn get_by_id(id: &Id, pool: &PgPool) -> Option<UserAccount> {
         //
         let mut user_account =
             sqlx::query_as::<_, UserAccount>("SELECT id, email, username, bio, is_anyonymous FROM user_accounts WHERE id = $1")
-                .bind(id)
+                .bind(id.as_str())
                 .fetch_one(pool)
                 .await
                 .ok()?;
@@ -46,20 +46,20 @@ impl UsersRepo {
         Some(user_account)
     }
 
-    pub async fn get_password_by_id(&self, user_id: &String) -> AppResult<UserPasswordSalt> {
+    pub async fn get_password_by_id(&self, user_id: &Id) -> AppResult<UserPasswordSalt> {
         //
         sqlx::query_as::<_, UserPasswordSalt>("SELECT password, salt FROM user_accounts WHERE id = $1")
-            .bind(user_id)
+            .bind(user_id.as_str())
             .fetch_one(self.dbcp.as_ref())
             .await
             .map_err(|err| AppError::from(err))
     }
 
-    pub async fn update_password(&self, user_id: String, pwd: String) -> AppResult<()> {
+    pub async fn update_password(&self, user_id: &Id, pwd: String) -> AppResult<()> {
         //
         match sqlx::query("UPDATE user_accounts SET password = $1 WHERE id = $2")
             .bind(pwd)
-            .bind(user_id)
+            .bind(user_id.as_str())
             .execute(self.dbcp.as_ref())
             .await
             .map_err(|err| AppError::from(err))
@@ -69,14 +69,14 @@ impl UsersRepo {
         }
     }
 
-    pub async fn save(&self, email: String, username: String, pwd: String, salt: String) -> AppResult<String> {
+    pub async fn save(&self, email: String, username: String, pwd: String, salt: String) -> AppResult<Id> {
         //
-        let id = create_id();
+        let id = Id::new();
         match sqlx::query(
             "INSERT INTO user_accounts (id, email, username, password, salt) 
              VALUES ($1, $2, $3, $4, $5)",
         )
-        .bind(&id)
+        .bind(id.as_str())
         .bind(email)
         .bind(username)
         .bind(pwd)
@@ -96,14 +96,14 @@ impl UsersRepo {
         pwd: &String,
         salt: &String,
         permissions: Vec<String>,
-    ) -> AppResult<String> {
+    ) -> AppResult<Id> {
         //
-        let id = create_id();
+        let id = Id::new();
         let res = sqlx::query(
             "INSERT INTO user_accounts (id, email, username, password, salt) 
              VALUES ($1, $2, $3, $4, $5)",
         )
-        .bind(&id)
+        .bind(&id.as_str())
         .bind(&email)
         .bind(&username)
         .bind(pwd)
@@ -121,7 +121,7 @@ impl UsersRepo {
         if res.is_ok() {
             for permission in permissions.iter() {
                 let res = sqlx::query("INSERT INTO user_permissions (user_id, permission) VALUES ($1, $2)")
-                    .bind(&id)
+                    .bind(&id.as_str())
                     .bind(&permission)
                     .execute(self.dbcp.as_ref())
                     .await
@@ -148,7 +148,7 @@ impl UsersRepo {
             .bind(ua.username)
             .bind(ua.email)
             .bind(ua.bio)
-            .bind(ua.id)
+            .bind(ua.id.as_str())
             .execute(self.dbcp.as_ref())
             .await
         {
@@ -166,7 +166,7 @@ impl FromRow<'_, PgRow> for UserAccount {
     //
     fn from_row(row: &PgRow) -> Result<Self, sqlx::Error> {
         Ok(Self {
-            id: row.get("id"),
+            id: Id::from(row.get::<&str, &str>("id")),
             email: row.get("email"),
             username: row.get("username"),
             bio: row.get("bio"),
@@ -181,7 +181,7 @@ impl FromRow<'_, PgRow> for UserEntry {
     fn from_row(row: &PgRow) -> Result<Self, sqlx::Error> {
         Ok(Self {
             user: UserAccount {
-                id: row.try_get("id").unwrap_or_default(),
+                id: Id::from(row.try_get::<&str, &str>("id").unwrap_or_default()),
                 email: row.get("email"),
                 username: row.get("username"),
                 bio: row.get("bio"),

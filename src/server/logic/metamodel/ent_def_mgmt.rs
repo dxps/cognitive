@@ -1,6 +1,6 @@
 use crate::{
     domain::model::{EntityDef, Id},
-    server::{create_id, AppResult, EntityDefRepo},
+    server::{AppResult, EntityDefRepo},
 };
 use std::{collections::HashMap, sync::Arc};
 
@@ -25,7 +25,7 @@ impl EntityDefMgmt {
     }
 
     pub async fn add(&self, mut ent_def: EntityDef) -> AppResult<Id> {
-        ent_def.id = create_id();
+        ent_def.id = Id::new();
         self.ent_repo.add(&ent_def).await?;
         Ok(ent_def.id)
     }

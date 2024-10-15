@@ -1,7 +1,3 @@
-use std::collections::HashMap;
-
-use dioxus::prelude::*;
-
 use crate::{
     domain::model::{EntityDef, Id},
     server::fns::{get_entity_def, remove_entity_def, update_entity_def},
@@ -12,6 +8,8 @@ use crate::{
         Action,
     },
 };
+use dioxus::prelude::*;
+use std::collections::HashMap;
 
 #[derive(PartialEq, Props, Clone)]
 pub struct EntityDefPageProps {

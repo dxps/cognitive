@@ -27,7 +27,7 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
     let saved = props.saved;
     let mut err = props.err;
 
-    let mut selected_attr_def_id = use_signal(|| "".to_string());
+    let mut selected_attr_def_id = use_signal(|| Id::default());
     let mut selected_attr_def_name = use_signal(|| "".to_string());
 
     log::debug!("[EntityDefForm] listing_attr_def_id: {:?}", listing_attr_def_id);
@@ -99,7 +99,7 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
                     multiple: false,
                     disabled: is_view,
                     oninput: move |evt| {
-                        listing_attr_def_id.set(evt.value());
+                        listing_attr_def_id.set(evt.value().into());
                         log::debug!("[EntityDefForm] selected_attr_def_id: {:?}", evt.value());
                     },
                     for (id , name) in included_attr_defs() {
@@ -128,7 +128,7 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
                     multiple: false,
                     disabled: is_view,
                     oninput: move |evt| {
-                        selected_attr_def_id.set(evt.value());
+                        selected_attr_def_id.set(evt.value().into());
                         selected_attr_def_name
                             .set(all_attr_defs().get(&selected_attr_def_id()).unwrap().to_string());
                     },
@@ -154,7 +154,7 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
                         let mut attr_defs = all_attr_defs();
                         attr_defs.remove(&selected_attr_def_id());
                         all_attr_defs.set(attr_defs);
-                        selected_attr_def_id.set("".to_string());
+                        selected_attr_def_id.set(Id::default());
                         selected_attr_def_name.set("".to_string());
                         err.set(None);
                     },

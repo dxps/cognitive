@@ -31,7 +31,7 @@ pub enum Route {
     AttributeDefNewPage {},
 
     #[route("/admin/definitions/attributes/:attr_def_id")]
-    AttributeDefPage { attr_def_id: String },
+    AttributeDefPage { attr_def_id: Id },
 
     #[route("/admin/definitions/entities")]
     EntityDefListPage {},

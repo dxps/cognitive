@@ -1,10 +1,9 @@
-use sqlx::{postgres::PgRow, FromRow, PgPool, Row};
-use std::sync::Arc;
-
 use crate::{
     domain::model::{Entity, Id, IntegerAttribute, ItemType, SmallintAttribute, TextAttribute},
     server::{AppResult, PaginationOpts},
 };
+use sqlx::{postgres::PgRow, FromRow, PgPool, Row};
+use std::sync::Arc;
 
 pub struct EntityRepo {
     pub dbcp: Arc<PgPool>,
@@ -24,7 +23,10 @@ impl EntityRepo {
         let pagination_opts = pagination_opts.unwrap_or(&default_opts);
         let limit = pagination_opts.limit.unwrap_or(10);
         let offset = (pagination_opts.page.unwrap_or(1) - 1) * limit;
-        let query = format!("SELECT e.id, e.def_id, e.listing_attr_name, e.listing_attr_value, ed.name as kind FROM entities e JOIN entity_defs ed ON e.def_id = ed.id ORDER BY name LIMIT {limit} OFFSET {offset}");
+        let query = format!(
+            "SELECT e.id, e.def_id, e.listing_attr_def_id, e.listing_attr_name, e.listing_attr_value, ed.name as kind 
+             FROM entities e JOIN entity_defs ed ON e.def_id = ed.id ORDER BY name LIMIT {limit} OFFSET {offset}"
+        );
 
         sqlx::query_as::<_, Entity>(query.as_str())
             .fetch_all(self.dbcp.as_ref())
@@ -36,11 +38,11 @@ impl EntityRepo {
     /// Note that the attributes of the entities are not loaded.
     pub async fn list_by_def_id(&self, def_id: &Id) -> AppResult<Vec<Entity>> {
         //
-        let query = "SELECT e.id, e.def_id, e.listing_attr_name, e.listing_attr_value, ed.name as kind 
+        let query = "SELECT e.id, e.def_id, e.listing_attr_def_id, e.listing_attr_name, e.listing_attr_value, ed.name as kind 
                 FROM entities e JOIN entity_defs ed ON e.def_id = ed.id 
                 WHERE e.def_id = $1";
         sqlx::query_as::<_, Entity>(query)
-            .bind(&def_id)
+            .bind(&def_id.as_str())
             .fetch_all(self.dbcp.as_ref())
             .await
             .map(|res| AppResult::Ok(res))?
@@ -50,9 +52,9 @@ impl EntityRepo {
         //
         let mut res = None;
         if let Ok(ent_opt) = sqlx::query_as::<_, Entity>(
-            "SELECT e.id, e.def_id, e.listing_attr_name, e.listing_attr_value, ed.name as kind FROM entities e JOIN entity_defs ed ON e.def_id = ed.id WHERE e.id = $1",
+            "SELECT e.id, e.def_id, e.listing_attr_def_id, e.listing_attr_name, e.listing_attr_value, ed.name as kind FROM entities e JOIN entity_defs ed ON e.def_id = ed.id WHERE e.id = $1",
         )
-        .bind(id)
+        .bind(id.as_str())
         .fetch_optional(self.dbcp.as_ref())
         .await
         {
@@ -107,7 +109,7 @@ impl EntityRepo {
                         JOIN timestamp_attributes a ON a.def_id = ad.id
                         WHERE a.owner_type = 'eni' and a.owner_id = $1;
                 ";
-                let rows = sqlx::query(query).bind(id).fetch_all(self.dbcp.as_ref()).await?;
+                let rows = sqlx::query(query).bind(id.as_str()).fetch_all(self.dbcp.as_ref()).await?;
                 fill_in_entity_attributes(&mut ent, rows);
                 res = Some(ent);
             }
@@ -120,11 +122,12 @@ impl EntityRepo {
         let mut txn = self.dbcp.begin().await?;
 
         if let Err(e) =
-            sqlx::query("INSERT INTO entities (id, def_id, listing_attr_name, listing_attr_value) VALUES ($1, $2, $3, $4)")
-                .bind(ent.id.clone())
-                .bind(ent.kind.clone())
-                .bind(ent.listing_attr_name.clone())
-                .bind(ent.listing_attr_value.clone())
+            sqlx::query("INSERT INTO entities (id, def_id, listing_attr_def_id, listing_attr_name, listing_attr_value) VALUES ($1, $2, $3, $4, $5)")
+                .bind(&ent.id.as_str())
+                .bind(&ent.kind)
+                .bind(&ent.listing_attr_def_id.as_str())
+                .bind(&ent.listing_attr_name)
+                .bind(&ent.listing_attr_value)
                 .execute(&mut *txn)
                 .await
         {
@@ -136,9 +139,9 @@ impl EntityRepo {
         for attr in ent.text_attributes.clone() {
             if let Err(e) =
                 sqlx::query("INSERT INTO text_attributes (owner_id, owner_type, def_id, value) VALUES ($1, $2, $3, $4)")
-                    .bind(ent.id.clone())
+                    .bind(&ent.id.as_str())
                     .bind(ItemType::Entity.value())
-                    .bind(attr.def_id)
+                    .bind(attr.def_id.as_str())
                     .bind(attr.value)
                     .execute(&mut *txn)
                     .await
@@ -152,15 +155,15 @@ impl EntityRepo {
         for attr in ent.smallint_attributes.clone() {
             if let Err(e) =
                 sqlx::query("INSERT INTO smallint_attributes (owner_id, owner_type, def_id, value) VALUES ($1, $2, $3, $4)")
-                    .bind(ent.id.clone())
+                    .bind(&ent.id.as_str())
                     .bind(ItemType::Entity.value())
-                    .bind(attr.def_id)
+                    .bind(attr.def_id.as_str())
                     .bind(attr.value)
                     .execute(&mut *txn)
                     .await
             {
                 txn.rollback().await?;
-                log::error!("Failed to add entity's smallint attribute: {}", e);
+                log::error!("Failed to add an entity smallint attribute. Cause: {}", e);
                 return AppResult::Err(e.into());
             }
         }
@@ -168,15 +171,15 @@ impl EntityRepo {
         for attr in ent.int_attributes.clone() {
             if let Err(e) =
                 sqlx::query("INSERT INTO integer_attributes (owner_id, owner_type, def_id, value) VALUES ($1, $2, $3, $4)")
-                    .bind(ent.id.clone())
+                    .bind(&ent.id.as_str())
                     .bind(ItemType::Entity.value())
-                    .bind(attr.def_id)
+                    .bind(attr.def_id.as_str())
                     .bind(attr.value)
                     .execute(&mut *txn)
                     .await
             {
                 txn.rollback().await?;
-                log::error!("Failed to add entity's integer attribute: {}", e);
+                log::error!("Failed to add an entity integer attribute. Cause: {}", e);
                 return AppResult::Err(e.into());
             }
         }
@@ -184,15 +187,15 @@ impl EntityRepo {
         for attr in ent.boolean_attributes.clone() {
             if let Err(e) =
                 sqlx::query("INSERT INTO boolean_attributes (owner_id, owner_type, def_id, value) VALUES ($1, $2, $3, $4)")
-                    .bind(ent.id.clone())
+                    .bind(&ent.id.as_str())
                     .bind(ItemType::Entity.value())
-                    .bind(attr.def_id)
+                    .bind(attr.def_id.as_str())
                     .bind(attr.value)
                     .execute(&mut *txn)
                     .await
             {
                 txn.rollback().await?;
-                log::error!("Failed to add entity's boolean attribute: {}", e);
+                log::error!("Failed to add an entity boolean attribute. Cause: {}", e);
                 return AppResult::Err(e.into());
             }
         }
@@ -206,9 +209,9 @@ impl EntityRepo {
         unimplemented!("TODO: Unimplemented")
     }
 
-    pub async fn update_listing_attr_name_value(&self, def_id: Id, attr_id: String) -> AppResult<()> {
+    pub async fn update_listing_attr_name_value_by_ent_def_id(&self, ent_def_id: &Id, attr_id: &Id) -> AppResult<()> {
         //
-        let ents = self.list_by_def_id(&def_id).await?;
+        let ents = self.list_by_def_id(&ent_def_id).await?;
         log::debug!("[update_listing_attr_name_value] Found ents: {:?}", ents);
         if ents.is_empty() {
             return AppResult::Ok(());
@@ -217,25 +220,25 @@ impl EntityRepo {
         for mut ent in ents {
             ent = self.get(&ent.id).await?.unwrap();
             for attr in ent.text_attributes.clone() {
-                if attr.def_id == attr_id {
+                if attr.def_id == *attr_id {
                     ent.listing_attr_name = attr.name;
                     ent.listing_attr_value = attr.value;
                 }
             }
             for attr in ent.smallint_attributes.clone() {
-                if attr.def_id == attr_id {
+                if attr.def_id == *attr_id {
                     ent.listing_attr_name = attr.name;
                     ent.listing_attr_value = format!("{:?}", attr.value);
                 }
             }
             for attr in ent.int_attributes.clone() {
-                if attr.def_id == attr_id {
+                if attr.def_id == *attr_id {
                     ent.listing_attr_name = attr.name;
                     ent.listing_attr_value = format!("{:?}", attr.value);
                 }
             }
             for attr in ent.boolean_attributes.clone() {
-                if attr.def_id == attr_id {
+                if attr.def_id == *attr_id {
                     ent.listing_attr_name = attr.name;
                     ent.listing_attr_value = format!("{:?}", attr.value);
                 }
@@ -247,11 +250,11 @@ impl EntityRepo {
             )
             .bind(&ent.listing_attr_name)
             .bind(&ent.listing_attr_value)
-            .bind(&ent.id)
+            .bind(&ent.id.as_str())
             .execute(&mut *txn)
             .await
             {
-                log::error!("Failed to update listing attr name and value, based on attr_id: '{attr_id}' of all entities with def_id: '{def_id}'. Cause: {e}");
+                log::error!("Failed to update listing attr name and value, based on attr_id: '{attr_id}' of all entities with def_id: '{ent_def_id}'. Cause: {e}");
                 return AppResult::Err(e.into());
             }
             log::debug!(
@@ -266,6 +269,28 @@ impl EntityRepo {
         Ok(())
     }
 
+    pub async fn update_listing_attr_name_by_attr_def_id(&self, attr_def_id: &Id, attr_name: &String) -> AppResult<()> {
+        //
+        // let query = "SELECT entity_def_id FROM entity_defs_attribute_defs_xref WHERE attribute_def_id = $1";
+        // let mut txn = self.dbcp.begin().await?;
+        // let ent_def_ids = sqlx::query_as::<_, Id>(query)
+        //     .bind(attr_def_id.as_str())
+        //     .fetch_all(&mut *txn)
+        //     .await?;
+
+        // TODO continue
+        let query = "UPDATE entities SET listing_attr_name = $2 WHERE listing_attr_def_id = $1";
+        sqlx::query(query)
+            .bind(attr_def_id.as_str())
+            .bind(attr_name)
+            .execute(self.dbcp.as_ref())
+            .await
+            .map(|_| AppResult::Ok(()))?
+
+        // txn.commit().await?;
+        // Ok(())
+    }
+
     pub async fn remove(&self, _id: &Id) -> AppResult<()> {
         unimplemented!("TODO: Unimplemented")
     }
@@ -274,13 +299,14 @@ impl EntityRepo {
 impl FromRow<'_, PgRow> for Entity {
     fn from_row(row: &PgRow) -> Result<Self, sqlx::Error> {
         Ok(Self {
-            id: row.get("id"),
+            id: Id::from(row.get::<&str, &str>("id")),
             kind: row.get("kind"),
-            def_id: row.get("def_id"),
+            def_id: Some(Id::from(row.get::<&str, &str>("def_id"))),
             text_attributes: vec![],
             smallint_attributes: vec![],
             int_attributes: vec![],
             boolean_attributes: vec![],
+            listing_attr_def_id: Id::from(row.get::<&str, &str>("listing_attr_def_id")),
             listing_attr_name: row.get("listing_attr_name"),
             listing_attr_value: row.get("listing_attr_value"),
         })
@@ -296,7 +322,7 @@ fn fill_in_entity_attributes(ent: &mut Entity, rows: Vec<PgRow>) {
                 ent.text_attributes.push(TextAttribute::new(
                     row.get("name"),
                     row.get("text_value"),
-                    row.get("def_id"),
+                    Id::from(row.get::<&str, &str>("def_id")),
                     ent.id.clone(),
                     ItemType::Entity,
                 ));
@@ -306,7 +332,7 @@ fn fill_in_entity_attributes(ent: &mut Entity, rows: Vec<PgRow>) {
                 ent.smallint_attributes.push(SmallintAttribute::new(
                     row.get("name"),
                     row.get("smallint_value"),
-                    row.get("def_id"),
+                    Id::from(row.get::<&str, &str>("def_id")),
                 ));
             }
             "integer" => {
@@ -314,7 +340,7 @@ fn fill_in_entity_attributes(ent: &mut Entity, rows: Vec<PgRow>) {
                 ent.int_attributes.push(IntegerAttribute::new(
                     row.get("name"),
                     row.get("integer_value"),
-                    row.get("def_id"),
+                    Id::from(row.get::<&str, &str>("def_id")),
                 ));
             }
             _ => {

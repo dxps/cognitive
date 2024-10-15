@@ -5,13 +5,13 @@ use axum_session_auth::AuthSession;
 use axum_session_sqlx::SessionPgPool;
 use sqlx::PgPool;
 
-use crate::domain::model::UserAccount;
+use crate::domain::model::{Id, UserAccount};
 
 use super::{AttributeDefMgmt, AuthSessionLayerNotFound, EntityDefMgmt, EntityMgmt, ServerState, TagMgmt, UserMgmt};
 
 pub struct Session(
     //
-    pub AuthSession<UserAccount, String, SessionPgPool, PgPool>,
+    pub AuthSession<UserAccount, Id, SessionPgPool, PgPool>,
     pub Arc<UserMgmt>,
     pub Arc<TagMgmt>,
     pub Arc<AttributeDefMgmt>,
@@ -20,7 +20,7 @@ pub struct Session(
 );
 
 impl std::ops::Deref for Session {
-    type Target = AuthSession<UserAccount, String, SessionPgPool, PgPool>;
+    type Target = AuthSession<UserAccount, Id, SessionPgPool, PgPool>;
 
     fn deref(&self) -> &Self::Target {
         &self.0
@@ -38,7 +38,7 @@ impl<S: Sync + Send> axum::extract::FromRequestParts<S> for Session {
     type Rejection = AuthSessionLayerNotFound;
 
     async fn from_request_parts(parts: &mut http::request::Parts, state: &S) -> Result<Self, Self::Rejection> {
-        AuthSession::<UserAccount, String, SessionPgPool, PgPool>::from_request_parts(parts, state)
+        AuthSession::<UserAccount, Id, SessionPgPool, PgPool>::from_request_parts(parts, state)
             .await
             .map(|auth_session| {
                 let server_state = parts.extensions.get::<ServerState>().unwrap();

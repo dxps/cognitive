@@ -1,5 +1,5 @@
 use crate::{
-    domain::model::AttributeDef,
+    domain::model::{AttributeDef, Id},
     server::fns::create_attribute_def,
     ui::{
         comps::{AttributeDefForm, Breadcrumb, Nav},
@@ -7,6 +7,7 @@ use crate::{
         Action, UI_GLOBALS,
     },
 };
+
 use dioxus::prelude::*;
 use std::{collections::HashMap, sync::Arc};
 
@@ -19,7 +20,7 @@ pub fn AttributeDefNewPage() -> Element {
     let default_value = use_signal(|| "".to_string());
     let is_required = use_signal(|| false);
     let is_multivalued = use_signal(|| false);
-    let tag_id = use_signal(|| "".to_string());
+    let tag_id = use_signal(|| Id::default());
     let mut tags = use_signal(|| Arc::new(HashMap::new()));
 
     let err: Signal<Option<String>> = use_signal(|| None);
@@ -85,7 +86,7 @@ pub fn AttributeDefNewPage() -> Element {
                                     };
                                     async move {
                                         let item = AttributeDef {
-                                            id: "".to_string(),
+                                            id: Id::default(),
                                             name: name(),
                                             description,
                                             value_type: value_type().into(),

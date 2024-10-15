@@ -3,7 +3,7 @@ use std::sync::Arc;
 use sqlx::{postgres::PgRow, FromRow, PgPool, Row};
 
 use crate::{
-    domain::model::Tag,
+    domain::model::{Id, Tag},
     server::{AppError, AppResult, PaginationOpts},
 };
 
@@ -51,7 +51,7 @@ impl TagsRepo {
         sqlx::query("UPDATE tags SET name=$1, description=$2 WHERE id = $3")
             .bind(tag.name)
             .bind(tag.description)
-            .bind(tag.id)
+            .bind(tag.id.as_str())
             .execute(self.dbcp.as_ref())
             .await
             .map(|_| Ok(()))?
@@ -60,7 +60,7 @@ impl TagsRepo {
     pub async fn add(&self, tag: Tag) -> AppResult<()> {
         //
         sqlx::query("INSERT INTO tags (id, name, description) VALUES ($1, $2, $3)")
-            .bind(tag.id)
+            .bind(tag.id.as_str())
             .bind(tag.name)
             .bind(tag.description)
             .execute(self.dbcp.as_ref())
@@ -68,10 +68,10 @@ impl TagsRepo {
             .map(|_| Ok(()))?
     }
 
-    pub async fn remove(&self, id: String) -> AppResult<()> {
+    pub async fn remove(&self, id: Id) -> AppResult<()> {
         //
         sqlx::query("DELETE FROM tags WHERE id = $1")
-            .bind(id)
+            .bind(id.as_str())
             .execute(self.dbcp.as_ref())
             .await
             .map(|_| Ok(()))?
@@ -80,6 +80,10 @@ impl TagsRepo {
 
 impl FromRow<'_, PgRow> for Tag {
     fn from_row(row: &PgRow) -> Result<Self, sqlx::Error> {
-        Ok(Tag::new(row.get("id"), row.get("name"), row.get("description")))
+        Ok(Tag::new(
+            Id::from(row.get::<&str, &str>("id")),
+            row.get("name"),
+            row.get("description"),
+        ))
     }
 }

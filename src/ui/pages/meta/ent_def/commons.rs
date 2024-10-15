@@ -1,5 +1,8 @@
+///!
 ///! Commonly used logic.
-use crate::{domain::model::Id, server::fns::list_attribute_defs};
+///!
+use crate::domain::model::Id;
+use crate::server::fns::list_attribute_defs;
 use std::collections::HashMap;
 
 pub async fn fetch_all_attr_defs() -> HashMap<Id, String> {

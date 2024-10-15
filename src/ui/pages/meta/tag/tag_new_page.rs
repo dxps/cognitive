@@ -7,6 +7,7 @@ use crate::{
         Action, UI_GLOBALS,
     },
 };
+
 use dioxus::prelude::*;
 
 #[component]

@@ -1,4 +1,5 @@
-use crate::domain::model::UserAccount;
+use crate::domain::model::{Id, UserAccount};
+
 use crate::server::UsersRepo;
 use async_trait::async_trait;
 use axum::response::{IntoResponse, Response};
@@ -6,10 +7,10 @@ use axum_session_auth::*;
 use sqlx::PgPool;
 
 #[async_trait]
-impl Authentication<UserAccount, String, PgPool> for UserAccount {
-    async fn load_user(user_id: String, pool: Option<&PgPool>) -> Result<UserAccount, anyhow::Error> {
+impl Authentication<UserAccount, Id, PgPool> for UserAccount {
+    async fn load_user(user_id: Id, pool: Option<&PgPool>) -> Result<UserAccount, anyhow::Error> {
         let pool = pool.unwrap();
-        UsersRepo::get_by_id(user_id, pool)
+        UsersRepo::get_by_id(&user_id, pool)
             .await
             .ok_or_else(|| anyhow::anyhow!("Could not load user"))
     }

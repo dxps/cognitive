@@ -1,8 +1,6 @@
-use std::collections::HashMap;
-
-use dioxus::prelude::*;
-
 use crate::domain::model::{BooleanAttribute, Id, IntegerAttribute, SmallintAttribute, TextAttribute};
+use dioxus::prelude::*;
+use std::collections::HashMap;
 
 #[derive(Props, PartialEq, Clone)]
 pub struct EntityFormProps {
@@ -108,7 +106,6 @@ pub fn EntityForm(props: EntityFormProps) -> Element {
                     }
                 }
             }
-
         }
     }
 }

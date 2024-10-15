@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use crate::{
     domain::model::{EntityDef, Id},
     ui::{
@@ -10,6 +8,7 @@ use crate::{
     },
 };
 use dioxus::prelude::*;
+use std::collections::HashMap;
 
 pub fn EntityDefNewPage() -> Element {
     //

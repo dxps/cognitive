@@ -1,7 +1,3 @@
-use std::collections::HashMap;
-
-use dioxus::prelude::*;
-
 use crate::{
     domain::model::{BooleanAttribute, Id, IntegerAttribute, SmallintAttribute, TextAttribute},
     server::fns::get_entity,
@@ -11,6 +7,8 @@ use crate::{
         Action,
     },
 };
+use dioxus::prelude::*;
+use std::collections::HashMap;
 
 #[derive(PartialEq, Props, Clone)]
 pub struct EntityPageProps {
@@ -133,14 +131,14 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
     }
 }
 
-async fn init(id: Signal<Id>, mut kind: Signal<String>, mut text_attrs: Signal<HashMap<String, TextAttribute>>) {
+async fn init(id: Signal<Id>, mut kind: Signal<String>, mut text_attrs: Signal<HashMap<Id, TextAttribute>>) {
     match get_entity(id()).await {
         Ok(Some(ent)) => {
             log::debug!("[EntityPage] Based on id {id}, got entity {:?}", ent);
-            let ta: HashMap<String, TextAttribute> = ent
+            let ta: HashMap<Id, TextAttribute> = ent
                 .text_attributes
                 .iter()
-                .map(|attr| (attr.name.clone(), attr.clone()))
+                .map(|attr| (attr.name.clone().into(), attr.clone()))
                 .collect();
             text_attrs.set(ta);
             kind.set(ent.kind);

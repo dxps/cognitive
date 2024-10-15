@@ -1,6 +1,6 @@
 use crate::{
     domain::model::{Entity, Id},
-    server::{create_id, AppResult, EntityRepo},
+    server::{AppResult, EntityRepo},
 };
 use std::sync::Arc;
 
@@ -19,7 +19,7 @@ impl EntityMgmt {
     }
 
     pub async fn add(&self, mut ent: Entity) -> AppResult<Id> {
-        ent.id = create_id();
+        ent.id = Id::new();
         self.repo.add(&ent).await?;
         Ok(ent.id)
     }
@@ -32,8 +32,14 @@ impl EntityMgmt {
         self.repo.update(&ent).await
     }
 
-    pub async fn update_listing_addr_name(&self, def_id: Id, attr_id: String) -> AppResult<()> {
-        self.repo.update_listing_attr_name_value(def_id, attr_id).await
+    pub async fn update_listing_addr_name(&self, def_id: &Id, attr_id: &Id) -> AppResult<()> {
+        self.repo.update_listing_attr_name_value_by_ent_def_id(def_id, attr_id).await
+    }
+
+    pub async fn update_listing_attr_name_by_attr_def_id(&self, attr_def_id: &Id, attr_name: &String) -> AppResult<()> {
+        self.repo
+            .update_listing_attr_name_by_attr_def_id(attr_def_id, attr_name)
+            .await
     }
 
     pub async fn remove(&self, id: &Id) -> AppResult<()> {

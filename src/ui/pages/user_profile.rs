@@ -176,7 +176,7 @@ fn Security(ua: UserAccount) -> Element {
         div { class: "mt-8 space-y-6",
             div { class: "flex flex-row text-sm text-gray-500",
                 { "Id: " },
-                { ua.id.clone() }
+                { ua.id.to_string() }
             }
             div {
                 label { class: "text-sm text-gray-500 block mb-2", "Current Password" }

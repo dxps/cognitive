@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::{
-    domain::model::UserAccount,
+    domain::model::{Id, UserAccount},
     server::{AppError, AppResult, AppUseCase, UsersRepo},
 };
 
@@ -16,13 +16,13 @@ impl UserMgmt {
         Self { user_repo }
     }
 
-    pub async fn register_user(&self, email: String, username: String, pwd: String) -> AppResult<String> {
+    pub async fn register_user(&self, email: String, username: String, pwd: String) -> AppResult<Id> {
         //
         let (pwd, salt) = Self::generate_password(pwd);
         self.user_repo.save(email, username, pwd, salt).await
     }
 
-    pub async fn register_admin_user(&self, email: &String, username: &String, pwd: String) -> AppResult<String> {
+    pub async fn register_admin_user(&self, email: &String, username: &String, pwd: String) -> AppResult<Id> {
         //
         let (pwd, salt) = Self::generate_password(pwd);
         self.user_repo
@@ -45,9 +45,9 @@ impl UserMgmt {
         }
     }
 
-    pub async fn update_password(&self, user_id: String, curr_password: String, new_password: String) -> AppResult<()> {
+    pub async fn update_password(&self, user_id: &Id, curr_password: String, new_password: String) -> AppResult<()> {
         //
-        let ups = self.user_repo.get_password_by_id(&user_id).await?;
+        let ups = self.user_repo.get_password_by_id(user_id).await?;
         match Self::check_password(&curr_password, &ups.password, &ups.salt) {
             true => {
                 let new_hash_pwd = Self::regenerate_password(new_password, ups.salt);

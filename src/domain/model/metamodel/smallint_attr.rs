@@ -1,6 +1,5 @@
-use crate::domain::model::Id;
-
 use super::{AttributeDef, Item, ItemType};
+use crate::domain::model::Id;
 use serde::{Deserialize, Serialize};
 
 /// An instance of an attribute of type boolean.

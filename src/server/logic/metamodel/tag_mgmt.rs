@@ -1,9 +1,8 @@
-use serde::Deserialize;
-
 use crate::{
     domain::model::{Id, Tag},
-    server::{create_id, AppResult, TagsRepo},
+    server::{AppResult, TagsRepo},
 };
+use serde::Deserialize;
 use std::sync::Arc;
 
 #[derive(Clone)]
@@ -29,7 +28,7 @@ impl TagMgmt {
 
     pub async fn add(&self, name: String, description: Option<String>) -> AppResult<Id> {
         //
-        let id = create_id();
+        let id = Id::new();
         let tag = Tag::new(id.clone(), name, description);
         _ = self.tag_repo.add(tag).await;
         Ok(id)

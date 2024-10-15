@@ -1,14 +1,14 @@
-use std::{collections::HashMap, ops::Deref, sync::Arc};
-
 use crate::{
     domain::model::{EntityDef, Id, Tag},
     server::fns::{get_tags, list_entities_defs},
 };
 use dioxus::signals::{GlobalSignal, Readable};
+use std::ops::Deref;
+use std::{collections::HashMap, sync::Arc};
 
 pub struct UiGlobals {
     pub app_ready: GlobalSignal<bool>,
-    pub tags: GlobalSignal<Arc<HashMap<String, Tag>>>,
+    pub tags: GlobalSignal<Arc<HashMap<Id, Tag>>>,
     pub tags_loaded: GlobalSignal<bool>,
     pub ent_defs: GlobalSignal<HashMap<Id, EntityDef>>,
 }
@@ -23,12 +23,12 @@ impl UiGlobals {
         }
     }
 
-    pub async fn get_tags(&self) -> Arc<HashMap<String, Tag>> {
+    pub async fn get_tags(&self) -> Arc<HashMap<Id, Tag>> {
         if self.tags.read().is_empty() {
             let res = get_tags().await;
             match res {
                 Ok(tags) => {
-                    let tags_map: HashMap<String, Tag> = tags.into_iter().map(|tag| (tag.id.clone(), tag)).collect();
+                    let tags_map: HashMap<Id, Tag> = tags.into_iter().map(|tag| (tag.id.clone(), tag)).collect();
                     let tags_map = Arc::new(tags_map);
                     *self.tags.write() = tags_map;
                 }
@@ -38,11 +38,11 @@ impl UiGlobals {
         self.tags.read().clone()
     }
 
-    pub async fn get_tag(&self, id: String) -> Option<Tag> {
+    pub async fn get_tag(&self, id: &Id) -> Option<Tag> {
         if self.tags.read().is_empty() {
             _ = self.get_tags().await;
         }
-        self.tags.read().get(&id).cloned()
+        self.tags.read().get(id).cloned()
     }
 
     pub async fn add_tag(&self, tag: Tag) {
@@ -54,7 +54,7 @@ impl UiGlobals {
 
     pub async fn update_tag(&self, tag: Tag) {
         let tags = self.tags.read().clone();
-        let updated_tags: HashMap<String, Tag> = tags
+        let updated_tags: HashMap<Id, Tag> = tags
             .iter()
             .map(|(k, v)| {
                 if v.id == tag.id {
@@ -67,9 +67,9 @@ impl UiGlobals {
         *self.tags.write() = Arc::new(updated_tags);
     }
 
-    pub async fn remove_tag(&self, id: String) {
+    pub async fn remove_tag(&self, id: Id) {
         let tags = self.tags.read().clone();
-        let updated_tags: HashMap<String, Tag> = tags
+        let updated_tags: HashMap<Id, Tag> = tags
             .iter()
             .filter(|(_, v)| v.id != id)
             .map(|(k, v)| (k.clone(), v.clone()))

@@ -19,10 +19,13 @@ impl EntityDefRepo {
     pub async fn list_ids_names(&self) -> AppResult<Vec<(Id, String)>> {
         //
         let query = "SELECT id, name FROM entity_defs ORDER BY name";
-        sqlx::query_as::<_, (Id, String)>(query)
+        sqlx::query_as::<_, (String, String)>(query)
             .fetch_all(self.dbcp.as_ref())
             .await
-            .map(|res| AppResult::Ok(res))?
+            .map(|res| {
+                let rs = res.into_iter().map(|(id, name)| (Id::from(id), name)).collect();
+                AppResult::Ok(rs)
+            })?
     }
 
     pub async fn list(&self, pagination_opts: Option<&PaginationOpts>) -> AppResult<Vec<EntityDef>> {
@@ -45,7 +48,7 @@ impl EntityDefRepo {
              FROM attribute_defs ad JOIN entity_defs_attribute_defs_xref ed_ad_xref
              ON ad.id = ed_ad_xref.attribute_def_id where ed_ad_xref.entity_def_id = $1 ORDER BY name",
             )
-            .bind(&ent_def.id)
+            .bind(&ent_def.id.as_str())
             .fetch_all(self.dbcp.as_ref())
             .await
             {
@@ -62,10 +65,10 @@ impl EntityDefRepo {
 
         if let Err(e) =
             sqlx::query("INSERT INTO entity_defs (id, name, description, listing_attr_def_id) VALUES ($1, $2, $3, $4)")
-                .bind(ent_def.id.clone())
+                .bind(ent_def.id.as_str())
                 .bind(ent_def.name.clone())
                 .bind(ent_def.description.clone())
-                .bind(ent_def.listing_attr_def_id.clone())
+                .bind(ent_def.listing_attr_def_id.as_str())
                 .execute(&mut *txn)
                 .await
         {
@@ -77,8 +80,8 @@ impl EntityDefRepo {
         for attr_def in ent_def.attributes.clone() {
             if let Err(e) =
                 sqlx::query("INSERT INTO entity_defs_attribute_defs_xref (entity_def_id, attribute_def_id) VALUES ($1, $2)")
-                    .bind(ent_def.id.clone())
-                    .bind(attr_def.id)
+                    .bind(ent_def.id.as_str())
+                    .bind(attr_def.id.as_str())
                     .execute(&mut *txn)
                     .await
             {
@@ -98,7 +101,7 @@ impl EntityDefRepo {
         let mut res = None;
         if let Ok(res_opt) =
             sqlx::query_as::<_, EntityDef>("SELECT id, name, description, listing_attr_def_id FROM entity_defs WHERE id = $1")
-                .bind(id)
+                .bind(id.as_str())
                 .fetch_optional(self.dbcp.as_ref())
                 .await
         {
@@ -108,7 +111,7 @@ impl EntityDefRepo {
                      FROM attribute_defs ad JOIN entity_defs_attribute_defs_xref ed_ad_xref 
                      ON ad.id = ed_ad_xref.attribute_def_id where ed_ad_xref.entity_def_id = $1 ORDER BY name",
                 )
-                .bind(id)
+                .bind(id.as_str())
                 .fetch_all(self.dbcp.as_ref())
                 .await
                 {
@@ -126,8 +129,8 @@ impl EntityDefRepo {
         if let Err(e) = sqlx::query("UPDATE entity_defs SET name = $1, description = $2, listing_attr_def_id = $3 WHERE id = $4")
             .bind(ent_def.name.clone())
             .bind(ent_def.description.clone())
-            .bind(ent_def.listing_attr_def_id.clone())
-            .bind(ent_def.id.clone())
+            .bind(ent_def.listing_attr_def_id.as_str())
+            .bind(ent_def.id.as_str())
             .execute(&mut *txn)
             .await
         {
@@ -137,7 +140,7 @@ impl EntityDefRepo {
         }
 
         if let Err(e) = sqlx::query("DELETE FROM entity_defs_attribute_defs_xref WHERE entity_def_id = $1")
-            .bind(&ent_def.id)
+            .bind(&ent_def.id.as_str())
             .execute(&mut *txn)
             .await
         {
@@ -149,8 +152,8 @@ impl EntityDefRepo {
         for attr_def in ent_def.attributes.clone() {
             if let Err(e) =
                 sqlx::query("INSERT INTO entity_defs_attribute_defs_xref (entity_def_id, attribute_def_id) VALUES ($1, $2)")
-                    .bind(&ent_def.id)
-                    .bind(&attr_def.id)
+                    .bind(ent_def.id.as_str())
+                    .bind(attr_def.id.as_str())
                     .execute(&mut *txn)
                     .await
             {
@@ -170,7 +173,7 @@ impl EntityDefRepo {
         let mut txn = self.dbcp.begin().await?;
 
         if let Err(e) = sqlx::query("DELETE FROM entity_defs_attribute_defs_xref WHERE entity_def_id = $1")
-            .bind(id)
+            .bind(id.as_str())
             .execute(&mut *txn)
             .await
         {
@@ -180,7 +183,7 @@ impl EntityDefRepo {
         }
 
         if let Err(e) = sqlx::query("DELETE FROM entity_defs WHERE id = $1")
-            .bind(id)
+            .bind(id.as_str())
             .execute(&mut *txn)
             .await
         {
@@ -196,10 +199,10 @@ impl EntityDefRepo {
 impl FromRow<'_, PgRow> for EntityDef {
     fn from_row(row: &PgRow) -> Result<Self, sqlx::Error> {
         Ok(Self::new(
-            row.get("id"),
+            Id::new_from(row.get("id")),
             row.get("name"),
             row.get("description"),
-            row.get("listing_attr_def_id"),
+            Id::new_from(row.get("listing_attr_def_id")),
         ))
     }
 }

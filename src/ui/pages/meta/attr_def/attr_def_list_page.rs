@@ -1,3 +1,5 @@
+use crate::domain::model::Id;
+
 use crate::{
     domain::model::{AttributeDef, Tag},
     server::fns::list_attribute_defs,
@@ -58,7 +60,7 @@ pub fn AttributeDefListPage() -> Element {
 #[derive(Props, PartialEq, Clone)]
 pub struct AttrDefCardProps {
     pub attr_def: AttributeDef,
-    pub tags: Arc<HashMap<String, Tag>>,
+    pub tags: Arc<HashMap<Id, Tag>>,
 }
 
 #[component]
@@ -100,7 +102,7 @@ fn AttrDefCard(props: AttrDefCardProps) -> Element {
                             }
                         }
                         else {
-                            rsx! { p { {attr_def.tag_id.unwrap_or_default()} } }
+                            rsx! { p { {attr_def.tag_id.unwrap_or_default().to_string()} } }
                         }
                     }
                 }

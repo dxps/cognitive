@@ -2,6 +2,7 @@ use dioxus_fullstack::prelude::*;
 use server_fn::codec::GetUrl;
 
 use crate::domain::model::{AttributeDef, Id};
+
 #[cfg(feature = "server")]
 use crate::server::Session;
 
@@ -15,7 +16,7 @@ pub async fn list_attribute_defs() -> Result<Vec<AttributeDef>, ServerFnError> {
 
 /// Get an attribute definitions.
 #[server(endpoint = "admin/get_attr_def", input = GetUrl)]
-pub async fn get_attribute_def(id: String) -> Result<Option<AttributeDef>, ServerFnError> {
+pub async fn get_attribute_def(id: Id) -> Result<Option<AttributeDef>, ServerFnError> {
     let session: Session = extract().await?;
     let attr_def = session.3.get(&id).await;
     Ok(attr_def)
@@ -31,11 +32,16 @@ pub async fn create_attribute_def(item: AttributeDef) -> Result<Id, ServerFnErro
 
 /// Update an attribute definition.
 #[server(endpoint = "admin/update_attr_def")]
-pub async fn update_attribute_def(item: AttributeDef) -> Result<(), ServerFnError> {
+pub async fn update_attribute_def(attr_def: AttributeDef) -> Result<(), ServerFnError> {
     //
-    log::debug!("Updating attribute def: {:?}", item);
+    log::debug!("Updating attribute def: {:?}", attr_def);
     let session: Session = extract().await?;
-    session.3.update(item).await.map(|_| Ok(()))?
+    session.3.update(&attr_def).await.map(|_| Ok::<_, ServerFnError>(()))?;
+    session
+        .5
+        .update_listing_attr_name_by_attr_def_id(&attr_def.id, &attr_def.name)
+        .await
+        .map(|_| Ok(()))?
 }
 
 /// Remove an attribute definition.

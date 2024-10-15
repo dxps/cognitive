@@ -22,9 +22,9 @@ pub fn Select(props: SelectProps) -> Element {
             class: "px-3 my-1 bg-slate-100 rounded-lg outline-none border-1 border-gray-300 focus:border-green-300 min-w-80",
             multiple: false,
             oninput: move |evt| {
-                selected_item_id.set(evt.value());
+                selected_item_id.set(evt.value().into());
             },
-            option { value: "", selected: "{selected_item_id() == \"\"}", "" }
+            option { value: "", selected: "{selected_item_id().is_empty()}", "" }
             if !items().is_empty() {
                 for (id , kind) in items() {
                     option { value: "{id}", selected: "{selected_item_id() == id}", "{kind}" }

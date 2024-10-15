@@ -7,7 +7,7 @@ use super::{AppError, AppResult, UserMgmt};
 pub fn start_web_server(app_fn: fn() -> Element) {
     //
     use crate::{
-        domain::model::UserAccount,
+        domain::model::{Id, UserAccount},
         server::{connect_to_pgdb, ws_handler, ServerState},
     };
     use axum::{routing::*, Extension};
@@ -37,7 +37,7 @@ pub fn start_web_server(app_fn: fn() -> Element) {
 
         // This defaults as normal cookies.
         let session_config = SessionConfig::default().with_table_name("user_sessions");
-        let auth_config = AuthConfig::<String>::default().with_anonymous_user_id(Some("iH26rJ8Cp".to_string()));
+        let auth_config = AuthConfig::<Id>::default().with_anonymous_user_id(Some("iH26rJ8Cp".into()));
         let session_store = SessionPgSessionStore::new(Some(pg_pool.clone().into()), session_config)
             .await
             .unwrap();
@@ -52,7 +52,7 @@ pub fn start_web_server(app_fn: fn() -> Element) {
             // Server side render the application, serve static assets, and register server functions.
             .serve_dioxus_application(ServeConfig::builder().build(), move || VirtualDom::new(app_fn))
             .await
-            .layer(AuthSessionLayer::<UserAccount, String, SessionPgPool, PgPool>::new(Some(pg_pool)).with_config(auth_config))
+            .layer(AuthSessionLayer::<UserAccount, Id, SessionPgPool, PgPool>::new(Some(pg_pool)).with_config(auth_config))
             .layer(SessionLayer::new(session_store))
             .layer(Extension(state));
 

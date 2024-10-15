@@ -1,4 +1,4 @@
-use crate::domain::model::Tag;
+use crate::domain::model::{Id, Tag};
 use dioxus::prelude::*;
 use std::{collections::HashMap, sync::Arc};
 
@@ -10,8 +10,8 @@ pub struct AttributeDefFormProps {
     pub default_value: Signal<String>,
     pub is_required: Signal<bool>,
     pub is_multivalued: Signal<bool>,
-    pub tag_id: Signal<String>,
-    pub tags: Arc<HashMap<String, Tag>>,
+    pub tag_id: Signal<Id>,
+    pub tags: Arc<HashMap<Id, Tag>>,
     pub action: String,
 }
 
@@ -161,7 +161,7 @@ pub fn AttributeDefForm(props: AttributeDefFormProps) -> Element {
                     multiple: false,
                     disabled: is_view,
                     oninput: move |evt| {
-                        tag_id.set(evt.value());
+                        tag_id.set(evt.value().into());
                         log::debug!("selected tag_id: {:?}", evt.value());
                     },
                     option { value: "", "" }

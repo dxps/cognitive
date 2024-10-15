@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use crate::{
     domain::model::{
         AttributeValueType, BooleanAttribute, Entity, EntityDef, Id, IntegerAttribute, SmallintAttribute, TextAttribute,
@@ -11,12 +9,15 @@ use crate::{
     },
 };
 use dioxus::prelude::*;
+use std::collections::HashMap;
 
 pub fn EntityNewPage() -> Element {
     //
     let mut ent_defs = use_signal::<HashMap<Id, EntityDef>>(|| HashMap::new());
     let mut ent_kinds = use_signal::<HashMap<Id, String>>(|| HashMap::new());
-    let selected_kind_id = use_signal(|| "".to_string());
+    let selected_kind_id = use_signal(|| Id::default());
+    let mut selected_kind_name = use_signal(|| "".into());
+    let mut listing_attr_def_id = use_signal(|| Id::default());
     let mut listing_attr_name = use_signal(|| "".to_string());
     let listing_attr_value = use_signal(|| "".to_string());
 
@@ -37,47 +38,50 @@ pub fn EntityNewPage() -> Element {
     use_memo(move || {
         let kind_id = selected_kind_id();
         log::debug!("[EntityNewPage] Changed selected kind_id: {:?}", kind_id);
-        if kind_id.len() > 0 {
-            log::debug!("[EntityNewPage] Loading attributes from entity def id:'{}' ...", kind_id);
-            let kind_id = kind_id.clone();
-            log::debug!(
-                "[EntityNewPage] Loading attributes from entity def id:'{}' using the global state ...",
-                kind_id
-            );
-            if let Some(ent_def) = UI_GLOBALS.get_ent_def_sync(&kind_id) {
-                let mut txt_attrs = HashMap::new();
-                let mut si_attrs = HashMap::new();
-                let mut i_attrs = HashMap::new();
-                let mut b_attrs = HashMap::new();
-                ent_def.attributes.iter().for_each(|attr| {
-                    if attr.id == ent_def.listing_attr_def_id {
-                        listing_attr_name.set(attr.name.clone());
+        if kind_id.is_empty() {
+            return;
+        }
+        selected_kind_name.set(ent_kinds().get(&kind_id).unwrap().clone());
+        log::debug!("[EntityNewPage] Loading attributes from entity def id:'{}' ...", kind_id);
+        // let kind_id = kind_id.clone();
+        log::debug!(
+            "[EntityNewPage] Loading attributes from entity def id:'{}' using the global state ...",
+            kind_id
+        );
+        if let Some(ent_def) = UI_GLOBALS.get_ent_def_sync(&kind_id) {
+            let mut txt_attrs = HashMap::new();
+            let mut si_attrs = HashMap::new();
+            let mut i_attrs = HashMap::new();
+            let mut b_attrs = HashMap::new();
+            ent_def.attributes.iter().for_each(|attr_def| {
+                if attr_def.id == ent_def.listing_attr_def_id {
+                    listing_attr_def_id.set(attr_def.id.clone());
+                    listing_attr_name.set(attr_def.name.clone());
+                }
+                match &attr_def.value_type {
+                    &AttributeValueType::Text => {
+                        txt_attrs.insert(attr_def.id.clone(), attr_def.clone().into());
                     }
-                    match &attr.value_type {
-                        &AttributeValueType::Text => {
-                            txt_attrs.insert(attr.id.clone(), attr.clone().into());
-                        }
-                        &AttributeValueType::SmallInteger => {
-                            si_attrs.insert(attr.id.clone(), attr.into());
-                        }
-                        &AttributeValueType::Integer => {
-                            i_attrs.insert(attr.id.clone(), attr.into());
-                        }
-                        &AttributeValueType::Boolean => {
-                            b_attrs.insert(attr.id.clone(), attr.into());
-                        }
-                        _ => {}
+                    &AttributeValueType::SmallInteger => {
+                        si_attrs.insert(attr_def.id.clone(), attr_def.into());
                     }
-                });
-                text_attrs.set(txt_attrs);
-                smallint_attrs.set(si_attrs);
-                int_attrs.set(i_attrs);
-                boolean_attrs.set(b_attrs);
-                log::debug!("[EntityNewPage] Loaded attributes from entity def id:'{}'", kind_id);
-            } else {
-                log::warn!("[EntityNewPage] Failed to get entity def id:'{}'", kind_id);
-            }
-        };
+                    &AttributeValueType::Integer => {
+                        i_attrs.insert(attr_def.id.clone(), attr_def.into());
+                    }
+                    &AttributeValueType::Boolean => {
+                        b_attrs.insert(attr_def.id.clone(), attr_def.into());
+                    }
+                    _ => {}
+                }
+            });
+            text_attrs.set(txt_attrs);
+            smallint_attrs.set(si_attrs);
+            int_attrs.set(i_attrs);
+            boolean_attrs.set(b_attrs);
+            log::debug!("[EntityNewPage] Loaded attributes from entity def id:'{}'", kind_id);
+        } else {
+            log::warn!("[EntityNewPage] Failed to get entity def id:'{}'", kind_id);
+        }
     });
 
     rsx! {
@@ -104,7 +108,7 @@ pub fn EntityNewPage() -> Element {
                                 Select { items: ent_kinds, selected_item_id: selected_kind_id }
                             }
                         }
-                        if selected_kind_id().len() == 0 {
+                        if selected_kind_id().is_empty() {
                             p { class: "py-2 text-gray-500 block",
                                 "Select a kind to create an entity."
                             }
@@ -135,12 +139,13 @@ pub fn EntityNewPage() -> Element {
                                             navigator().push(Route::EntityListPage {});
                                         } else {
                                             handle_create_ent(
-                                                    selected_kind_id(),
+                                                    selected_kind_name(),
                                                     selected_kind_id(),
                                                     text_attrs().values().cloned().collect(),
                                                     smallint_attrs().values().cloned().collect(),
                                                     int_attrs().values().cloned().collect(),
                                                     boolean_attrs().values().cloned().collect(),
+                                                    listing_attr_def_id(),
                                                     listing_attr_name(),
                                                     listing_attr_value(),
                                                     saved,
@@ -165,12 +170,13 @@ pub fn EntityNewPage() -> Element {
 }
 
 async fn handle_create_ent(
-    kind: String, // TODO: Clarify usage.
+    kind: String, // TODO: Review the usage of kind.
     def_id: Id,
     text_attrs: Vec<TextAttribute>,
     smallint_attrs: Vec<SmallintAttribute>,
     int_attrs: Vec<IntegerAttribute>,
     boolean_attrs: Vec<BooleanAttribute>,
+    listing_attr_def_id: Id,
     listing_attr_name: String,
     listing_attr_value: String,
     mut saved: Signal<bool>,
@@ -178,13 +184,14 @@ async fn handle_create_ent(
 ) -> Option<Id> {
     //
 
-    let ent = Entity::new_from(
+    let ent = Entity::new(
         kind,
         def_id,
         text_attrs,
         smallint_attrs,
         int_attrs,
         boolean_attrs,
+        listing_attr_def_id,
         listing_attr_name,
         listing_attr_value,
     );

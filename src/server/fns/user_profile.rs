@@ -3,16 +3,13 @@ use dioxus_fullstack::prelude::*;
 #[cfg(feature = "server")]
 use log::debug;
 
+use crate::domain::model::Id;
+
 #[cfg(feature = "server")]
 use crate::server::session::Session;
 
 #[server(SaveUserProfilePrimaryInfo)]
-pub async fn save_user_profile_primary_info(
-    id: String,
-    username: String,
-    email: String,
-    bio: String,
-) -> Result<(), ServerFnError> {
+pub async fn save_user_profile_primary_info(id: Id, username: String, email: String, bio: String) -> Result<(), ServerFnError> {
     //
     use crate::domain::model::UserAccount;
 
@@ -36,7 +33,7 @@ pub async fn save_user_profile_primary_info(
 
 #[server(SetNewPassword)]
 pub async fn set_user_profile_new_password(
-    user_id: String,
+    user_id: Id,
     curr_password: String,
     new_password: String,
 ) -> Result<Result<(), String>, ServerFnError> {
@@ -48,7 +45,7 @@ pub async fn set_user_profile_new_password(
 
     let session: Session = extract().await?;
 
-    if let Err(err) = session.1.update_password(user_id, curr_password, new_password).await {
+    if let Err(err) = session.1.update_password(&user_id, curr_password, new_password).await {
         return Ok(Err(err.to_string()));
     }
 

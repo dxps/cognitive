@@ -1,6 +1,5 @@
-use crate::domain::model::Id;
-
 use super::{AttributeDef, Item, ItemType};
+use crate::domain::model::Id;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -22,7 +21,7 @@ pub struct TextAttribute {
 }
 
 impl TextAttribute {
-    pub fn new(name: String, value: String, def_id: String, owner_id: Id, owner_type: ItemType) -> Self {
+    pub fn new(name: String, value: String, def_id: Id, owner_id: Id, owner_type: ItemType) -> Self {
         Self {
             name,
             value,

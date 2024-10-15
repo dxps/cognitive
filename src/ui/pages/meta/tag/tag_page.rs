@@ -25,7 +25,7 @@ pub fn TagPage(id: Id) -> Element {
     use_future(move || {
         let id = tid.clone();
         async move {
-            if let Some(t) = UI_GLOBALS.get_tag(id).await {
+            if let Some(t) = UI_GLOBALS.get_tag(&id).await {
                 name.set(t.name.clone());
                 description.set(t.description.unwrap_or_default());
             }
@@ -139,7 +139,7 @@ async fn handle_update(tag: Tag, mut saved: Signal<bool>, mut err: Signal<Option
     }
 }
 
-async fn handle_delete(id: String, mut saved: Signal<bool>, mut err: Signal<Option<String>>) {
+async fn handle_delete(id: Id, mut saved: Signal<bool>, mut err: Signal<Option<String>>) {
     //
     log::debug!(">>> Deleting tag: {:?}", id);
     match remove_tag(id.clone()).await {

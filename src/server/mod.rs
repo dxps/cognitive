@@ -3,6 +3,9 @@ pub use app_err_uc::*;
 
 pub mod fns;
 
+#[cfg(feature = "server")]
+pub mod model;
+
 ////////////////////////////////////////////////////////////////////////////////
 
 #[cfg(feature = "server")]
@@ -30,4 +33,4 @@ mod session;
 mod state;
 
 #[cfg(feature = "server")]
-pub use {auth::*, database::*, logic::*, repos::*, server::*, session::*, state::*, websockets::*};
+pub use {auth::*, database::*, logic::*, model::*, repos::*, server::*, session::*, state::*, websockets::*};

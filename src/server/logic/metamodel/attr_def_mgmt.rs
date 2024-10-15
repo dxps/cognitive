@@ -15,7 +15,7 @@ impl AttributeDefMgmt {
         Self { attr_repo }
     }
 
-    pub async fn get(&self, id: &String) -> Option<AttributeDef> {
+    pub async fn get(&self, id: &Id) -> Option<AttributeDef> {
         //
         self.attr_repo.get(id).await
     }
@@ -30,6 +30,7 @@ impl AttributeDefMgmt {
         //
         self.attr_repo
             .add(
+                Id::new(),
                 item.name,
                 item.description.unwrap_or_default(),
                 item.value_type.to_string(),
@@ -42,7 +43,7 @@ impl AttributeDefMgmt {
     }
 
     /// Update an existing attribute definition.
-    pub async fn update(&self, item: AttributeDef) -> AppResult<()> {
+    pub async fn update(&self, item: &AttributeDef) -> AppResult<()> {
         //
         self.attr_repo.update(item).await
     }
