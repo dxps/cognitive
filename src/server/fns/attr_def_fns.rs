@@ -36,7 +36,9 @@ pub async fn update_attribute_def(attr_def: AttributeDef) -> Result<(), ServerFn
     //
     log::debug!("Updating attribute def: {:?}", attr_def);
     let session: Session = extract().await?;
-    session.3.update(&attr_def).await.map(|_| Ok::<_, ServerFnError>(()))?;
+    if let Err(e) = session.3.update(&attr_def).await.map(|_| Ok::<_, ServerFnError>(()))? {
+        return Err(e);
+    };
     session
         .5
         .update_listing_attr_name_by_attr_def_id(&attr_def.id, &attr_def.name)
