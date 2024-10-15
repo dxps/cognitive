@@ -32,9 +32,9 @@ pub async fn get_entity(id: Id) -> Result<Option<Entity>, ServerFnError> {
 
 /// Update an entity instance.
 #[server(endpoint = "admin/update_ent")]
-pub async fn update_entity(ent_def: Entity) -> Result<(), ServerFnError> {
+pub async fn update_entity(ent: Entity) -> Result<(), ServerFnError> {
     let session: Session = extract().await?;
-    let result = session.5.update(ent_def).await;
+    let result = session.5.update(&ent).await;
     result.map_err(|e| e.into())
 }
 

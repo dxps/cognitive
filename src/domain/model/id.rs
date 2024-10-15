@@ -1,4 +1,4 @@
-use std::{fmt::Display, ptr::null, str::FromStr};
+use std::{fmt::Display, str::FromStr};
 
 #[derive(Debug, Default, Clone, Hash, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Id(String);

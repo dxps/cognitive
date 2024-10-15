@@ -631,10 +631,6 @@ button {
   padding-bottom: 0.25rem;
 }
 
-.visible {
-  visibility: visible;
-}
-
 .static {
   position: static;
 }

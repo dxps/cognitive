@@ -1,6 +1,6 @@
 use crate::{
-    domain::model::{BooleanAttribute, Id, IntegerAttribute, SmallintAttribute, TextAttribute},
-    server::fns::get_entity,
+    domain::model::{BooleanAttribute, Entity, Id, IntegerAttribute, SmallintAttribute, TextAttribute},
+    server::fns::{get_entity, remove_entity, update_entity},
     ui::{
         comps::{Breadcrumb, EntityForm, Nav},
         routes::Route,
@@ -19,8 +19,9 @@ pub struct EntityPageProps {
 pub fn EntityPage(props: EntityPageProps) -> Element {
     //
     let id = use_signal(|| props.id);
-
+    let def_id = use_signal(|| Id::default());
     let kind = use_signal(|| "".to_string());
+    let listing_attr_def_id = use_signal(|| Id::default());
 
     let text_attrs = use_signal::<HashMap<Id, TextAttribute>>(|| HashMap::new());
     let smallint_attrs = use_signal::<HashMap<Id, SmallintAttribute>>(|| HashMap::new());
@@ -32,7 +33,7 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
     let saved = use_signal(|| false);
 
     use_future(move || async move {
-        init(id, kind, text_attrs).await;
+        init(id, kind, def_id, text_attrs, listing_attr_def_id).await;
     });
 
     rsx! {
@@ -103,13 +104,25 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
                                                 action.set(Action::Edit);
                                             }
                                             Action::Delete => {
-                                                navigator().push(Route::EntityDefListPage {});
+                                                navigator().push(Route::EntityListPage {});
                                             }
                                             Action::Edit => {
                                                 if saved() {
-                                                    navigator().push(Route::EntityDefListPage {});
+                                                    navigator().push(Route::EntityListPage {});
                                                 } else {
-                                                    handle_update(id(), saved, err).await;
+                                                    handle_update(
+                                                            id(),
+                                                            kind(),
+                                                            def_id(),
+                                                            text_attrs().values().cloned().collect(),
+                                                            smallint_attrs().values().cloned().collect(),
+                                                            int_attrs().values().cloned().collect(),
+                                                            boolean_attrs().values().cloned().collect(),
+                                                            listing_attr_def_id(),
+                                                            saved,
+                                                            err,
+                                                        )
+                                                        .await;
                                                 }
                                             }
                                         }
@@ -131,7 +144,13 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
     }
 }
 
-async fn init(id: Signal<Id>, mut kind: Signal<String>, mut text_attrs: Signal<HashMap<Id, TextAttribute>>) {
+async fn init(
+    id: Signal<Id>,
+    mut kind: Signal<String>,
+    mut def_id: Signal<Id>,
+    mut text_attrs: Signal<HashMap<Id, TextAttribute>>,
+    mut listing_attr_def_id: Signal<Id>,
+) {
     match get_entity(id()).await {
         Ok(Some(ent)) => {
             log::debug!("[EntityPage] Based on id {id}, got entity {:?}", ent);
@@ -142,6 +161,8 @@ async fn init(id: Signal<Id>, mut kind: Signal<String>, mut text_attrs: Signal<H
                 .collect();
             text_attrs.set(ta);
             kind.set(ent.kind);
+            def_id.set(ent.def_id);
+            listing_attr_def_id.set(ent.listing_attr_def_id);
         }
         Ok(None) => {
             log::error!("[EntityPage] Entity with id '{id}' not found");
@@ -152,34 +173,55 @@ async fn init(id: Signal<Id>, mut kind: Signal<String>, mut text_attrs: Signal<H
     }
 }
 
-async fn handle_update(id: Id, mut _saved: Signal<bool>, mut _err: Signal<Option<String>>) {
+async fn handle_update(
+    ent_id: Id,
+    kind: String,
+    def_id: Id,
+    text_attributes: Vec<TextAttribute>,
+    smallint_attributes: Vec<SmallintAttribute>,
+    int_attributes: Vec<IntegerAttribute>,
+    boolean_attributes: Vec<BooleanAttribute>,
+    listing_attr_def_id: Id,
+    mut saved: Signal<bool>,
+    mut err: Signal<Option<String>>,
+) {
     //
-    log::debug!("Updating entity w/ id:'{id}' ... ");
+    let ent = Entity::new_with_id_attrs(
+        ent_id,
+        kind,
+        def_id,
+        text_attributes,
+        smallint_attributes,
+        int_attributes,
+        boolean_attributes,
+        listing_attr_def_id,
+    );
 
-    // let item = EntityDef::new_with_attr_def_ids(id, name, description, attr_def_ids);
-    // match update_entity_def(item).await {
-    //     Ok(_) => {
-    //         saved.set(true);
-    //         err.set(None);
-    //     }
-    //     Err(e) => {
-    //         saved.set(false);
-    //         err.set(Some(e.to_string()));
-    //     }
-    // }
+    log::debug!("Updating entity '{:?}' ... ", ent);
+
+    match update_entity(ent).await {
+        Ok(_) => {
+            saved.set(true);
+            err.set(None);
+        }
+        Err(e) => {
+            saved.set(false);
+            err.set(Some(e.to_string()));
+        }
+    }
 }
 
-async fn handle_delete(id: Id, mut _saved: Signal<bool>, mut _err: Signal<Option<String>>) {
+async fn handle_delete(id: Id, mut saved: Signal<bool>, mut err: Signal<Option<String>>) {
     //
     log::debug!(">>> Deleting entity w/ id {:?}", id);
-    // match remove_entity_def(id.clone()).await {
-    //     Ok(_) => {
-    //         saved.set(true);
-    //         err.set(None);
-    //     }
-    //     Err(e) => {
-    //         saved.set(false);
-    //         err.set(Some(e.to_string()));
-    //     }
-    // }
+    match remove_entity(id.clone()).await {
+        Ok(_) => {
+            saved.set(true);
+            err.set(None);
+        }
+        Err(e) => {
+            saved.set(false);
+            err.set(Some(e.to_string()));
+        }
+    }
 }

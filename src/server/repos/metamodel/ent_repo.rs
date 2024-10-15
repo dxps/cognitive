@@ -119,12 +119,14 @@ impl EntityRepo {
 
     pub async fn add(&self, ent: &Entity) -> AppResult<()> {
         //
+        log::debug!("Adding entity: '{:?}'.", ent);
+
         let mut txn = self.dbcp.begin().await?;
 
         if let Err(e) =
             sqlx::query("INSERT INTO entities (id, def_id, listing_attr_def_id, listing_attr_name, listing_attr_value) VALUES ($1, $2, $3, $4, $5)")
                 .bind(&ent.id.as_str())
-                .bind(&ent.kind)
+                .bind(&ent.def_id.as_str())
                 .bind(&ent.listing_attr_def_id.as_str())
                 .bind(&ent.listing_attr_name)
                 .bind(&ent.listing_attr_value)
@@ -201,12 +203,54 @@ impl EntityRepo {
         }
 
         txn.commit().await?;
-
         Ok(())
     }
 
-    pub async fn update(&self, _ent: &Entity) -> AppResult<()> {
-        unimplemented!("TODO: Unimplemented")
+    pub async fn update(&self, ent: &Entity) -> AppResult<()> {
+        //
+        let mut txn = self.dbcp.begin().await?;
+
+        for attr in ent.text_attributes.clone() {
+            log::debug!("Updating entity id:'{}': text attribute def_id:'{}'", &ent.id, &attr.def_id);
+            if let Err(e) =
+                sqlx::query("UPDATE text_attributes SET value = $4 WHERE owner_id = $1 AND owner_type= $2 AND def_id= $3")
+                    .bind(&ent.id.as_str())
+                    .bind(ItemType::Entity.value())
+                    .bind(&attr.def_id.as_str())
+                    .bind(&attr.value)
+                    .execute(&mut *txn)
+                    .await
+            {
+                txn.rollback().await?;
+                log::error!(
+                    "Failed to update entity id:'{}' text attribute def_id:'{}'. Cause: '{}'.",
+                    &ent.id,
+                    &attr.def_id,
+                    e
+                );
+                return AppResult::Err(e.into());
+            }
+            if ent.listing_attr_def_id == attr.def_id {
+                if let Err(e) = sqlx::query("UPDATE entities SET listing_attr_value = $2 WHERE id = $1")
+                    .bind(&ent.id.as_str())
+                    .bind(&attr.value)
+                    .execute(&mut *txn)
+                    .await
+                {
+                    txn.rollback().await?;
+                    log::error!(
+                        "Failed to update entity id:'{}' listing attribute def_id:'{}'. Cause: '{}'.",
+                        &ent.id,
+                        &attr.def_id,
+                        e
+                    );
+                    return AppResult::Err(e.into());
+                }
+            }
+        }
+
+        txn.commit().await?;
+        Ok(())
     }
 
     pub async fn update_listing_attr_name_value_by_ent_def_id(&self, ent_def_id: &Id, attr_id: &Id) -> AppResult<()> {
@@ -271,14 +315,6 @@ impl EntityRepo {
 
     pub async fn update_listing_attr_name_by_attr_def_id(&self, attr_def_id: &Id, attr_name: &String) -> AppResult<()> {
         //
-        // let query = "SELECT entity_def_id FROM entity_defs_attribute_defs_xref WHERE attribute_def_id = $1";
-        // let mut txn = self.dbcp.begin().await?;
-        // let ent_def_ids = sqlx::query_as::<_, Id>(query)
-        //     .bind(attr_def_id.as_str())
-        //     .fetch_all(&mut *txn)
-        //     .await?;
-
-        // TODO continue
         let query = "UPDATE entities SET listing_attr_name = $2 WHERE listing_attr_def_id = $1";
         sqlx::query(query)
             .bind(attr_def_id.as_str())
@@ -286,13 +322,20 @@ impl EntityRepo {
             .execute(self.dbcp.as_ref())
             .await
             .map(|_| AppResult::Ok(()))?
-
-        // txn.commit().await?;
-        // Ok(())
     }
 
-    pub async fn remove(&self, _id: &Id) -> AppResult<()> {
-        unimplemented!("TODO: Unimplemented")
+    pub async fn remove(&self, id: &Id) -> AppResult<()> {
+        //
+        if let Err(e) = sqlx::query("DELETE FROM entities WHERE id = $1")
+            .bind(id.as_str())
+            .execute(self.dbcp.as_ref())
+            .await
+        {
+            log::error!("Failed to delete entity by id:'{}'. Cause: '{}'.", id, e);
+            return AppResult::Err(e.into());
+        }
+
+        Ok(())
     }
 }
 
@@ -301,7 +344,7 @@ impl FromRow<'_, PgRow> for Entity {
         Ok(Self {
             id: Id::from(row.get::<&str, &str>("id")),
             kind: row.get("kind"),
-            def_id: Some(Id::from(row.get::<&str, &str>("def_id"))),
+            def_id: Id::from(row.get::<&str, &str>("def_id")),
             text_attributes: vec![],
             smallint_attributes: vec![],
             int_attributes: vec![],
