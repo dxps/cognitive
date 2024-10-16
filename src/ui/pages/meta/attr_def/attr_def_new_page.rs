@@ -76,15 +76,18 @@ pub fn AttributeDefNewPage() -> Element {
                             button {
                                 class: "bg-gray-100 hover:bg-green-100 drop-shadow-sm px-4 py-2 rounded-md",
                                 onclick: move |_| {
-                                    let description = match description().is_empty() {
-                                        true => None,
-                                        false => Some(description()),
-                                    };
-                                    let tag_id = match tag_id().is_empty() {
-                                        true => None,
-                                        false => Some(tag_id()),
-                                    };
                                     async move {
+                                        if saved() {
+                                            navigator().push(Route::AttributeDefListPage {});
+                                        }
+                                        let description = match description().is_empty() {
+                                            true => None,
+                                            false => Some(description()),
+                                        };
+                                        let tag_id = match tag_id().is_empty() {
+                                            true => None,
+                                            false => Some(tag_id()),
+                                        };
                                         let item = AttributeDef {
                                             id: Id::default(),
                                             name: name(),
@@ -98,7 +101,11 @@ pub fn AttributeDefNewPage() -> Element {
                                         create_handler(item, saved, err).await;
                                     }
                                 },
-                                "Create"
+                                if saved() {
+                                    "Close"
+                                } else {
+                                    "Create"
+                                }
                             }
                         }
                     }
