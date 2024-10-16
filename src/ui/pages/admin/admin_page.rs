@@ -18,13 +18,13 @@ pub fn Admin() -> Element {
                             "Model Management"
                         }
                         p { class: "block font-sans text-base text-gray-500 font-light leading-relaxed text-inherit antialiased",
-                            "Manage the definitions of attributes, entities, and links, plus the instances of the model."
+                            "Manage the definitions and instances of attributes, entities, entities links, and tags."
                         }
                         hr { class: "mt-2 mb-4" }
                         div { class: "flex",
                             div { class: "pr-3 flex flex-col grow mr-1",
                                 h6 { class: "px-4 mb-2 pt-2 pb-1 block font-medium leading-snug tracking-normal text-gray-500 antialiased",
-                                    "Model Definitions"
+                                    "Definitions"
                                 }
                                 Link {
                                     class: "py-2 px-4 rounded transition duration-200",
@@ -39,7 +39,7 @@ pub fn Admin() -> Element {
                             }
                             div { class: "pr-3 flex flex-col grow ml-1",
                                 h6 { class: "px-4 mb-2 pt-2 pb-1 block font-medium leading-snug tracking-normal text-gray-500 antialiased",
-                                    "Model Instances"
+                                    "Instances"
                                 }
                                 Link {
                                     class: "py-2 px-4 rounded transition duration-200",

@@ -38,7 +38,7 @@ pub fn EntityDefListPage() -> Element {
                             }
                         }
                         hr { class: "pb-2" }
-                        p { class: "pb-4",
+                        p { class: "pb-4 text-gray-500",
                             if items.is_empty() {
                                 "There are no entities definitions."
                             } else {

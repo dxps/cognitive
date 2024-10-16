@@ -68,8 +68,13 @@ fn EntityCard(ent: Entity) -> Element {
             },
             div { class: "flex flex-col p-2 my-3 bg-white rounded border hover:bg-slate-100 transition duration-200",
                 div { class: "flex justify-between text-gray-600",
-                    p { class: "text-sm leading-5 text-gray-600 pt-1 pl-2",
-                        "{ent.listing_attr_name}: {ent.listing_attr_value}"
+                    div { class: "flex ",
+                        p { class: "text-sm leading-5 text-gray-400 pt-1 pl-2",
+                            "{ent.listing_attr_name}:"
+                        }
+                        p { class: "text-sm leading-5 text-gray-800 font-medium pt-1 pl-2",
+                            "{ent.listing_attr_value}"
+                        }
                     }
                     p { class: "mt-1 text-xs bg-slate-100 hover:bg-white rounded-lg px-2 leading-snug tracking-normal antialiased",
                         "{ent.kind}"

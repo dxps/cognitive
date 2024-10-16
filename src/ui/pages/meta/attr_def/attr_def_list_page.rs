@@ -46,7 +46,9 @@ pub fn AttributeDefListPage() -> Element {
                             }
                         }
                         hr { class: "pb-2" }
-                        p { class: "pb-4", "The following attributes definitions exist." }
+                        p { class: "pb-4 text-gray-500",
+                            "The following attributes definitions exist."
+                        }
                         for attr in entries() {
                             AttrDefCard { attr_def: attr.clone(), tags: tags() }
                         }
@@ -74,7 +76,7 @@ fn AttrDefCard(props: AttrDefCardProps) -> Element {
             to: Route::AttributeDefPage {
                 attr_def_id: attr_def.id,
             },
-            div { class: "flex flex-col p-2 my-3 bg-white rounded border hover:bg-slate-100 transition duration-200",
+            div { class: "flex flex-col p-3 my-3 bg-white rounded border hover:bg-gray-100 hover:border-gray-100 transition duration-200",
                 div { class: "flex justify-between text-gray-600",
                     p { class: "font-medium leading-snug tracking-normal antialiased",
                         "{attr_def.name}"
@@ -89,10 +91,8 @@ fn AttrDefCard(props: AttrDefCardProps) -> Element {
                     }
                     {   if attr_def.tag_id.is_some() {
                         let tag_id = attr_def.tag_id.unwrap();
-                        log::debug!(">>> tag_id: {}", tag_id);
                         match tags.get(&tag_id) {
                                 Some(tag) => {
-                                    log::debug!(">>> tag: {:?}", tag);
                                     rsx! { p { class: "text-xs leading-5 bg-slate-100 rounded-lg px-2", {tag.name.clone()} } }
                                 }
                                 None => {

@@ -109,7 +109,7 @@ pub fn TagPage(id: Id) -> Element {
                                         }
                                     }
                                 },
-                                if action() == Action::View {
+                                if action() == Action::View || saved() {
                                     "Edit"
                                 } else {
                                     "Update"

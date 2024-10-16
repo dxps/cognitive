@@ -39,12 +39,12 @@ pub fn TagListPage() -> Element {
                         }
                         hr { class: "pb-2" }
                         if !tags_loaded() {
-                            p { class: "pb-4", "Loading tags ..." }
+                            p { class: "pb-4 text-gray-500", "Loading tags ..." }
                         } else {
                             if tags().is_empty() {
-                                p { class: "pb-4", "No tags exist." }
+                                p { class: "pb-4 text-gray-500", "No tags exist." }
                             } else {
-                                p { class: "pb-4", "The following tags exist." }
+                                p { class: "pb-4 text-gray-500", "The following tags exist." }
                                 for item in tags().values() {
                                     TagCard { item: item.clone() }
                                 }
@@ -67,8 +67,8 @@ fn TagCard(item: Tag) -> Element {
                         "{item.name}"
                     }
                 }
-                div { class: "flex justify-between text-gray-600",
-                    p { class: "text-xs leading-5 text-gray-600 pt-1",
+                div { class: "flex justify-between",
+                    p { class: "text-xs leading-5 text-gray-500 pt-1 inline-block",
                         "{item.description.unwrap_or_default()}"
                     }
                 }

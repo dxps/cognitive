@@ -158,7 +158,7 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
                                         }
                                     }
                                 },
-                                if action() == Action::View {
+                                if action() == Action::View || saved() {
                                     "Edit"
                                 } else if action() == Action::Delete {
                                     "  -  "
