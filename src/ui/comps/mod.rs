@@ -10,8 +10,8 @@ pub use gt_sep::*;
 mod metamodel;
 pub use metamodel::*;
 
-mod modal;
-pub use modal::*;
+mod modals;
+pub use modals::*;
 
 mod select;
 pub use select::*;

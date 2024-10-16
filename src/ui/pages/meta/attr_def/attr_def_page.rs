@@ -2,7 +2,7 @@ use crate::{
     domain::model::{AttributeDef, Id},
     server::fns::{get_attribute_def, remove_attr_def, update_attribute_def},
     ui::{
-        comps::{AttributeDefForm, Breadcrumb, Modal, Nav},
+        comps::{AttributeDefForm, Breadcrumb, ConfirmDeleteModal, Nav},
         routes::Route,
         Action, UI_GLOBALS,
     },
@@ -95,31 +95,6 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
                             tags: tags(),
                             action: action()
                         }
-                        if show_delete_confirm() {
-                            Modal {
-                                title: "Confirm Delete",
-                                content: "Are you sure you want to delete this attribute definition?",
-                                div { class: "flex justify-between mt-8",
-                                    button {
-                                        class: "text-red-600 bg-red-50 hover:text-red-800 hover:bg-red-100 drop-shadow-sm px-4 rounded-md",
-                                        onclick: move |_| {
-                                            let id = id();
-                                            action.set(Action::Delete);
-                                            show_delete_confirm.set(false);
-                                            async move { handle_delete(&id, action_done, err).await }
-                                        },
-                                        "Delete"
-                                    }
-                                    button {
-                                        class: "bg-gray-100 bg-green-100 enabled:hover:bg-green-100 disabled:text-gray-400 hover:disabled:bg-gray-100 drop-shadow-sm px-4 rounded-md",
-                                        onclick: move |_| {
-                                            show_delete_confirm.set(false);
-                                        },
-                                        "Cancel"
-                                    }
-                                }
-                            }
-                        }
                         div { class: "flex justify-between mt-8",
                             button {
                                 class: "text-red-200 bg-slate-50 hover:text-red-600 hover:bg-red-100 drop-shadow-sm px-4 rounded-md",
@@ -196,27 +171,16 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
                 }
             }
             if show_delete_confirm() {
-                Modal {
+                ConfirmDeleteModal {
                     title: "Confirm Delete",
                     content: "Are you sure you want to delete this attribute definition?",
-                    div { class: "flex justify-between mt-8",
-                        button {
-                            class: "text-red-600 bg-red-50 hover:text-red-800 hover:bg-red-100 drop-shadow-sm px-4 rounded-md",
-                            onclick: move |_| {
-                                let id = id();
-                                action.set(Action::Delete);
-                                show_delete_confirm.set(false);
-                                async move { handle_delete(&id, action_done, err).await }
-                            },
-                            "Delete"
-                        }
-                        button {
-                            class: "bg-gray-100 bg-green-100 enabled:hover:bg-green-100 disabled:text-gray-400 hover:disabled:bg-gray-100 drop-shadow-sm px-4 rounded-md",
-                            onclick: move |_| {
-                                show_delete_confirm.set(false);
-                            },
-                            "Cancel"
-                        }
+                    action,
+                    show_delete_confirm,
+                    delete_handler: move |_| {
+                        spawn(async move {
+                            log::debug!("Calling handle_delete ...");
+                            handle_delete(&id(), action_done, err).await;
+                        });
                     }
                 }
             }
