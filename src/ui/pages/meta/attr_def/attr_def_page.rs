@@ -2,7 +2,7 @@ use crate::{
     domain::model::{AttributeDef, Id},
     server::fns::{get_attribute_def, remove_attr_def, update_attribute_def},
     ui::{
-        comps::{AttributeDefForm, Breadcrumb, Nav},
+        comps::{AttributeDefForm, Breadcrumb, Modal, Nav},
         routes::Route,
         Action, UI_GLOBALS,
     },
@@ -31,8 +31,10 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
 
     let mut action = use_signal(|| Action::View);
 
+    let mut show_delete_confirm = use_signal(|| false);
+
     let mut err: Signal<Option<String>> = use_signal(|| None);
-    let saved = use_signal(|| false);
+    let action_done = use_signal(|| false);
 
     use_future(move || async move {
         tags.set(UI_GLOBALS.get_tags().await);
@@ -93,13 +95,36 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
                             tags: tags(),
                             action: action()
                         }
+                        if show_delete_confirm() {
+                            Modal {
+                                title: "Confirm Delete",
+                                content: "Are you sure you want to delete this attribute definition?",
+                                div { class: "flex justify-between mt-8",
+                                    button {
+                                        class: "text-red-600 bg-red-50 hover:text-red-800 hover:bg-red-100 drop-shadow-sm px-4 rounded-md",
+                                        onclick: move |_| {
+                                            let id = id();
+                                            action.set(Action::Delete);
+                                            show_delete_confirm.set(false);
+                                            async move { handle_delete(&id, action_done, err).await }
+                                        },
+                                        "Delete"
+                                    }
+                                    button {
+                                        class: "bg-gray-100 bg-green-100 enabled:hover:bg-green-100 disabled:text-gray-400 hover:disabled:bg-gray-100 drop-shadow-sm px-4 rounded-md",
+                                        onclick: move |_| {
+                                            show_delete_confirm.set(false);
+                                        },
+                                        "Cancel"
+                                    }
+                                }
+                            }
+                        }
                         div { class: "flex justify-between mt-8",
                             button {
                                 class: "text-red-200 bg-slate-50 hover:text-red-600 hover:bg-red-100 drop-shadow-sm px-4 rounded-md",
                                 onclick: move |_| {
-                                    let id = id();
-                                    action.set(Action::Delete);
-                                    async move { handle_delete(&id, saved, err).await }
+                                    show_delete_confirm.set(true);
                                 },
                                 "Delete"
                             }
@@ -109,7 +134,7 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
                                     span { class: "text-red-600 flex justify-center",
                                         { err().unwrap() }
                                     }
-                                } else if saved() {
+                                } else if action_done() {
                                     span { class: "text-green-600 flex justify-center",
                                         {
                                             if action() == Action::Edit {
@@ -154,11 +179,11 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
                                                 is_multivalued(),
                                                 tag_id,
                                             );
-                                            handle_update(item, saved, err).await;
+                                            handle_update(item, action_done, err).await;
                                         }
                                     }
                                 },
-                                if action() == Action::View || saved() {
+                                if action() == Action::View || action_done() {
                                     "Edit"
                                 } else if action() == Action::Delete {
                                     "  -  "
@@ -166,6 +191,31 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
                                     "Update"
                                 }
                             }
+                        }
+                    }
+                }
+            }
+            if show_delete_confirm() {
+                Modal {
+                    title: "Confirm Delete",
+                    content: "Are you sure you want to delete this attribute definition?",
+                    div { class: "flex justify-between mt-8",
+                        button {
+                            class: "text-red-600 bg-red-50 hover:text-red-800 hover:bg-red-100 drop-shadow-sm px-4 rounded-md",
+                            onclick: move |_| {
+                                let id = id();
+                                action.set(Action::Delete);
+                                show_delete_confirm.set(false);
+                                async move { handle_delete(&id, action_done, err).await }
+                            },
+                            "Delete"
+                        }
+                        button {
+                            class: "bg-gray-100 bg-green-100 enabled:hover:bg-green-100 disabled:text-gray-400 hover:disabled:bg-gray-100 drop-shadow-sm px-4 rounded-md",
+                            onclick: move |_| {
+                                show_delete_confirm.set(false);
+                            },
+                            "Cancel"
                         }
                     }
                 }
