@@ -5,7 +5,9 @@ pub struct Id(pub String);
 
 impl Id {
     pub fn new() -> Self {
-        nid::Nanoid::<10>::new().to_string().into()
+        Self {
+            0: nid::Nanoid::<10>::new().to_string(),
+        }
     }
 
     pub fn new_from(id: String) -> Self {

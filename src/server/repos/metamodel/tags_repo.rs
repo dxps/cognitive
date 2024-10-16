@@ -80,10 +80,6 @@ impl TagsRepo {
 
 impl FromRow<'_, PgRow> for Tag {
     fn from_row(row: &PgRow) -> Result<Self, sqlx::Error> {
-        Ok(Tag::new(
-            Id::from(row.get::<&str, &str>("id")),
-            row.get("name"),
-            row.get("description"),
-        ))
+        Ok(Tag::new(Id::new_from(row.get("id")), row.get("name"), row.get("description")))
     }
 }

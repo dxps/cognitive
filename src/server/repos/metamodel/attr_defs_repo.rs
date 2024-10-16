@@ -127,7 +127,7 @@ impl FromRow<'_, PgRow> for AttributeDef {
             Err(_) => None,
         };
         Ok(Self {
-            id: Id::from(row.get::<&str, &str>("id")),
+            id: Id::new_from(row.get("id")),
             name: row.get("name"),
             description: row.get("description"),
             value_type: AttributeValueType::from(row.get::<&str, &str>("value_type")),

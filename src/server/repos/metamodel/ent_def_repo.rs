@@ -169,7 +169,6 @@ impl EntityDefRepo {
 
     pub async fn remove(&self, id: &Id) -> AppResult<()> {
         //
-        log::debug!(">>> Deleting entity def: {:?}", id);
         let mut txn = self.dbcp.begin().await?;
 
         if let Err(e) = sqlx::query("DELETE FROM entity_defs_attribute_defs_xref WHERE entity_def_id = $1")

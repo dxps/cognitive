@@ -8,7 +8,7 @@ use sqlx::{
 
 impl FromRow<'_, PgRow> for Id {
     fn from_row(row: &PgRow) -> Result<Self, Error> {
-        Ok(Id::from(row.get::<&str, _>("id")))
+        Ok(Id::new_from(row.get("id")))
     }
 }
 

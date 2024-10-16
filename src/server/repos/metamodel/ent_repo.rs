@@ -342,14 +342,14 @@ impl EntityRepo {
 impl FromRow<'_, PgRow> for Entity {
     fn from_row(row: &PgRow) -> Result<Self, sqlx::Error> {
         Ok(Self {
-            id: Id::from(row.get::<&str, &str>("id")),
+            id: Id::new_from(row.get("id")),
             kind: row.get("kind"),
-            def_id: Id::from(row.get::<&str, &str>("def_id")),
+            def_id: Id::new_from(row.get("def_id")),
             text_attributes: vec![],
             smallint_attributes: vec![],
             int_attributes: vec![],
             boolean_attributes: vec![],
-            listing_attr_def_id: Id::from(row.get::<&str, &str>("listing_attr_def_id")),
+            listing_attr_def_id: Id::new_from(row.get("listing_attr_def_id")),
             listing_attr_name: row.get("listing_attr_name"),
             listing_attr_value: row.get("listing_attr_value"),
         })
@@ -359,35 +359,32 @@ impl FromRow<'_, PgRow> for Entity {
 fn fill_in_entity_attributes(ent: &mut Entity, rows: Vec<PgRow>) {
     //
     for row in rows {
-        match row.get::<&str, &str>("value_type") {
+        let name: String = row.get("name");
+        let value_type: &str = row.get("value_type");
+        let def_id = Id::new_from(row.get("def_id"));
+        match value_type {
             "text" => {
-                log::debug!("Found text attribute '{}'.", row.get::<&str, &str>("name"));
+                log::debug!("Found text attribute '{}'.", name);
                 ent.text_attributes.push(TextAttribute::new(
-                    row.get("name"),
+                    name,
                     row.get("text_value"),
-                    Id::from(row.get::<&str, &str>("def_id")),
+                    def_id,
                     ent.id.clone(),
                     ItemType::Entity,
                 ));
             }
             "smallint" => {
-                log::debug!("Found smallint attribute '{}'.", row.get::<&str, &str>("name"));
-                ent.smallint_attributes.push(SmallintAttribute::new(
-                    row.get("name"),
-                    row.get("smallint_value"),
-                    Id::from(row.get::<&str, &str>("def_id")),
-                ));
+                log::debug!("Found smallint attribute '{}'.", name);
+                ent.smallint_attributes
+                    .push(SmallintAttribute::new(name, row.get("smallint_value"), def_id));
             }
             "integer" => {
-                log::debug!("Found integer attribute '{}'.", row.get::<&str, &str>("name"));
-                ent.int_attributes.push(IntegerAttribute::new(
-                    row.get("name"),
-                    row.get("integer_value"),
-                    Id::from(row.get::<&str, &str>("def_id")),
-                ));
+                log::debug!("Found integer attribute '{}'.", name);
+                ent.int_attributes
+                    .push(IntegerAttribute::new(name, row.get("integer_value"), def_id));
             }
             _ => {
-                log::debug!("Found attribute '{}'.", row.get::<&str, &str>("name"));
+                log::debug!("[fill_in_entity_attributes] Found attribute '{}' but not handled.", name);
             }
         }
     }
