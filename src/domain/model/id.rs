@@ -1,7 +1,7 @@
 use std::{fmt::Display, str::FromStr};
 
 #[derive(Debug, Default, Clone, Hash, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct Id(String);
+pub struct Id(pub String);
 
 impl Id {
     pub fn new() -> Self {

@@ -11,6 +11,6 @@ pub async fn connect_to_pgdb() -> Result<PgPool, AppError> {
         .max_connections(3)
         .connect(db_url.as_str())
         .await
-        .expect("Failed to connect to the database");
+        .map_err(|_| AppError::Err("Failed to connect to database".into()))?;
     Ok(pool)
 }
