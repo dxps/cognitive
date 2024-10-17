@@ -24,7 +24,7 @@ pub fn AttributeDefNewPage() -> Element {
     let mut tags = use_signal(|| Arc::new(HashMap::new()));
 
     let err: Signal<Option<String>> = use_signal(|| None);
-    let saved = use_signal(|| false);
+    let action_done = use_signal(|| false);
 
     use_future(move || async move {
         tags.set(UI_GLOBALS.get_tags().await);
@@ -67,7 +67,7 @@ pub fn AttributeDefNewPage() -> Element {
                                     span { class: "text-red-600 flex justify-center",
                                         { err().unwrap() }
                                     }
-                                } else if saved() {
+                                } else if action_done() {
                                     span { class: "text-green-600 flex justify-center",
                                         { "Successfully created" }
                                     }
@@ -77,31 +77,32 @@ pub fn AttributeDefNewPage() -> Element {
                                 class: "bg-gray-100 hover:bg-green-100 drop-shadow-sm px-4 py-2 rounded-md",
                                 onclick: move |_| {
                                     async move {
-                                        if saved() {
+                                        if action_done() {
                                             navigator().push(Route::AttributeDefListPage {});
+                                        } else {
+                                            let description = match description().is_empty() {
+                                                true => None,
+                                                false => Some(description()),
+                                            };
+                                            let tag_id = match tag_id().is_empty() {
+                                                true => None,
+                                                false => Some(tag_id()),
+                                            };
+                                            let item = AttributeDef {
+                                                id: Id::default(),
+                                                name: name(),
+                                                description,
+                                                value_type: value_type().into(),
+                                                default_value: default_value(),
+                                                is_required: is_required(),
+                                                is_multivalued: is_multivalued(),
+                                                tag_id,
+                                            };
+                                            create_handler(item, action_done, err).await;
                                         }
-                                        let description = match description().is_empty() {
-                                            true => None,
-                                            false => Some(description()),
-                                        };
-                                        let tag_id = match tag_id().is_empty() {
-                                            true => None,
-                                            false => Some(tag_id()),
-                                        };
-                                        let item = AttributeDef {
-                                            id: Id::default(),
-                                            name: name(),
-                                            description,
-                                            value_type: value_type().into(),
-                                            default_value: default_value(),
-                                            is_required: is_required(),
-                                            is_multivalued: is_multivalued(),
-                                            tag_id,
-                                        };
-                                        create_handler(item, saved, err).await;
                                     }
                                 },
-                                if saved() {
+                                if action_done() {
                                     "Close"
                                 } else {
                                     "Create"
