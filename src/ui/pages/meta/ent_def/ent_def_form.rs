@@ -17,15 +17,18 @@ pub struct EntityDefFormProps {
 #[component]
 pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
     //
-    let action = props.action;
+    let EntityDefFormProps {
+        mut name,
+        mut description,
+        mut included_attr_defs,
+        mut listing_attr_def_id,
+        mut all_attr_defs,
+        action,
+        saved,
+        mut err,
+    } = props;
+
     let is_view = action == "View";
-    let mut name = props.name;
-    let mut description = props.description;
-    let mut included_attr_defs = props.included_attr_defs;
-    let mut listing_attr_def_id = props.listing_attr_def_id;
-    let mut all_attr_defs = props.all_attr_defs;
-    let saved = props.saved;
-    let mut err = props.err;
 
     let mut selected_attr_def_id = use_signal(|| Id::default());
     let mut selected_attr_def_name = use_signal(|| "".to_string());
@@ -84,8 +87,11 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
                                 temp.retain(|(iid, _)| *iid != id);
                                 included_attr_defs.set(temp);
                                 let mut temp = all_attr_defs();
-                                temp.insert(id, name);
+                                temp.insert(id.clone(), name);
                                 all_attr_defs.set(temp);
+                                if listing_attr_def_id() == id {
+                                    listing_attr_def_id.set(Id::default());
+                                }
                             },
                             "-"
                         }
@@ -147,6 +153,9 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
                     onclick: move |_| {
                         if selected_attr_def_id().is_empty() {
                             return;
+                        }
+                        if listing_attr_def_id().is_empty() {
+                            listing_attr_def_id.set(selected_attr_def_id());
                         }
                         let mut included = included_attr_defs();
                         included.push((selected_attr_def_id(), selected_attr_def_name()));
