@@ -29,11 +29,21 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
     let boolean_attrs = use_signal::<HashMap<Id, BooleanAttribute>>(|| HashMap::new());
 
     let mut action = use_signal(|| Action::View);
-    let mut err: Signal<Option<String>> = use_signal(|| None);
+    let err: Signal<Option<String>> = use_signal(|| None);
     let saved = use_signal(|| false);
 
     use_future(move || async move {
-        init(id, kind, def_id, text_attrs, listing_attr_def_id).await;
+        init(
+            id,
+            kind,
+            def_id,
+            text_attrs,
+            smallint_attrs,
+            int_attrs,
+            boolean_attrs,
+            listing_attr_def_id,
+        )
+        .await;
     });
 
     rsx! {
@@ -149,17 +159,38 @@ async fn init(
     mut kind: Signal<String>,
     mut def_id: Signal<Id>,
     mut text_attrs: Signal<HashMap<Id, TextAttribute>>,
+    mut smallint_attrs: Signal<HashMap<Id, SmallintAttribute>>,
+    mut int_attrs: Signal<HashMap<Id, IntegerAttribute>>,
+    mut boolean_attrs: Signal<HashMap<Id, BooleanAttribute>>,
     mut listing_attr_def_id: Signal<Id>,
 ) {
     match get_entity(id()).await {
         Ok(Some(ent)) => {
             log::debug!("[EntityPage] Based on id {id}, got entity {:?}", ent);
-            let ta: HashMap<Id, TextAttribute> = ent
+            let attrs: HashMap<Id, TextAttribute> = ent
                 .text_attributes
                 .iter()
                 .map(|attr| (attr.name.clone().into(), attr.clone()))
                 .collect();
-            text_attrs.set(ta);
+            text_attrs.set(attrs);
+            let attrs: HashMap<Id, SmallintAttribute> = ent
+                .smallint_attributes
+                .iter()
+                .map(|attr| (attr.name.clone().into(), attr.clone()))
+                .collect();
+            smallint_attrs.set(attrs);
+            let attrs: HashMap<Id, IntegerAttribute> = ent
+                .int_attributes
+                .iter()
+                .map(|attr| (attr.name.clone().into(), attr.clone()))
+                .collect();
+            int_attrs.set(attrs);
+            let attrs: HashMap<Id, BooleanAttribute> = ent
+                .boolean_attributes
+                .iter()
+                .map(|attr| (attr.name.clone().into(), attr.clone()))
+                .collect();
+            boolean_attrs.set(attrs);
             kind.set(ent.kind);
             def_id.set(ent.def_id);
             listing_attr_def_id.set(ent.listing_attr_def_id);

@@ -67,43 +67,43 @@ impl EntityRepo {
                         JOIN text_attributes a ON a.def_id = ad.id  
                         WHERE a.owner_id = $1
                     UNION ALL 
-                    SELECT ad.id, ad.name, ad.value_type, '' as text_value, a.value as smallint_value, 0 as integer_value, 0 as bigint_value, 0 as real_value,
+                    SELECT ad.name, ad.value_type, a.def_id, '' as text_value, a.value as smallint_value, 0 as integer_value, 0 as bigint_value, 0 as real_value,
                         false as bool_value, CURRENT_DATE as date_value, CURRENT_TIMESTAMP as timestamp_value
                         FROM attribute_defs ad
                         JOIN smallint_attributes a ON a.def_id = ad.id
                         WHERE a.owner_type = 'eni' and a.owner_id = $1
                     UNION ALL 
-                    SELECT ad.id, ad.name, ad.value_type, '' as text_value, 0 as smallint_value, a.value as integer_value, 0 as bigint_value, 0 as real_value, 
+                    SELECT ad.name, ad.value_type, a.def_id, '' as text_value, 0 as smallint_value, a.value as integer_value, 0 as bigint_value, 0 as real_value, 
                         false as bool_value, CURRENT_DATE as date_value, CURRENT_TIMESTAMP as timestamp_value 
                         FROM attribute_defs ad
                         JOIN integer_attributes a ON a.def_id = ad.id
                         WHERE a.owner_type = 'eni' and a.owner_id = $1
                     UNION ALL 
-                    SELECT ad.id, ad.name, ad.value_type, '' as text_value, 0 as smallint_value, 0 as integer_value, a.value as bigint_value, 0 as real_value,
+                    SELECT ad.name, ad.value_type, a.def_id, '' as text_value, 0 as smallint_value, 0 as integer_value, a.value as bigint_value, 0 as real_value,
                         false as bool_value, CURRENT_DATE as date_value, CURRENT_TIMESTAMP as timestamp_value 
                         FROM attribute_defs ad
                         JOIN bigint_attributes a ON a.def_id = ad.id
                         WHERE a.owner_type = 'eni' and a.owner_id = $1
                     UNION ALL 
-                    SELECT ad.id, ad.name, ad.value_type, '' as text_value, 0 as smallint_value, 0 integer_value, 0 as bigint_value, a.value as real_value,
+                    SELECT ad.name, ad.value_type, a.def_id, '' as text_value, 0 as smallint_value, 0 integer_value, 0 as bigint_value, a.value as real_value,
                         false as bool_value, CURRENT_DATE as date_value, CURRENT_TIMESTAMP as timestamp_value
                         FROM attribute_defs ad
                         JOIN real_attributes a ON a.def_id = ad.id
                         WHERE a.owner_type = 'eni' and a.owner_id = $1
                     UNION ALL 
-                    SELECT ad.id, ad.name, ad.value_type, '' as text_value, 0 as smallint_value, 0 integer_value, 0 as bigint_value, 0 as real_value,
+                    SELECT ad.name, ad.value_type, a.def_id, '' as text_value, 0 as smallint_value, 0 integer_value, 0 as bigint_value, 0 as real_value,
                         false as bool_value, CURRENT_DATE as date_value, CURRENT_TIMESTAMP as timestamp_value
                         FROM attribute_defs ad
                         JOIN boolean_attributes a ON a.def_id = ad.id
                         WHERE a.owner_type = 'eni' and a.owner_id = $1
                     UNION ALL 
-                    SELECT ad.id, ad.name, ad.value_type, '' as text_value, 0 as smallint_value, 0 integer_value, 0 as bigint_value, 0 as real_value,
+                    SELECT ad.name, ad.value_type, a.def_id, '' as text_value, 0 as smallint_value, 0 integer_value, 0 as bigint_value, 0 as real_value,
                         false as bool_value, a.value as date_value, CURRENT_TIMESTAMP as timestamp_value 
                         FROM attribute_defs ad
                         JOIN date_attributes a ON a.def_id = ad.id
                         WHERE a.owner_type = 'eni' and a.owner_id = $1
                     UNION ALL 
-                    SELECT ad.id, ad.name, ad.value_type, '' as text_value, 0 as smallint_value, 0 integer_value, 0 as bigint_value, 0 as real_value,
+                    SELECT ad.name, ad.value_type, a.def_id, '' as text_value, 0 as smallint_value, 0 integer_value, 0 as bigint_value, 0 as real_value,
                         false as bool_value, CURRENT_DATE as date_value, a.value as timestamp_value 
                         FROM attribute_defs ad
                         JOIN timestamp_attributes a ON a.def_id = ad.id
@@ -384,7 +384,11 @@ fn fill_in_entity_attributes(ent: &mut Entity, rows: Vec<PgRow>) {
                     .push(IntegerAttribute::new(name, row.get("integer_value"), def_id));
             }
             _ => {
-                log::debug!("[fill_in_entity_attributes] Found attribute '{}' but not handled.", name);
+                log::debug!(
+                    "[fill_in_entity_attributes] Found attribute w/ value_type: '{}' name:'{}' but not handled.",
+                    value_type,
+                    name
+                );
             }
         }
     }
