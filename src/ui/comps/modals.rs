@@ -17,7 +17,7 @@ pub fn Modal(props: ModalProps) -> Element {
         children,
     } = props;
     rsx! {
-        div { class: "fixed inset-0 p-4 flex flex-wrap justify-center items-center w-full h-full z-[1000] before:fixed before:inset-0 before:w-full before:h-full before:bg-[rgba(0,0,0,0.5)] overflow-auto font-[sans-serif]",
+        div { class: "fixed inset-0 p-4 flex flex-wrap justify-center items-center w-full h-full z-[1000] before:fixed before:inset-0 before:w-full before:h-full before:bg-[rgba(0,0,0,0.5)] overflow-auto",
             div { class: "w-full max-w-lg bg-white shadow-lg rounded-lg p-8 relative",
                 div {
                     h4 { class: "text-sm text-gray-800 font-semibold", {title} }
@@ -48,7 +48,7 @@ pub fn ConfirmDeleteModal(props: ConfirmDeleteModalProps) -> Element {
         delete_handler,
     } = props;
     rsx! {
-        div { class: "fixed inset-0 p-4 flex flex-wrap justify-center items-center w-full h-full z-[1000] before:fixed before:inset-0 before:w-full before:h-full before:bg-[rgba(0,0,0,0.5)] overflow-auto font-[sans-serif]",
+        div { class: "fixed inset-0 p-4 flex flex-wrap justify-center items-center w-full h-full z-[1000] before:fixed before:inset-0 before:w-full before:h-full before:bg-[rgba(0,0,0,0.5)] overflow-auto",
             div { class: "w-full max-w-lg bg-white shadow-lg rounded-lg p-8 relative",
                 div {
                     h4 { class: "text-sm text-gray-800 font-semibold", {title} }

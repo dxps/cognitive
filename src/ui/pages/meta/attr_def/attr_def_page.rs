@@ -125,12 +125,14 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
                             }
                             button {
                                 class: "bg-gray-100 enabled:hover:bg-green-100 disabled:text-gray-400 hover:disabled:bg-gray-100 drop-shadow-sm px-4 rounded-md",
-                                disabled: action() == Action::Delete,
                                 onclick: move |_| {
                                     let curr_action = action().clone();
                                     async move {
                                         if curr_action == Action::View {
                                             action.set(Action::Edit);
+                                        }
+                                        if action() == Action::Delete && action_done() {
+                                            navigator().push(Route::AttributeDefListPage {});
                                         } else {
                                             if name().is_empty() {
                                                 err.set(Some("Name cannot be empty".to_string()));
@@ -158,10 +160,10 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
                                         }
                                     }
                                 },
-                                if action() == Action::View || action_done() {
+                                if action() == Action::View {
                                     "Edit"
-                                } else if action() == Action::Delete {
-                                    "  -  "
+                                } else if action() == Action::Delete && action_done() {
+                                    "Close"
                                 } else {
                                     "Update"
                                 }
