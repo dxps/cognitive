@@ -2,7 +2,7 @@ use crate::{
     domain::model::{BooleanAttribute, Entity, Id, IntegerAttribute, SmallintAttribute, TextAttribute},
     server::fns::{get_entity, remove_entity, update_entity},
     ui::{
-        comps::{Breadcrumb, EntityForm, Nav},
+        comps::{Breadcrumb, ConfirmDeleteModal, EntityForm, Nav, SuccessModal},
         routes::Route,
         Action,
     },
@@ -28,9 +28,10 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
     let int_attrs = use_signal::<HashMap<Id, IntegerAttribute>>(|| HashMap::new());
     let boolean_attrs = use_signal::<HashMap<Id, BooleanAttribute>>(|| HashMap::new());
 
+    let mut show_delete_confirm = use_signal(|| false);
     let mut action = use_signal(|| Action::View);
     let err: Signal<Option<String>> = use_signal(|| None);
-    let saved = use_signal(|| false);
+    let action_done = use_signal(|| false);
 
     use_future(move || async move {
         init(
@@ -82,8 +83,7 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
                             button {
                                 class: "text-red-300 hover:text-red-600 hover:bg-red-100 drop-shadow-sm px-4 rounded-md",
                                 onclick: move |_| {
-                                    action.set(Action::Delete);
-                                    async move { handle_delete(id(), saved, err).await }
+                                    show_delete_confirm.set(true);
                                 },
                                 "Delete"
                             }
@@ -91,7 +91,7 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
                             div { class: "min-w-[400px] max-w-[400px] text-sm flex justify-center items-center",
                                 if err().is_some() {
                                     span { class: "text-red-600", { err().unwrap() } }
-                                } else if saved() {
+                                } else if action_done() {
                                     span { class: "text-green-600",
                                         {
                                             if action() == Action::Edit {
@@ -117,7 +117,7 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
                                                 navigator().push(Route::EntityListPage {});
                                             }
                                             Action::Edit => {
-                                                if saved() {
+                                                if action_done() {
                                                     navigator().push(Route::EntityListPage {});
                                                 } else {
                                                     handle_update(
@@ -129,7 +129,7 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
                                                             int_attrs().values().cloned().collect(),
                                                             boolean_attrs().values().cloned().collect(),
                                                             listing_attr_def_id(),
-                                                            saved,
+                                                            action_done,
                                                             err,
                                                         )
                                                         .await;
@@ -138,7 +138,7 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
                                         }
                                     }
                                 },
-                                if action() == Action::View || (action() == Action::Edit && saved()) {
+                                if action() == Action::View || (action() == Action::Edit && action_done()) {
                                     "Edit"
                                 } else if action() == Action::Delete {
                                     "Close"
@@ -147,6 +147,30 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
                                 }
                             }
                         }
+                    }
+                }
+            }
+            if show_delete_confirm() {
+                if action() != Action::Delete {
+                    ConfirmDeleteModal {
+                        title: "Confirm Delete",
+                        content: "Are you sure you want to delete this entity?",
+                        action,
+                        show_delete_confirm,
+                        delete_handler: move |_| {
+                            spawn(async move {
+                                log::debug!("Calling handle_delete ...");
+                                handle_delete(&id(), action_done, err).await;
+                            });
+                        }
+                    }
+                }
+            } else if action() == Action::Delete && action_done() {
+                SuccessModal {
+                    title: "Delete Confirmed",
+                    content: "The entity has been successfully deleted.",
+                    action_handler: move |_| {
+                        navigator().push(Route::EntityListPage {});
                     }
                 }
             }
@@ -242,16 +266,16 @@ async fn handle_update(
     }
 }
 
-async fn handle_delete(id: Id, mut saved: Signal<bool>, mut err: Signal<Option<String>>) {
+async fn handle_delete(id: &Id, mut action_done: Signal<bool>, mut err: Signal<Option<String>>) {
     //
     log::debug!(">>> Deleting entity w/ id {:?}", id);
     match remove_entity(id.clone()).await {
         Ok(_) => {
-            saved.set(true);
+            action_done.set(true);
             err.set(None);
         }
         Err(e) => {
-            saved.set(false);
+            action_done.set(false);
             err.set(Some(e.to_string()));
         }
     }
