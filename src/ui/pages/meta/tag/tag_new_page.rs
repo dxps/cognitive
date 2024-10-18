@@ -2,7 +2,7 @@ use crate::{
     domain::model::{Id, Tag},
     server::fns::create_tag,
     ui::{
-        comps::{Breadcrumb, Nav, TagForm},
+        comps::{AcknowledgeModal, Breadcrumb, Nav, TagForm},
         routes::Route,
         Action, UI_STATE,
     },
@@ -17,7 +17,7 @@ pub fn TagNewPage() -> Element {
     let description = use_signal(|| "".to_string());
 
     let mut err: Signal<Option<String>> = use_signal(|| None);
-    let saved = use_signal(|| false);
+    let action_done = use_signal(|| false);
 
     rsx! {
         div { class: "flex flex-col min-h-screen bg-gray-100",
@@ -46,17 +46,15 @@ pub fn TagNewPage() -> Element {
                                     span { class: "text-red-600 flex justify-center",
                                         { err().unwrap() }
                                     }
-                                } else if saved() {
-                                    span { class: "text-green-600 flex justify-center",
-                                        { "Successfully created" }
-                                    }
+                                } else if action_done() {
+                                    ""
                                 }
                             }
                             button {
                                 class: "bg-gray-100 hover:bg-green-100 drop-shadow-sm px-4 rounded-md",
                                 onclick: move |_| {
                                     async move {
-                                        if saved() {
+                                        if action_done() {
                                             navigator().push(Route::TagListPage {});
                                         } else {
                                             if name().is_empty() {
@@ -67,7 +65,7 @@ pub fn TagNewPage() -> Element {
                                                 true => None,
                                                 false => Some(description()),
                                             };
-                                            let id = handle_create_tag(name(), description.clone(), saved, err)
+                                            let id = handle_create_tag(name(), description.clone(), action_done, err)
                                                 .await;
                                             if id.is_some() {
                                                 UI_STATE.add_tag(Tag::new(id.unwrap(), name(), description)).await;
@@ -75,13 +73,22 @@ pub fn TagNewPage() -> Element {
                                         }
                                     }
                                 },
-                                if saved() {
+                                if action_done() {
                                     "Close"
                                 } else {
                                     "Create"
                                 }
                             }
                         }
+                    }
+                }
+            }
+            if action_done() {
+                AcknowledgeModal {
+                    title: "Confirmation",
+                    content: "The tag has been successfully created.",
+                    action_handler: move |_| {
+                        navigator().push(Route::TagListPage {});
                     }
                 }
             }
@@ -92,17 +99,17 @@ pub fn TagNewPage() -> Element {
 async fn handle_create_tag(
     name: String,
     description: Option<String>,
-    mut saved: Signal<bool>,
+    mut action_done: Signal<bool>,
     mut err: Signal<Option<String>>,
 ) -> Option<Id> {
     match create_tag(name, description).await {
         Ok(id) => {
-            saved.set(true);
+            action_done.set(true);
             err.set(None);
             Some(id)
         }
         Err(e) => {
-            saved.set(false);
+            action_done.set(false);
             err.set(Some(e.to_string()));
             None
         }

@@ -2,7 +2,7 @@ use crate::{
     domain::model::{Id, Tag},
     server::fns::{remove_tag, update_tag},
     ui::{
-        comps::{Breadcrumb, Nav, TagForm},
+        comps::{AcknowledgeModal, Breadcrumb, ConfirmationModal, Nav, TagForm},
         routes::Route,
         Action, UI_STATE,
     },
@@ -15,10 +15,10 @@ pub fn TagPage(id: Id) -> Element {
     let mut name = use_signal(|| "".to_string());
     let mut description = use_signal(|| "".to_string());
 
+    let mut show_delete_confirm = use_signal(|| false);
     let mut action = use_signal(|| Action::View);
-
+    let action_done = use_signal(|| false);
     let mut err: Signal<Option<String>> = use_signal(|| None);
-    let saved = use_signal(|| false);
 
     let tid = id.clone();
     let did = id.clone();
@@ -60,9 +60,7 @@ pub fn TagPage(id: Id) -> Element {
                             button {
                                 class: "text-red-400 bg-slate-50 hover:text-red-700 hover:bg-red-100 drop-shadow-sm px-4 rounded-md",
                                 onclick: move |_| {
-                                    let id = did.clone();
-                                    action.set(Action::Delete);
-                                    async move { handle_delete(id, saved, err).await }
+                                    show_delete_confirm.set(true);
                                 },
                                 "Delete"
                             }
@@ -72,13 +70,11 @@ pub fn TagPage(id: Id) -> Element {
                                     span { class: "text-red-600 flex justify-center",
                                         { err().unwrap() }
                                     }
-                                } else if saved() {
+                                } else if action_done() {
                                     span { class: "text-green-600 flex justify-center",
                                         {
                                             if action() == Action::Edit {
                                                 "Successfully updated"
-                                            } else if action() == Action::Delete {
-                                                "Successfully deleted"
                                             } else {
                                                 ""
                                             }
@@ -105,11 +101,12 @@ pub fn TagPage(id: Id) -> Element {
                                                 return;
                                             }
                                             let tag = Tag::new(id, name(), description);
-                                            handle_update(tag, saved, err).await;
+                                            handle_update(tag, action_done, err).await;
+                                            action.set(Action::View);
                                         }
                                     }
                                 },
-                                if action() == Action::View || saved() {
+                                if action() == Action::View || action_done() {
                                     "Edit"
                                 } else {
                                     "Update"
@@ -119,21 +116,52 @@ pub fn TagPage(id: Id) -> Element {
                     }
                 }
             }
+            if show_delete_confirm() {
+                if action() != Action::Delete {
+                    ConfirmationModal {
+                        title: "Confirm Delete",
+                        content: "Are you sure you want to delete this tag?",
+                        action,
+                        show_delete_confirm,
+                        delete_handler: move |_| {
+                            let id = did.clone();
+                            action.set(Action::Delete);
+                            spawn(async move {
+                                log::debug!("Calling handle_delete ...");
+                                handle_delete(id, action_done, err).await;
+                            });
+                        }
+                    }
+                }
+            }
+            if action_done() {
+                AcknowledgeModal {
+                    title: "Confirmation",
+                    content: if action() == Action::Delete {
+                        "The tag has been successfully deleted."
+                    } else {
+                        "The tag has been successfully updated."
+                    },
+                    action_handler: move |_| {
+                        navigator().push(Route::TagListPage {});
+                    }
+                }
+            }
         }
     }
 }
 
-async fn handle_update(tag: Tag, mut saved: Signal<bool>, mut err: Signal<Option<String>>) {
+async fn handle_update(tag: Tag, mut action_complete: Signal<bool>, mut err: Signal<Option<String>>) {
     //
     log::debug!(">>> Updating tag: {:?}", tag);
     match update_tag(tag.clone()).await {
         Ok(_) => {
-            saved.set(true);
+            action_complete.set(true);
             err.set(None);
             UI_STATE.update_tag(tag).await;
         }
         Err(e) => {
-            saved.set(false);
+            action_complete.set(false);
             err.set(Some(e.to_string()));
         }
     }

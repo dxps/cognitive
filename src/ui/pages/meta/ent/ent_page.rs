@@ -30,8 +30,8 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
 
     let mut show_delete_confirm = use_signal(|| false);
     let mut action = use_signal(|| Action::View);
-    let err: Signal<Option<String>> = use_signal(|| None);
     let action_done = use_signal(|| false);
+    let err: Signal<Option<String>> = use_signal(|| None);
 
     use_future(move || async move {
         init(
@@ -131,6 +131,7 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
                                                             err,
                                                         )
                                                         .await;
+                                                    action.set(Action::View);
                                                 }
                                             }
                                         }
@@ -163,10 +164,14 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
                         }
                     }
                 }
-            } else if action() == Action::Delete && action_done() {
+            } else if action_done() {
                 AcknowledgeModal {
                     title: "Confirmation",
-                    content: "The entity has been successfully deleted.",
+                    content: if action() == Action::Delete {
+                        "The entity has been successfully deleted."
+                    } else {
+                        "The entity has been successfully updated."
+                    },
                     action_handler: move |_| {
                         navigator().push(Route::EntityListPage {});
                     }
