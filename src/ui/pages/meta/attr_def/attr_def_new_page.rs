@@ -21,13 +21,13 @@ pub fn AttributeDefNewPage() -> Element {
     let is_required = use_signal(|| false);
     let is_multivalued = use_signal(|| false);
     let tag_id = use_signal(|| Id::default());
-    let mut tags = use_signal(|| Arc::new(HashMap::new()));
+    let mut tags = use_signal(|| Arc::new(Vec::new()));
 
     let err: Signal<Option<String>> = use_signal(|| None);
     let action_done = use_signal(|| false);
 
     use_future(move || async move {
-        tags.set(UI_STATE.get_tags().await);
+        tags.set(UI_STATE.get_tags_list().await);
     });
 
     rsx! {

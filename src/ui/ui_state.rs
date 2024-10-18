@@ -9,6 +9,8 @@ use std::{collections::HashMap, sync::Arc};
 pub struct UiState {
     pub app_ready: GlobalSignal<bool>,
     pub tags: GlobalSignal<Arc<HashMap<Id, Tag>>>,
+    /// the ordered list of tags
+    pub tags_list: GlobalSignal<Arc<Vec<Tag>>>,
     pub tags_loaded: GlobalSignal<bool>,
     pub ent_defs: GlobalSignal<HashMap<Id, EntityDef>>,
 }
@@ -18,6 +20,7 @@ impl UiState {
         Self {
             app_ready: GlobalSignal::new(|| false),
             tags: GlobalSignal::new(|| Arc::new(HashMap::new())),
+            tags_list: GlobalSignal::new(|| Arc::new(Vec::new())),
             tags_loaded: GlobalSignal::new(|| false),
             ent_defs: GlobalSignal::new(|| HashMap::new()),
         }
@@ -28,6 +31,7 @@ impl UiState {
             let res = get_tags().await;
             match res {
                 Ok(tags) => {
+                    *self.tags_list.write() = Arc::new(tags.clone());
                     let tags_map: HashMap<Id, Tag> = tags.into_iter().map(|tag| (tag.id.clone(), tag)).collect();
                     let tags_map = Arc::new(tags_map);
                     *self.tags.write() = tags_map;
@@ -36,6 +40,13 @@ impl UiState {
             }
         }
         self.tags.read().clone()
+    }
+
+    pub async fn get_tags_list(&self) -> Arc<Vec<Tag>> {
+        if self.tags_list.read().is_empty() {
+            _ = self.get_tags().await;
+        }
+        self.tags_list.read().clone()
     }
 
     pub async fn get_tag(&self, id: &Id) -> Option<Tag> {

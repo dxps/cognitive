@@ -11,7 +11,7 @@ pub struct AttributeDefFormProps {
     pub is_required: Signal<bool>,
     pub is_multivalued: Signal<bool>,
     pub tag_id: Signal<Id>,
-    pub tags: Arc<HashMap<Id, Tag>>,
+    pub tags: Arc<Vec<Tag>>,
     pub action: String,
 }
 
@@ -167,7 +167,7 @@ pub fn AttributeDefForm(props: AttributeDefFormProps) -> Element {
                         log::debug!("selected tag_id: {:?}", evt.value());
                     },
                     option { value: "", "" }
-                    for tag in tags.values() {
+                    for tag in tags.iter() {
                         option {
                             value: "{tag.id}",
                             selected: "{tag_id() == tag.id}",

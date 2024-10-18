@@ -8,7 +8,7 @@ use crate::{
     },
 };
 use dioxus::prelude::*;
-use std::{collections::HashMap, sync::Arc};
+use std::sync::Arc;
 
 #[derive(PartialEq, Props, Clone)]
 pub struct AttributeDefEditPageProps {
@@ -27,7 +27,7 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
     let mut is_required = use_signal(|| false);
     let mut is_multivalued = use_signal(|| false);
     let mut tag_id = use_signal(|| Id::default());
-    let mut tags = use_signal(|| Arc::new(HashMap::new()));
+    let mut tags = use_signal(|| Arc::new(Vec::new()));
 
     let mut show_delete_confirm = use_signal(|| false);
     let mut action = use_signal(|| Action::View);
@@ -35,7 +35,7 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
     let mut err: Signal<Option<String>> = use_signal(|| None);
 
     use_future(move || async move {
-        tags.set(UI_STATE.get_tags().await);
+        tags.set(UI_STATE.get_tags_list().await);
     });
 
     use_future(move || async move {

@@ -7,16 +7,16 @@ use crate::{
     },
 };
 use dioxus::prelude::*;
-use std::{collections::HashMap, sync::Arc};
+use std::sync::Arc;
 
 #[component]
 pub fn TagListPage() -> Element {
     //
-    let mut tags = use_signal(|| Arc::new(HashMap::new()));
+    let mut tags = use_signal(|| Arc::new(Vec::new()));
     let mut tags_loaded = use_signal(|| false);
 
     use_future(move || async move {
-        tags.set(UI_STATE.get_tags().await);
+        tags.set(UI_STATE.get_tags_list().await);
         tags_loaded.set(true);
     });
 
@@ -45,7 +45,7 @@ pub fn TagListPage() -> Element {
                                 p { class: "pb-4 text-gray-500", "No tags exist." }
                             } else {
                                 p { class: "pb-4 text-gray-500", "The following tags exist." }
-                                for item in tags().values() {
+                                for item in tags().iter() {
                                     TagCard { item: item.clone() }
                                 }
                             }
