@@ -51,4 +51,18 @@
 	button {
 		@apply px-2 py-1;
 	}
+
+	/* Defaults for dropdowns. */
+	select {
+		@apply bg-white rounded-lg outline-none border-[1.4px] border-slate-300;
+	}
+	select:disabled {
+		@apply bg-white rounded-lg outline-none border-[1.4px] border-slate-200;
+	}
+	select:focus {
+		@apply border-green-300;
+	}
+	select[disabled]:focus {
+		@apply border-slate-400;
+	}
 }

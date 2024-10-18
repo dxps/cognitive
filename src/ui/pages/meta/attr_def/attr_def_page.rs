@@ -2,7 +2,7 @@ use crate::{
     domain::model::{AttributeDef, Id},
     server::fns::{get_attribute_def, remove_attr_def, update_attribute_def},
     ui::{
-        comps::{AttributeDefForm, Breadcrumb, ConfirmationModal, Nav},
+        comps::{AcknowledgeModal, AttributeDefForm, Breadcrumb, ConfirmationModal, Nav},
         routes::Route,
         Action, UI_STATE,
     },
@@ -29,12 +29,10 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
     let mut tag_id = use_signal(|| Id::default());
     let mut tags = use_signal(|| Arc::new(HashMap::new()));
 
-    let mut action = use_signal(|| Action::View);
-
     let mut show_delete_confirm = use_signal(|| false);
-
-    let mut err: Signal<Option<String>> = use_signal(|| None);
+    let mut action = use_signal(|| Action::View);
     let action_done = use_signal(|| false);
+    let mut err: Signal<Option<String>> = use_signal(|| None);
 
     use_future(move || async move {
         tags.set(UI_STATE.get_tags().await);
@@ -185,21 +183,33 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
                         });
                     }
                 }
+            } else if action_done() {
+                AcknowledgeModal {
+                    title: "Confirmation",
+                    content: if action() == Action::Delete {
+                        "The attribute definition has been successfully deleted."
+                    } else {
+                        "The attribute definition has been successfully updated."
+                    },
+                    action_handler: move |_| {
+                        navigator().push(Route::AttributeDefListPage {});
+                    }
+                }
             }
         }
     }
 }
 
-async fn handle_update(item: AttributeDef, mut saved: Signal<bool>, mut err: Signal<Option<String>>) {
+async fn handle_update(item: AttributeDef, mut action_done: Signal<bool>, mut err: Signal<Option<String>>) {
     //
     log::debug!(">>> Updating attribute definition: {:?}", item);
     match update_attribute_def(item).await {
         Ok(_) => {
-            saved.set(true);
+            action_done.set(true);
             err.set(None);
         }
         Err(e) => {
-            saved.set(false);
+            action_done.set(false);
             err.set(Some(e.to_string()));
         }
     }

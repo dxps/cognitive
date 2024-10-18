@@ -42,7 +42,7 @@ pub fn AttributeDefForm(props: AttributeDefFormProps) -> Element {
                     placeholder: "its name",
                     value: "{name}",
                     maxlength: 64,
-                    disabled: is_view,
+                    readonly: is_view,
                     autofocus: !is_view,
                     oninput: move |evt| {
                         name.set(evt.value());
@@ -61,7 +61,7 @@ pub fn AttributeDefForm(props: AttributeDefFormProps) -> Element {
                     placeholder: "an optional description",
                     value: "{description}",
                     maxlength: 256,
-                    disabled: is_view,
+                    readonly: is_view,
                     oninput: move |evt| {
                         description.set(evt.value());
                     }
@@ -70,7 +70,7 @@ pub fn AttributeDefForm(props: AttributeDefFormProps) -> Element {
             div { class: "flex",
                 label { class: "pr-3 py-1 min-w-28", "Value Type:" }
                 select {
-                    class: "px-3 py-2 bg-slate-100 rounded-lg outline-none border-1 border-gray-300 focus:border-green-300 min-w-80",
+                    class: "px-3 py-2 min-w-80",
                     multiple: false,
                     disabled: is_view,
                     oninput: move |evt| {
@@ -104,7 +104,7 @@ pub fn AttributeDefForm(props: AttributeDefFormProps) -> Element {
                     placeholder: "an optional default value",
                     value: "{default_value}",
                     maxlength: 64,
-                    disabled: is_view,
+                    readonly: is_view,
                     oninput: move |evt| {
                         default_value.set(evt.value());
                     }
@@ -159,7 +159,7 @@ pub fn AttributeDefForm(props: AttributeDefFormProps) -> Element {
             div { class: "flex",
                 label { class: "pr-3 py-1 min-w-28", "Tag:" }
                 select {
-                    class: "px-3 py-2 bg-slate-100 rounded-lg outline-none border-1 border-gray-300 focus:border-green-300 min-w-80",
+                    class: "px-3 py-2 min-w-80",
                     multiple: false,
                     disabled: is_view,
                     oninput: move |evt| {
