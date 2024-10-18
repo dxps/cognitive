@@ -4,7 +4,7 @@ use crate::{
     ui::{
         comps::{AttributeDefForm, Breadcrumb, Nav},
         routes::Route,
-        Action, UI_GLOBALS,
+        Action, UI_STATE,
     },
 };
 
@@ -27,7 +27,7 @@ pub fn AttributeDefNewPage() -> Element {
     let action_done = use_signal(|| false);
 
     use_future(move || async move {
-        tags.set(UI_GLOBALS.get_tags().await);
+        tags.set(UI_STATE.get_tags().await);
     });
 
     rsx! {

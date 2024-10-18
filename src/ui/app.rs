@@ -1,4 +1,4 @@
-use crate::ui::{routes::Route, ui_globals::UI_GLOBALS, UiStorage};
+use crate::ui::{routes::Route, ui_state::UI_STATE, UiStorage};
 use dioxus::prelude::*;
 
 #[component]
@@ -17,7 +17,7 @@ pub fn App() -> Element {
         let mut state = use_context::<Signal<UiStorage>>();
         if let Ok(local_state) = UiStorage::load_from_localstorage() {
             *state.write() = local_state;
-            *UI_GLOBALS.app_ready.write() = true;
+            *UI_STATE.app_ready.write() = true;
         }
     });
 

@@ -5,7 +5,7 @@ use crate::{
     ui::{
         comps::{Breadcrumb, EntityForm, Nav, Select},
         routes::Route,
-        Action, UI_GLOBALS,
+        Action, UI_STATE,
     },
 };
 use dioxus::prelude::*;
@@ -30,7 +30,7 @@ pub fn EntityNewPage() -> Element {
     let saved = use_signal(|| false);
 
     use_future(move || async move {
-        let defs = UI_GLOBALS.get_ent_defs().await;
+        let defs = UI_STATE.get_ent_defs().await;
         ent_kinds.set(defs.iter().map(|(id, def)| (id.clone(), def.name.clone())).collect());
         ent_defs.set(defs);
     });
@@ -48,7 +48,7 @@ pub fn EntityNewPage() -> Element {
             "[EntityNewPage] Loading attributes from entity def id:'{}' using the global state ...",
             kind_id
         );
-        if let Some(ent_def) = UI_GLOBALS.get_ent_def_sync(&kind_id) {
+        if let Some(ent_def) = UI_STATE.get_ent_def_sync(&kind_id) {
             let mut txt_attrs = HashMap::new();
             let mut si_attrs = HashMap::new();
             let mut i_attrs = HashMap::new();

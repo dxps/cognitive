@@ -4,7 +4,7 @@ use crate::{
     ui::{
         comps::{Breadcrumb, Nav, TagForm},
         routes::Route,
-        Action, UI_GLOBALS,
+        Action, UI_STATE,
     },
 };
 
@@ -70,7 +70,7 @@ pub fn TagNewPage() -> Element {
                                             let id = handle_create_tag(name(), description.clone(), saved, err)
                                                 .await;
                                             if id.is_some() {
-                                                UI_GLOBALS.add_tag(Tag::new(id.unwrap(), name(), description)).await;
+                                                UI_STATE.add_tag(Tag::new(id.unwrap(), name(), description)).await;
                                             }
                                         }
                                     }

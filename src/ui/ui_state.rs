@@ -1,78 +1,107 @@
-use log::{debug, error};
-use serde::{Deserialize, Serialize};
+use crate::{
+    domain::model::{EntityDef, Id, Tag},
+    server::fns::{get_tags, list_entities_defs},
+};
+use dioxus::signals::{GlobalSignal, Readable};
+use std::ops::Deref;
+use std::{collections::HashMap, sync::Arc};
 
-use crate::domain::model::UserAccount;
-
-#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
-pub struct UiStorage {
-    pub current_user: Option<UserAccount>,
-
-    #[serde(skip_serializing)]
-    #[serde(skip_deserializing)]
-    pub localstorage: Option<web_sys::Storage>,
+pub struct UiState {
+    pub app_ready: GlobalSignal<bool>,
+    pub tags: GlobalSignal<Arc<HashMap<Id, Tag>>>,
+    pub tags_loaded: GlobalSignal<bool>,
+    pub ent_defs: GlobalSignal<HashMap<Id, EntityDef>>,
 }
 
-impl UiStorage {
-    /// Browser's localstorage key.
-    const LS_KEY: &'static str = "tmc";
-
-    pub fn new() -> Result<Self, String> {
-        let window = web_sys::window().expect("No global `window` exists!");
-        if let Ok(Some(storage)) = window.local_storage() {
-            let state = UiStorage {
-                current_user: None,
-                localstorage: Some(storage),
-            };
-            Ok(state)
-        } else {
-            error!(">>> [State::new] Error: No browser's localstorage found!");
-            Err("No localstorage found".into())
+impl UiState {
+    pub const fn new() -> Self {
+        Self {
+            app_ready: GlobalSignal::new(|| false),
+            tags: GlobalSignal::new(|| Arc::new(HashMap::new())),
+            tags_loaded: GlobalSignal::new(|| false),
+            ent_defs: GlobalSignal::new(|| HashMap::new()),
         }
     }
 
-    pub fn load_from_localstorage() -> Result<Self, String> {
-        let mut state = UiStorage::new()?;
-        if let Ok(Some(value)) = state.localstorage.as_ref().unwrap().get(Self::LS_KEY) {
-            debug!(">>> [State::load_from_localstorage] Loaded value={:?}", value);
-            state.current_user = Some(serde_json::from_str(&value).unwrap());
-        } else {
-            error!(">>> [State::load_from_localstorage] No value exists in localstorage.");
-        }
-        Ok(state)
-    }
-
-    pub fn save_to_localstorage(&mut self) {
-        //
-        if self.current_user.is_some() {
-            if self.localstorage.is_none() {
-                self.init_localstorage().unwrap();
+    pub async fn get_tags(&self) -> Arc<HashMap<Id, Tag>> {
+        if self.tags.read().is_empty() {
+            let res = get_tags().await;
+            match res {
+                Ok(tags) => {
+                    let tags_map: HashMap<Id, Tag> = tags.into_iter().map(|tag| (tag.id.clone(), tag)).collect();
+                    let tags_map = Arc::new(tags_map);
+                    *self.tags.write() = tags_map;
+                }
+                Err(e) => log::error!(">>> [UiGlobalSignals.get_tags] Failed to get tags: {}", e),
             }
-            self.localstorage
-                .as_ref()
-                .unwrap()
-                .set_item(Self::LS_KEY, &serde_json::to_string(&self.current_user).unwrap())
-                .unwrap();
-            debug!(">>> [save_to_localstorage] Saved {:?} to localstorage.", self.current_user);
-        } else {
-            self.localstorage.as_ref().unwrap().remove_item(Self::LS_KEY).unwrap();
-            debug!(">>> [save_to_localstorage] Removed {:?} key from localstorage.", Self::LS_KEY);
         }
+        self.tags.read().clone()
     }
 
-    fn init_localstorage(&mut self) -> Result<(), String> {
-        let window = web_sys::window().expect("No global `window` exists!");
-        if let Ok(Some(storage)) = window.local_storage() {
-            self.localstorage = Some(storage);
-            Ok(())
-        } else {
-            error!(">>> [State::new] Error: No browser's localstorage found!");
-            Err("No localstorage found".into())
+    pub async fn get_tag(&self, id: &Id) -> Option<Tag> {
+        if self.tags.read().is_empty() {
+            _ = self.get_tags().await;
         }
+        self.tags.read().get(id).cloned()
+    }
+
+    pub async fn add_tag(&self, tag: Tag) {
+        let tags = self.tags.read().clone();
+        let mut tags = tags.deref().clone();
+        tags.insert(tag.id.clone(), tag);
+        *self.tags.write() = Arc::new(tags);
+    }
+
+    pub async fn update_tag(&self, tag: Tag) {
+        let tags = self.tags.read().clone();
+        let updated_tags: HashMap<Id, Tag> = tags
+            .iter()
+            .map(|(k, v)| {
+                if v.id == tag.id {
+                    (k.clone(), tag.clone())
+                } else {
+                    (k.clone(), v.clone())
+                }
+            })
+            .collect();
+        *self.tags.write() = Arc::new(updated_tags);
+    }
+
+    pub async fn remove_tag(&self, id: Id) {
+        let tags = self.tags.read().clone();
+        let updated_tags: HashMap<Id, Tag> = tags
+            .iter()
+            .filter(|(_, v)| v.id != id)
+            .map(|(k, v)| (k.clone(), v.clone()))
+            .collect();
+        *self.tags.write() = Arc::new(updated_tags);
+    }
+
+    /// Get the entities definitions.
+    /// If they haven't been loaded yet, it fetches them from the server.
+    pub async fn get_ent_defs(&self) -> HashMap<Id, EntityDef> {
+        if self.ent_defs.read().is_empty() {
+            if let Ok(ent_defs) = list_entities_defs().await {
+                log::debug!("[UiGlobals] Got entity defs: {:?}", ent_defs);
+                *self.ent_defs.write() = ent_defs.into_iter().map(|def| (def.id.clone(), def)).collect();
+            }
+        };
+        self.ent_defs.read().clone()
+    }
+
+    pub async fn get_ent_def(&self, id: &Id) -> Option<EntityDef> {
+        if self.ent_defs.read().is_empty() {
+            if let Ok(ent_defs) = list_entities_defs().await {
+                log::debug!("[UiGlobals] Got entity defs: {:?}", ent_defs);
+                *self.ent_defs.write() = ent_defs.into_iter().map(|def| (def.id.clone(), def)).collect();
+            }
+        };
+        self.ent_defs.read().get(id).cloned()
+    }
+
+    pub fn get_ent_def_sync(&self, id: &Id) -> Option<EntityDef> {
+        self.ent_defs.read().get(id).cloned()
     }
 }
 
-impl std::fmt::Display for UiStorage {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
-    }
-}
+pub static UI_STATE: UiState = UiState::new();

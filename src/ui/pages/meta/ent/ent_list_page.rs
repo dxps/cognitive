@@ -6,7 +6,7 @@ use crate::{
     ui::{
         comps::{Breadcrumb, Nav},
         routes::Route,
-        UI_GLOBALS,
+        UI_STATE,
     },
 };
 
@@ -16,7 +16,7 @@ pub fn EntityListPage() -> Element {
     let mut items = use_signal::<Vec<Entity>>(|| vec![]);
 
     use_future(move || async move {
-        UI_GLOBALS.get_ent_defs().await;
+        UI_STATE.get_ent_defs().await;
         if let Ok(entitites) = list_entities().await {
             items.set(entitites);
         }

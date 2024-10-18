@@ -4,7 +4,7 @@ use crate::{
     ui::{
         comps::{AttributeDefForm, Breadcrumb, ConfirmDeleteModal, Nav},
         routes::Route,
-        Action, UI_GLOBALS,
+        Action, UI_STATE,
     },
 };
 use dioxus::prelude::*;
@@ -37,7 +37,7 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
     let action_done = use_signal(|| false);
 
     use_future(move || async move {
-        tags.set(UI_GLOBALS.get_tags().await);
+        tags.set(UI_STATE.get_tags().await);
     });
 
     use_future(move || async move {
