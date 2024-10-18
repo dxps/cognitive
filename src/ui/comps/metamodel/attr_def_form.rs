@@ -18,15 +18,17 @@ pub struct AttributeDefFormProps {
 #[component]
 pub fn AttributeDefForm(props: AttributeDefFormProps) -> Element {
     //
-    let mut name = props.name;
-    let mut description = props.description;
-    let mut value_type = props.value_type;
-    let mut default_value = props.default_value;
-    let mut is_required = props.is_required;
-    let mut is_multivalued = props.is_multivalued;
-    let mut tag_id = props.tag_id;
-    let tags = props.tags;
-    let action = props.action;
+    let AttributeDefFormProps {
+        mut name,
+        mut description,
+        mut value_type,
+        mut default_value,
+        mut is_required,
+        mut is_multivalued,
+        mut tag_id,
+        tags,
+        action,
+    } = props;
 
     let is_view = action == "View";
     let is_edit = action == "Edit";

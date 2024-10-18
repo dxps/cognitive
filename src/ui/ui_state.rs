@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use crate::domain::model::UserAccount;
 
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
-pub struct UiState {
+pub struct UiStorage {
     pub current_user: Option<UserAccount>,
 
     #[serde(skip_serializing)]
@@ -12,14 +12,14 @@ pub struct UiState {
     pub localstorage: Option<web_sys::Storage>,
 }
 
-impl UiState {
+impl UiStorage {
     /// Browser's localstorage key.
     const LS_KEY: &'static str = "tmc";
 
     pub fn new() -> Result<Self, String> {
         let window = web_sys::window().expect("No global `window` exists!");
         if let Ok(Some(storage)) = window.local_storage() {
-            let state = UiState {
+            let state = UiStorage {
                 current_user: None,
                 localstorage: Some(storage),
             };
@@ -31,7 +31,7 @@ impl UiState {
     }
 
     pub fn load_from_localstorage() -> Result<Self, String> {
-        let mut state = UiState::new()?;
+        let mut state = UiStorage::new()?;
         if let Ok(Some(value)) = state.localstorage.as_ref().unwrap().get(Self::LS_KEY) {
             debug!(">>> [State::load_from_localstorage] Loaded value={:?}", value);
             state.current_user = Some(serde_json::from_str(&value).unwrap());
@@ -71,7 +71,7 @@ impl UiState {
     }
 }
 
-impl std::fmt::Display for UiState {
+impl std::fmt::Display for UiStorage {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:?}", self)
     }

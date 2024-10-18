@@ -76,8 +76,8 @@ pub fn Login() -> Element {
 }
 
 async fn handle_login(email: String, password: String, wrong_creds: &mut Signal<bool>, nav: &Navigator) {
-    use crate::ui::UiState;
-    let mut state_sgnl = use_context::<Signal<UiState>>();
+    use crate::ui::UiStorage;
+    let mut state_sgnl = use_context::<Signal<UiStorage>>();
 
     match login(format!("{}", email), format!("{}", password)).await {
         Ok(account) => {
