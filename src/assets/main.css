@@ -15,6 +15,12 @@
 	input {
 		@apply border-[1.4px] border-slate-300 text-sm rounded-md py-2.5 px-3;
 	}
+	input:read-only {
+		@apply border-slate-200 outline-none;
+	}
+	input[readonly]:focus {
+		@apply border-slate-400 outline-none;
+	}
 	input:focus {
 		@apply border-green-400 outline-none;
 	}
@@ -30,6 +36,12 @@
 	/* Defaults for textarea elements. */
 	textarea {
 		@apply border-[1.4px] border-slate-300 text-sm rounded-md py-2.5 px-3;
+	}
+	textarea:read-only {
+		@apply border-slate-200 outline-none;
+	}
+	textarea[readonly]:focus {
+		@apply border-slate-400 outline-none;
 	}
 	textarea:focus {
 		@apply border-green-400 outline-none;

@@ -25,7 +25,7 @@ pub fn TagListPage() -> Element {
             Nav {}
             Breadcrumb { paths: Route::get_path(Route::TagListPage {}) }
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
-                div { class: "bg-white rounded-md p-3 min-w-[600px] mt-[min(100px)]",
+                div { class: "bg-white rounded-lg p-3 min-w-[600px] mt-[min(100px)]",
                     div { class: "p-6",
                         div { class: "flex justify-between mb-4",
                             p { class: "text-lg font-medium leading-snug tracking-normal text-gray-500 antialiased",
@@ -61,7 +61,7 @@ pub fn TagListPage() -> Element {
 fn TagCard(item: Tag) -> Element {
     rsx! {
         Link { to: Route::TagPage { id: item.id },
-            div { class: "flex flex-col p-2 my-3 bg-white rounded border hover:bg-slate-100 transition duration-200",
+            div { class: "flex flex-col p-2 my-3 bg-white rounded-lg border hover:bg-slate-100 transition duration-200",
                 div { class: "flex justify-between text-gray-600",
                     p { class: "font-medium leading-snug tracking-normal antialiased",
                         "{item.name}"
