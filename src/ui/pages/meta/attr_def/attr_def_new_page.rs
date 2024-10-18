@@ -44,7 +44,7 @@ pub fn AttributeDefNewPage() -> Element {
                             Link {
                                 class: "text-gray-500 hover:text-gray-800 px-2 rounded-xl transition duration-200",
                                 to: Route::AttributeDefListPage {},
-                                "x"
+                                "X"
                             }
                         }
                         hr { class: "pb-2" }
