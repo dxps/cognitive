@@ -66,7 +66,7 @@ fn EntityCard(ent: Entity) -> Element {
             to: Route::EntityPage {
                 id: ent.id.clone(),
             },
-            div { class: "flex flex-col p-2 my-3 bg-white rounded-md border hover:bg-slate-100 transition duration-200",
+            div { class: "flex flex-col p-2 my-3 bg-white rounded-md border hover:bg-slate-100 hover:border-slate-100 transition duration-200",
                 div { class: "flex justify-between text-gray-600",
                     div {
                         p { class: "text-lg leading-5 text-gray-600 font-medium pt-1 pl-2",
