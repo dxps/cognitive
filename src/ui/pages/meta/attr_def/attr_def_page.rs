@@ -130,8 +130,7 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
                                     async move {
                                         if curr_action == Action::View {
                                             action.set(Action::Edit);
-                                        }
-                                        if action() == Action::Delete && action_done() {
+                                        } else if action() == Action::Delete && action_done() {
                                             navigator().push(Route::AttributeDefListPage {});
                                         } else {
                                             if name().is_empty() {
@@ -157,6 +156,7 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
                                                 tag_id,
                                             );
                                             handle_update(item, action_done, err).await;
+                                            action.set(Action::View);
                                         }
                                     }
                                 },
