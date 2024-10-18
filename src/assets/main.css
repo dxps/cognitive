@@ -62,6 +62,7 @@
 	select:focus {
 		@apply border-green-300;
 	}
+	/* TODO: This doesn't work. */
 	select[disabled]:focus {
 		@apply border-slate-400;
 	}

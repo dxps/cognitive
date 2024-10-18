@@ -19,7 +19,7 @@ pub fn Select(props: SelectProps) -> Element {
 
     rsx! {
         select {
-            class: "px-3 my-1 bg-slate-100 rounded-lg outline-none border-1 border-gray-300 focus:border-green-300 min-w-80",
+            class: "px-3 my-1 min-w-80",
             multiple: false,
             oninput: move |evt| {
                 selected_item_id.set(evt.value().into());

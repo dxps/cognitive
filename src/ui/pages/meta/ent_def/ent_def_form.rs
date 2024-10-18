@@ -41,7 +41,7 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
                 label { class: "pr-3 py-2 min-w-32", "Name:" }
                 input {
                     key: "name_{action}",
-                    class: "px-3 py-1 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
+                    class: "px-3 py-1 min-w-80",
                     r#type: "text",
                     value: "{name}",
                     maxlength: 64,
@@ -60,7 +60,7 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
             div { class: "flex",
                 label { class: "pr-3 py-2 min-w-32", "Description:" }
                 textarea {
-                    class: "px-3 py-2 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
+                    class: "px-3 py-2 min-w-80",
                     rows: 3,
                     cols: 32,
                     value: "{description}",
@@ -101,7 +101,7 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
             div { class: "flex",
                 label { class: "pr-3 py-2 min-w-32", "Listing attribute:" }
                 select {
-                    class: "px-3 py-2 bg-slate-100 rounded-lg outline-none border-1 border-gray-300 focus:border-green-300 min-w-80",
+                    class: "px-3 py-2 min-w-80",
                     multiple: false,
                     disabled: is_view,
                     oninput: move |evt| {
@@ -130,7 +130,7 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
                     "Select an attribute definition to include it in this entity definition."
                 }
                 select {
-                    class: "px-3 py-2 bg-slate-100 rounded-lg outline-none border-1 border-gray-300 focus:border-green-300 min-w-80",
+                    class: "px-3 py-2 min-w-80",
                     multiple: false,
                     disabled: is_view,
                     oninput: move |evt| {

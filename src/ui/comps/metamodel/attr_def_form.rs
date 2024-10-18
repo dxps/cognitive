@@ -1,6 +1,6 @@
 use crate::domain::model::{Id, Tag};
 use dioxus::prelude::*;
-use std::{collections::HashMap, sync::Arc};
+use std::sync::Arc;
 
 #[derive(Props, PartialEq, Clone)]
 pub struct AttributeDefFormProps {

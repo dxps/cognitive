@@ -702,6 +702,8 @@ select:focus {
   border-color: rgb(134 239 172 / var(--tw-border-opacity));
 }
 
+/* TODO: This doesn't work. */
+
 select[disabled]:focus {
   --tw-border-opacity: 1;
   border-color: rgb(148 163 184 / var(--tw-border-opacity));
@@ -1110,11 +1112,6 @@ select[disabled]:focus {
 
 .border-\[1\.4px\] {
   border-width: 1.4px;
-}
-
-.border-gray-300 {
-  --tw-border-opacity: 1;
-  border-color: rgb(209 213 219 / var(--tw-border-opacity));
 }
 
 .border-green-400 {
@@ -1551,6 +1548,16 @@ select[disabled]:focus {
 .hover\:border-gray-100:hover {
   --tw-border-opacity: 1;
   border-color: rgb(243 244 246 / var(--tw-border-opacity));
+}
+
+.hover\:border-white:hover {
+  --tw-border-opacity: 1;
+  border-color: rgb(255 255 255 / var(--tw-border-opacity));
+}
+
+.hover\:border-slate-100:hover {
+  --tw-border-opacity: 1;
+  border-color: rgb(241 245 249 / var(--tw-border-opacity));
 }
 
 .hover\:bg-blue-100:hover {

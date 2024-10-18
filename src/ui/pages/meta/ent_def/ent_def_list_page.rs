@@ -62,7 +62,7 @@ fn EntityDefCard(ent_def: EntityDef) -> Element {
             to: Route::EntityDefPage {
                 id: ent_def.id,
             },
-            div { class: "flex flex-col p-2 my-3 bg-white rounded-lg border hover:bg-slate-100 transition duration-200",
+            div { class: "flex flex-col p-2 my-3 bg-white rounded-lg border hover:bg-slate-100 hover:border-slate-100 transition duration-200",
                 div { class: "flex justify-between text-gray-600",
                     p { class: "font-medium leading-snug tracking-normal antialiased",
                         "{ent_def.name}"

@@ -9,7 +9,7 @@ use crate::{
 };
 
 use dioxus::prelude::*;
-use std::{collections::HashMap, sync::Arc};
+use std::sync::Arc;
 
 #[component]
 pub fn AttributeDefNewPage() -> Element {

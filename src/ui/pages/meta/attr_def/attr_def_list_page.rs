@@ -76,7 +76,7 @@ fn AttrDefCard(props: AttrDefCardProps) -> Element {
             to: Route::AttributeDefPage {
                 attr_def_id: attr_def.id,
             },
-            div { class: "flex flex-col p-3 my-3 bg-white rounded-lg border hover:bg-gray-100 hover:border-gray-100 transition duration-200",
+            div { class: "flex flex-col p-3 my-3 bg-white rounded-lg border hover:bg-slate-100 hover:border-slate-100 transition duration-200",
                 div { class: "flex justify-between text-gray-600",
                     p { class: "font-medium leading-snug tracking-normal antialiased",
                         "{attr_def.name}"
