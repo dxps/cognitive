@@ -3,7 +3,7 @@ use crate::{
         AttributeValueType, BooleanAttribute, Entity, EntityDef, Id, IntegerAttribute, SmallintAttribute, TextAttribute,
     },
     ui::{
-        comps::{Breadcrumb, EntityForm, Nav, Select},
+        comps::{AcknowledgeModal, Breadcrumb, EntityForm, Nav, Select},
         routes::Route,
         Action, UI_STATE,
     },
@@ -27,7 +27,7 @@ pub fn EntityNewPage() -> Element {
     let mut boolean_attrs = use_signal::<HashMap<Id, BooleanAttribute>>(|| HashMap::new());
 
     let err: Signal<Option<String>> = use_signal(|| None);
-    let saved = use_signal(|| false);
+    let action_done = use_signal(|| false);
 
     use_future(move || async move {
         let defs = UI_STATE.get_ent_defs().await;
@@ -43,7 +43,6 @@ pub fn EntityNewPage() -> Element {
         }
         selected_kind_name.set(ent_kinds().get(&kind_id).unwrap().clone());
         log::debug!("[EntityNewPage] Loading attributes from entity def id:'{}' ...", kind_id);
-        // let kind_id = kind_id.clone();
         log::debug!(
             "[EntityNewPage] Loading attributes from entity def id:'{}' using the global state ...",
             kind_id
@@ -127,15 +126,13 @@ pub fn EntityNewPage() -> Element {
                             div { class: "min-w-[450px] max-w-[450px] text-sm flex justify-center items-center",
                                 if err().is_some() {
                                     span { class: "text-red-600", { err().unwrap() } }
-                                } else if saved() {
-                                    span { class: "text-green-600", { "Successfully created" } }
                                 }
                             }
                             button {
                                 class: "bg-gray-100 hover:bg-green-100 disabled:text-gray-300 hover:disabled:bg-gray-100 drop-shadow-sm px-4 rounded-md",
                                 onclick: move |_| {
                                     async move {
-                                        if saved() {
+                                        if action_done() {
                                             navigator().push(Route::EntityListPage {});
                                         } else {
                                             handle_create_ent(
@@ -148,20 +145,29 @@ pub fn EntityNewPage() -> Element {
                                                     listing_attr_def_id(),
                                                     listing_attr_name(),
                                                     listing_attr_value(),
-                                                    saved,
+                                                    action_done,
                                                     err,
                                                 )
                                                 .await;
                                         }
                                     }
                                 },
-                                if saved() {
+                                if action_done() {
                                     "Close"
                                 } else {
                                     "Create"
                                 }
                             }
                         }
+                    }
+                }
+            }
+            if action_done() {
+                AcknowledgeModal {
+                    title: "Confirmation",
+                    content: "The entity has been successfully created.",
+                    action_handler: move |_| {
+                        navigator().push(Route::EntityListPage {});
                     }
                 }
             }

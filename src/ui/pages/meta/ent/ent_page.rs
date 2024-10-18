@@ -2,7 +2,7 @@ use crate::{
     domain::model::{BooleanAttribute, Entity, Id, IntegerAttribute, SmallintAttribute, TextAttribute},
     server::fns::{get_entity, remove_entity, update_entity},
     ui::{
-        comps::{Breadcrumb, ConfirmDeleteModal, EntityForm, Nav, SuccessModal},
+        comps::{AcknowledgeModal, Breadcrumb, ConfirmationModal, EntityForm, Nav},
         routes::Route,
         Action,
     },
@@ -96,8 +96,6 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
                                         {
                                             if action() == Action::Edit {
                                                 "Successfully updated"
-                                            } else if action() == Action::Delete {
-                                                "Successfully deleted"
                                             } else {
                                                 ""
                                             }
@@ -152,7 +150,7 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
             }
             if show_delete_confirm() {
                 if action() != Action::Delete {
-                    ConfirmDeleteModal {
+                    ConfirmationModal {
                         title: "Confirm Delete",
                         content: "Are you sure you want to delete this entity?",
                         action,
@@ -166,8 +164,8 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
                     }
                 }
             } else if action() == Action::Delete && action_done() {
-                SuccessModal {
-                    title: "Delete Confirmed",
+                AcknowledgeModal {
+                    title: "Confirmation",
                     content: "The entity has been successfully deleted.",
                     action_handler: move |_| {
                         navigator().push(Route::EntityListPage {});

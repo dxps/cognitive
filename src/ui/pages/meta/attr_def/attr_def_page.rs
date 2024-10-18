@@ -2,7 +2,7 @@ use crate::{
     domain::model::{AttributeDef, Id},
     server::fns::{get_attribute_def, remove_attr_def, update_attribute_def},
     ui::{
-        comps::{AttributeDefForm, Breadcrumb, ConfirmDeleteModal, Nav},
+        comps::{AttributeDefForm, Breadcrumb, ConfirmationModal, Nav},
         routes::Route,
         Action, UI_STATE,
     },
@@ -173,7 +173,7 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
                 }
             }
             if show_delete_confirm() {
-                ConfirmDeleteModal {
+                ConfirmationModal {
                     title: "Confirm Delete",
                     content: "Are you sure you want to delete this attribute definition?",
                     action,

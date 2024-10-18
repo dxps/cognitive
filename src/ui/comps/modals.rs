@@ -32,16 +32,16 @@ pub fn Modal(props: ModalProps) -> Element {
 }
 
 #[derive(Props, PartialEq, Clone)]
-pub struct SuccessModalProps {
+pub struct AcknowledgeModalProps {
     pub title: String,
     pub content: String,
     pub action_handler: EventHandler,
 }
 
 #[component]
-pub fn SuccessModal(props: SuccessModalProps) -> Element {
+pub fn AcknowledgeModal(props: AcknowledgeModalProps) -> Element {
     //
-    let SuccessModalProps {
+    let AcknowledgeModalProps {
         title,
         content,
         action_handler,
@@ -54,7 +54,7 @@ pub fn SuccessModal(props: SuccessModalProps) -> Element {
                     h4 { class: "text-sm text-gray-800 font-semibold", {title} }
                     p { class: "text text-gray-600 mt-8", { content } }
                 }
-                div { class: "flex justify-end mt-8",
+                div { class: "flex justify-center mt-8",
                     button {
                         class: "bg-gray-100 bg-green-100 enabled:hover:bg-green-100 disabled:text-gray-400 hover:disabled:bg-gray-100 drop-shadow-sm px-4 rounded-md",
                         onclick: move |_| {
@@ -69,7 +69,7 @@ pub fn SuccessModal(props: SuccessModalProps) -> Element {
 }
 
 #[derive(Props, PartialEq, Clone)]
-pub struct ConfirmDeleteModalProps {
+pub struct ConfirmationModalProps {
     pub title: String,
     pub content: String,
     pub action: Signal<Action>,
@@ -78,9 +78,9 @@ pub struct ConfirmDeleteModalProps {
 }
 
 #[component]
-pub fn ConfirmDeleteModal(props: ConfirmDeleteModalProps) -> Element {
+pub fn ConfirmationModal(props: ConfirmationModalProps) -> Element {
     //
-    let ConfirmDeleteModalProps {
+    let ConfirmationModalProps {
         title,
         content,
         mut action,
@@ -97,13 +97,6 @@ pub fn ConfirmDeleteModal(props: ConfirmDeleteModalProps) -> Element {
                 }
                 div { class: "flex justify-between mt-8",
                     button {
-                        class: "bg-gray-100 bg-green-100 enabled:hover:bg-green-100 disabled:text-gray-400 hover:disabled:bg-gray-100 drop-shadow-sm px-4 rounded-md",
-                        onclick: move |_| {
-                            show_delete_confirm.set(false);
-                        },
-                        "Cancel"
-                    }
-                    button {
                         class: "text-red-600 bg-red-50 hover:text-red-800 hover:bg-red-100 drop-shadow-sm px-4 rounded-md",
                         onclick: move |_| {
                             show_delete_confirm.set(false);
@@ -111,6 +104,13 @@ pub fn ConfirmDeleteModal(props: ConfirmDeleteModalProps) -> Element {
                             delete_handler(());
                         },
                         "Delete"
+                    }
+                    button {
+                        class: "bg-gray-100 bg-green-100 enabled:hover:bg-green-100 disabled:text-gray-400 hover:disabled:bg-gray-100 drop-shadow-sm px-4 rounded-md",
+                        onclick: move |_| {
+                            show_delete_confirm.set(false);
+                        },
+                        "Cancel"
                     }
                 }
             }
