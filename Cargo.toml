@@ -4,6 +4,11 @@ version = "0.1.0"
 authors = ["dxps <marius.ileana@gmail.com>"]
 edition = "2021"
 
+#############
+[profile.dev]
+#############
+codegen-units = 16
+
 
 ##############
 [dependencies]

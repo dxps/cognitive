@@ -81,8 +81,13 @@ fn AttrDefCard(props: AttrDefCardProps) -> Element {
                     p { class: "font-medium leading-snug tracking-normal antialiased",
                         "{attr_def.name}"
                     }
-                    p { class: "text-xs text-slate-500 leading-snug tracking-normal antialiased pr-1",
-                        "{attr_def.value_type.label()}"
+                    div { class: "flex",
+                        p { class: "text-xs text-slate-500 leading-snug tracking-normal antialiased pr-1",
+                            "{attr_def.value_type.label()}"
+                        }
+                        p { class: "text-[9px] text-slate-300 leading-snug pt-0.5",
+                            "■"
+                        }
                     }
                 }
                 div { class: "flex justify-between text-gray-600",
@@ -93,7 +98,12 @@ fn AttrDefCard(props: AttrDefCardProps) -> Element {
                         let tag_id = attr_def.tag_id.unwrap();
                         match tags.get(&tag_id) {
                                 Some(tag) => {
-                                    rsx! { p { class: "text-xs leading-5 bg-slate-100 rounded-lg px-2", {tag.name.clone()} } }
+                                    rsx! {
+                                        div { class: "flex pt-0.5",
+                                        p { class: "text-xs leading-5 pr-1", "{tag.name.clone()}" }
+                                        p { class: "text-[10px] text-slate-300 leading-5", "●" }
+                                        }
+                                    }
                                 }
                                 None => {
                                     log::error!(">>> Failed to find tag with id: {}", tag_id);
