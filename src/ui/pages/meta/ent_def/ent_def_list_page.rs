@@ -12,11 +12,11 @@ use crate::{
 #[component]
 pub fn EntityDefListPage() -> Element {
     //
-    let mut items = use_signal::<Vec<EntityDef>>(|| vec![]);
+    let mut entries = use_signal::<Vec<EntityDef>>(|| vec![]);
 
     use_future(move || async move {
         if let Ok(ent_defs) = list_entities_defs().await {
-            items.set(ent_defs);
+            entries.set(ent_defs);
         }
     });
 
@@ -37,16 +37,12 @@ pub fn EntityDefListPage() -> Element {
                                 "+"
                             }
                         }
-                        hr { class: "pb-2" }
-                        p { class: "pb-4 text-gray-500",
-                            if items.is_empty() {
-                                "There are no entities definitions."
-                            } else {
-                                "The following entities definitions are defined."
-                            }
+                        hr { class: "pb-4" }
+                        if entries.is_empty() {
+                            p { class: "pb-4 text-gray-500", "There are no entries." }
                         }
-                        for item in items() {
-                            EntityDefCard { ent_def: item.clone() }
+                        for ed in entries() {
+                            EntityDefCard { ent_def: ed.clone() }
                         }
                     }
                 }

@@ -12,12 +12,12 @@ use std::sync::Arc;
 #[component]
 pub fn TagListPage() -> Element {
     //
-    let mut tags = use_signal(|| Arc::new(Vec::new()));
-    let mut tags_loaded = use_signal(|| false);
+    let mut entries = use_signal(|| Arc::new(Vec::new()));
+    let mut entries_loaded = use_signal(|| false);
 
     use_future(move || async move {
-        tags.set(UI_STATE.get_tags_list().await);
-        tags_loaded.set(true);
+        entries.set(UI_STATE.get_tags_list().await);
+        entries_loaded.set(true);
     });
 
     rsx! {
@@ -38,16 +38,14 @@ pub fn TagListPage() -> Element {
                             }
                         }
                         hr { class: "pb-2" }
-                        if !tags_loaded() {
+                        if !entries_loaded() {
                             p { class: "pb-4 text-gray-500", "Loading tags ..." }
                         } else {
-                            if tags().is_empty() {
-                                p { class: "pb-4 text-gray-500", "No tags exist." }
-                            } else {
-                                p { class: "pb-4 text-gray-500", "The following tags exist." }
-                                for item in tags().iter() {
-                                    TagCard { item: item.clone() }
-                                }
+                            if entries().is_empty() {
+                                p { class: "pb-4 text-gray-500", "There are no entries." }
+                            }
+                            for item in entries().iter() {
+                                TagCard { item: item.clone() }
                             }
                         }
                     }

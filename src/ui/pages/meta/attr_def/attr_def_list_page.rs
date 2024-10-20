@@ -45,9 +45,9 @@ pub fn AttributeDefListPage() -> Element {
                                 "+"
                             }
                         }
-                        hr { class: "pb-2" }
-                        p { class: "pb-4 text-gray-500",
-                            "The following attributes definitions exist."
+                        hr { class: "pb-4" }
+                        if entries.is_empty() {
+                            p { class: "pb-4 text-gray-500", "There are no entries." }
                         }
                         for attr in entries() {
                             AttrDefCard { attr_def: attr.clone(), tags: tags() }

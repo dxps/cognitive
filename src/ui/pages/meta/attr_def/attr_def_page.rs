@@ -76,12 +76,7 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
                                 "X"
                             }
                         }
-                        hr { class: "pb-2" }
-                        if action() == Action::View {
-                            "This tag has the following details:"
-                        } else {
-                            "Change any of the fields below to update the attribute definition."
-                        }
+                        hr { class: "pb-4" }
                         AttributeDefForm {
                             name,
                             description,

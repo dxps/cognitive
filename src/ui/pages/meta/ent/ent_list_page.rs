@@ -13,12 +13,12 @@ use crate::{
 #[component]
 pub fn EntityListPage() -> Element {
     //
-    let mut items = use_signal::<Vec<Entity>>(|| vec![]);
+    let mut entries = use_signal::<Vec<Entity>>(|| vec![]);
 
     use_future(move || async move {
         UI_STATE.get_ent_defs().await;
         if let Ok(entitites) = list_entities().await {
-            items.set(entitites);
+            entries.set(entitites);
         }
     });
 
@@ -39,16 +39,12 @@ pub fn EntityListPage() -> Element {
                                 "+"
                             }
                         }
-                        hr { class: "pb-2" }
-                        p { class: "pb-4",
-                            if items.is_empty() {
-                                "No entities exist."
-                            } else {
-                                "The following entities exist."
-                            }
+                        hr { class: "pb-4" }
+                        if entries.is_empty() {
+                            p { class: "pb-4 text-gray-500", "There are no entries." }
                         }
-                        for item in items() {
-                            EntityCard { ent: item.clone() }
+                        for e in entries() {
+                            EntityCard { ent: e.clone() }
                         }
                     }
                 }

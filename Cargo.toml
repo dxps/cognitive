@@ -7,7 +7,7 @@ edition = "2021"
 #############
 [profile.dev]
 #############
-codegen-units = 16
+codegen-units = 18
 
 
 ##############

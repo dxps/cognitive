@@ -43,12 +43,12 @@ pub fn AttributeDefForm(props: AttributeDefFormProps) -> Element {
                     value: "{name}",
                     maxlength: 64,
                     readonly: is_view,
-                    autofocus: !is_view,
+                    autofocus: !is_edit,
                     oninput: move |evt| {
                         name.set(evt.value());
                     },
                     onmounted: move |evt| async move {
-                        _ = evt.set_focus(true).await;
+                        _ = evt.set_focus(is_edit).await;
                     }
                 }
             }
