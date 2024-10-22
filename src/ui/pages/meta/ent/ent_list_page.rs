@@ -16,7 +16,7 @@ pub fn EntityListPage() -> Element {
     let mut entries = use_signal::<Vec<Entity>>(|| vec![]);
 
     use_future(move || async move {
-        UI_STATE.get_ent_defs().await;
+        UI_STATE.get_ent_defs_list().await;
         if let Ok(entitites) = list_entities().await {
             entries.set(entitites);
         }

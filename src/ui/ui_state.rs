@@ -12,7 +12,7 @@ pub struct UiState {
     /// the ordered list of tags
     pub tags_list: GlobalSignal<Arc<Vec<Tag>>>,
     pub tags_loaded: GlobalSignal<bool>,
-    pub ent_defs: GlobalSignal<HashMap<Id, EntityDef>>,
+    pub ent_defs_list: GlobalSignal<Vec<EntityDef>>,
 }
 
 impl UiState {
@@ -22,7 +22,7 @@ impl UiState {
             tags: GlobalSignal::new(|| Arc::new(HashMap::new())),
             tags_list: GlobalSignal::new(|| Arc::new(Vec::new())),
             tags_loaded: GlobalSignal::new(|| false),
-            ent_defs: GlobalSignal::new(|| HashMap::new()),
+            ent_defs_list: GlobalSignal::new(|| Vec::new()),
         }
     }
 
@@ -36,7 +36,7 @@ impl UiState {
                     let tags_map = Arc::new(tags_map);
                     *self.tags.write() = tags_map;
                 }
-                Err(e) => log::error!(">>> [UiGlobalSignals.get_tags] Failed to get tags: {}", e),
+                Err(e) => log::error!(">>> [UiState.get_tags] Failed to get tags: {}", e),
             }
         }
         self.tags.read().clone()
@@ -90,28 +90,62 @@ impl UiState {
 
     /// Get the entities definitions.
     /// If they haven't been loaded yet, it fetches them from the server.
-    pub async fn get_ent_defs(&self) -> HashMap<Id, EntityDef> {
-        if self.ent_defs.read().is_empty() {
-            if let Ok(ent_defs) = list_entities_defs().await {
-                log::debug!("[UiGlobals] Got entity defs: {:?}", ent_defs);
-                *self.ent_defs.write() = ent_defs.into_iter().map(|def| (def.id.clone(), def)).collect();
-            }
+    pub async fn get_ent_defs_list(&self) -> Vec<EntityDef> {
+        if self.ent_defs_list.read().is_empty() {
+            self.get_ent_defs_from_server().await;
         };
-        self.ent_defs.read().clone()
+        self.ent_defs_list.read().clone()
     }
 
     pub async fn get_ent_def(&self, id: &Id) -> Option<EntityDef> {
-        if self.ent_defs.read().is_empty() {
-            if let Ok(ent_defs) = list_entities_defs().await {
-                log::debug!("[UiGlobals] Got entity defs: {:?}", ent_defs);
-                *self.ent_defs.write() = ent_defs.into_iter().map(|def| (def.id.clone(), def)).collect();
-            }
+        if self.ent_defs_list.read().is_empty() {
+            self.get_ent_defs_from_server().await;
         };
-        self.ent_defs.read().get(id).cloned()
+        self.get_ent_def_sync(id)
+    }
+
+    async fn get_ent_defs_from_server(&self) {
+        match list_entities_defs().await {
+            Ok(ent_defs) => {
+                log::debug!("[UiState.get_ent_defs_from_server] Got entity defs: {:?}", ent_defs);
+                *self.ent_defs_list.write() = ent_defs;
+            }
+            Err(e) => {
+                log::error!("[UiState.get_ent_defs_from_server] Failed to fetch entity defs. Cause: '{e}'.");
+            }
+        }
     }
 
     pub fn get_ent_def_sync(&self, id: &Id) -> Option<EntityDef> {
-        self.ent_defs.read().get(id).cloned()
+        self.ent_defs_list
+            .read()
+            .iter()
+            .find(|item| item.id == *id)
+            .map(|item| item.clone())
+    }
+
+    pub fn add_ent_def(&self, ent_def: EntityDef) {
+        let mut ent_defs = self.ent_defs_list.read().clone();
+        log::debug!(
+            "[UiState.add_ent_def] Adding ent_def: {:?} to existing ent_defs: {:?}",
+            ent_def,
+            ent_defs
+        );
+        ent_defs.push(ent_def);
+        *self.ent_defs_list.write() = ent_defs;
+    }
+
+    pub fn update_ent_def(&self, ent_def: EntityDef) {
+        let mut ent_defs = self.ent_defs_list.read().clone();
+        ent_defs.retain(|ent_def| ent_def.id != ent_def.id);
+        ent_defs.push(ent_def);
+        *self.ent_defs_list.write() = ent_defs;
+    }
+
+    pub fn remove_ent_def(&self, id: &Id) {
+        let mut ent_defs = self.ent_defs_list.read().clone();
+        ent_defs.retain(|ent_def| ent_def.id != *id);
+        *self.ent_defs_list.write() = ent_defs;
     }
 }
 

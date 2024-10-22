@@ -5,7 +5,7 @@ use crate::{
         comps::{Breadcrumb, Nav},
         pages::{meta::ent_def::fetch_all_attr_defs, EntityDefForm},
         routes::Route,
-        Action,
+        Action, UI_STATE,
     },
 };
 use dioxus::prelude::*;
@@ -22,14 +22,14 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
     let id = use_signal(|| props.id);
     let mut name = use_signal(|| "".to_string());
     let mut description = use_signal(|| "".to_string());
-    let mut included_attr_defs = use_signal(|| Vec::<(Id, String)>::new());
+    let mut included_attr_defs = use_signal(|| HashMap::<Id, String>::new());
     let mut listing_attr_def_id = use_signal(|| Id::default());
 
     let mut all_attr_defs = use_signal(|| HashMap::<Id, String>::new());
 
     let mut action = use_signal(|| Action::View);
     let mut err: Signal<Option<String>> = use_signal(|| None);
-    let saved = use_signal(|| false);
+    let action_done = use_signal(|| false);
 
     use_future(move || async move {
         all_attr_defs.set(fetch_all_attr_defs().await);
@@ -79,7 +79,7 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
                             listing_attr_def_id,
                             all_attr_defs,
                             action: action(),
-                            saved,
+                            action_done,
                             err
                         }
                         div { class: "flex justify-between mt-8",
@@ -87,7 +87,7 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
                                 class: "text-red-300 hover:text-red-600 hover:bg-red-100 drop-shadow-sm px-4 rounded-md",
                                 onclick: move |_| {
                                     action.set(Action::Delete);
-                                    async move { handle_delete(id(), saved, err).await }
+                                    async move { handle_delete(id(), action_done, err).await }
                                 },
                                 "Delete"
                             }
@@ -95,7 +95,7 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
                             div { class: "min-w-[400px] max-w-[400px] text-sm flex justify-center items-center",
                                 if err().is_some() {
                                     span { class: "text-red-600", { err().unwrap() } }
-                                } else if saved() {
+                                } else if action_done() {
                                     span { class: "text-green-600",
                                         {
                                             if action() == Action::Edit {
@@ -121,7 +121,7 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
                                                 navigator().push(Route::EntityDefListPage {});
                                             }
                                             Action::Edit => {
-                                                if saved() {
+                                                if action_done() {
                                                     navigator().push(Route::EntityDefListPage {});
                                                 } else {
                                                     if name().is_empty() {
@@ -146,7 +146,8 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
                                                             description,
                                                             attributes_ids,
                                                             listing_attr_def_id(),
-                                                            saved,
+                                                            all_attr_defs(),
+                                                            action_done,
                                                             err,
                                                         )
                                                         .await;
@@ -155,7 +156,7 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
                                         }
                                     }
                                 },
-                                if action() == Action::View || (action() == Action::Edit && saved()) {
+                                if action() == Action::View || (action() == Action::Edit && action_done()) {
                                     "Edit"
                                 } else if action() == Action::Delete {
                                     "Close"
@@ -175,8 +176,9 @@ async fn handle_update(
     id: Id,
     name: String,
     description: Option<String>,
-    attr_def_ids: Vec<Id>,
+    included_attr_def_ids: Vec<Id>,
     listing_attr_def_id: Id,
+    all_attr_defs: HashMap<Id, String>,
     mut saved: Signal<bool>,
     mut err: Signal<Option<String>>,
 ) {
@@ -184,14 +186,18 @@ async fn handle_update(
     log::debug!(
         "Updating entity definition with id:'{id}' name:{name} description:{:?} attr_def_ids:{:?}: ",
         description,
-        attr_def_ids
+        included_attr_def_ids
     );
-
-    let item = EntityDef::new_with_attr_def_ids(id, name, description, attr_def_ids, listing_attr_def_id);
-    match update_entity_def(item).await {
+    let attributes = included_attr_def_ids
+        .iter()
+        .map(|id| (id.clone(), all_attr_defs.get(id).unwrap().clone()))
+        .collect();
+    let ent_def = EntityDef::new_with_attr_def_ids(id, name, description, attributes, listing_attr_def_id);
+    match update_entity_def(ent_def.clone()).await {
         Ok(_) => {
             saved.set(true);
             err.set(None);
+            UI_STATE.update_ent_def(ent_def);
         }
         Err(e) => {
             saved.set(false);
@@ -207,6 +213,7 @@ async fn handle_delete(id: Id, mut saved: Signal<bool>, mut err: Signal<Option<S
         Ok(_) => {
             saved.set(true);
             err.set(None);
+            UI_STATE.remove_ent_def(&id);
         }
         Err(e) => {
             saved.set(false);

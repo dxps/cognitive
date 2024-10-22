@@ -4,7 +4,7 @@ use crate::{
         comps::{Breadcrumb, Nav},
         pages::{meta::ent_def::fetch_all_attr_defs, EntityDefForm},
         routes::Route,
-        Action,
+        Action, UI_STATE,
     },
 };
 use dioxus::prelude::*;
@@ -14,13 +14,13 @@ pub fn EntityDefNewPage() -> Element {
     //
     let name = use_signal(|| "".to_string());
     let description = use_signal(|| "".to_string());
-    let included_attr_defs = use_signal::<Vec<(Id, String)>>(|| vec![]);
+    let included_attr_defs = use_signal::<HashMap<Id, String>>(|| HashMap::new());
     let listing_attr_def_id = use_signal(|| Id::default());
 
     let mut all_attr_defs = use_signal(|| HashMap::<Id, String>::new());
 
     let mut err: Signal<Option<String>> = use_signal(|| None);
-    let saved = use_signal(|| false);
+    let action_done = use_signal(|| false);
 
     use_future(move || async move {
         all_attr_defs.set(fetch_all_attr_defs().await);
@@ -51,7 +51,7 @@ pub fn EntityDefNewPage() -> Element {
                             listing_attr_def_id,
                             all_attr_defs,
                             action: Action::Edit,
-                            saved,
+                            action_done,
                             err
                         }
                         div { class: "flex justify-betweent mt-8",
@@ -59,7 +59,7 @@ pub fn EntityDefNewPage() -> Element {
                             div { class: "min-w-[450px] max-w-[450px] text-sm flex justify-center items-center",
                                 if err().is_some() {
                                     span { class: "text-red-600", { err().unwrap() } }
-                                } else if saved() {
+                                } else if action_done() {
                                     span { class: "text-green-600", { "Successfully created" } }
                                 }
                             }
@@ -72,7 +72,7 @@ pub fn EntityDefNewPage() -> Element {
                                         false => Some(description()),
                                     };
                                     async move {
-                                        if saved() {
+                                        if action_done() {
                                             navigator().push(Route::EntityDefListPage {});
                                         } else {
                                             if name().is_empty() {
@@ -83,23 +83,20 @@ pub fn EntityDefNewPage() -> Element {
                                                 err.set(Some("Include at least one attribute".to_string()));
                                                 return;
                                             }
-                                            let attributes_ids: Vec<Id> = included_attr_defs()
-                                                .iter()
-                                                .map(|(id, _)| id.clone())
-                                                .collect();
                                             handle_create_ent_def(
                                                     name(),
                                                     description.clone(),
                                                     listing_attr_def_id(),
-                                                    attributes_ids,
-                                                    saved,
+                                                    included_attr_defs(),
+                                                    all_attr_defs(),
+                                                    action_done,
                                                     err,
                                                 )
                                                 .await;
                                         }
                                     }
                                 },
-                                if saved() {
+                                if action_done() {
                                     "Close"
                                 } else {
                                     "Create"
@@ -117,22 +114,29 @@ async fn handle_create_ent_def(
     name: String,
     description: Option<String>,
     listing_attr_def_id: Id,
-    attr_def_ids: Vec<Id>,
-    mut saved: Signal<bool>,
+    included_attr_defs: HashMap<Id, String>,
+    all_attr_defs: HashMap<Id, String>,
+    mut action_done: Signal<bool>,
     mut err: Signal<Option<String>>,
-) -> Option<Id> {
-    let ent_def = EntityDef::new_with_attr_def_ids("".into(), name, description, attr_def_ids, listing_attr_def_id);
-    log::debug!("Creating an entity definition {:?}: ", ent_def);
-    match crate::server::fns::create_entity_def(ent_def).await {
+) {
+    log::debug!(
+        "[handle_create_ent_def] Creating ent def w/ included_attr_defs: {:?} and all_attr_defs: {:?} ",
+        included_attr_defs,
+        all_attr_defs
+    );
+
+    let mut ent_def = EntityDef::new_with_attr_def_ids("".into(), name, description, included_attr_defs, listing_attr_def_id);
+    log::debug!("[handle_create_ent_def] Creating ent def: {:?}: ", ent_def);
+    match crate::server::fns::create_entity_def(ent_def.clone()).await {
         Ok(id) => {
-            saved.set(true);
+            action_done.set(true);
             err.set(None);
-            Some(id)
+            ent_def.id = id;
+            UI_STATE.add_ent_def(ent_def);
         }
         Err(e) => {
-            saved.set(false);
+            action_done.set(false);
             err.set(Some(e.to_string()));
-            None
         }
     }
 }

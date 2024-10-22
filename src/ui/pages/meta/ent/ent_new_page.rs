@@ -13,7 +13,7 @@ use std::collections::HashMap;
 
 pub fn EntityNewPage() -> Element {
     //
-    let mut ent_defs = use_signal::<HashMap<Id, EntityDef>>(|| HashMap::new());
+    let mut ent_defs = use_signal::<Vec<EntityDef>>(|| Vec::new());
     let mut ent_kinds = use_signal::<HashMap<Id, String>>(|| HashMap::new());
     let selected_kind_id = use_signal(|| Id::default());
     let mut selected_kind_name = use_signal(|| "".into());
@@ -30,9 +30,13 @@ pub fn EntityNewPage() -> Element {
     let action_done = use_signal(|| false);
 
     use_future(move || async move {
-        let defs = UI_STATE.get_ent_defs().await;
-        ent_kinds.set(defs.iter().map(|(id, def)| (id.clone(), def.name.clone())).collect());
-        ent_defs.set(defs);
+        let ent_defs_list = UI_STATE.get_ent_defs_list().await;
+        let mut ent_kinds_map = HashMap::new();
+        ent_defs_list.iter().for_each(|ent_def| {
+            ent_kinds_map.insert(ent_def.id.clone(), ent_def.name.clone());
+        });
+        ent_kinds.set(ent_kinds_map);
+        ent_defs.set(ent_defs_list);
     });
 
     use_memo(move || {

@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use super::{AttributeDef, Item, ItemType};
 use crate::domain::model::Id;
 use serde::{Deserialize, Serialize};
@@ -27,7 +29,7 @@ impl EntityDef {
         id: Id,
         name: String,
         description: Option<String>,
-        attributes: Vec<Id>,
+        attributes: HashMap<Id, String>,
         listing_attr_def_id: Id,
     ) -> Self {
         Self {
@@ -35,7 +37,10 @@ impl EntityDef {
             name,
             description,
             listing_attr_def_id,
-            attributes: attributes.iter().map(|id| AttributeDef::new_with_id(id.clone())).collect(),
+            attributes: attributes
+                .iter()
+                .map(|(id, name)| AttributeDef::new_with_id_name(id.clone(), name.clone()))
+                .collect(),
         }
     }
 }

@@ -5,6 +5,7 @@ use crate::domain::model::Id;
 use crate::server::fns::list_attribute_defs;
 use std::collections::HashMap;
 
+/// Fetch all attribute definitions and return a map of their id and name.
 pub async fn fetch_all_attr_defs() -> HashMap<Id, String> {
     //
     let mut entries = HashMap::new();

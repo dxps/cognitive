@@ -42,10 +42,10 @@ impl AttributeDef {
         }
     }
 
-    pub fn new_with_id(id: Id) -> Self {
+    pub fn new_with_id_name(id: Id, name: String) -> Self {
         Self {
             id,
-            name: "".into(),
+            name,
             description: None,
             value_type: AttributeValueType::Text,
             default_value: "".into(),

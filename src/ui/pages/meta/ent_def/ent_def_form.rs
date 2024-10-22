@@ -6,11 +6,11 @@ use std::collections::HashMap;
 pub struct EntityDefFormProps {
     pub name: Signal<String>,
     pub description: Signal<String>,
-    pub included_attr_defs: Signal<Vec<(Id, String)>>,
+    pub included_attr_defs: Signal<HashMap<Id, String>>,
     pub listing_attr_def_id: Signal<Id>,
     pub all_attr_defs: Signal<HashMap<Id, String>>,
     pub action: String,
-    pub saved: Signal<bool>,
+    pub action_done: Signal<bool>,
     pub err: Signal<Option<String>>,
 }
 
@@ -24,7 +24,7 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
         mut listing_attr_def_id,
         mut all_attr_defs,
         action,
-        saved,
+        action_done,
         mut err,
     } = props;
 
@@ -84,7 +84,7 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
                                 let id = id.clone();
                                 let name = name.clone();
                                 let mut temp = included_attr_defs();
-                                temp.retain(|(iid, _)| *iid != id);
+                                temp.remove(&id);
                                 included_attr_defs.set(temp);
                                 let mut temp = all_attr_defs();
                                 temp.insert(id.clone(), name);
@@ -120,7 +120,7 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
             hr { class: "mt-8 mb-1" }
             div {
                 class: "flex",
-                display: if action == "View" || action == "Delete" || (action == "Edit" && saved()) {
+                display: if action == "View" || action == "Delete" || (action == "Edit" && action_done()) {
                     "none"
                 } else {
                     "block"
@@ -158,7 +158,7 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
                             listing_attr_def_id.set(selected_attr_def_id());
                         }
                         let mut included = included_attr_defs();
-                        included.push((selected_attr_def_id(), selected_attr_def_name()));
+                        included.insert(selected_attr_def_id(), selected_attr_def_name());
                         included_attr_defs.set(included);
                         let mut attr_defs = all_attr_defs();
                         attr_defs.remove(&selected_attr_def_id());
