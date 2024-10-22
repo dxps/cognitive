@@ -96,3 +96,23 @@ async fn handle_login(email: String, password: String, wrong_creds: &mut Signal<
         }
     }
 }
+
+pub fn LoginIsRequiredPage() -> Element {
+    rsx! {
+        div { class: "flex flex-col min-h-screen bg-gray-100",
+            Nav {}
+            div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
+                div { class: "bg-white rounded-md p-10",
+                    div { "You need to login to access this page." }
+                    div { class: "mt-6 text-center",
+                        Link {
+                            class: "text-sm text-gray-600 py-2 px-4 hover:bg-gray-50 rounded-lg transition duration-200",
+                            to: Route::Login {},
+                            "Login"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

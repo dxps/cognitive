@@ -2,15 +2,33 @@ use dioxus::prelude::*;
 
 use crate::ui::{
     comps::{Breadcrumb, Nav},
+    pages::LoginIsRequiredPage,
     routes::Route,
+    UiStorage, UI_STATE,
 };
 
 #[component]
-pub fn Admin() -> Element {
+pub fn AdminPage() -> Element {
+    //
+    if *UI_STATE.app_ready.read() == false {
+        return rsx! { "Loading..." };
+    }
+    let state = use_context::<Signal<UiStorage>>();
+    if state().current_user.is_none() {
+        rsx! {
+            LoginIsRequiredPage {}
+        }
+    } else {
+        render_page()
+    }
+}
+
+fn render_page() -> Element {
+    //
     rsx! {
         div { class: "flex flex-col min-h-screen bg-gray-100",
             Nav {}
-            Breadcrumb { paths: Route::get_path(Route::Admin {}) }
+            Breadcrumb { paths: Route::get_path(Route::AdminPage {}) }
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
                 div { class: "bg-white rounded-lg p-3 min-w-[600px] mt-[min(100px)]",
                     div { class: "p-6",

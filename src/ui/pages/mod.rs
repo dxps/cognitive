@@ -4,8 +4,8 @@ pub use meta::*;
 mod admin;
 pub use admin::*;
 
-mod user_profile;
-pub use user_profile::*;
+mod user_profile_page;
+pub use user_profile_page::*;
 
 mod home;
 pub use home::*;

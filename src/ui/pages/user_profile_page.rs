@@ -1,19 +1,21 @@
 use crate::domain::model::UserAccount;
 use crate::server::fns::{save_user_profile_primary_info, set_user_profile_new_password};
-use crate::ui::comps::{render_go_to_login, Nav};
+use crate::ui::comps::Nav;
+use crate::ui::pages::LoginIsRequiredPage;
 use crate::ui::{UiStorage, UI_STATE};
 use dioxus::prelude::*;
 
 #[component]
-pub fn UserProfile(username: String) -> Element {
+pub fn UserProfilePage(username: String) -> Element {
     //
     if *UI_STATE.app_ready.read() == false {
-        return rsx! {};
-    };
+        return rsx! { "Loading..." };
+    }
     let state = use_context::<Signal<UiStorage>>();
     if state().current_user.is_none() {
-        log::debug!(">>> [UserProfile] There is no locally saved user.");
-        render_go_to_login()
+        rsx! {
+            LoginIsRequiredPage {}
+        }
     } else {
         render_user_profile_page(username, state().current_user.unwrap())
     }
