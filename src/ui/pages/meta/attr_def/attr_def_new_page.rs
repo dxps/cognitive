@@ -58,7 +58,7 @@ pub fn AttributeDefNewPage() -> Element {
                             is_multivalued,
                             tag_id,
                             tags: tags(),
-                            action: Action::Edit
+                            action: Action::Create
                         }
                         div { class: "flex justify-betweent mt-8",
                             // Show the button's action result in the UI.

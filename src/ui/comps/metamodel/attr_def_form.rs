@@ -72,7 +72,7 @@ pub fn AttributeDefForm(props: AttributeDefFormProps) -> Element {
                 select {
                     class: "px-3 py-2 min-w-80",
                     multiple: false,
-                    disabled: is_view,
+                    disabled: is_view || is_edit,
                     oninput: move |evt| {
                         value_type.set(evt.value());
                         log::debug!("selected value type: {:?}", evt.value());

@@ -153,6 +153,7 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
                                                         .await;
                                                 }
                                             }
+                                            _ => {}
                                         }
                                     }
                                 },

@@ -134,6 +134,7 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
                                                     action.set(Action::View);
                                                 }
                                             }
+                                            _ => {}
                                         }
                                     }
                                 },
