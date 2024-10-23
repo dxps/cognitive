@@ -95,6 +95,9 @@ pub fn AttributeDefForm(props: AttributeDefFormProps) -> Element {
                     }
                     option { value: "real", selected: "{value_type() == \"real\"}", "Decimal" }
                 }
+                p { class: "text-xs text-gray-400 hover:text-gray-600 cursor-pointer pl-1 pt-3",
+                    "🛈"
+                }
             }
             div { class: "flex py-2",
                 label { class: "pr-3 py-2 min-w-28", "Default Value:" }
