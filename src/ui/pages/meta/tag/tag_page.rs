@@ -50,11 +50,6 @@ pub fn TagPage(id: Id) -> Element {
                             }
                         }
                         hr { class: "pb-2" }
-                        if action() == Action::View {
-                            "This tag has the following details:"
-                        } else {
-                            "Change any of the fields below to update the tag."
-                        }
                         TagForm { name, description, action: action() }
                         div { class: "flex justify-between mt-8",
                             button {

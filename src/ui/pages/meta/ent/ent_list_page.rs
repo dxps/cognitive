@@ -63,7 +63,7 @@ fn EntityCard(ent: Entity) -> Element {
                 id: ent.id.clone(),
             },
             div { class: "flex flex-col p-2 my-3 bg-white rounded-md border hover:bg-slate-100 hover:border-slate-100 transition duration-200",
-                div { class: "flex justify-between text-gray-600",
+                div { class: "flex justify-between text-gray-500",
                     div {
                         p { class: "text-lg leading-5 text-gray-600 font-medium pt-1 pl-2",
                             "{ent.listing_attr_value}"
@@ -72,10 +72,11 @@ fn EntityCard(ent: Entity) -> Element {
                             "({ent.listing_attr_name})"
                         }
                     }
-                    div {
-                        p { class: "mt-1 text-xs bg-slate-100 hover:bg-white rounded-lg px-2 leading-snug tracking-normal antialiased",
+                    div { class: "flex",
+                        p { class: "mt-1 text-xs leading-snug tracking-normal antialiased pr-1",
                             "{ent.kind}"
                         }
+                        img { class: "h-4 w-4 mt-1", src: "/struct.png" }
                     }
                 }
             }

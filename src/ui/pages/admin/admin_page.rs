@@ -45,12 +45,12 @@ fn render_page() -> Element {
                                     "Definitions"
                                 }
                                 Link {
-                                    class: "py-2 px-4 rounded transition duration-200",
+                                    class: "py-2 px-4 rounded-lg transition duration-200",
                                     to: Route::EntityDefListPage {},
                                     "Entities Definitions"
                                 }
                                 Link {
-                                    class: "py-2 px-4 rounded transition duration-200",
+                                    class: "py-2 px-4 rounded-lg transition duration-200",
                                     to: Route::AttributeDefListPage {},
                                     "Attributes Definitions"
                                 }
@@ -60,12 +60,12 @@ fn render_page() -> Element {
                                     "Instances"
                                 }
                                 Link {
-                                    class: "py-2 px-4 rounded transition duration-200",
+                                    class: "py-2 px-4 rounded-lg transition duration-200",
                                     to: Route::EntityListPage {},
                                     "Entities Instances"
                                 }
                                 Link {
-                                    class: "py-2 px-4 rounded transition duration-200",
+                                    class: "py-2 px-4 rounded-lg transition duration-200",
                                     to: Route::TagListPage {},
                                     "Tags"
                                 }

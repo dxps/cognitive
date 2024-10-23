@@ -85,23 +85,19 @@ fn AttrDefCard(props: AttrDefCardProps) -> Element {
                         p { class: "text-xs text-slate-500 leading-snug tracking-normal antialiased pr-1",
                             "{attr_def.value_type.label()}"
                         }
-                        p { class: "text-[9px] text-slate-300 leading-snug pt-0.5",
-                            "■"
-                        }
+                        img { class: "h-4 w-4 mt-px", src: "/struct.png" }
                     }
                 }
-                div { class: "flex justify-between text-gray-600",
-                    p { class: "text-xs leading-5 text-gray-500 pt-1",
-                        "{attr_def.description.unwrap_or_default()}"
-                    }
+                div { class: "flex justify-between text-gray-500",
+                    p { class: "text-xs leading-5 pt-1", "{attr_def.description.unwrap_or_default()}" }
                     {   if attr_def.tag_id.is_some() {
                         let tag_id = attr_def.tag_id.unwrap();
                         match tags.get(&tag_id) {
                                 Some(tag) => {
                                     rsx! {
                                         div { class: "flex pt-0.5",
-                                        p { class: "text-xs leading-5 pr-1", "{tag.name.clone()}" }
-                                        p { class: "text-[10px] text-slate-300 leading-5", "●" }
+                                            p { class: "text-xs leading-5 pr-1", "{tag.name.clone()}" }
+                                            img { class: "h-4 w-4 mt-0.5", src: "/tag.png" }
                                         }
                                     }
                                 }
