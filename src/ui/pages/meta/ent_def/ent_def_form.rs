@@ -38,7 +38,7 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
     rsx! {
         div { class: "mt-4 space-y-4",
             div { class: "flex",
-                label { class: "pr-3 py-2 min-w-32", "Name:" }
+                label { class: "pr-3 py-2 min-w-32 text-gray-500", "Name" }
                 input {
                     key: "name_{action}",
                     class: "px-3 py-1 min-w-80",
@@ -58,7 +58,7 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
                 }
             }
             div { class: "flex",
-                label { class: "pr-3 py-2 min-w-32", "Description:" }
+                label { class: "pr-3 py-2 min-w-32 text-gray-500", "Description" }
                 textarea {
                     class: "px-3 py-2 min-w-80",
                     rows: 3,
@@ -71,35 +71,37 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
                     }
                 }
             }
-            p { class: "slate-100 text-sm font-medium", "Attributes" }
-            div {
-                for (id , name) in included_attr_defs() {
-                    div { class: "flex",
-                        p { class: "pl-32 pr-3 min-w-[430px]", "{name}" }
-                        button {
-                            class: "text-red-200 hover:text-red-500 hover:bg-red-100 disabled:text-white disabled:hover:bg-white ml-4 px-3 py-0 rounded-xl transition duration-200",
-                            disabled: is_view,
-                            // Remove the item from `included_attr_defs` and put it back into `all_attr_defs`.
-                            onclick: move |_| {
-                                let id = id.clone();
-                                let name = name.clone();
-                                let mut temp = included_attr_defs();
-                                temp.remove(&id);
-                                included_attr_defs.set(temp);
-                                let mut temp = all_attr_defs();
-                                temp.insert(id.clone(), name);
-                                all_attr_defs.set(temp);
-                                if listing_attr_def_id() == id {
-                                    listing_attr_def_id.set(Id::default());
-                                }
-                            },
-                            "-"
+            div { class: "flex",
+                p { class: "min-w-32 text-gray-500", "Attributes" }
+                div {
+                    for (id , name) in included_attr_defs() {
+                        div { class: "flex",
+                            p { class: "pl-3 pr-3", "{name}" }
+                            button {
+                                class: "text-red-200 hover:text-red-500 hover:bg-red-100 disabled:text-white disabled:hover:bg-white ml-4 px-3 py-0 rounded-xl transition duration-200",
+                                disabled: is_view,
+                                // Remove the item from `included_attr_defs` and put it back into `all_attr_defs`.
+                                onclick: move |_| {
+                                    let id = id.clone();
+                                    let name = name.clone();
+                                    let mut temp = included_attr_defs();
+                                    temp.remove(&id);
+                                    included_attr_defs.set(temp);
+                                    let mut temp = all_attr_defs();
+                                    temp.insert(id.clone(), name);
+                                    all_attr_defs.set(temp);
+                                    if listing_attr_def_id() == id {
+                                        listing_attr_def_id.set(Id::default());
+                                    }
+                                },
+                                "-"
+                            }
                         }
                     }
                 }
             }
             div { class: "flex",
-                label { class: "pr-3 py-2 min-w-32", "Listing attribute:" }
+                label { class: "pr-3 py-2 min-w-32 text-gray-500", "Listing attribute" }
                 select {
                     class: "px-3 py-2 min-w-80",
                     multiple: false,

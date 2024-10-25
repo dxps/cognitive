@@ -3,7 +3,7 @@
 #============
 
 # App (Project) Name
-name = "servicentral"
+name = "akasha"
 
 # Dioxus App Default Platform
 # desktop, web
@@ -20,7 +20,7 @@ asset_dir = "assets"
 #========
 
 # HTML title tag content
-title = "servicentral"
+title = "Akasha"
 
 #============
 [web.watcher]

@@ -1,6 +1,6 @@
 [package]
-name = "servicentral"
-version = "0.1.0"
+name = "akasha"
+version = "0.4.0"
 authors = ["dxps <marius.ileana@gmail.com>"]
 edition = "2021"
 
@@ -57,7 +57,6 @@ futures-util = { version = "0.3", default-features = false, features = [
 ], optional = true }
 
 web-sys = { version = "0.3.69", features = [ "Storage", "Window" ] }
-# nid = { version = "3.0.0", optional = true }
 nid = { version = "3.0.0" }
 getrandom = { version = "0.2", features = ["js"] }
 fastrand = { version = "2.1.0", optional = true }
@@ -89,7 +88,6 @@ server = [
     "log", "console_log", "simple_logger",
     "async-trait",
     "sqlx",
-    # "nid",
     "fastrand", "md5",
     "dotenvy"
 ]

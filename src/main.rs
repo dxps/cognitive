@@ -1,11 +1,11 @@
 #![allow(non_snake_case)]
 
 #[cfg(feature = "server")]
-use servicentral::{server, ui};
+use akasha::{server, ui};
 
 #[cfg(feature = "web")]
 #[cfg(not(feature = "server"))]
-use servicentral::ui;
+use akasha::ui;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     //

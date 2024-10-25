@@ -1,13 +1,22 @@
-# ServiCentral
+# Akasha
 
-ServiCentral provides:
+A generic ecosystem of knowledge and behavior.
 
--   a service registry
-    -   exposing API for services self registration
-    -   and for service discovery
--   a service catalog
-    -   that includes all the services, gathering their metadata
-    -   their dependencies, and their deployments
+Currently, the focus is on the knowledge: the structure (of entities with their attributes) and links (between entities).<br/>
+Later, the behavior will be introduced through a pluggable mechanism. Most probably, a WASM based server side implementation.
+
+---
+
+Its initial triggers were three needs for having a:
+
+-   Service Registry
+    -   exposing API for apps and services to self register
+    -   and for service discovery, so that clients can know where to reach apps and services
+-   Service Catalog
+    -   that shows the list of all the apps and services that exist in your infrastructure
+    -   including various (and relevant) details about them, based on their self published metadata
+    -   their dependencies
+    -   their deployments
 
 <br/>
 
@@ -41,4 +50,4 @@ For further development, as previously mentioned, make sure you have `./run_css.
 
 ### The Domain Model
 
-TBD
+![](./docs/db_model_erd.png)
