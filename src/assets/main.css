@@ -66,4 +66,9 @@
 	select[disabled]:focus {
 		@apply border-slate-400;
 	}
+
+	.logo_filter {
+		filter: invert(94%) sepia(0%) saturate(0%) hue-rotate(156deg)
+			brightness(89%) contrast(89%);
+	}
 }
