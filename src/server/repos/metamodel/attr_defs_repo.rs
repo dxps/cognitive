@@ -19,12 +19,13 @@ impl AttributeDefRepo {
     pub async fn get(&self, id: &Id) -> Option<AttributeDef> {
         //
         sqlx::query_as::<_, AttributeDef>(
-            "SELECT id, name, description, value_type, default_value, required, multivalued, tag_id FROM attribute_defs WHERE id = $1"
+            "SELECT id, name, description, value_type, default_value, required, tag_id 
+             FROM attribute_defs WHERE id = $1",
         )
-            .bind(id.as_str())
-            .fetch_one(self.dbcp.as_ref())
-            .await
-            .ok()
+        .bind(id.as_str())
+        .fetch_one(self.dbcp.as_ref())
+        .await
+        .ok()
     }
 
     pub async fn list(&self, pagination_opts: Option<&PaginationOpts>) -> Vec<AttributeDef> {
@@ -34,8 +35,8 @@ impl AttributeDefRepo {
         let limit = pagination_opts.limit.unwrap_or(10);
         let offset = (pagination_opts.page.unwrap_or(1) - 1) * limit;
         let query = format!(
-            "SELECT id, name, description, value_type, default_value, required, multivalued, tag_id 
-               FROM attribute_defs ORDER BY name LIMIT {limit} OFFSET {offset}"
+            "SELECT id, name, description, value_type, default_value, required, tag_id 
+             FROM attribute_defs ORDER BY name LIMIT {limit} OFFSET {offset}"
         );
         log::debug!("Listing attribute defs w/ limit: {}, offset: {}.", limit, offset);
 
@@ -55,14 +56,13 @@ impl AttributeDefRepo {
         value_type: String,
         default_value: String,
         is_required: bool,
-        is_multivalued: bool,
         tag_id: Id,
     ) -> AppResult<Id> {
         //
         let tag_id = if tag_id.is_empty() { None } else { Some(tag_id.as_str()) };
         match sqlx::query(
-            "INSERT INTO attribute_defs (id, name, description, value_type, default_value, required, multivalued, tag_id) 
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
+            "INSERT INTO attribute_defs (id, name, description, value_type, default_value, required, tag_id)
+             VALUES ($1, $2, $3, $4, $5, $6, $7)",
         )
         .bind(&id.as_str())
         .bind(name)
@@ -70,7 +70,6 @@ impl AttributeDefRepo {
         .bind(value_type)
         .bind(default_value)
         .bind(is_required)
-        .bind(is_multivalued)
         .bind(tag_id)
         .execute(self.dbcp.as_ref())
         .await
@@ -88,7 +87,9 @@ impl AttributeDefRepo {
         //
         let tag_id = item.tag_id.as_ref().map(|id| id.as_str());
         sqlx::query(
-            "UPDATE attribute_defs SET name=$2, description=$3, value_type=$4, default_value=$5, required=$6, multivalued=$7, tag_id=$8 WHERE id = $1",
+            "UPDATE attribute_defs 
+             SET name=$2, description=$3, value_type=$4, default_value=$5, required=$6, tag_id=$7 
+             WHERE id = $1",
         )
         .bind(&item.id.as_str())
         .bind(&item.name)
@@ -96,7 +97,6 @@ impl AttributeDefRepo {
         .bind(item.value_type.to_string())
         .bind(&item.default_value)
         .bind(item.is_required)
-        .bind(item.is_multivalued)
         .bind(tag_id)
         .execute(self.dbcp.as_ref())
         .await
@@ -132,7 +132,6 @@ impl FromRow<'_, PgRow> for AttributeDef {
             description: row.get("description"),
             value_type: AttributeValueType::from(row.get::<&str, &str>("value_type")),
             default_value: row.get("default_value"),
-            is_multivalued: row.get("multivalued"),
             is_required: row.get("required"),
             tag_id,
         })

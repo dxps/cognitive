@@ -25,7 +25,7 @@ impl AttributeDefMgmt {
         self.attr_repo.list(None).await
     }
 
-    /// Add a new attribute definition. It returns the id of the repository entry.
+    /// Add a new attribute definition. It returns the id of the stored entry.
     pub async fn add(&self, item: AttributeDef) -> AppResult<Id> {
         //
         self.attr_repo
@@ -36,7 +36,6 @@ impl AttributeDefMgmt {
                 item.value_type.to_string(),
                 item.default_value,
                 item.is_required,
-                item.is_multivalued,
                 item.tag_id.unwrap_or_default(),
             )
             .await

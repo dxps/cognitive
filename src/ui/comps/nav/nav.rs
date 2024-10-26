@@ -9,7 +9,6 @@ pub fn Nav() -> Element {
         return rsx! { "" };
     }
     let route = use_route::<Route>().to_string();
-    log::debug!(">>> [Nav] route: {:?}", route);
 
     let state = use_context::<Signal<UiStorage>>();
     if state().current_user.is_none() {

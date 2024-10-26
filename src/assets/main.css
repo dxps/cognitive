@@ -13,7 +13,7 @@
 
 	/* Defaults for input elements. */
 	input {
-		@apply border-[1.4px] border-slate-300 text-sm rounded-md py-2.5 px-3;
+		@apply border-[1.4px] border-slate-300 text-sm rounded-lg py-2.5 px-3;
 	}
 	input:read-only {
 		@apply border-slate-200 outline-none;
@@ -35,7 +35,7 @@
 
 	/* Defaults for textarea elements. */
 	textarea {
-		@apply border-[1.4px] border-slate-300 text-sm rounded-md py-2.5 px-3;
+		@apply border-[1.4px] border-slate-300 text-sm rounded-lg py-2.5 px-3;
 	}
 	textarea:read-only {
 		@apply border-slate-200 outline-none;
@@ -54,10 +54,10 @@
 
 	/* Defaults for dropdowns. */
 	select {
-		@apply bg-white rounded-lg outline-none border-[1.4px] border-slate-300;
+		@apply bg-white rounded-lg outline-none border-[1.4px] border-slate-300 px-3;
 	}
 	select:disabled {
-		@apply bg-white rounded-lg outline-none border-[1.4px] border-slate-200;
+		@apply bg-white rounded-lg outline-none border-[1.4px] border-slate-200 px-3;
 	}
 	select:focus {
 		@apply border-green-300;

@@ -13,7 +13,6 @@ pub struct AttributeDef {
     pub description: Option<String>,
     pub value_type: AttributeValueType,
     pub default_value: String,
-    pub is_multivalued: bool,
     pub is_required: bool,
     pub tag_id: Option<Id>,
 }
@@ -27,7 +26,6 @@ impl AttributeDef {
         value_type: AttributeValueType,
         default_value: String,
         is_required: bool,
-        is_multivalued: bool,
         tag_id: Option<Id>,
     ) -> Self {
         Self {
@@ -36,7 +34,6 @@ impl AttributeDef {
             description,
             value_type,
             default_value,
-            is_multivalued,
             is_required,
             tag_id,
         }
@@ -49,7 +46,6 @@ impl AttributeDef {
             description: None,
             value_type: AttributeValueType::Text,
             default_value: "".into(),
-            is_multivalued: false,
             is_required: false,
             tag_id: None,
         }

@@ -571,7 +571,7 @@ a:hover {
 /* Defaults for input elements. */
 
 input {
-  border-radius: 0.375rem;
+  border-radius: 0.5rem;
   border-width: 1.4px;
   --tw-border-opacity: 1;
   border-color: rgb(203 213 225 / var(--tw-border-opacity));
@@ -624,7 +624,7 @@ input[type='number']::-webkit-inner-spin-button,
 /* Defaults for textarea elements. */
 
 textarea {
-  border-radius: 0.375rem;
+  border-radius: 0.5rem;
   border-width: 1.4px;
   --tw-border-opacity: 1;
   border-color: rgb(203 213 225 / var(--tw-border-opacity));
@@ -682,6 +682,8 @@ select {
   border-color: rgb(203 213 225 / var(--tw-border-opacity));
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
   outline: 2px solid transparent;
   outline-offset: 2px;
 }
@@ -693,6 +695,8 @@ select:disabled {
   border-color: rgb(226 232 240 / var(--tw-border-opacity));
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
   outline: 2px solid transparent;
   outline-offset: 2px;
 }
@@ -758,8 +762,8 @@ select[disabled]:focus {
   float: right;
 }
 
-.m-4 {
-  margin: 1rem;
+.m-8 {
+  margin: 2rem;
 }
 
 .mx-auto {
@@ -935,8 +939,8 @@ select[disabled]:focus {
   width: 1rem;
 }
 
-.w-56 {
-  width: 14rem;
+.w-48 {
+  width: 12rem;
 }
 
 .w-\[86px\] {
@@ -950,10 +954,6 @@ select[disabled]:focus {
 .w-max {
   width: -moz-max-content;
   width: max-content;
-}
-
-.w-44 {
-  width: 11rem;
 }
 
 .min-w-28 {
@@ -1305,10 +1305,6 @@ select[disabled]:focus {
 
 .pb-4 {
   padding-bottom: 1rem;
-}
-
-.pl-1 {
-  padding-left: 0.25rem;
 }
 
 .pl-2 {

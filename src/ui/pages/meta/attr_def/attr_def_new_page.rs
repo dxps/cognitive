@@ -19,7 +19,6 @@ pub fn AttributeDefNewPage() -> Element {
     let value_type = use_signal(|| "text".to_string());
     let default_value = use_signal(|| "".to_string());
     let is_required = use_signal(|| false);
-    let is_multivalued = use_signal(|| false);
     let tag_id = use_signal(|| Id::default());
     let mut tags = use_signal(|| Arc::new(Vec::new()));
 
@@ -47,15 +46,13 @@ pub fn AttributeDefNewPage() -> Element {
                                 "X"
                             }
                         }
-                        hr { class: "pb-2" }
-                        "Fill in the following form to create a new attribute definition."
+                        hr { class: "pb-4" }
                         AttributeDefForm {
                             name,
                             description,
                             value_type,
                             default_value,
                             is_required,
-                            is_multivalued,
                             tag_id,
                             tags: tags(),
                             action: Action::Create
@@ -95,7 +92,6 @@ pub fn AttributeDefNewPage() -> Element {
                                                 value_type: value_type().into(),
                                                 default_value: default_value(),
                                                 is_required: is_required(),
-                                                is_multivalued: is_multivalued(),
                                                 tag_id,
                                             };
                                             create_handler(item, action_done, err).await;

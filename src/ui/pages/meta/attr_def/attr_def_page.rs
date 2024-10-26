@@ -25,7 +25,6 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
     let mut value_type = use_signal(|| "".to_string());
     let mut default_value = use_signal(|| "".to_string());
     let mut is_required = use_signal(|| false);
-    let mut is_multivalued = use_signal(|| false);
     let mut tag_id = use_signal(|| Id::default());
     let mut tags = use_signal(|| Arc::new(Vec::new()));
 
@@ -47,7 +46,6 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
             value_type.set(item.value_type.to_string());
             default_value.set(item.default_value);
             is_required.set(item.is_required);
-            is_multivalued.set(item.is_multivalued);
             tag_id.set(item.tag_id.unwrap_or_default());
         }
     });
@@ -83,7 +81,6 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
                             value_type,
                             default_value,
                             is_required,
-                            is_multivalued,
                             tag_id,
                             tags: tags(),
                             action: action()
@@ -95,26 +92,6 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
                                     show_delete_confirm.set(true);
                                 },
                                 "Delete"
-                            }
-                            // Show the buttons' action result in the UI.
-                            div { class: "min-w-[350px] max-w-[350px] mt-1 pl-2",
-                                if err().is_some() {
-                                    span { class: "text-red-600 flex justify-center",
-                                        { err().unwrap() }
-                                    }
-                                } else if action_done() {
-                                    span { class: "text-green-600 flex justify-center",
-                                        {
-                                            if action() == Action::Edit {
-                                                "Successfully updated"
-                                            } else if action() == Action::Delete {
-                                                "Successfully deleted"
-                                            } else {
-                                                ""
-                                            }
-                                        }
-                                    }
-                                }
                             }
                             button {
                                 class: "bg-gray-100 enabled:hover:bg-green-100 disabled:text-gray-400 hover:disabled:bg-gray-100 drop-shadow-sm px-4 rounded-md",
@@ -145,7 +122,6 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
                                                 value_type().into(),
                                                 default_value(),
                                                 is_required(),
-                                                is_multivalued(),
                                                 tag_id,
                                             );
                                             handle_update(item, action_done, err).await;
