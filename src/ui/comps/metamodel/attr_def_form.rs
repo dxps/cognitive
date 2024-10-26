@@ -35,7 +35,7 @@ pub fn AttributeDefForm(props: AttributeDefFormProps) -> Element {
     rsx! {
         div { class: "mt-4 space-y-4",
             div { class: "flex",
-                label { class: "pr-3 py-2 min-w-28", "Name:" }
+                label { class: "pr-3 py-2 min-w-28 text-gray-500", "Name" }
                 input {
                     class: "px-3 py-1 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
                     r#type: "text",
@@ -53,7 +53,7 @@ pub fn AttributeDefForm(props: AttributeDefFormProps) -> Element {
                 }
             }
             div { class: "flex",
-                label { class: "pr-3 py-2 min-w-28", "Description:" }
+                label { class: "pr-3 py-2 min-w-28 text-gray-500", "Description" }
                 textarea {
                     class: "px-3 py-2 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
                     rows: 4,
@@ -68,7 +68,7 @@ pub fn AttributeDefForm(props: AttributeDefFormProps) -> Element {
                 }
             }
             div { class: "flex",
-                label { class: "pr-3 py-1 min-w-28", "Value Type:" }
+                label { class: "pr-3 py-1 min-w-28 text-gray-500", "Value Type" }
                 select {
                     class: "px-3 py-2 min-w-80",
                     multiple: false,
@@ -95,12 +95,18 @@ pub fn AttributeDefForm(props: AttributeDefFormProps) -> Element {
                     }
                     option { value: "real", selected: "{value_type() == \"real\"}", "Decimal" }
                 }
-                p { class: "text-xs text-gray-400 hover:text-gray-600 cursor-pointer pl-1 pt-3",
-                    "🛈"
+                div { class: "group flex relative",
+                    span { class: "text-xs text-gray-400 hover:text-gray-600 cursor-pointer pl-1 pt-3",
+                        "🛈"
+                    }
+                    span { class: "group-hover:opacity-100 transition-opacity bg-gray-500 px-1 text-sm text-white
+    py-1                            rounded-md  opacity-0 m-4 mx-auto absolute right-0 w-44 text-center",
+                        "The value type cannot be changed at the moment."
+                    }
                 }
             }
             div { class: "flex py-2",
-                label { class: "pr-3 py-2 min-w-28", "Default Value:" }
+                label { class: "pr-3 py-2 min-w-28 text-gray-500", "Default Value" }
                 input {
                     class: "px-3 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
                     r#type: "text",
@@ -160,7 +166,7 @@ pub fn AttributeDefForm(props: AttributeDefFormProps) -> Element {
                 }
             }
             div { class: "flex",
-                label { class: "pr-3 py-1 min-w-28", "Tag:" }
+                label { class: "pr-3 py-1 min-w-28 text-gray-500", "Tag" }
                 select {
                     class: "px-3 py-2 min-w-80",
                     multiple: false,
