@@ -1,5 +1,5 @@
 use crate::{
-    domain::model::{Id, Tag},
+    domain::model::Tag,
     server::fns::create_tag,
     ui::{
         comps::{AcknowledgeModal, Breadcrumb, Nav, TagForm},
@@ -65,11 +65,7 @@ pub fn TagNewPage() -> Element {
                                                 true => None,
                                                 false => Some(description()),
                                             };
-                                            let id = handle_create_tag(name(), description.clone(), action_done, err)
-                                                .await;
-                                            if id.is_some() {
-                                                UI_STATE.add_tag(Tag::new(id.unwrap(), name(), description)).await;
-                                            }
+                                            handle_create_tag(name(), description.clone(), action_done, err).await;
                                         }
                                     }
                                 },
@@ -101,17 +97,16 @@ async fn handle_create_tag(
     description: Option<String>,
     mut action_done: Signal<bool>,
     mut err: Signal<Option<String>>,
-) -> Option<Id> {
-    match create_tag(name, description).await {
+) {
+    match create_tag(name.clone(), description.clone()).await {
         Ok(id) => {
             action_done.set(true);
             err.set(None);
-            Some(id)
+            UI_STATE.add_tag(Tag::new(id.clone(), name, description)).await;
         }
         Err(e) => {
             action_done.set(false);
             err.set(Some(e.to_string()));
-            None
         }
     }
 }

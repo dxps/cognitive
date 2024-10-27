@@ -59,8 +59,12 @@ impl UiState {
     pub async fn add_tag(&self, tag: Tag) {
         let tags = self.tags.read().clone();
         let mut tags = tags.deref().clone();
-        tags.insert(tag.id.clone(), tag);
+        tags.insert(tag.id.clone(), tag.clone());
         *self.tags.write() = Arc::new(tags);
+        let tags_list = self.tags_list.read().clone();
+        let mut tags_list = tags_list.deref().clone();
+        tags_list.push(tag);
+        *self.tags_list.write() = Arc::new(tags_list);
     }
 
     pub async fn update_tag(&self, tag: Tag) {
@@ -76,6 +80,19 @@ impl UiState {
             })
             .collect();
         *self.tags.write() = Arc::new(updated_tags);
+
+        let tags_list = self.tags_list.read().clone();
+        let updated_tags_list: Vec<Tag> = tags_list
+            .iter()
+            .map(|t| {
+                if t.id == tag.id {
+                    Tag::new(t.id.clone(), tag.name.clone(), tag.description.clone())
+                } else {
+                    t.clone()
+                }
+            })
+            .collect();
+        *self.tags_list.write() = Arc::new(updated_tags_list);
     }
 
     pub async fn remove_tag(&self, id: Id) {
@@ -85,7 +102,12 @@ impl UiState {
             .filter(|(_, v)| v.id != id)
             .map(|(k, v)| (k.clone(), v.clone()))
             .collect();
+        log::debug!("[UiState.remove_tag] Updated tags: {:?}", updated_tags);
         *self.tags.write() = Arc::new(updated_tags);
+
+        let tags_list = self.tags_list.read().clone();
+        let updated_tags_list: Vec<Tag> = tags_list.iter().filter(|t| t.id != id).map(|t| t.clone()).collect();
+        *self.tags_list.write() = Arc::new(updated_tags_list);
     }
 
     /// Get the entities definitions.
