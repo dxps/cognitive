@@ -28,7 +28,7 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
     let mut tag_id = use_signal(|| Id::default());
     let mut tags = use_signal(|| Arc::new(Vec::new()));
 
-    let mut show_delete_confirm = use_signal(|| false);
+    let mut show_modal = use_signal(|| false);
     let mut action = use_signal(|| Action::View);
     let action_done = use_signal(|| false);
     let mut err: Signal<Option<String>> = use_signal(|| None);
@@ -89,7 +89,7 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
                             button {
                                 class: "text-red-200 bg-slate-50 hover:text-red-600 hover:bg-red-100 drop-shadow-sm px-4 rounded-md",
                                 onclick: move |_| {
-                                    show_delete_confirm.set(true);
+                                    show_modal.set(true);
                                 },
                                 "Delete"
                             }
@@ -141,12 +141,12 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
                     }
                 }
             }
-            if show_delete_confirm() {
+            if show_modal() {
                 ConfirmationModal {
                     title: "Confirm Delete",
                     content: "Are you sure you want to delete this attribute definition?",
                     action,
-                    show_modal: show_delete_confirm,
+                    show_modal,
                     action_handler: move |_| {
                         spawn(async move {
                             log::debug!("Calling handle_delete ...");
@@ -164,6 +164,24 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
                     },
                     action_handler: move |_| {
                         navigator().push(Route::AttributeDefListPage {});
+                    }
+                }
+            } else if err().is_some() {
+                AcknowledgeModal {
+                    title: "Error",
+                    content: if action() == Action::Delete {
+                        format!(
+                            "Failed to delete the attribute definition. Cause: '{}'.",
+                            err().unwrap(),
+                        )
+                    } else {
+                        format!(
+                            "Failed to update the attribute definition. Cause: '{}'.",
+                            err().unwrap(),
+                        )
+                    },
+                    action_handler: move |_| {
+                        err.set(None);
                     }
                 }
             }
