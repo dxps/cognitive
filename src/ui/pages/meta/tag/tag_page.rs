@@ -117,8 +117,8 @@ pub fn TagPage(id: Id) -> Element {
                         title: "Confirm Delete",
                         content: "Are you sure you want to delete this tag?",
                         action,
-                        show_delete_confirm,
-                        delete_handler: move |_| {
+                        show_modal: show_delete_confirm,
+                        action_handler: move |_| {
                             let id = did.clone();
                             action.set(Action::Delete);
                             spawn(async move {

@@ -2,7 +2,7 @@ use crate::{
     domain::model::{EntityDef, Id},
     server::fns::{get_entity_def, remove_entity_def, update_entity_def},
     ui::{
-        comps::{Breadcrumb, Nav},
+        comps::{AcknowledgeModal, Breadcrumb, ConfirmationModal, Nav},
         pages::{meta::ent_def::fetch_all_attr_defs, EntityDefForm},
         routes::Route,
         Action, UI_STATE,
@@ -27,9 +27,10 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
 
     let mut all_attr_defs = use_signal(|| HashMap::<Id, String>::new());
 
+    let mut show_modal = use_signal(|| false);
+    let action_done = use_signal(|| false);
     let mut action = use_signal(|| Action::View);
     let mut err: Signal<Option<String>> = use_signal(|| None);
-    let action_done = use_signal(|| false);
 
     use_future(move || async move {
         all_attr_defs.set(fetch_all_attr_defs().await);
@@ -86,28 +87,9 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
                             button {
                                 class: "text-red-300 hover:text-red-600 hover:bg-red-100 drop-shadow-sm px-4 rounded-md",
                                 onclick: move |_| {
-                                    action.set(Action::Delete);
-                                    async move { handle_delete(id(), action_done, err).await }
+                                    show_modal.set(true);
                                 },
                                 "Delete"
-                            }
-                            // Show the buttons's action result in the UI.
-                            div { class: "min-w-[400px] max-w-[400px] text-sm flex justify-center items-center",
-                                if err().is_some() {
-                                    span { class: "text-red-600", { err().unwrap() } }
-                                } else if action_done() {
-                                    span { class: "text-green-600",
-                                        {
-                                            if action() == Action::Edit {
-                                                "Successfully updated"
-                                            } else if action() == Action::Delete {
-                                                "Successfully deleted"
-                                            } else {
-                                                ""
-                                            }
-                                        }
-                                    }
-                                }
                             }
                             button {
                                 class: "bg-gray-100 hover:bg-green-100 min-w-[90px] disabled:text-gray-300 hover:disabled:bg-gray-100 drop-shadow-sm px-4 rounded-md",
@@ -147,6 +129,7 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
                                                             attributes_ids,
                                                             listing_attr_def_id(),
                                                             all_attr_defs(),
+                                                            included_attr_defs(),
                                                             action_done,
                                                             err,
                                                         )
@@ -169,6 +152,46 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
                     }
                 }
             }
+            if show_modal() {
+                if action() != Action::Delete {
+                    ConfirmationModal {
+                        title: "Confirm Delete",
+                        content: "Are you sure you want to delete this entity definition?",
+                        action,
+                        show_modal,
+                        action_handler: move |_| {
+                            spawn(async move {
+                                log::debug!("[ent_def_page] Calling handle_delete ...");
+                                handle_delete(&id(), action_done, err).await;
+                            });
+                        }
+                    }
+                }
+            } else if action_done() {
+                AcknowledgeModal {
+                    title: "Confirmation",
+                    content: if action() == Action::Delete {
+                        "The entity definition has been successfully deleted."
+                    } else {
+                        "The entity definition has been successfully updated."
+                    },
+                    action_handler: move |_| {
+                        navigator().push(Route::EntityDefListPage {});
+                    }
+                }
+            } else if err().is_some() {
+                AcknowledgeModal {
+                    title: "Error",
+                    content: if action() == Action::Delete {
+                        format!("Failed to delete the entity definition. Cause: '{}'.", err().unwrap())
+                    } else {
+                        format!("Failed to update the entity definition. Cause: '{}'.", err().unwrap())
+                    },
+                    action_handler: move |_| {
+                        err.set(None);
+                    }
+                }
+            }
         }
     }
 }
@@ -180,18 +203,24 @@ async fn handle_update(
     included_attr_def_ids: Vec<Id>,
     listing_attr_def_id: Id,
     all_attr_defs: HashMap<Id, String>,
+    included_attr_defs: HashMap<Id, String>,
     mut saved: Signal<bool>,
     mut err: Signal<Option<String>>,
 ) {
     //
     log::debug!(
-        "Updating entity definition with id:'{id}' name:{name} description:{:?} attr_def_ids:{:?}: ",
+        "[ent_def_page] Updating entity definition with id:'{id}' name:{name} description:{:?} included_attr_def_ids:{:?}: ",
         description,
         included_attr_def_ids
     );
     let attributes = included_attr_def_ids
         .iter()
-        .map(|id| (id.clone(), all_attr_defs.get(id).unwrap().clone()))
+        .map(|id| {
+            (
+                id.clone(),
+                all_attr_defs.get(id).unwrap_or(included_attr_defs.get(id).unwrap()).clone(),
+            )
+        })
         .collect();
     let ent_def = EntityDef::new_with_attr_def_ids(id, name, description, attributes, listing_attr_def_id);
     match update_entity_def(ent_def.clone()).await {
@@ -207,17 +236,17 @@ async fn handle_update(
     }
 }
 
-async fn handle_delete(id: Id, mut saved: Signal<bool>, mut err: Signal<Option<String>>) {
+async fn handle_delete(id: &Id, mut action_done: Signal<bool>, mut err: Signal<Option<String>>) {
     //
-    log::debug!(">>> Deleting entity definition: {:?}", id);
+    log::debug!("[ent_def_page] Deleting entity definition: {:?}", id);
     match remove_entity_def(id.clone()).await {
         Ok(_) => {
-            saved.set(true);
+            action_done.set(true);
             err.set(None);
             UI_STATE.remove_ent_def(&id);
         }
         Err(e) => {
-            saved.set(false);
+            action_done.set(false);
             err.set(Some(e.to_string()));
         }
     }

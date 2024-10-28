@@ -1,7 +1,7 @@
 use crate::{
     domain::model::{EntityDef, Id},
     ui::{
-        comps::{Breadcrumb, Nav},
+        comps::{AcknowledgeModal, Breadcrumb, Nav},
         pages::{meta::ent_def::fetch_all_attr_defs, EntityDefForm},
         routes::Route,
         Action, UI_STATE,
@@ -54,15 +54,7 @@ pub fn EntityDefNewPage() -> Element {
                             action_done,
                             err
                         }
-                        div { class: "flex justify-betweent mt-8",
-                            // Show the button's action result in the UI.
-                            div { class: "min-w-[450px] max-w-[450px] text-sm flex justify-center items-center",
-                                if err().is_some() {
-                                    span { class: "text-red-600", { err().unwrap() } }
-                                } else if action_done() {
-                                    span { class: "text-green-600", { "Successfully created" } }
-                                }
-                            }
+                        div { class: "flex justify-end mt-8",
                             button {
                                 class: "bg-gray-100 hover:bg-green-100 disabled:text-gray-300 hover:disabled:bg-gray-100 drop-shadow-sm px-4 rounded-md",
                                 disabled: included_attr_defs().is_empty(),
@@ -102,6 +94,25 @@ pub fn EntityDefNewPage() -> Element {
                                     "Create"
                                 }
                             }
+                        }
+                    }
+                }
+            }
+            if action_done() {
+                if err().is_none() {
+                    AcknowledgeModal {
+                        title: "Confirmation",
+                        content: "The entity definition has been successfully created.",
+                        action_handler: move |_| {
+                            navigator().push(Route::EntityDefListPage {});
+                        }
+                    }
+                } else {
+                    AcknowledgeModal {
+                        title: "Error",
+                        content: "Failed to create the entity definition. Cause: '{err.unwrap()}' deleted.",
+                        action_handler: move |_| {
+                            navigator().push(Route::EntityListPage {});
                         }
                     }
                 }

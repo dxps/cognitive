@@ -129,7 +129,7 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
                                         }
                                     }
                                 },
-                                if action() == Action::View {
+                                if action() == Action::View || (action() == Action::Delete && !action_done()) {
                                     "Edit"
                                 } else if action() == Action::Delete && action_done() {
                                     "Close"
@@ -146,8 +146,8 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
                     title: "Confirm Delete",
                     content: "Are you sure you want to delete this attribute definition?",
                     action,
-                    show_delete_confirm,
-                    delete_handler: move |_| {
+                    show_modal: show_delete_confirm,
+                    action_handler: move |_| {
                         spawn(async move {
                             log::debug!("Calling handle_delete ...");
                             handle_delete(&id(), action_done, err).await;

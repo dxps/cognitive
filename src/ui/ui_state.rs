@@ -159,7 +159,7 @@ impl UiState {
 
     pub fn update_ent_def(&self, ent_def: EntityDef) {
         let mut ent_defs = self.ent_defs_list.read().clone();
-        ent_defs.retain(|ent_def| ent_def.id != ent_def.id);
+        ent_defs.retain(|ed| ed.id != ent_def.id);
         ent_defs.push(ent_def);
         *self.ent_defs_list.write() = ent_defs;
     }

@@ -73,8 +73,8 @@ pub struct ConfirmationModalProps {
     pub title: String,
     pub content: String,
     pub action: Signal<Action>,
-    pub show_delete_confirm: Signal<bool>,
-    pub delete_handler: EventHandler,
+    pub show_modal: Signal<bool>,
+    pub action_handler: EventHandler,
 }
 
 #[component]
@@ -84,8 +84,8 @@ pub fn ConfirmationModal(props: ConfirmationModalProps) -> Element {
         title,
         content,
         mut action,
-        mut show_delete_confirm,
-        delete_handler,
+        mut show_modal,
+        action_handler,
     } = props;
 
     rsx! {
@@ -99,16 +99,16 @@ pub fn ConfirmationModal(props: ConfirmationModalProps) -> Element {
                     button {
                         class: "text-red-600 bg-red-50 hover:text-red-800 hover:bg-red-100 drop-shadow-sm px-4 rounded-md",
                         onclick: move |_| {
-                            show_delete_confirm.set(false);
+                            show_modal.set(false);
                             action.set(Action::Delete);
-                            delete_handler(());
+                            action_handler(());
                         },
                         "Delete"
                     }
                     button {
                         class: "bg-gray-100 bg-green-100 enabled:hover:bg-green-100 disabled:text-gray-400 hover:disabled:bg-gray-100 drop-shadow-sm px-4 rounded-md",
                         onclick: move |_| {
-                            show_delete_confirm.set(false);
+                            show_modal.set(false);
                         },
                         "Cancel"
                     }
