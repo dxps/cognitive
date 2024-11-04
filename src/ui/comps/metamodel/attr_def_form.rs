@@ -2,7 +2,7 @@ use crate::domain::model::{Id, Tag};
 use dioxus::prelude::*;
 use std::sync::Arc;
 
-#[derive(Props, PartialEq, Clone)]
+#[derive(Props, PartialEq, Clone, Debug)]
 pub struct AttributeDefFormProps {
     pub name: Signal<String>,
     pub description: Signal<String>,
@@ -92,6 +92,11 @@ pub fn AttributeDefForm(props: AttributeDefFormProps) -> Element {
                         "Big Integer"
                     }
                     option { value: "real", selected: "{value_type() == \"real\"}", "Decimal" }
+                    option {
+                        value: "boolean",
+                        selected: "{value_type() == \"boolean\"}",
+                        "Boolean"
+                    }
                 }
                 if action == "Edit" {
                     div { class: "group flex relative",
@@ -106,19 +111,31 @@ pub fn AttributeDefForm(props: AttributeDefFormProps) -> Element {
             }
             div { class: "flex py-2",
                 label { class: "pr-3 py-1 min-w-28 text-gray-500", "Default Value" }
-                input {
-                    class: "outline-none border-1 focus:border-green-300 min-w-80",
-                    r#type: "text",
-                    placeholder: "an optional default value",
-                    value: "{default_value}",
-                    maxlength: 64,
-                    readonly: is_view,
-                    oninput: move |evt| {
-                        default_value.set(evt.value());
+                if value_type() != "boolean" {
+                    input {
+                        class: "outline-none border-1 focus:border-green-300 min-w-80",
+                        r#type: "text",
+                        placeholder: "an optional default value",
+                        value: "{default_value()}",
+                        maxlength: 64,
+                        readonly: is_view,
+                        oninput: move |evt| {
+                            default_value.set(evt.value());
+                        }
+                    }
+                } else {
+                    input {
+                        class: "outline-none border-1 focus:border-green-300",
+                        r#type: "checkbox",
+                        checked: default_value(),
+                        readonly: is_view,
+                        oninput: move |evt| {
+                            default_value.set(evt.value());
+                        }
                     }
                 }
             }
-            div { class: "flex ",
+            div { class: "flex",
                 label {
                     class: "pr-3 py-1 min-w-28 text-gray-500",
                     cursor: if is_edit { "pointer" } else { "default" },
