@@ -2,7 +2,7 @@ use crate::{
     domain::model::{AttributeDef, Id},
     server::fns::create_attribute_def,
     ui::{
-        comps::{AttributeDefForm, Breadcrumb, Nav},
+        comps::{AcknowledgeModal, AttributeDefForm, Breadcrumb, Nav},
         routes::Route,
         Action, UI_STATE,
     },
@@ -105,6 +105,15 @@ pub fn AttributeDefNewPage() -> Element {
                                 }
                             }
                         }
+                    }
+                }
+            }
+            if action_done() {
+                AcknowledgeModal {
+                    title: "Confirmation",
+                    content: "The attribute definition has been successfully created.",
+                    action_handler: move |_| {
+                        navigator().push(Route::AttributeDefListPage {});
                     }
                 }
             }
