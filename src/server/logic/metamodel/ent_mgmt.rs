@@ -20,20 +20,37 @@ impl EntityMgmt {
 
     pub async fn add(&self, mut ent: Entity) -> AppResult<Id> {
         ent.id = Id::new();
-        self.set_listing_attr_value(&mut ent).await?;
+        self.set_listing_attr_value(&mut ent);
         self.repo.add(&ent).await?;
         Ok(ent.id)
     }
 
-    async fn set_listing_attr_value(&self, ent: &mut Entity) -> AppResult<()> {
+    fn set_listing_attr_value(&self, ent: &mut Entity) {
         //
-        for attr in ent.text_attributes.clone() {
+        for attr in ent.text_attributes.iter() {
             if attr.def_id == ent.listing_attr_def_id {
-                ent.listing_attr_value = attr.value;
-                break;
+                ent.listing_attr_value = attr.value.clone();
+                return;
             }
         }
-        Ok(())
+        for attr in ent.smallint_attributes.iter() {
+            if attr.def_id == ent.listing_attr_def_id {
+                ent.listing_attr_value = attr.value.to_string();
+                return;
+            }
+        }
+        for attr in ent.int_attributes.iter() {
+            if attr.def_id == ent.listing_attr_def_id {
+                ent.listing_attr_value = attr.value.to_string();
+                return;
+            }
+        }
+        for attr in ent.boolean_attributes.iter() {
+            if attr.def_id == ent.listing_attr_def_id {
+                ent.listing_attr_value = attr.value.to_string();
+                return;
+            }
+        }
     }
 
     pub async fn get(&self, id: &Id) -> AppResult<Option<Entity>> {

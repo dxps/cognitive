@@ -15,6 +15,12 @@ pub struct BooleanAttribute {
     pub def_id: Id,
 }
 
+impl BooleanAttribute {
+    pub fn new(name: String, value: bool, def_id: Id) -> Self {
+        Self { name, value, def_id }
+    }
+}
+
 impl Item for BooleanAttribute {
     fn item_type(&self) -> ItemType {
         ItemType::BooleanAttribute

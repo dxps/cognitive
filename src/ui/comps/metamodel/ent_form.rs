@@ -105,6 +105,24 @@ pub fn EntityForm(props: EntityFormProps) -> Element {
                         }
                     }
                 }
+                for (id , attr) in boolean_attrs() {
+                    div { class: "flex",
+                        label { class: "pr-3 py-2 min-w-36", "{attr.name}:" }
+                        input {
+                            class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300",
+                            r#type: "checkbox",
+                            checked: attr.value,
+                            readonly: is_view,
+                            oninput: move |evt| {
+                                let id = id.clone();
+                                boolean_attrs
+                                    .write()
+                                    .entry(id)
+                                    .and_modify(|attr| { attr.value = evt.value() == "true" });
+                            }
+                        }
+                    }
+                }
             }
         }
     }
