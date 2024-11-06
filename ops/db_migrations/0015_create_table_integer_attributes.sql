@@ -5,7 +5,8 @@ CREATE TABLE integer_attributes
     def_id               CHAR(10),
     value                INTEGER,
     PRIMARY KEY (owner_id, owner_type, def_id),
-    CONSTRAINT def_fk    FOREIGN KEY(def_id)   REFERENCES attribute_defs(id)
+    CONSTRAINT integer_attributes___def_fk        FOREIGN KEY (def_id)   REFERENCES attribute_defs(id),
+    CONSTRAINT integer_attributes___entities___fk FOREIGN KEY (owner_id) REFERENCES public.entities(id) ON DELETE CASCADE
 );
 
 COMMENT ON COLUMN text_attributes.def_id is 'The definition id of this attribute.';
