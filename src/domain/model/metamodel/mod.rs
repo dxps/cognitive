@@ -4,14 +4,14 @@ pub use attr_def::*;
 mod boolean_attr;
 pub use boolean_attr::*;
 
-mod entity_def;
-pub use entity_def::*;
+mod ent_def;
+pub use ent_def::*;
 
-mod entity_link_def;
-pub use entity_link_def::*;
+mod ent_link_def;
+pub use ent_link_def::*;
 
-mod entity_link;
-pub use entity_link::*;
+mod ent_link;
+pub use ent_link::*;
 
 mod entity;
 pub use entity::*;

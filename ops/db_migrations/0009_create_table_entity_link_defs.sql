@@ -6,8 +6,8 @@ CREATE TABLE entity_link_defs
     name                    VARCHAR(32),
     description             VARCHAR(256),
     cardinality             link_cardinality,
-    entity_def_source_id    CHAR(10)         NOT NULL,
-    entity_def_target_id    CHAR(10)         NOT NULL,
-    CONSTRAINT entity_def_source_fk    FOREIGN KEY(entity_def_source_id)    REFERENCES entity_defs(id),
-    CONSTRAINT entity_def_target_fk    FOREIGN KEY(entity_def_target_id)    REFERENCES entity_defs(id)
+    source_entity_def_id    CHAR(10)         NOT NULL,
+    target_entity_def_id    CHAR(10)         NOT NULL,
+    CONSTRAINT source_entity_def_fk    FOREIGN KEY(source_entity_def_id)    REFERENCES entity_defs(id),
+    CONSTRAINT target_entity_def_fk    FOREIGN KEY(target_entity_def_id)    REFERENCES entity_defs(id)
 );

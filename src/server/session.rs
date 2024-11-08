@@ -7,7 +7,7 @@ use sqlx::PgPool;
 
 use crate::domain::model::{Id, UserAccount};
 
-use super::{AttributeDefMgmt, AuthSessionLayerNotFound, EntityDefMgmt, EntityMgmt, ServerState, TagMgmt, UserMgmt};
+use super::{AttributeDefMgmt, AuthSessionLayerNotFound, EntityDefMgmt, EntityLinkDefMgmt, EntityMgmt, ServerState, TagMgmt, UserMgmt};
 
 pub struct Session(
     //
@@ -17,6 +17,7 @@ pub struct Session(
     pub Arc<AttributeDefMgmt>,
     pub Arc<EntityDefMgmt>,
     pub Arc<EntityMgmt>,
+    pub Arc<EntityLinkDefMgmt>,
 );
 
 impl std::ops::Deref for Session {
@@ -47,7 +48,16 @@ impl<S: Sync + Send> axum::extract::FromRequestParts<S> for Session {
                 let attr_def_mgmt = server_state.attr_def_mgmt.clone();
                 let ent_def_mgmt = server_state.ent_def_mgmt.clone();
                 let ent_mgmt = server_state.ent_mgmt.clone();
-                Session(auth_session, user_mgmt, tag_mgmt, attr_def_mgmt, ent_def_mgmt, ent_mgmt)
+                let ent_link_def_mgmt = server_state.ent_link_def_mgmt.clone();
+                Session(
+                    auth_session,
+                    user_mgmt,
+                    tag_mgmt,
+                    attr_def_mgmt,
+                    ent_def_mgmt,
+                    ent_mgmt,
+                    ent_link_def_mgmt,
+                )
             })
             .map_err(|_| AuthSessionLayerNotFound)
     }

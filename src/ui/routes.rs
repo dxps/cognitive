@@ -1,8 +1,8 @@
 use crate::{
     domain::model::Id,
     ui::pages::{
-        AdminPage, AttributeDefListPage, AttributeDefNewPage, AttributeDefPage, EntityDefListPage, EntityDefNewPage,
-        EntityDefPage, EntityListPage, EntityNewPage, EntityPage, Home, Login, LoginIsRequiredPage, Logout, TagListPage,
+        AdminPage, AttributeDefListPage, AttributeDefNewPage, AttributeDefPage, EntityDefListPage, EntityDefNewPage, EntityDefPage,
+        EntityLinkDefListPage, EntityListPage, EntityNewPage, EntityPage, Home, Login, LoginIsRequiredPage, Logout, TagListPage,
         TagNewPage, TagPage, UserProfilePage,
     },
 };
@@ -55,6 +55,9 @@ pub enum Route {
     #[route("/admin/entities/:id")]
     EntityPage { id: Id },
 
+    #[route("/admin/definitions/entitylinks")]
+    EntityLinkDefListPage {},
+
     #[route("/admin/tags")]
     TagListPage {},
 
@@ -87,10 +90,7 @@ impl Route {
                 ("Entities Definitions".into(), Route::EntityDefListPage {}),
                 ("New".into(), to),
             ],
-            Route::EntityListPage {} => vec![
-                ("Admin".into(), Route::AdminPage {}),
-                ("Entities".into(), Route::EntityListPage {}),
-            ],
+            Route::EntityListPage {} => vec![("Admin".into(), Route::AdminPage {}), ("Entities".into(), Route::EntityListPage {})],
             Route::EntityNewPage {} => vec![
                 ("Admin".into(), Route::AdminPage {}),
                 ("Entities".into(), Route::EntityListPage {}),

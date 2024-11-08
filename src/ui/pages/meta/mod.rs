@@ -9,3 +9,6 @@ pub use ent::*;
 
 mod ent_def;
 pub use ent_def::*;
+
+mod ent_link_def;
+pub use ent_link_def::*;

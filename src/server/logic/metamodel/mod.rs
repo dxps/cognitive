@@ -9,3 +9,6 @@ pub use ent_def_mgmt::*;
 
 mod ent_mgmt;
 pub use ent_mgmt::*;
+
+mod ent_link_def_mgmt;
+pub use ent_link_def_mgmt::*;

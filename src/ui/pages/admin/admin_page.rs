@@ -51,6 +51,11 @@ fn render_page() -> Element {
                                 }
                                 Link {
                                     class: "py-2 px-4 rounded-lg transition duration-200",
+                                    to: Route::EntityLinkDefListPage {},
+                                    "Entity Links Definitions"
+                                }
+                                Link {
+                                    class: "py-2 px-4 rounded-lg transition duration-200",
                                     to: Route::AttributeDefListPage {},
                                     "Attributes Definitions"
                                 }

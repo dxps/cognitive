@@ -1,6 +1,6 @@
 use crate::{
-    domain::model::{EntityDef, Id, Tag},
-    server::fns::{get_tags, list_entities_defs},
+    domain::model::{EntityDef, EntityLinkDef, Id, Tag},
+    server::fns::{get_tags, list_entities_defs, list_entity_link_defs},
 };
 use dioxus::signals::{GlobalSignal, Readable};
 use std::ops::Deref;
@@ -8,11 +8,17 @@ use std::{collections::HashMap, sync::Arc};
 
 pub struct UiState {
     pub app_ready: GlobalSignal<bool>,
+
     pub tags: GlobalSignal<Arc<HashMap<Id, Tag>>>,
+
     /// the ordered list of tags
     pub tags_list: GlobalSignal<Arc<Vec<Tag>>>,
+
     pub tags_loaded: GlobalSignal<bool>,
+
     pub ent_defs_list: GlobalSignal<Vec<EntityDef>>,
+
+    pub ent_link_def_list: GlobalSignal<Vec<EntityLinkDef>>,
 }
 
 impl UiState {
@@ -23,6 +29,7 @@ impl UiState {
             tags_list: GlobalSignal::new(|| Arc::new(Vec::new())),
             tags_loaded: GlobalSignal::new(|| false),
             ent_defs_list: GlobalSignal::new(|| Vec::new()),
+            ent_link_def_list: GlobalSignal::new(|| Vec::new()),
         }
     }
 
@@ -110,7 +117,7 @@ impl UiState {
         *self.tags_list.write() = Arc::new(updated_tags_list);
     }
 
-    /// Get the entities definitions.
+    /// Get the entities definitions.<br/>
     /// If they haven't been loaded yet, it fetches them from the server.
     pub async fn get_ent_defs_list(&self) -> Vec<EntityDef> {
         if self.ent_defs_list.read().is_empty() {
@@ -168,6 +175,31 @@ impl UiState {
         let mut ent_defs = self.ent_defs_list.read().clone();
         ent_defs.retain(|ent_def| ent_def.id != *id);
         *self.ent_defs_list.write() = ent_defs;
+    }
+
+    // -----------------------
+    // EntityLinkDef functions
+    // -----------------------
+
+    /// Get the entities link definitions.<br/>
+    /// If they haven't been loaded yet, it fetches them from the server.
+    pub async fn get_ent_link_def_list(&self) -> Vec<EntityLinkDef> {
+        if self.ent_link_def_list.read().is_empty() {
+            self.get_ent_defs_from_server().await;
+        };
+        self.ent_link_def_list.read().clone()
+    }
+
+    async fn get_ent_link_defs_from_server(&self) {
+        match list_entity_link_defs().await {
+            Ok(ent_link_defs) => {
+                log::debug!("[UiState.get_ent_link_defs_from_server] Got entity link defs: {:?}", ent_link_defs);
+                *self.ent_link_def_list.write() = ent_link_defs;
+            }
+            Err(e) => {
+                log::error!("[UiState.get_ent_link_defs_from_server] Failed to fetch entity link defs. Cause: '{e}'.");
+            }
+        }
     }
 }
 

@@ -4,7 +4,7 @@ use super::{AttributeDef, Item, ItemType};
 use crate::domain::model::Id;
 use serde::{Deserialize, Serialize};
 
-/// An entity definition.
+/// The definition of an `Entity`.
 #[derive(Debug, Default, PartialEq, Clone, Serialize, Deserialize)]
 pub struct EntityDef {
     pub id: Id,
