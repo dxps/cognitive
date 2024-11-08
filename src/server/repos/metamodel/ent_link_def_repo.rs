@@ -2,7 +2,7 @@ use sqlx::{postgres::PgRow, FromRow, PgPool, Row};
 use std::sync::Arc;
 
 use crate::{
-    domain::model::{EntityLinkDef, Id},
+    domain::model::{Cardinality, EntityLinkDef, Id},
     server::{AppError, AppResult},
 };
 
@@ -18,7 +18,8 @@ impl EntityLinkDefRepo {
 
     pub async fn list(&self) -> AppResult<Vec<EntityLinkDef>> {
         //
-        let query = "SELECT id, name, description, cardinality,  FROM entity_link_defs ORDER BY name";
+        let query = "SELECT id, name, description, cardinality, source_entity_def_id, target_entity_def_id  
+                     FROM entity_link_defs ORDER BY name";
         sqlx::query_as::<_, EntityLinkDef>(query)
             .fetch_all(self.dbcp.as_ref())
             .await
@@ -33,7 +34,7 @@ impl EntityLinkDefRepo {
             .bind(item.id.as_str())
             .bind(&item.name)
             .bind(&item.description)
-            .bind(&item.cardinality)
+            .bind(&item.cardinality.to_string())
             .bind(item.source_entity_def_id.as_str())
             .bind(item.target_entity_def_id.as_str())
             .execute(self.dbcp.as_ref())
@@ -48,7 +49,7 @@ impl FromRow<'_, PgRow> for EntityLinkDef {
             Id::new_from(row.get("id")),
             row.get("name"),
             row.get("description"),
-            row.get("cardinality"),
+            Cardinality::from(row.get::<&str, &str>("cardinality")),
             Id::new_from(row.get("source_entity_def_id")),
             Id::new_from(row.get("target_entity_def_id")),
         ))

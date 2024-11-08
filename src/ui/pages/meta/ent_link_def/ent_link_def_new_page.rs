@@ -1,7 +1,7 @@
 use dioxus::prelude::*;
 
 use crate::{
-    domain::model::EntityLinkDef,
+    domain::model::{EntityDef, EntityLinkDef},
     ui::{
         comps::{Breadcrumb, Nav},
         routes::Route,
@@ -10,38 +10,35 @@ use crate::{
 };
 
 #[component]
-pub fn EntityLinkDefListPage() -> Element {
+pub fn EntityLinkDefNewPage() -> Element {
     //
-    let mut entries = use_signal::<Vec<EntityLinkDef>>(|| vec![]);
+    let name = use_signal(|| "".to_string());
+    let description = use_signal(|| "".to_string());
+
+    let mut ent_defs = use_signal::<Vec<EntityDef>>(|| Vec::new());
 
     use_future(move || async move {
-        entries.set(UI_STATE.get_ent_link_def_list().await);
+        ent_defs.set(UI_STATE.get_ent_defs_list().await);
     });
 
     rsx! {
         div { class: "flex flex-col min-h-screen bg-gray-100",
             Nav {}
-            Breadcrumb { paths: Route::get_path(Route::EntityLinkDefListPage {}) }
+            Breadcrumb { paths: Route::get_path(Route::EntityLinkDefNewPage {}) }
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
                 div { class: "bg-white rounded-lg p-3 min-w-[600px]  mt-[min(100px)]",
                     div { class: "p-6",
                         div { class: "flex justify-between mb-4",
                             p { class: "text-lg font-medium leading-snug tracking-normal text-gray-500 antialiased",
-                                "Entity Link Definitions"
+                                "Create Entity Link Definition"
                             }
                             Link {
-                                class: "text-gray-500 text-3xl font-extralight hover:text-gray-800 px-2 rounded-xl transition duration-200",
-                                to: Route::EntityLinkDefNewPage {},
-                                "+"
+                                class: "text-gray-500 hover:text-gray-800 px-2 rounded-xl transition duration-200",
+                                to: Route::EntityLinkDefListPage {},
+                                "X"
                             }
                         }
                         hr { class: "pb-4" }
-                        if entries.is_empty() {
-                            p { class: "pb-4 text-gray-500", "There are no entries." }
-                        }
-                        for item in entries() {
-                            EntityLinkDefCard { item: item.clone() }
-                        }
                     }
                 }
             }

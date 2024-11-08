@@ -8,7 +8,7 @@ pub struct EntityLinkDef {
     pub id: Id,
     pub name: String,
     pub description: Option<String>,
-    pub cardinality: String,
+    pub cardinality: Cardinality,
     pub source_entity_def_id: Id,
     pub target_entity_def_id: Id,
 }
@@ -18,7 +18,7 @@ impl EntityLinkDef {
         id: Id,
         name: String,
         description: Option<String>,
-        cardinality: String,
+        cardinality: Cardinality,
         source_entity_def_id: Id,
         target_entity_def_id: Id,
     ) -> Self {
@@ -29,6 +29,36 @@ impl EntityLinkDef {
             cardinality,
             source_entity_def_id,
             target_entity_def_id,
+        }
+    }
+}
+
+/// The cardinality of an entity link definition.
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
+pub enum Cardinality {
+    OneToOne,
+    OneToMany,
+    ManyToMany,
+}
+
+impl Cardinality {
+    //
+    pub fn to_string(&self) -> String {
+        match self {
+            Cardinality::OneToOne => "1:1".to_string(),
+            Cardinality::OneToMany => "1:M".to_string(),
+            Cardinality::ManyToMany => "M:M".to_string(),
+        }
+    }
+}
+
+impl From<&str> for Cardinality {
+    fn from(value: &str) -> Self {
+        match value {
+            "1:1" => Cardinality::OneToOne,
+            "1:M" => Cardinality::OneToMany,
+            "M:M" => Cardinality::ManyToMany,
+            _ => Cardinality::OneToOne,
         }
     }
 }

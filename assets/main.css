@@ -1476,9 +1476,9 @@ select[disabled]:focus {
   color: rgb(31 41 55 / var(--tw-text-opacity));
 }
 
-.text-green-500 {
+.text-green-1 {
   --tw-text-opacity: 1;
-  color: rgb(34 197 94 / var(--tw-text-opacity));
+  color: rgb(98 167 15 / var(--tw-text-opacity));
 }
 
 .text-green-600 {
@@ -1523,11 +1523,6 @@ select[disabled]:focus {
 .text-white {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
-}
-
-.text-green-1 {
-  --tw-text-opacity: 1;
-  color: rgb(98 167 15 / var(--tw-text-opacity));
 }
 
 .antialiased {

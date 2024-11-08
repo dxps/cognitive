@@ -2,8 +2,8 @@ use crate::{
     domain::model::Id,
     ui::pages::{
         AdminPage, AttributeDefListPage, AttributeDefNewPage, AttributeDefPage, EntityDefListPage, EntityDefNewPage, EntityDefPage,
-        EntityLinkDefListPage, EntityListPage, EntityNewPage, EntityPage, Home, Login, LoginIsRequiredPage, Logout, TagListPage,
-        TagNewPage, TagPage, UserProfilePage,
+        EntityLinkDefListPage, EntityLinkDefNewPage, EntityListPage, EntityNewPage, EntityPage, Home, Login, LoginIsRequiredPage, Logout,
+        TagListPage, TagNewPage, TagPage, UserProfilePage,
     },
 };
 use dioxus::prelude::*;
@@ -58,6 +58,9 @@ pub enum Route {
     #[route("/admin/definitions/entitylinks")]
     EntityLinkDefListPage {},
 
+    #[route("/admin/definitions/entitylinks/new")]
+    EntityLinkDefNewPage {},
+
     #[route("/admin/tags")]
     TagListPage {},
 
@@ -88,6 +91,15 @@ impl Route {
             Route::EntityDefNewPage {} => vec![
                 ("Admin".into(), Route::AdminPage {}),
                 ("Entities Definitions".into(), Route::EntityDefListPage {}),
+                ("New".into(), to),
+            ],
+            Route::EntityLinkDefListPage {} => vec![
+                ("Admin".into(), Route::AdminPage {}),
+                ("Entity Links Definitions".into(), Route::EntityLinkDefListPage {}),
+            ],
+            Route::EntityLinkDefNewPage {} => vec![
+                ("Admin".into(), Route::AdminPage {}),
+                ("Entity Links Definitions".into(), Route::EntityLinkDefListPage {}),
                 ("New".into(), to),
             ],
             Route::EntityListPage {} => vec![("Admin".into(), Route::AdminPage {}), ("Entities".into(), Route::EntityListPage {})],

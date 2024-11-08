@@ -185,7 +185,7 @@ impl UiState {
     /// If they haven't been loaded yet, it fetches them from the server.
     pub async fn get_ent_link_def_list(&self) -> Vec<EntityLinkDef> {
         if self.ent_link_def_list.read().is_empty() {
-            self.get_ent_defs_from_server().await;
+            self.get_ent_link_defs_from_server().await;
         };
         self.ent_link_def_list.read().clone()
     }
