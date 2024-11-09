@@ -25,7 +25,7 @@ pub fn EntityLinkDefListPage() -> Element {
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
                 div { class: "bg-white rounded-lg p-3 min-w-[600px]  mt-[min(100px)]",
                     div { class: "p-6",
-                        div { class: "flex justify-between mb-4",
+                        div { class: "flex justify-between mb-8",
                             p { class: "text-lg font-medium leading-snug tracking-normal text-gray-500 antialiased",
                                 "Entity Link Definitions"
                             }
@@ -35,7 +35,6 @@ pub fn EntityLinkDefListPage() -> Element {
                                 "+"
                             }
                         }
-                        hr { class: "pb-4" }
                         if entries.is_empty() {
                             p { class: "pb-4 text-gray-500", "There are no entries." }
                         }
@@ -61,7 +60,7 @@ fn EntityLinkDefCard(item: EntityLinkDef) -> Element {
             to: Route::EntityDefPage {
                 id: item.id,
             },
-            div { class: "flex flex-col p-2 my-3 bg-white rounded-lg border hover:bg-slate-100 hover:border-slate-100 transition duration-200",
+            div { class: "flex flex-col px-3 py-2 my-3 bg-white rounded-lg border hover:bg-slate-100 hover:border-slate-100 transition duration-200",
                 div { class: "flex justify-between text-gray-600",
                     p { class: "font-medium leading-snug tracking-normal antialiased",
                         "{item.name}"
