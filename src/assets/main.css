@@ -3,7 +3,11 @@
 @tailwind utilities;
 
 @layer base {
-	/* The default color of links. */
+	/* 
+       ------------------
+       Defaults for links
+       ------------------
+    */
 	a {
 		@apply text-green-600;
 	}

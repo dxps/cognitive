@@ -41,6 +41,18 @@ impl EntityLinkDefRepo {
             .await
             .map(|_| AppResult::Ok(()))?
     }
+
+    pub async fn get(&self, id: &Id) -> AppResult<Option<EntityLinkDef>> {
+        //
+        let query = "SELECT id, name, description, cardinality, source_entity_def_id, target_entity_def_id  
+                     FROM entity_link_defs WHERE id = $1";
+        let res = sqlx::query_as::<_, EntityLinkDef>(query)
+            .bind(id.as_str())
+            .fetch_optional(self.dbcp.as_ref())
+            .await?;
+
+        Ok(res)
+    }
 }
 
 impl FromRow<'_, PgRow> for EntityLinkDef {
@@ -52,6 +64,7 @@ impl FromRow<'_, PgRow> for EntityLinkDef {
             Cardinality::from(row.get::<&str, &str>("cardinality")),
             Id::new_from(row.get("source_entity_def_id")),
             Id::new_from(row.get("target_entity_def_id")),
+            vec![],
         ))
     }
 }

@@ -21,3 +21,11 @@ pub async fn create_entity_link_def(item: EntityLinkDef) -> Result<Id, ServerFnE
     let result = session.6.add(item).await;
     result.map_err(|e| e.into())
 }
+
+/// Get an entity link definition.
+#[server(endpoint = "admin/get_ent_link_def", input = GetUrl)]
+pub async fn get_entity_link_def(id: Id) -> Result<Option<EntityLinkDef>, ServerFnError> {
+    let session: Session = extract().await?;
+    let ent_link_def = session.6.get(&id).await?;
+    Ok(ent_link_def)
+}

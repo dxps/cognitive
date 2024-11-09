@@ -2,7 +2,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::domain::model::Id;
 
-/// The definition of an `EntityLink`.
+use super::AttributeDef;
+
+/// The definition of an entity link.
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub struct EntityLinkDef {
     pub id: Id,
@@ -11,6 +13,7 @@ pub struct EntityLinkDef {
     pub cardinality: Cardinality,
     pub source_entity_def_id: Id,
     pub target_entity_def_id: Id,
+    pub attributes: Vec<AttributeDef>,
 }
 
 impl EntityLinkDef {
@@ -21,6 +24,7 @@ impl EntityLinkDef {
         cardinality: Cardinality,
         source_entity_def_id: Id,
         target_entity_def_id: Id,
+        attributes: Vec<AttributeDef>,
     ) -> Self {
         Self {
             id,
@@ -29,6 +33,7 @@ impl EntityLinkDef {
             cardinality,
             source_entity_def_id,
             target_entity_def_id,
+            attributes,
         }
     }
 }

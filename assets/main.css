@@ -554,7 +554,11 @@ video {
   display: none;
 }
 
-/* The default color of links. */
+/* 
+       ------------------
+       Defaults for links
+       ------------------
+    */
 
 a {
   --tw-text-opacity: 1;

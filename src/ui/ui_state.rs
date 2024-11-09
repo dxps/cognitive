@@ -6,6 +6,8 @@ use dioxus::signals::{GlobalSignal, Readable};
 use std::ops::Deref;
 use std::{collections::HashMap, sync::Arc};
 
+use super::pages::Name;
+
 pub struct UiState {
     pub app_ready: GlobalSignal<bool>,
 
@@ -32,6 +34,10 @@ impl UiState {
             ent_link_def_list: GlobalSignal::new(|| Vec::new()),
         }
     }
+
+    // ----
+    // Tags
+    // ----
 
     pub async fn get_tags(&self) -> Arc<HashMap<Id, Tag>> {
         if self.tags.read().is_empty() {
@@ -117,6 +123,10 @@ impl UiState {
         *self.tags_list.write() = Arc::new(updated_tags_list);
     }
 
+    // ------------------
+    // Entity Definitions
+    // ------------------
+
     /// Get the entities definitions.<br/>
     /// If they haven't been loaded yet, it fetches them from the server.
     pub async fn get_ent_defs_list(&self) -> Vec<EntityDef> {
@@ -124,6 +134,11 @@ impl UiState {
             self.get_ent_defs_from_server().await;
         };
         self.ent_defs_list.read().clone()
+    }
+
+    pub async fn get_ent_defs(&self) -> HashMap<Id, Name> {
+        let items = self.get_ent_defs_list().await;
+        items.iter().map(|item| (item.id.clone(), item.name.clone())).collect()
     }
 
     pub async fn get_ent_def(&self, id: &Id) -> Option<EntityDef> {
@@ -178,7 +193,7 @@ impl UiState {
     }
 
     // -----------------------
-    // EntityLinkDef functions
+    // Entity Link Definitions
     // -----------------------
 
     /// Get the entities link definitions.<br/>

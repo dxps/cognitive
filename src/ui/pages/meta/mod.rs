@@ -1,3 +1,5 @@
+pub type Name = String;
+
 mod tag;
 pub use tag::*;
 

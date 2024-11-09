@@ -20,7 +20,12 @@ impl EntityLinkDefMgmt {
 
     pub async fn add(&self, mut item: EntityLinkDef) -> AppResult<Id> {
         item.id = Id::new();
-        self.ent_link_def_repo.add(&item).await;
+        self.ent_link_def_repo.add(&item).await?;
         Ok(item.id)
+    }
+
+    pub async fn get(&self, id: &Id) -> AppResult<Option<EntityLinkDef>> {
+        //
+        self.ent_link_def_repo.get(id).await
     }
 }
