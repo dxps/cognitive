@@ -51,6 +51,11 @@ pub fn EntityLinkDefListPage() -> Element {
 
 #[component]
 fn EntityLinkDefCard(item: EntityLinkDef) -> Element {
+    //
+    let description = match item.description {
+        Some(description) => description,
+        None => String::from(""),
+    };
     rsx! {
         Link {
             to: Route::EntityDefPage {
@@ -63,8 +68,10 @@ fn EntityLinkDefCard(item: EntityLinkDef) -> Element {
                     }
                 }
                 div { class: "flex justify-between text-gray-600",
-                    p { class: "text-xs leading-5 text-gray-600 pt-1",
-                        "{item.description.unwrap_or_default()}"
+                    if description.is_empty() {
+                        pre { class: "text-xs leading-5 text-gray-600 pt-1", " " }
+                    } else {
+                        p { class: "text-xs leading-5 text-gray-600 pt-1", "{description}" }
                     }
                 }
             }
