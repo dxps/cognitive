@@ -2,7 +2,7 @@ use sqlx::{postgres::PgRow, FromRow, PgPool, Row};
 use std::sync::Arc;
 
 use crate::{
-    domain::model::{Cardinality, EntityLinkDef, Id},
+    domain::model::{AttributeDef, Cardinality, EntityLinkDef, Id},
     server::{AppError, AppResult},
 };
 
@@ -75,12 +75,33 @@ impl EntityLinkDefRepo {
         //
         let query = "SELECT id, name, description, cardinality, source_entity_def_id, target_entity_def_id  
                      FROM entity_link_defs WHERE id = $1";
+
         let res = sqlx::query_as::<_, EntityLinkDef>(query)
             .bind(id.as_str())
             .fetch_optional(self.dbcp.as_ref())
             .await?;
 
-        Ok(res)
+        if res.is_none() {
+            return Ok(None);
+        }
+
+        let mut res = res.unwrap();
+
+        let attrs = sqlx::query_as::<_, AttributeDef>(
+            "SELECT ad.id, ad.name, ad.description, ad.value_type, ad.default_value, ad.required, ad.tag_id 
+             FROM  attribute_defs ad 
+             JOIN entity_link_defs_attribute_defs_xref eld_ad_xref 
+             ON ad.id = eld_ad_xref.attribute_def_id 
+             WHERE eld_ad_xref.entity_link_def_id = $1 ORDER BY name",
+        )
+        .bind(id.as_str())
+        .fetch_all(self.dbcp.as_ref())
+        .await?
+        .into_iter()
+        .collect();
+        res.attributes = Some(attrs);
+
+        Ok(Some(res))
     }
 }
 
