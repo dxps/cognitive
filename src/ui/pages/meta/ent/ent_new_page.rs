@@ -1,7 +1,5 @@
 use crate::{
-    domain::model::{
-        AttributeValueType, BooleanAttribute, Entity, EntityDef, Id, IntegerAttribute, SmallintAttribute, TextAttribute,
-    },
+    domain::model::{AttributeValueType, BooleanAttribute, Entity, EntityDef, Id, IntegerAttribute, SmallintAttribute, TextAttribute},
     ui::{
         comps::{AcknowledgeModal, Breadcrumb, EntityForm, Nav, Select},
         routes::Route,
@@ -108,7 +106,7 @@ pub fn EntityNewPage() -> Element {
                         div { class: "flex py-4",
                             p { class: "py-2 pr-4 text-gray-600 block", "Kind:" }
                             if !ent_defs().is_empty() {
-                                Select { items: ent_kinds, selected_item_id: selected_kind_id }
+                                Select { items: ent_kinds, selected_item_id: selected_kind_id, disabled: false }
                             }
                         }
                         if selected_kind_id().is_empty() {

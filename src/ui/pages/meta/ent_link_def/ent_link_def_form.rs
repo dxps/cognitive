@@ -81,13 +81,13 @@ pub fn EntityLinkDefForm(props: EntityLinkDefFormProps) -> Element {
             }
             div { class: "flex",
                 label { class: "pr-3 py-2 min-w-32 text-gray-500", "Source" }
-                Select { items: entity_defs, selected_item_id: source_entity_def_id }
+                Select { items: entity_defs, selected_item_id: source_entity_def_id, disabled: is_view }
             }
             div { class: "flex",
                 label { class: "pr-3 py-2 min-w-32 text-gray-500", "Target" }
-                Select { items: entity_defs, selected_item_id: target_entity_def_id }
+                Select { items: entity_defs, selected_item_id: target_entity_def_id, disabled: is_view }
             }
-            div { class: "flex",
+            div { class: "flex mb-12",
                 p { class: "min-w-32 text-gray-500", "Attributes" }
                 div {
                     for (id , name) in included_attr_defs() {
@@ -113,7 +113,6 @@ pub fn EntityLinkDefForm(props: EntityLinkDefFormProps) -> Element {
                     }
                 }
             }
-            hr { class: "mt-8 mb-1" }
             div {
                 class: "flex",
                 display: if action == "View" || action == "Delete" || (action == "Edit" && action_done()) {

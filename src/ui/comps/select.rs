@@ -7,6 +7,7 @@ use std::collections::HashMap;
 pub struct SelectProps {
     pub items: Signal<HashMap<Id, Name>>,
     pub selected_item_id: Signal<Id>,
+    pub disabled: bool,
 }
 
 /// The HTML's `select` as a component.<br/>
@@ -15,6 +16,7 @@ pub fn Select(props: SelectProps) -> Element {
     let SelectProps {
         items,
         mut selected_item_id,
+        disabled,
     } = props;
 
     log::debug!("[Select] on render, selected_item_id: {:?}", selected_item_id());
@@ -22,6 +24,7 @@ pub fn Select(props: SelectProps) -> Element {
     rsx! {
         select {
             class: "px-3 my-1 min-w-80",
+            disabled: "{disabled}",
             multiple: false,
             oninput: move |evt| {
                 selected_item_id.set(evt.value().into());
