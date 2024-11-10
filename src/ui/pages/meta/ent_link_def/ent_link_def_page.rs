@@ -1,6 +1,6 @@
 use crate::{
-    domain::model::{AttributeDef, Cardinality, EntityDef, Id},
-    server::fns::{get_entity_link_def, remove_entity_def, update_entity_def},
+    domain::model::{Cardinality, Id},
+    server::fns::get_entity_link_def,
     ui::{
         comps::{AcknowledgeModal, Breadcrumb, ConfirmationModal, Nav},
         pages::{meta::ent_def::fetch_all_attr_defs, EntityLinkDefForm, Name},
@@ -24,12 +24,12 @@ pub fn EntityLinkDefPage(props: EntityDefPageProps) -> Element {
     let mut description = use_signal(|| "".to_string());
     let mut cardinality = use_signal(|| Cardinality::OneToOne);
 
-    let mut source_entity_def_id = use_signal(|| Id::default());
-    let mut target_entity_def_id = use_signal(|| Id::default());
-    let mut entity_defs = use_signal::<HashMap<Id, Name>>(|| HashMap::new());
+    let mut source_ent_def_id = use_signal(|| Id::default());
+    let mut target_ent_def_id = use_signal(|| Id::default());
+    let mut ent_defs = use_signal::<HashMap<Id, Name>>(|| HashMap::new());
 
-    let mut included_attr_defs = use_signal(|| HashMap::<Id, String>::new());
-    let mut all_attr_defs = use_signal(|| HashMap::<Id, String>::new());
+    let mut included_attr_defs = use_signal(|| HashMap::<Id, Name>::new());
+    let mut all_attr_defs = use_signal(|| HashMap::<Id, Name>::new());
 
     let mut show_modal = use_signal(|| false);
     let action_done = use_signal(|| false);
@@ -38,7 +38,7 @@ pub fn EntityLinkDefPage(props: EntityDefPageProps) -> Element {
 
     use_future(move || async move {
         all_attr_defs.set(fetch_all_attr_defs().await);
-        entity_defs.set(UI_STATE.get_ent_defs().await);
+        ent_defs.set(UI_STATE.get_ent_defs().await);
     });
 
     use_future(move || async move {
@@ -46,10 +46,17 @@ pub fn EntityLinkDefPage(props: EntityDefPageProps) -> Element {
             name.set(item.name);
             description.set(item.description.unwrap_or_default());
             cardinality.set(item.cardinality);
-            source_entity_def_id.set(item.source_entity_def_id);
-            target_entity_def_id.set(item.target_entity_def_id);
-            let attrs = item.attributes.iter().map(|attr| (attr.id.clone(), attr.name.clone())).collect();
-            included_attr_defs.set(attrs);
+            source_ent_def_id.set(item.source_entity_def_id);
+            target_ent_def_id.set(item.target_entity_def_id);
+            if item.attributes.is_some() {
+                let attrs = item
+                    .attributes
+                    .unwrap()
+                    .iter()
+                    .map(|attr| (attr.id.clone(), attr.name.clone()))
+                    .collect();
+                included_attr_defs.set(attrs);
+            }
         }
     });
 
@@ -60,7 +67,7 @@ pub fn EntityLinkDefPage(props: EntityDefPageProps) -> Element {
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
                 div { class: "bg-white rounded-lg p-3 min-w-[600px] mt-[min(80px)]",
                     div { class: "p-6",
-                        div { class: "flex justify-between mb-4",
+                        div { class: "flex justify-between mb-12",
                             p { class: "text-lg font-medium leading-snug tracking-normal text-gray-500 antialiased",
                                 "{action} Entity Link Definition"
                             }
@@ -70,21 +77,20 @@ pub fn EntityLinkDefPage(props: EntityDefPageProps) -> Element {
                                 "X"
                             }
                         }
-                        hr { class: "pb-2" }
                         EntityLinkDefForm {
                             name,
                             description,
                             cardinality,
-                            source_entity_def_id,
-                            target_entity_def_id,
-                            entity_defs,
+                            source_ent_def_id,
+                            target_ent_def_id,
+                            ent_defs,
                             included_attr_defs,
                             all_attr_defs,
                             action: action(),
                             action_done,
                             err
                         }
-                        div { class: "flex justify-between mt-8",
+                        div { class: "flex justify-between mt-12",
                             button {
                                 class: "text-red-300 hover:text-red-600 hover:bg-red-100 drop-shadow-sm px-4 rounded-md",
                                 onclick: move |_| {
@@ -124,8 +130,8 @@ pub fn EntityLinkDefPage(props: EntityDefPageProps) -> Element {
                                                             name(),
                                                             description,
                                                             cardinality(),
-                                                            source_entity_def_id(),
-                                                            target_entity_def_id(),
+                                                            source_ent_def_id(),
+                                                            target_ent_def_id(),
                                                             attributes_ids,
                                                             all_attr_defs(),
                                                             included_attr_defs(),

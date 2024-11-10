@@ -46,13 +46,13 @@ pub enum Route {
     #[route("/admin/definitions/entities/:id")]
     EntityDefPage { id: Id },
 
-    #[route("/admin/definitions/entitylinks")]
+    #[route("/admin/definitions/entity-links")]
     EntityLinkDefListPage {},
 
-    #[route("/admin/definitions/entitylinks/new")]
+    #[route("/admin/definitions/entity-links/new")]
     EntityLinkDefNewPage {},
 
-    #[route("/admin/definitions/entitylinks/:id")]
+    #[route("/admin/definitions/entity-links/:id")]
     EntityLinkDefPage { id: Id },
 
     #[route("/admin/entities")]

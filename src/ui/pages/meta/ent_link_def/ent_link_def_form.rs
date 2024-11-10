@@ -10,9 +10,9 @@ pub struct EntityLinkDefFormProps {
     pub name: Signal<String>,
     pub description: Signal<String>,
     pub cardinality: Signal<Cardinality>,
-    pub source_entity_def_id: Signal<Id>,
-    pub target_entity_def_id: Signal<Id>,
-    pub entity_defs: Signal<HashMap<Id, Name>>,
+    pub source_ent_def_id: Signal<Id>,
+    pub target_ent_def_id: Signal<Id>,
+    pub ent_defs: Signal<HashMap<Id, Name>>,
     pub included_attr_defs: Signal<HashMap<Id, Name>>,
     pub all_attr_defs: Signal<HashMap<Id, Name>>,
     pub action: String,
@@ -27,9 +27,9 @@ pub fn EntityLinkDefForm(props: EntityLinkDefFormProps) -> Element {
         mut name,
         mut description,
         mut cardinality,
-        mut source_entity_def_id,
-        mut target_entity_def_id,
-        entity_defs,
+        source_ent_def_id,
+        target_ent_def_id,
+        ent_defs,
         mut included_attr_defs,
         mut all_attr_defs,
         action,
@@ -38,8 +38,9 @@ pub fn EntityLinkDefForm(props: EntityLinkDefFormProps) -> Element {
     } = props;
 
     let is_view = action == "View";
-    let emptyId = Id::default();
 
+    let cardinality_options = use_signal(|| Cardinality::get_select_variants());
+    let mut selected_cardinality = use_signal(|| Id::default());
     let mut selected_attr_def_id = use_signal(|| Id::default());
     let mut selected_attr_def_name = use_signal(|| "".to_string());
 
@@ -81,11 +82,20 @@ pub fn EntityLinkDefForm(props: EntityLinkDefFormProps) -> Element {
             }
             div { class: "flex",
                 label { class: "pr-3 py-2 min-w-32 text-gray-500", "Source" }
-                Select { items: entity_defs, selected_item_id: source_entity_def_id, disabled: is_view }
+                Select { items: ent_defs, selected_item_id: source_ent_def_id, disabled: is_view }
             }
             div { class: "flex",
                 label { class: "pr-3 py-2 min-w-32 text-gray-500", "Target" }
-                Select { items: entity_defs, selected_item_id: target_entity_def_id, disabled: is_view }
+                Select { items: ent_defs, selected_item_id: target_ent_def_id, disabled: is_view }
+            }
+            div { class: "flex",
+                label { class: "pr-3 py-2 min-w-32 text-gray-500", "Cardinality" }
+                Select {
+                    items: cardinality_options,
+                    selected_item_id: selected_cardinality,
+                    default_selected_item_id: Some(Id::from(Cardinality::default().to_string())),
+                    disabled: is_view
+                }
             }
             div { class: "flex mb-12",
                 p { class: "min-w-32 text-gray-500", "Attributes" }
@@ -125,7 +135,7 @@ pub fn EntityLinkDefForm(props: EntityLinkDefFormProps) -> Element {
                     "Select an attribute definition to include it in this entity link definition."
                 }
                 select {
-                    class: "px-3 py-2 min-w-80",
+                    class: "px-3 py-1 min-w-80",
                     multiple: false,
                     disabled: is_view,
                     oninput: move |evt| {

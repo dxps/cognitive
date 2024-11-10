@@ -887,6 +887,10 @@ select[disabled]:focus {
   margin-top: 1px;
 }
 
+.mt-12 {
+  margin-top: 3rem;
+}
+
 .block {
   display: block;
 }

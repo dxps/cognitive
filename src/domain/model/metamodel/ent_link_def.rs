@@ -1,6 +1,8 @@
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 
-use crate::domain::model::Id;
+use crate::{domain::model::Id, ui::pages::Name};
 
 use super::AttributeDef;
 
@@ -13,7 +15,7 @@ pub struct EntityLinkDef {
     pub cardinality: Cardinality,
     pub source_entity_def_id: Id,
     pub target_entity_def_id: Id,
-    pub attributes: Vec<AttributeDef>,
+    pub attributes: Option<Vec<AttributeDef>>,
 }
 
 impl EntityLinkDef {
@@ -24,7 +26,7 @@ impl EntityLinkDef {
         cardinality: Cardinality,
         source_entity_def_id: Id,
         target_entity_def_id: Id,
-        attributes: Vec<AttributeDef>,
+        attributes: Option<Vec<AttributeDef>>,
     ) -> Self {
         Self {
             id,
@@ -35,6 +37,25 @@ impl EntityLinkDef {
             target_entity_def_id,
             attributes,
         }
+    }
+
+    pub fn from(
+        name: String,
+        description: Option<String>,
+        cardinality: Cardinality,
+        source_entity_def_id: Id,
+        target_entity_def_id: Id,
+        attributes: Option<Vec<AttributeDef>>,
+    ) -> Self {
+        Self::new(
+            Id::new(),
+            name,
+            description,
+            cardinality,
+            source_entity_def_id,
+            target_entity_def_id,
+            attributes,
+        )
     }
 }
 
@@ -54,6 +75,21 @@ impl Cardinality {
             Cardinality::OneToMany => "1:M".to_string(),
             Cardinality::ManyToMany => "M:M".to_string(),
         }
+    }
+
+    /// Get the (enum) variants.
+    pub fn get_select_variants() -> HashMap<Id, Name> {
+        HashMap::from([
+            (Id::from(Self::OneToOne.to_string()), Self::OneToOne.to_string()),
+            (Id::from(Self::OneToMany.to_string()), Self::OneToMany.to_string()),
+            (Id::from(Self::ManyToMany.to_string()), Self::ManyToMany.to_string()),
+        ])
+    }
+}
+
+impl Default for Cardinality {
+    fn default() -> Self {
+        Self::OneToOne
     }
 }
 

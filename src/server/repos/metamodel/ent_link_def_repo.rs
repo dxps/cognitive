@@ -64,7 +64,7 @@ impl FromRow<'_, PgRow> for EntityLinkDef {
             Cardinality::from(row.get::<&str, &str>("cardinality")),
             Id::new_from(row.get("source_entity_def_id")),
             Id::new_from(row.get("target_entity_def_id")),
-            vec![],
+            None,
         ))
     }
 }
