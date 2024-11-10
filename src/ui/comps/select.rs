@@ -3,7 +3,7 @@ use crate::{domain::model::Id, ui::pages::Name};
 use dioxus::prelude::*;
 use std::collections::HashMap;
 
-#[derive(Props, PartialEq, Clone)]
+#[derive(Clone, Debug, Props, PartialEq)]
 pub struct SelectProps {
     pub items: Signal<HashMap<Id, Name>>,
 
@@ -19,6 +19,8 @@ pub struct SelectProps {
 /// The HTML's `select` as a reusable component.<br/>
 pub fn Select(props: SelectProps) -> Element {
     //
+    // log::debug!("[Select] props: {:?}", props);
+
     let SelectProps {
         items,
         mut selected_item_id,

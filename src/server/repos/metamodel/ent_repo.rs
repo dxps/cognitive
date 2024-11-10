@@ -59,7 +59,7 @@ impl EntityRepo {
         .await
         {
             if let Some(mut ent) = ent_opt {
-                // Get all the attributes of an entity in one shot.
+                // Get the attributes of an entity, all in one shot.
                 let query = "
                     SELECT ad.name, ad.value_type, a.def_id, a.value as text_value, 0 as smallint_value, 0 as integer_value, 0 as bigint_value, 0 as real_value,
                         false as bool_value, CURRENT_DATE as date_value, CURRENT_TIMESTAMP as timestamp_value

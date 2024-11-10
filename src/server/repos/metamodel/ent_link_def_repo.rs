@@ -38,7 +38,7 @@ impl EntityLinkDefRepo {
             .bind(item.id.as_str())
             .bind(&item.name)
             .bind(&item.description)
-            .bind(&item.cardinality.to_string())
+            .bind(&item.cardinality.as_string())
             .bind(item.source_entity_def_id.as_str())
             .bind(item.target_entity_def_id.as_str())
             .execute(&mut *txn)

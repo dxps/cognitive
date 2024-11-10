@@ -69,7 +69,7 @@ pub enum Cardinality {
 
 impl Cardinality {
     //
-    pub fn to_string(&self) -> String {
+    pub fn as_string(&self) -> String {
         match self {
             Cardinality::OneToOne => "1:1".to_string(),
             Cardinality::OneToMany => "1:M".to_string(),
@@ -80,9 +80,9 @@ impl Cardinality {
     /// Get the (enum) variants.
     pub fn get_select_variants() -> HashMap<Id, Name> {
         HashMap::from([
-            (Id::from(Self::OneToOne.to_string()), Self::OneToOne.to_string()),
-            (Id::from(Self::OneToMany.to_string()), Self::OneToMany.to_string()),
-            (Id::from(Self::ManyToMany.to_string()), Self::ManyToMany.to_string()),
+            (Id::from(Self::OneToOne.as_string()), Self::OneToOne.as_string()),
+            (Id::from(Self::OneToMany.as_string()), Self::OneToMany.as_string()),
+            (Id::from(Self::ManyToMany.as_string()), Self::ManyToMany.as_string()),
         ])
     }
 }
