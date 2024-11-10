@@ -29,17 +29,46 @@ impl EntityLinkDefRepo {
 
     pub async fn add(&self, item: &EntityLinkDef) -> AppResult<()> {
         //
+        log::debug!("Adding entity link def: {:?}.", item);
+
+        let mut txn = self.dbcp.begin().await?;
+
         let query = "INSERT INTO entity_link_defs (id, name, description, cardinality, source_entity_def_id, target_entity_def_id) VALUES ($1, $2, $3, $4, $5, $6)";
-        sqlx::query(query)
+        if let Err(e) = sqlx::query(query)
             .bind(item.id.as_str())
             .bind(&item.name)
             .bind(&item.description)
             .bind(&item.cardinality.to_string())
             .bind(item.source_entity_def_id.as_str())
             .bind(item.target_entity_def_id.as_str())
-            .execute(self.dbcp.as_ref())
+            .execute(&mut *txn)
             .await
-            .map(|_| AppResult::Ok(()))?
+        {
+            txn.rollback().await?;
+            log::error!("Failed to add entity link def. Cause: '{}'.", e);
+            return AppResult::Err(e.into());
+        }
+
+        if item.attributes.is_some() {
+            let attrs = item.attributes.as_ref().unwrap();
+            for attr in attrs {
+                if let Err(e) =
+                    sqlx::query("INSERT INTO entity_link_defs_attribute_defs_xref (entity_link_def_id, attribute_def_id) VALUES ($1, $2)")
+                        .bind(item.id.as_str())
+                        .bind(attr.id.as_str())
+                        .execute(&mut *txn)
+                        .await
+                {
+                    txn.rollback().await?;
+                    log::error!("Failed to add entity link def attribute. Cause: '{}'.", e);
+                    return AppResult::Err(e.into());
+                }
+            }
+        }
+
+        txn.commit().await?;
+
+        Ok(())
     }
 
     pub async fn get(&self, id: &Id) -> AppResult<Option<EntityLinkDef>> {
