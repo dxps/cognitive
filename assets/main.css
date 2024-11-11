@@ -583,8 +583,8 @@ input {
   padding-bottom: 0.625rem;
   padding-left: 0.75rem;
   padding-right: 0.75rem;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
+  font-size: 1rem;
+  line-height: 1.5rem;
 }
 
 input:-moz-read-only {
@@ -615,7 +615,7 @@ input:focus {
   outline-offset: 2px;
 }
 
-/* Hide the arrows on input of type number */
+/* Hide the arrows on input of type number. */
 
 input[type='number']::-webkit-inner-spin-button,
 	input[type='number']::-webkit-outer-spin-button,
@@ -693,16 +693,8 @@ select {
 }
 
 select:disabled {
-  border-radius: 0.5rem;
-  border-width: 1.4px;
   --tw-border-opacity: 1;
   border-color: rgb(226 232 240 / var(--tw-border-opacity));
-  --tw-bg-opacity: 1;
-  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
-  padding-left: 0.75rem;
-  padding-right: 0.75rem;
-  outline: 2px solid transparent;
-  outline-offset: 2px;
 }
 
 select:focus {
@@ -847,6 +839,10 @@ select[disabled]:focus {
   margin-top: 0.25rem;
 }
 
+.mt-12 {
+  margin-top: 3rem;
+}
+
 .mt-14 {
   margin-top: 3.5rem;
 }
@@ -885,10 +881,6 @@ select[disabled]:focus {
 
 .mt-px {
   margin-top: 1px;
-}
-
-.mt-12 {
-  margin-top: 3rem;
 }
 
 .block {

@@ -1,18 +1,15 @@
-use std::collections::HashMap;
-
-use dioxus::prelude::*;
-use dioxus_elements::source;
-
 use crate::{
     domain::model::{AttributeDef, Cardinality, EntityLinkDef, Id},
     server::fns::create_entity_link_def,
     ui::{
         comps::{Breadcrumb, Nav},
-        pages::{fetch_all_attr_defs, meta::ent_link_def, EntityLinkDefForm, Name},
+        pages::{fetch_all_attr_defs, EntityLinkDefForm, Name},
         routes::Route,
         Action, UI_STATE,
     },
 };
+use dioxus::prelude::*;
+use std::collections::HashMap;
 
 #[component]
 pub fn EntityLinkDefNewPage() -> Element {
@@ -24,7 +21,7 @@ pub fn EntityLinkDefNewPage() -> Element {
     let mut target_ent_def_id = use_signal(|| Id::default());
     let mut ent_defs = use_signal::<HashMap<Id, Name>>(|| HashMap::new());
 
-    let mut cardinality = use_signal(|| Cardinality::OneToOne);
+    let mut cardinality_id = use_signal(|| Id::from(Cardinality::OneToOne.as_string()));
 
     let mut included_attr_defs = use_signal(|| HashMap::<Id, Name>::new());
     let mut all_attr_defs = use_signal(|| HashMap::<Id, Name>::new());
@@ -59,7 +56,7 @@ pub fn EntityLinkDefNewPage() -> Element {
                         EntityLinkDefForm {
                             name,
                             description,
-                            cardinality,
+                            cardinality_id,
                             source_ent_def_id,
                             target_ent_def_id,
                             ent_defs,
@@ -89,7 +86,7 @@ pub fn EntityLinkDefNewPage() -> Element {
                                             handle_create_ent_link_def(
                                                     name(),
                                                     description,
-                                                    cardinality(),
+                                                    cardinality_id(),
                                                     source_ent_def_id(),
                                                     target_ent_def_id(),
                                                     included_attr_defs(),
@@ -122,7 +119,7 @@ fn form_is_valid(name: Signal<String>, source_ent_def_id: Signal<Id>, target_ent
 async fn handle_create_ent_link_def(
     name: String,
     description: Option<String>,
-    cardinality: Cardinality,
+    cardinality_id: Id,
     source_entity_def_id: Id,
     target_entity_def_id: Id,
     included_attr_defs: HashMap<Id, Name>,
@@ -136,7 +133,14 @@ async fn handle_create_ent_link_def(
         .map(|(id, name)| AttributeDef::new_with_id_name(id.clone(), name.clone()))
         .collect();
     let attrs = if attrs.len() > 0 { Some(attrs) } else { None };
-    let ent_link_def = EntityLinkDef::from(name, description, cardinality, source_entity_def_id, target_entity_def_id, attrs);
+    let ent_link_def = EntityLinkDef::from(
+        name,
+        description,
+        Cardinality::from(cardinality_id.as_str()),
+        source_entity_def_id,
+        target_entity_def_id,
+        attrs,
+    );
     match create_entity_link_def(ent_link_def).await {
         Ok(_) => {
             action_done.set(true);

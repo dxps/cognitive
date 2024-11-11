@@ -9,7 +9,7 @@ use std::collections::HashMap;
 pub struct EntityLinkDefFormProps {
     pub name: Signal<String>,
     pub description: Signal<String>,
-    pub cardinality: Signal<Cardinality>,
+    pub cardinality_id: Signal<Id>,
     pub source_ent_def_id: Signal<Id>,
     pub target_ent_def_id: Signal<Id>,
     pub ent_defs: Signal<HashMap<Id, Name>>,
@@ -28,7 +28,7 @@ pub fn EntityLinkDefForm(props: EntityLinkDefFormProps) -> Element {
     let EntityLinkDefFormProps {
         mut name,
         mut description,
-        mut cardinality,
+        mut cardinality_id,
         source_ent_def_id,
         target_ent_def_id,
         ent_defs,
@@ -42,22 +42,23 @@ pub fn EntityLinkDefForm(props: EntityLinkDefFormProps) -> Element {
     let is_view = action == "View";
 
     let cardinality_options = use_signal(|| Cardinality::get_select_variants());
-    let selected_cardinality_id = use_signal(|| Id::from(cardinality().as_string()));
     let mut selected_attr_def_id = use_signal(|| Id::default());
     let mut selected_attr_def_name = use_signal(|| "".to_string());
 
-    log::debug!(
-        "[EntityLinkDefForm] got cardinality(as_string): {:?} thus id: {:?} and selected_cardinality_id: {:?}",
-        cardinality().as_string(),
-        Id::from(cardinality().as_string()),
-        selected_cardinality_id()
-    );
+    // log::debug!(
+    //     "[EntityLinkDefForm] got cardinality(as_string): {:?} thus id: {:?} and selected_cardinality_id: {:?}",
+    //     cardinality().as_string(),
+    //     Id::from(cardinality().as_string()),
+    //     selected_cardinality_id()
+    // );
 
-    use_effect(move || {
-        let id = selected_cardinality_id();
-        log::debug!("[EntityLinkDefForm] cardinality new id: {:?}", id.as_str());
-        cardinality.set(Cardinality::from(id.as_str()));
-    });
+    log::debug!("[EntityLinkDefForm] got cardinality_id: {:?}", cardinality_id());
+
+    // use_effect(move || {
+    //     let id = selected_cardinality_id();
+    //     log::debug!("[EntityLinkDefForm] cardinality new id: {:?}", id.as_str());
+    //     cardinality.set(Cardinality::from(id.as_str()));
+    // });
 
     rsx! {
         div { class: "mt-4 space-y-4",
@@ -107,8 +108,8 @@ pub fn EntityLinkDefForm(props: EntityLinkDefFormProps) -> Element {
                 label { class: "pr-3 py-2 min-w-32 text-gray-500", "Cardinality" }
                 Select {
                     items: cardinality_options,
-                    selected_item_id: selected_cardinality_id,
-                    default_selected_item_id: Some(selected_cardinality_id()),
+                    selected_item_id: cardinality_id,
+                    default_selected_item_id: Some(cardinality_id()),
                     disabled: is_view
                 }
             }

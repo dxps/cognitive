@@ -22,7 +22,7 @@ pub fn EntityLinkDefPage(props: EntityDefPageProps) -> Element {
     let id = use_signal(|| props.id);
     let mut name = use_signal(|| "".to_string());
     let mut description = use_signal(|| "".to_string());
-    let mut cardinality = use_signal(|| Cardinality::OneToOne);
+    let mut cardinality_id = use_signal(|| Id::from(Cardinality::OneToOne.as_string()));
 
     let mut source_ent_def_id = use_signal(|| Id::default());
     let mut target_ent_def_id = use_signal(|| Id::default());
@@ -45,7 +45,7 @@ pub fn EntityLinkDefPage(props: EntityDefPageProps) -> Element {
         if let Some(item) = get_entity_link_def(id()).await.unwrap_or_default() {
             name.set(item.name);
             description.set(item.description.unwrap_or_default());
-            cardinality.set(item.cardinality);
+            cardinality_id.set(Id::from(item.cardinality.as_string()));
             source_ent_def_id.set(item.source_entity_def_id);
             target_ent_def_id.set(item.target_entity_def_id);
             if item.attributes.is_some() {
@@ -80,7 +80,7 @@ pub fn EntityLinkDefPage(props: EntityDefPageProps) -> Element {
                         EntityLinkDefForm {
                             name,
                             description,
-                            cardinality,
+                            cardinality_id,
                             source_ent_def_id,
                             target_ent_def_id,
                             ent_defs,
@@ -129,7 +129,7 @@ pub fn EntityLinkDefPage(props: EntityDefPageProps) -> Element {
                                                             id(),
                                                             name(),
                                                             description,
-                                                            cardinality(),
+                                                            cardinality_id(),
                                                             source_ent_def_id(),
                                                             target_ent_def_id(),
                                                             attributes_ids,
@@ -211,7 +211,7 @@ async fn handle_update(
     id: Id,
     name: String,
     description: Option<String>,
-    cardinality: Cardinality,
+    cardinality_id: Id,
     source_entity_def_id: Id,
     target_entity_def_id: Id,
     included_attr_def_ids: Vec<Id>,
@@ -222,9 +222,9 @@ async fn handle_update(
 ) {
     //
     log::debug!(
-        "[ent_link_def_page] Updating entity link definition with id:'{id}' name:{name} description:{:?} cardinality:{:?} source_entity_def_id:{:?} target_entity_def_id:{:?} included_attr_def_ids:{:?}: ",
+        "[ent_link_def_page] Updating entity link definition with id:'{id}' name:{name} description:{:?} cardinality_id:{:?} source_entity_def_id:{:?} target_entity_def_id:{:?} included_attr_def_ids:{:?}: ",
         description,
-        cardinality,
+        cardinality_id,
         source_entity_def_id,
         target_entity_def_id,
         included_attr_def_ids
