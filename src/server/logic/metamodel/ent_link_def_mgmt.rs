@@ -28,4 +28,13 @@ impl EntityLinkDefMgmt {
         //
         self.ent_link_def_repo.get(id).await
     }
+
+    pub async fn update(&self, item: &EntityLinkDef) -> AppResult<()> {
+        //
+        self.ent_link_def_repo.update(item).await
+    }
+
+    pub async fn remove(&self, id: &Id) -> AppResult<()> {
+        self.ent_link_def_repo.remove(id).await
+    }
 }

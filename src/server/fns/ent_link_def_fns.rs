@@ -29,3 +29,19 @@ pub async fn get_entity_link_def(id: Id) -> Result<Option<EntityLinkDef>, Server
     let ent_link_def = session.6.get(&id).await?;
     Ok(ent_link_def)
 }
+
+/// Update an entity link definition.
+#[server(endpoint = "admin/update_ent_link_def")]
+pub async fn update_entity_link_def(ent_link_def: EntityLinkDef) -> Result<(), ServerFnError> {
+    let session: Session = extract().await?;
+    let result = session.6.update(&ent_link_def).await;
+    result.map_err(|e| e.into())
+}
+
+/// Remove an entity link definition.
+#[server(endpoint = "admin/remove_ent_link_def")]
+pub async fn remove_entity_link_def(id: Id) -> Result<(), ServerFnError> {
+    let session: Session = extract().await?;
+    let result = session.6.remove(&id).await;
+    result.map_err(|e| e.into())
+}

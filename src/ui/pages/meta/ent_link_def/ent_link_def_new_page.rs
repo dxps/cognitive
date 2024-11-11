@@ -2,7 +2,7 @@ use crate::{
     domain::model::{AttributeDef, Cardinality, EntityLinkDef, Id},
     server::fns::create_entity_link_def,
     ui::{
-        comps::{Breadcrumb, Nav},
+        comps::{AcknowledgeModal, Breadcrumb, Nav},
         pages::{fetch_all_attr_defs, EntityLinkDefForm, Name},
         routes::Route,
         Action, UI_STATE,
@@ -104,6 +104,15 @@ pub fn EntityLinkDefNewPage() -> Element {
                                 }
                             }
                         }
+                    }
+                }
+            }
+            if action_done() {
+                AcknowledgeModal {
+                    title: "Confirmation",
+                    content: "The entity link definition has been successfully created.",
+                    action_handler: move |_| {
+                        navigator().push(Route::EntityLinkDefListPage {});
                     }
                 }
             }

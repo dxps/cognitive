@@ -103,6 +103,75 @@ impl EntityLinkDefRepo {
 
         Ok(Some(res))
     }
+
+    pub async fn update(&self, item: &EntityLinkDef) -> AppResult<()> {
+        //
+        let mut txn = self.dbcp.begin().await?;
+
+        if let Err(e) = sqlx::query(
+            "UPDATE entity_link_defs 
+             SET name = $2, description = $3, cardinality = $4, source_entity_def_id = $5, target_entity_def_id = $6 
+             WHERE id = $1",
+        )
+        .bind(item.id.as_str())
+        .bind(&item.name)
+        .bind(&item.description)
+        .bind(&item.cardinality.as_string())
+        .bind(item.source_entity_def_id.as_str())
+        .bind(item.target_entity_def_id.as_str())
+        .execute(&mut *txn)
+        .await
+        {
+            txn.rollback().await?;
+            log::error!("Failed to update entity link def. Cause: '{}'.", e);
+            return AppResult::Err(e.into());
+        }
+
+        if let Err(e) = sqlx::query("DELETE FROM entity_link_defs_attribute_defs_xref WHERE entity_link_def_id = $1")
+            .bind(item.id.as_str())
+            .execute(&mut *txn)
+            .await
+        {
+            txn.rollback().await?;
+            log::error!("Failed to delete entity link def's (id:{}) attribute def id: {}", item.id, e);
+            return AppResult::Err(e.into());
+        }
+
+        if item.attributes.is_some() {
+            let attrs = item.attributes.as_ref().unwrap();
+            for attr in attrs {
+                if let Err(e) =
+                    sqlx::query("INSERT INTO entity_link_defs_attribute_defs_xref (entity_link_def_id, attribute_def_id) VALUES ($1, $2)")
+                        .bind(item.id.as_str())
+                        .bind(attr.id.as_str())
+                        .execute(&mut *txn)
+                        .await
+                {
+                    txn.rollback().await?;
+                    log::error!("Failed to add entity link def attribute. Cause: '{}'.", e);
+                    return AppResult::Err(e.into());
+                }
+            }
+        }
+
+        txn.commit().await?;
+
+        Ok(())
+    }
+
+    pub async fn remove(&self, id: &Id) -> AppResult<()> {
+        //
+        if let Err(e) = sqlx::query("DELETE FROM entity_link_defs WHERE id = $1")
+            .bind(id.as_str())
+            .execute(self.dbcp.as_ref())
+            .await
+        {
+            log::error!("Failed to delete entity link def by id:'{}'. Cause: '{}'.", id, e);
+            return AppResult::Err(e.into());
+        }
+
+        Ok(())
+    }
 }
 
 impl FromRow<'_, PgRow> for EntityLinkDef {

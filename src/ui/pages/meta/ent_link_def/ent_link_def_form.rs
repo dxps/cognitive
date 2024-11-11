@@ -28,7 +28,7 @@ pub fn EntityLinkDefForm(props: EntityLinkDefFormProps) -> Element {
     let EntityLinkDefFormProps {
         mut name,
         mut description,
-        mut cardinality_id,
+        cardinality_id,
         source_ent_def_id,
         target_ent_def_id,
         ent_defs,
@@ -44,21 +44,6 @@ pub fn EntityLinkDefForm(props: EntityLinkDefFormProps) -> Element {
     let cardinality_options = use_signal(|| Cardinality::get_select_variants());
     let mut selected_attr_def_id = use_signal(|| Id::default());
     let mut selected_attr_def_name = use_signal(|| "".to_string());
-
-    // log::debug!(
-    //     "[EntityLinkDefForm] got cardinality(as_string): {:?} thus id: {:?} and selected_cardinality_id: {:?}",
-    //     cardinality().as_string(),
-    //     Id::from(cardinality().as_string()),
-    //     selected_cardinality_id()
-    // );
-
-    log::debug!("[EntityLinkDefForm] got cardinality_id: {:?}", cardinality_id());
-
-    // use_effect(move || {
-    //     let id = selected_cardinality_id();
-    //     log::debug!("[EntityLinkDefForm] cardinality new id: {:?}", id.as_str());
-    //     cardinality.set(Cardinality::from(id.as_str()));
-    // });
 
     rsx! {
         div { class: "mt-4 space-y-4",

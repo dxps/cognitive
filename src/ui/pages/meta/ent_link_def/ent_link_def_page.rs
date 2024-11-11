@@ -1,6 +1,6 @@
 use crate::{
-    domain::model::{Cardinality, Id},
-    server::fns::get_entity_link_def,
+    domain::model::{AttributeDef, Cardinality, EntityLinkDef, Id},
+    server::fns::{get_entity_link_def, remove_entity_link_def, update_entity_link_def},
     ui::{
         comps::{AcknowledgeModal, Breadcrumb, ConfirmationModal, Nav},
         pages::{meta::ent_def::fetch_all_attr_defs, EntityLinkDefForm, Name},
@@ -176,12 +176,12 @@ pub fn EntityLinkDefPage(props: EntityDefPageProps) -> Element {
                 AcknowledgeModal {
                     title: "Confirmation",
                     content: if action() == Action::Delete {
-                        "The entity definition has been successfully deleted."
+                        "The entity link definition has been successfully deleted."
                     } else {
-                        "The entity definition has been successfully updated."
+                        "The entity link definition has been successfully updated."
                     },
                     action_handler: move |_| {
-                        navigator().push(Route::EntityDefListPage {});
+                        navigator().push(Route::EntityLinkDefListPage {});
                     }
                 }
             } else if err().is_some() {
@@ -230,41 +230,47 @@ async fn handle_update(
         included_attr_def_ids
     );
 
-    let attributes: HashMap<Id, Name> = included_attr_def_ids
+    let attributes: Vec<AttributeDef> = included_attr_def_ids
         .iter()
         .map(|id| {
-            (
-                id.clone(),
-                all_attr_defs.get(id).unwrap_or(included_attr_defs.get(id).unwrap()).clone(),
-            )
+            let name = all_attr_defs.get(id).unwrap_or(included_attr_defs.get(id).unwrap()).clone();
+            AttributeDef::new_with_id_name(id.clone(), name)
         })
         .collect();
-    // let ent_def = EntityDef::new_with_attr_def_ids(id, name, description, attributes, listing_attr_def_id);
-    // match update_entity_def(ent_def.clone()).await {
-    //     Ok(_) => {
-    //         saved.set(true);
-    //         err.set(None);
-    //         UI_STATE.update_ent_def(ent_def);
-    //     }
-    //     Err(e) => {
-    //         saved.set(false);
-    //         err.set(Some(e.to_string()));
-    //     }
-    // }
+    let attributes = if attributes.len() > 0 { Some(attributes) } else { None };
+    let ent_link_def = EntityLinkDef::new(
+        id,
+        name,
+        description,
+        Cardinality::from(cardinality_id.as_str()),
+        source_entity_def_id,
+        target_entity_def_id,
+        attributes,
+    );
+    match update_entity_link_def(ent_link_def.clone()).await {
+        Ok(_) => {
+            saved.set(true);
+            err.set(None);
+        }
+        Err(e) => {
+            saved.set(false);
+            err.set(Some(e.to_string()));
+        }
+    }
 }
 
 async fn handle_delete(id: &Id, mut action_done: Signal<bool>, mut err: Signal<Option<String>>) {
     //
     log::debug!("[ent_link_def_page] Deleting entity link definition: {:?}", id);
-    // match remove_entity_def(id.clone()).await {
-    //     Ok(_) => {
-    //         action_done.set(true);
-    //         err.set(None);
-    //         UI_STATE.remove_ent_def(&id);
-    //     }
-    //     Err(e) => {
-    //         action_done.set(false);
-    //         err.set(Some(e.to_string()));
-    //     }
-    // }
+    match remove_entity_link_def(id.clone()).await {
+        Ok(_) => {
+            action_done.set(true);
+            err.set(None);
+            UI_STATE.remove_ent_def(&id);
+        }
+        Err(e) => {
+            action_done.set(false);
+            err.set(Some(e.to_string()));
+        }
+    }
 }
