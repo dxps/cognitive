@@ -75,7 +75,7 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
                 p { class: "min-w-32 text-gray-500", "Attributes" }
                 div {
                     for (id , name) in included_attr_defs() {
-                        div { class: "flex",
+                        div { class: "flex justify-between min-w-80",
                             p { class: "pl-3 pr-3", "{name}" }
                             button {
                                 class: "text-red-200 hover:text-red-500 hover:bg-red-100 disabled:text-white disabled:hover:bg-white ml-4 px-3 py-0 rounded-xl transition duration-200",

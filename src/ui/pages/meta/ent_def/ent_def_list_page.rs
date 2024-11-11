@@ -25,7 +25,7 @@ pub fn EntityDefListPage() -> Element {
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
                 div { class: "bg-white rounded-lg p-3 min-w-[600px]  mt-[min(100px)]",
                     div { class: "p-6",
-                        div { class: "flex justify-between mb-4",
+                        div { class: "flex justify-between mb-8",
                             p { class: "text-lg font-medium leading-snug tracking-normal text-gray-500 antialiased",
                                 "Entities Definitions"
                             }
@@ -35,7 +35,6 @@ pub fn EntityDefListPage() -> Element {
                                 "+"
                             }
                         }
-                        hr { class: "pb-4" }
                         if entries.is_empty() {
                             p { class: "pb-4 text-gray-500", "There are no entries." }
                         }
@@ -51,6 +50,11 @@ pub fn EntityDefListPage() -> Element {
 
 #[component]
 fn EntityDefCard(ent_def: EntityDef) -> Element {
+    //
+    let description = match ent_def.description {
+        Some(description) => description,
+        None => String::from(""),
+    };
     rsx! {
         Link {
             to: Route::EntityDefPage {
@@ -63,8 +67,10 @@ fn EntityDefCard(ent_def: EntityDef) -> Element {
                     }
                 }
                 div { class: "flex justify-between text-gray-600",
-                    p { class: "text-xs leading-5 text-gray-600 pt-1",
-                        "{ent_def.description.unwrap_or_default()}"
+                    if description.is_empty() {
+                        pre { class: "text-xs leading-5 text-gray-600 pt-1", " " }
+                    } else {
+                        p { class: "text-xs leading-5 text-gray-600 pt-1", "{description}" }
                     }
                 }
             }
