@@ -9,7 +9,7 @@ pub struct Entity {
     /// Its kind, that is its definition name.
     pub kind: String,
 
-    /// Its definition.
+    /// Its definition id.
     pub def_id: Id,
 
     #[serde(default)]

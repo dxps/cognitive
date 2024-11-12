@@ -48,7 +48,7 @@ impl EntityLinkDef {
         attributes: Option<Vec<AttributeDef>>,
     ) -> Self {
         Self::new(
-            Id::new(),
+            Id::default(),
             name,
             description,
             cardinality,
