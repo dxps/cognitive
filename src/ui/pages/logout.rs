@@ -25,7 +25,7 @@ pub fn Logout() -> Element {
 }
 
 async fn handle_logout() {
-    use crate::server::fns::auth::logout;
+    use crate::server::fns::logout;
     use crate::ui::UiStorage;
 
     log::debug!(">>> Handling the logout ...");

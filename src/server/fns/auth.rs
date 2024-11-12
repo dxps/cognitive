@@ -7,11 +7,12 @@ use crate::server::Session;
 use log::debug;
 
 use dioxus_fullstack::prelude::*;
+use server_fn::codec::{GetUrl, PostUrl};
 
 // TODO: Use a proper result type, instead of `ServerFnError`.
 // pub type LoginResult = AppResult<UserAccount>;
 
-#[server(Login)]
+#[server(endpoint = "login", input = PostUrl)]
 pub async fn login(email: String, password: String) -> Result<UserAccount, ServerFnError> {
     //
     let session: Session = extract().await?;
@@ -21,14 +22,14 @@ pub async fn login(email: String, password: String) -> Result<UserAccount, Serve
     Ok(account)
 }
 
-#[server(Logout)]
+#[server(endpoint = "logout", input = PostUrl)]
 pub async fn logout() -> Result<(), ServerFnError> {
     let session: Session = extract().await?;
     session.logout_user();
     Ok(())
 }
 
-#[server(GetUserName)]
+#[server(endpoint = "get_user_name", input = GetUrl)]
 pub async fn get_user_name() -> Result<String, ServerFnError> {
     let session: Session = extract().await?;
     let name = match session.0.current_user {
@@ -38,7 +39,7 @@ pub async fn get_user_name() -> Result<String, ServerFnError> {
     Ok(name)
 }
 
-#[server(Permissions)]
+#[server(endpoint = "get_permissions", input = GetUrl)]
 pub async fn get_permissions() -> Result<String, ServerFnError> {
     use axum_session_auth::Rights;
 
@@ -67,7 +68,7 @@ pub async fn get_permissions() -> Result<String, ServerFnError> {
     ))
 }
 
-#[server(HasAdminPermissions)]
+#[server(endpoint = "has_permissions", input = GetUrl)]
 pub async fn has_admin_permissions() -> Result<bool, ServerFnError> {
     use axum_session_auth::Rights;
 
@@ -77,10 +78,7 @@ pub async fn has_admin_permissions() -> Result<bool, ServerFnError> {
 
     // Let's check permissions only and not worry about if the user is anonymous or not.
     let res = !axum_session_auth::Auth::<UserAccount, Id, sqlx::PgPool>::build([axum::http::Method::POST], false)
-        .requires(Rights::any([
-            Rights::permission("Admin::Read"),
-            Rights::permission("Admin::Write"),
-        ]))
+        .requires(Rights::any([Rights::permission("Admin::Read"), Rights::permission("Admin::Write")]))
         .validate(&current_user, &method, None)
         .await;
     Ok(res)

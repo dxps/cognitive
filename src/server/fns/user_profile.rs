@@ -2,13 +2,14 @@ use dioxus_fullstack::prelude::*;
 
 #[cfg(feature = "server")]
 use log::debug;
+use server_fn::codec::PostUrl;
 
 use crate::domain::model::Id;
 
 #[cfg(feature = "server")]
 use crate::server::session::Session;
 
-#[server(SaveUserProfilePrimaryInfo)]
+#[server(endpoint = "save_user_profile_primary_info", input = PostUrl)]
 pub async fn save_user_profile_primary_info(id: Id, username: String, email: String, bio: String) -> Result<(), ServerFnError> {
     //
     use crate::domain::model::UserAccount;
@@ -31,7 +32,7 @@ pub async fn save_user_profile_primary_info(id: Id, username: String, email: Str
         .map_err(|err| ServerFnError::ServerError(err.to_string()))
 }
 
-#[server(SetNewPassword)]
+#[server(endpoint = "set_user_profile_new_password", input = PostUrl)]
 pub async fn set_user_profile_new_password(
     user_id: Id,
     curr_password: String,

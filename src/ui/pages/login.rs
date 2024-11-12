@@ -1,7 +1,7 @@
 use dioxus::prelude::*;
 
 use crate::ui::routes::Route;
-use crate::{server::fns::auth::login, ui::comps::Nav};
+use crate::{server::fns::login, ui::comps::Nav};
 
 #[component]
 pub fn Login() -> Element {

@@ -1,5 +1,5 @@
-pub mod auth;
-pub mod sample;
+mod auth;
+pub use auth::*;
 
 mod tag_fns;
 pub use tag_fns::*;

@@ -1,6 +1,6 @@
 use dioxus::prelude::*;
 
-use crate::server::fns::auth::has_admin_permissions;
+use crate::server::fns::has_admin_permissions;
 use crate::ui::routes::Route;
 use crate::ui::{UiStorage, UI_STATE};
 
@@ -24,10 +24,7 @@ pub fn NavUserMenu() -> Element {
         }
     } else {
         let username = state().current_user.unwrap().username;
-        log::trace!(
-            ">>> [NavUserMenu] There is a locally saved user with username: {:?}.",
-            username
-        );
+        log::trace!(">>> [NavUserMenu] There is a locally saved user with username: {:?}.", username);
         rsx! {
             div { class: "text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition duration-200 flex flex-col items-end overflow-visible",
                 button {
