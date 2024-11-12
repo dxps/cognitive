@@ -216,6 +216,29 @@ impl UiState {
             }
         }
     }
+
+    pub fn add_ent_link_def(&self, ent_link_def: EntityLinkDef) {
+        let mut ent_link_defs = self.ent_link_def_list.read().clone();
+        log::debug!(
+            "[UiState.add_ent_link_def] Adding ent_link_def: {:?} to existing ent_link_defs.",
+            ent_link_def,
+        );
+        ent_link_defs.push(ent_link_def);
+        *self.ent_link_def_list.write() = ent_link_defs;
+    }
+
+    pub fn update_ent_link_def(&self, ent_link_def: EntityLinkDef) {
+        let mut ent_link_defs = self.ent_link_def_list.read().clone();
+        ent_link_defs.retain(|ed| ed.id != ent_link_def.id);
+        ent_link_defs.push(ent_link_def);
+        *self.ent_link_def_list.write() = ent_link_defs;
+    }
+
+    pub fn remove_ent_link_def(&self, id: &Id) {
+        let mut ent_link_defs = self.ent_link_def_list.read().clone();
+        ent_link_defs.retain(|ent_link_def| ent_link_def.id != *id);
+        *self.ent_link_def_list.write() = ent_link_defs;
+    }
 }
 
 pub static UI_STATE: UiState = UiState::new();

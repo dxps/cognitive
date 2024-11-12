@@ -257,6 +257,7 @@ async fn handle_update(
             err.set(Some(e.to_string()));
         }
     }
+    UI_STATE.update_ent_link_def(ent_link_def);
 }
 
 async fn handle_delete(id: &Id, mut action_done: Signal<bool>, mut err: Signal<Option<String>>) {
@@ -266,7 +267,7 @@ async fn handle_delete(id: &Id, mut action_done: Signal<bool>, mut err: Signal<O
         Ok(_) => {
             action_done.set(true);
             err.set(None);
-            UI_STATE.remove_ent_def(&id);
+            UI_STATE.remove_ent_link_def(&id);
         }
         Err(e) => {
             action_done.set(false);

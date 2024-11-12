@@ -142,7 +142,7 @@ async fn handle_create_ent_link_def(
         .map(|(id, name)| AttributeDef::new_with_id_name(id.clone(), name.clone()))
         .collect();
     let attrs = if attrs.len() > 0 { Some(attrs) } else { None };
-    let ent_link_def = EntityLinkDef::from(
+    let mut ent_link_def = EntityLinkDef::from(
         name,
         description,
         Cardinality::from(cardinality_id.as_str()),
@@ -150,10 +150,12 @@ async fn handle_create_ent_link_def(
         target_entity_def_id,
         attrs,
     );
-    match create_entity_link_def(ent_link_def).await {
-        Ok(_) => {
+    match create_entity_link_def(ent_link_def.clone()).await {
+        Ok(id) => {
             action_done.set(true);
             err.set(None);
+            ent_link_def.id = id;
+            UI_STATE.add_ent_link_def(ent_link_def);
         }
         Err(e) => {
             action_done.set(false);
