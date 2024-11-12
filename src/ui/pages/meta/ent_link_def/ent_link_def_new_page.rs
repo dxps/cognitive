@@ -14,21 +14,20 @@ use std::collections::HashMap;
 #[component]
 pub fn EntityLinkDefNewPage() -> Element {
     //
-    let mut name = use_signal(|| "".to_string());
-    let mut description = use_signal(|| "".to_string());
+    let name = use_signal(|| "".to_string());
+    let description = use_signal(|| "".to_string());
 
-    let mut source_ent_def_id = use_signal(|| Id::default());
-    let mut target_ent_def_id = use_signal(|| Id::default());
+    let source_ent_def_id = use_signal(|| Id::default());
+    let target_ent_def_id = use_signal(|| Id::default());
     let mut ent_defs = use_signal::<HashMap<Id, Name>>(|| HashMap::new());
 
-    let mut cardinality_id = use_signal(|| Id::from(Cardinality::OneToOne.as_string()));
+    let cardinality_id = use_signal(|| Id::from(Cardinality::OneToOne.as_string()));
 
-    let mut included_attr_defs = use_signal(|| HashMap::<Id, Name>::new());
+    let included_attr_defs = use_signal(|| HashMap::<Id, Name>::new());
     let mut all_attr_defs = use_signal(|| HashMap::<Id, Name>::new());
 
-    let mut show_modal = use_signal(|| false);
     let action_done = use_signal(|| false);
-    let mut action = use_signal(|| Action::Create);
+    let action = use_signal(|| Action::Create);
     let mut err: Signal<Option<String>> = use_signal(|| None);
 
     use_future(move || async move {
@@ -120,8 +119,8 @@ pub fn EntityLinkDefNewPage() -> Element {
     }
 }
 
-fn form_is_valid(name: Signal<String>, source_ent_def_id: Signal<Id>, target_ent_def_id: Signal<Id>) -> bool {
-    // TODO
+fn form_is_valid(_name: Signal<String>, _source_ent_def_id: Signal<Id>, _target_ent_def_id: Signal<Id>) -> bool {
+    // TODO: add form validation
     true
 }
 

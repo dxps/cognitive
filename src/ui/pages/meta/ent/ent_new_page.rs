@@ -119,8 +119,7 @@ pub fn EntityNewPage() -> Element {
                                 smallint_attrs,
                                 int_attrs,
                                 boolean_attrs,
-                                action: Action::Edit,
-                                err
+                                action: Action::Edit
                             }
                         }
                         div { class: "flex justify-betweent mt-8",

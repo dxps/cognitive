@@ -12,12 +12,12 @@ use dioxus::prelude::*;
 use std::collections::HashMap;
 
 #[derive(PartialEq, Props, Clone)]
-pub struct EntityDefPageProps {
+pub struct EntityLinkDefPageProps {
     id: Id,
 }
 
 #[component]
-pub fn EntityLinkDefPage(props: EntityDefPageProps) -> Element {
+pub fn EntityLinkDefPage(props: EntityLinkDefPageProps) -> Element {
     //
     let id = use_signal(|| props.id);
     let mut name = use_signal(|| "".to_string());

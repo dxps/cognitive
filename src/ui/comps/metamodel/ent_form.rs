@@ -9,7 +9,6 @@ pub struct EntityFormProps {
     pub int_attrs: Signal<HashMap<Id, IntegerAttribute>>,
     pub boolean_attrs: Signal<HashMap<Id, BooleanAttribute>>,
     pub action: String,
-    pub err: Signal<Option<String>>,
 }
 
 #[component]
@@ -21,7 +20,6 @@ pub fn EntityForm(props: EntityFormProps) -> Element {
         mut int_attrs,
         mut boolean_attrs,
         action,
-        err,
     } = props;
 
     let is_view = action == "View";

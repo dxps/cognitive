@@ -75,8 +75,7 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
                             smallint_attrs,
                             int_attrs,
                             boolean_attrs,
-                            action: action(),
-                            err
+                            action: action()
                         }
                         hr { class: "mt-8 mb-1" }
                         div { class: "flex justify-between mt-8",
