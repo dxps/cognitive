@@ -133,9 +133,9 @@ pub fn TagPage(id: Id) -> Element {
                 AcknowledgeModal {
                     title: "Confirmation",
                     content: if action() == Action::Delete {
-                        "The tag has been successfully deleted."
+                        vec!["The tag has been successfully deleted.".into()]
                     } else {
-                        "The tag has been successfully updated."
+                        vec!["The tag has been successfully updated.".into()]
                     },
                     action_handler: move |_| {
                         navigator().push(Route::TagListPage {});

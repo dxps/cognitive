@@ -169,9 +169,9 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
                 AcknowledgeModal {
                     title: "Confirmation",
                     content: if action() == Action::Delete {
-                        "The entity has been successfully deleted."
+                        vec!["The entity has been successfully deleted.".into()]
                     } else {
-                        "The entity has been successfully updated."
+                        vec!["The entity has been successfully updated.".into()]
                     },
                     action_handler: move |_| {
                         navigator().push(Route::EntityListPage {});

@@ -158,9 +158,9 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
                 AcknowledgeModal {
                     title: "Confirmation",
                     content: if action() == Action::Delete {
-                        "The attribute definition has been successfully deleted."
+                        vec!["The attribute definition has been successfully deleted.".into()]
                     } else {
-                        "The attribute definition has been successfully updated."
+                        vec!["The attribute definition has been successfully updated.".into()]
                     },
                     action_handler: move |_| {
                         navigator().push(Route::AttributeDefListPage {});
@@ -170,15 +170,9 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
                 AcknowledgeModal {
                     title: "Error",
                     content: if action() == Action::Delete {
-                        format!(
-                            "Failed to delete the attribute definition. Cause: '{}'.",
-                            err().unwrap(),
-                        )
+                        vec!["Failed to delete the attribute definition. Cause:".into(), err().unwrap()]
                     } else {
-                        format!(
-                            "Failed to update the attribute definition. Cause: '{}'.",
-                            err().unwrap(),
-                        )
+                        vec!["Failed to update the attribute definition. Cause:".into(), err().unwrap()]
                     },
                     action_handler: move |_| {
                         err.set(None);

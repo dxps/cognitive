@@ -176,9 +176,9 @@ pub fn EntityLinkDefPage(props: EntityDefPageProps) -> Element {
                 AcknowledgeModal {
                     title: "Confirmation",
                     content: if action() == Action::Delete {
-                        "The entity link definition has been successfully deleted."
+                        vec!["The entity link definition has been successfully deleted.".into()]
                     } else {
-                        "The entity link definition has been successfully updated."
+                        vec!["The entity link definition has been successfully updated.".into()]
                     },
                     action_handler: move |_| {
                         navigator().push(Route::EntityLinkDefListPage {});
@@ -188,15 +188,15 @@ pub fn EntityLinkDefPage(props: EntityDefPageProps) -> Element {
                 AcknowledgeModal {
                     title: "Error",
                     content: if action() == Action::Delete {
-                        format!(
-                            "Failed to delete the entity link definition. Cause: '{}'.",
+                        vec![
+                            "Failed to delete the entity link definition. Reason:".into(),
                             err().unwrap(),
-                        )
+                        ]
                     } else {
-                        format!(
-                            "Failed to update the entity link definition. Cause: '{}'.",
+                        vec![
+                            "Failed to update the entity link definition. Reason:".into(),
                             err().unwrap(),
-                        )
+                        ]
                     },
                     action_handler: move |_| {
                         err.set(None);

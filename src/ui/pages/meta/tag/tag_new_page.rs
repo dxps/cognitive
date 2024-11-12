@@ -82,7 +82,7 @@ pub fn TagNewPage() -> Element {
             if action_done() {
                 AcknowledgeModal {
                     title: "Confirmation",
-                    content: "The tag has been successfully created.",
+                    content: vec!["The tag has been successfully created.".into()],
                     action_handler: move |_| {
                         navigator().push(Route::TagListPage {});
                     }
@@ -92,12 +92,7 @@ pub fn TagNewPage() -> Element {
     }
 }
 
-async fn handle_create_tag(
-    name: String,
-    description: Option<String>,
-    mut action_done: Signal<bool>,
-    mut err: Signal<Option<String>>,
-) {
+async fn handle_create_tag(name: String, description: Option<String>, mut action_done: Signal<bool>, mut err: Signal<Option<String>>) {
     match create_tag(name.clone(), description.clone()).await {
         Ok(id) => {
             action_done.set(true);

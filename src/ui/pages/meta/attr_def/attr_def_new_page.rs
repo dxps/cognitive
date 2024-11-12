@@ -111,7 +111,7 @@ pub fn AttributeDefNewPage() -> Element {
             if action_done() {
                 AcknowledgeModal {
                     title: "Confirmation",
-                    content: "The attribute definition has been successfully created.",
+                    content: vec!["The attribute definition has been successfully created.".into()],
                     action_handler: move |_| {
                         navigator().push(Route::AttributeDefListPage {});
                     }

@@ -110,7 +110,7 @@ pub fn EntityLinkDefNewPage() -> Element {
             if action_done() {
                 AcknowledgeModal {
                     title: "Confirmation",
-                    content: "The entity link definition has been successfully created.",
+                    content: vec!["The entity link definition has been successfully created.".into()],
                     action_handler: move |_| {
                         navigator().push(Route::EntityLinkDefListPage {});
                     }

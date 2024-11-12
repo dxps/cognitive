@@ -102,7 +102,7 @@ pub fn EntityDefNewPage() -> Element {
                 if err().is_none() {
                     AcknowledgeModal {
                         title: "Confirmation",
-                        content: "The entity definition has been successfully created.",
+                        content: vec!["The entity definition has been successfully created.".into()],
                         action_handler: move |_| {
                             navigator().push(Route::EntityDefListPage {});
                         }
@@ -110,7 +110,7 @@ pub fn EntityDefNewPage() -> Element {
                 } else {
                     AcknowledgeModal {
                         title: "Error",
-                        content: "Failed to create the entity definition. Cause: '{err.unwrap()}' deleted.",
+                        content: vec!["Failed to create the entity definition. Cause:".into(), err.unwrap()],
                         action_handler: move |_| {
                             navigator().push(Route::EntityListPage {});
                         }

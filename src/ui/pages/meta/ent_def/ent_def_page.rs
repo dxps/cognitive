@@ -167,9 +167,9 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
                 AcknowledgeModal {
                     title: "Confirmation",
                     content: if action() == Action::Delete {
-                        "The entity definition has been successfully deleted."
+                        vec!["The entity definition has been successfully deleted.".into()]
                     } else {
-                        "The entity definition has been successfully updated."
+                        vec!["The entity definition has been successfully updated.".into()]
                     },
                     action_handler: move |_| {
                         navigator().push(Route::EntityDefListPage {});
@@ -179,9 +179,9 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
                 AcknowledgeModal {
                     title: "Error",
                     content: if action() == Action::Delete {
-                        format!("Failed to delete the entity definition. Cause: '{}'.", err().unwrap())
+                        vec!["Failed to delete the entity definition. Reason:".into(), err().unwrap()]
                     } else {
-                        format!("Failed to update the entity definition. Cause: '{}'.", err().unwrap())
+                        vec!["Failed to update the entity definition. Reason:".into(), err().unwrap()]
                     },
                     action_handler: move |_| {
                         err.set(None);
