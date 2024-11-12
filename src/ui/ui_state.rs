@@ -219,6 +219,14 @@ impl UiState {
         }
     }
 
+    pub fn get_ent_link_def_sync(&self, id: &Id) -> Option<EntityLinkDef> {
+        self.ent_link_def_list
+            .read()
+            .iter()
+            .find(|item| item.id == *id)
+            .map(|item| item.clone())
+    }
+
     pub fn add_ent_link_def(&self, ent_link_def: EntityLinkDef) {
         let mut ent_link_defs = self.ent_link_def_list.read().clone();
         log::debug!(

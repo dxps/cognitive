@@ -35,6 +35,12 @@ impl EntityLinkRepo {
             .await
             .map(|res| AppResult::Ok(res))?
     }
+
+    pub async fn add(&self, _item: &EntityLink) -> AppResult<Id> {
+        //
+        // TODO: to-be-implemented
+        Ok(Id::default())
+    }
 }
 
 impl FromRow<'_, PgRow> for EntityLink {

@@ -17,4 +17,8 @@ impl EntityLinkMgmt {
     pub async fn list(&self) -> AppResult<Vec<EntityLink>> {
         self.repo.list(None).await
     }
+
+    pub async fn add(&self, item: EntityLink) -> AppResult<Id> {
+        self.repo.add(&item).await
+    }
 }

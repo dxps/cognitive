@@ -27,7 +27,7 @@ pub fn EntityLinkListPage() -> Element {
     rsx! {
         div { class: "flex flex-col min-h-screen bg-gray-100",
             Nav {}
-            Breadcrumb { paths: Route::get_path(Route::EntityLinkDefListPage {}) }
+            Breadcrumb { paths: Route::get_path(Route::EntityLinkListPage {}) }
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
                 div { class: "bg-white rounded-lg p-3 min-w-[600px]  mt-[min(100px)]",
                     div { class: "p-6",
@@ -37,7 +37,7 @@ pub fn EntityLinkListPage() -> Element {
                             }
                             Link {
                                 class: "text-gray-500 text-3xl font-extralight hover:text-gray-800 px-2 rounded-xl transition duration-200",
-                                to: Route::EntityLinkDefNewPage {},
+                                to: Route::EntityLinkNewPage {},
                                 "+"
                             }
                         }

@@ -1,7 +1,7 @@
 use dioxus_fullstack::prelude::*;
 use server_fn::codec::{GetUrl, PostUrl};
 
-use crate::domain::model::{EntityLink, EntityLinkDef, Id};
+use crate::domain::model::{EntityLink, Id};
 
 #[cfg(feature = "server")]
 use crate::server::Session;
@@ -14,13 +14,13 @@ pub async fn list_entity_links() -> Result<Vec<EntityLink>, ServerFnError> {
     result.map_err(|e| e.into())
 }
 
-// /// Create an entity link.
-// #[server(endpoint = "admin/create_ent_link", input = PostUrl)]
-// pub async fn create_entity_link_def(item: EntityLink) -> Result<Id, ServerFnError> {
-//     let session: Session = extract().await?;
-//     let result = session.6.add(item).await;
-//     result.map_err(|e| e.into())
-// }
+/// Create an entity link.
+#[server(endpoint = "admin/create_ent_link", input = PostUrl)]
+pub async fn create_entity_link(item: EntityLink) -> Result<Id, ServerFnError> {
+    let session: Session = extract().await?;
+    let result = session.7.add(item).await;
+    result.map_err(|e| e.into())
+}
 
 // /// Get an entity link.
 // #[server(endpoint = "admin/get_ent_link", input = GetUrl)]

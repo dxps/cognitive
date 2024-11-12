@@ -1,4 +1,7 @@
-use crate::domain::model::{Entity, Id};
+use crate::{
+    domain::model::{Entity, Id},
+    server::session,
+};
 
 #[cfg(feature = "server")]
 use crate::server::Session;
@@ -27,6 +30,14 @@ pub async fn create_entity(item: Entity) -> Result<Id, ServerFnError> {
 pub async fn get_entity(id: Id) -> Result<Option<Entity>, ServerFnError> {
     let session: Session = extract().await?;
     let result = session.5.get(&id).await;
+    result.map_err(|e| e.into())
+}
+
+/// List the entities with the same definition.
+#[server(endpoint = "admin/list_ents_by_def_id/:id", input = GetUrl)]
+pub async fn list_entities_by_def_id(id: Id) -> Result<Vec<Entity>, ServerFnError> {
+    let session: Session = extract().await?;
+    let result = session.5.list_by_def_id(&id).await;
     result.map_err(|e| e.into())
 }
 

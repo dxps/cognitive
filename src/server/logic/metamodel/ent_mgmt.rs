@@ -18,6 +18,10 @@ impl EntityMgmt {
         self.repo.list(None).await
     }
 
+    pub async fn list_by_def_id(&self, def_id: &Id) -> AppResult<Vec<Entity>> {
+        self.repo.list_by_def_id(def_id).await
+    }
+
     pub async fn add(&self, mut ent: Entity) -> AppResult<Id> {
         ent.id = Id::new();
         self.set_listing_attr_value(&mut ent);
@@ -66,9 +70,7 @@ impl EntityMgmt {
     }
 
     pub async fn update_listing_attr_name_by_attr_def_id(&self, attr_def_id: &Id, attr_name: &String) -> AppResult<()> {
-        self.repo
-            .update_listing_attr_name_by_attr_def_id(attr_def_id, attr_name)
-            .await
+        self.repo.update_listing_attr_name_by_attr_def_id(attr_def_id, attr_name).await
     }
 
     pub async fn remove(&self, id: &Id) -> AppResult<()> {
