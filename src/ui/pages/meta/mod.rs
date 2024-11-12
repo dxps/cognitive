@@ -14,3 +14,6 @@ pub use ent_def::*;
 
 mod ent_link_def;
 pub use ent_link_def::*;
+
+mod ent_link;
+pub use ent_link::*;

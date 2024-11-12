@@ -18,3 +18,6 @@ pub use ent_fns::*;
 
 mod ent_link_def_fns;
 pub use ent_link_def_fns::*;
+
+mod ent_link_fns;
+pub use ent_link_fns::*;

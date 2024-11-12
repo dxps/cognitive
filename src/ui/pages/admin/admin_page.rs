@@ -67,7 +67,12 @@ fn render_page() -> Element {
                                 Link {
                                     class: "py-2 px-4 rounded-lg transition duration-200",
                                     to: Route::EntityListPage {},
-                                    "Entities Instances"
+                                    "Entities"
+                                }
+                                Link {
+                                    class: "py-2 px-4 rounded-lg transition duration-200",
+                                    to: Route::EntityLinkListPage {},
+                                    "Entity Links"
                                 }
                                 Link {
                                     class: "py-2 px-4 rounded-lg transition duration-200",

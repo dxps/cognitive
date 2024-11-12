@@ -8,6 +8,8 @@ use std::{collections::HashMap, sync::Arc};
 
 use super::pages::Name;
 
+/// The global state of the application.
+/// Mainly used for sharing cached data between components.
 pub struct UiState {
     pub app_ready: GlobalSignal<bool>,
 

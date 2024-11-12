@@ -11,8 +11,8 @@ use http::{request::Parts, StatusCode};
 use sqlx::PgPool;
 
 use super::{
-    AttributeDefMgmt, AttributeDefRepo, EntityDefMgmt, EntityDefRepo, EntityLinkDefMgmt, EntityLinkDefRepo, EntityMgmt, EntityRepo,
-    TagMgmt, TagsRepo, UserMgmt, UsersRepo,
+    AttributeDefMgmt, AttributeDefRepo, EntityDefMgmt, EntityDefRepo, EntityLinkDefMgmt, EntityLinkDefRepo, EntityLinkMgmt, EntityLinkRepo,
+    EntityMgmt, EntityRepo, TagMgmt, TagsRepo, UserMgmt, UsersRepo,
 };
 
 #[cfg(feature = "server")]
@@ -24,6 +24,7 @@ pub struct ServerState {
     pub ent_def_mgmt: Arc<EntityDefMgmt>,
     pub ent_mgmt: Arc<EntityMgmt>,
     pub ent_link_def_mgmt: Arc<EntityLinkDefMgmt>,
+    pub ent_link_mgmt: Arc<EntityLinkMgmt>,
 }
 
 impl ServerState {
@@ -47,6 +48,9 @@ impl ServerState {
         let ent_link_def_repo = Arc::new(EntityLinkDefRepo::new(db_pool.clone()));
         let ent_link_def_mgmt = Arc::new(EntityLinkDefMgmt::new(ent_link_def_repo));
 
+        let ent_link_repo = Arc::new(EntityLinkRepo::new(db_pool.clone()));
+        let ent_link_mgmt = Arc::new(EntityLinkMgmt::new(ent_link_repo));
+
         Self {
             user_mgmt,
             tag_mgmt,
@@ -54,6 +58,7 @@ impl ServerState {
             ent_def_mgmt,
             ent_mgmt,
             ent_link_def_mgmt,
+            ent_link_mgmt,
         }
     }
 }
