@@ -4,7 +4,7 @@ use crate::{
     },
     server::fns::list_entities_by_def_id,
     ui::{
-        comps::{AcknowledgeModal, Breadcrumb, EntityLinkForm, Nav, Select, SelectWithHandler},
+        comps::{AcknowledgeModal, Breadcrumb, EntityLinkForm, Nav, Select},
         pages::Name,
         routes::Route,
         Action, UI_STATE,
@@ -135,10 +135,6 @@ pub fn EntityLinkNewPage() -> Element {
         }
     });
 
-    let selected_kind_id_handler = move |_| {
-        log::debug!("[EntityLinkNewPage] Doing select_handler ...");
-    };
-
     rsx! {
         div { class: "flex flex-col min-h-screen bg-gray-100",
             Nav {}
@@ -165,11 +161,7 @@ pub fn EntityLinkNewPage() -> Element {
                             div { class: "flex",
                                 p { class: "py-2 pr-4 text-gray-600 block", "Kind:" }
                                 if !ent_link_defs().is_empty() {
-                                    SelectWithHandler {
-                                        items: ent_link_kinds,
-                                        selected_item_id: selected_kind_id,
-                                        select_handler: selected_kind_id_handler
-                                    }
+                                    Select { items: ent_link_kinds, selected_item_id: selected_kind_id }
                                 }
                             }
                         } else {
