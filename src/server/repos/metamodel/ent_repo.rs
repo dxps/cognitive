@@ -65,7 +65,7 @@ impl EntityRepo {
                         false as bool_value, CURRENT_DATE as date_value, CURRENT_TIMESTAMP as timestamp_value
                         FROM attribute_defs ad 
                         JOIN text_attributes a ON a.def_id = ad.id  
-                        WHERE a.owner_id = $1
+                        WHERE a.owner_type = 'eni' and a.owner_id = $1
                     UNION ALL 
                     SELECT ad.name, ad.value_type, a.def_id, '' as text_value, a.value as smallint_value, 0 as integer_value, 0 as bigint_value, 0 as real_value,
                         false as bool_value, CURRENT_DATE as date_value, CURRENT_TIMESTAMP as timestamp_value
@@ -139,6 +139,7 @@ impl EntityRepo {
             return AppResult::Err(e.into());
         }
 
+        // TODO: Use .iter() and refs, instead of clone().
         for attr in ent.text_attributes.clone() {
             if let Err(e) = sqlx::query("INSERT INTO text_attributes (owner_id, owner_type, def_id, value) VALUES ($1, $2, $3, $4)")
                 .bind(&ent.id.as_str())
@@ -485,18 +486,33 @@ fn fill_in_entity_attributes(ent: &mut Entity, rows: Vec<PgRow>) {
             }
             "smallint" => {
                 log::debug!("Found smallint attribute '{}'.", name);
-                ent.smallint_attributes
-                    .push(SmallintAttribute::new(name, row.get("smallint_value"), def_id));
+                ent.smallint_attributes.push(SmallintAttribute::new(
+                    name,
+                    row.get("smallint_value"),
+                    def_id,
+                    ent.id.clone(),
+                    ItemType::Entity,
+                ));
             }
             "integer" => {
                 log::debug!("Found integer attribute '{}'.", name);
-                ent.int_attributes
-                    .push(IntegerAttribute::new(name, row.get("integer_value"), def_id));
+                ent.int_attributes.push(IntegerAttribute::new(
+                    name,
+                    row.get("integer_value"),
+                    def_id,
+                    ent.id.clone(),
+                    ItemType::Entity,
+                ));
             }
             "boolean" => {
                 log::debug!("Found boolean attribute '{}'.", name);
-                ent.boolean_attributes
-                    .push(BooleanAttribute::new(name, row.get("bool_value"), def_id));
+                ent.boolean_attributes.push(BooleanAttribute::new(
+                    name,
+                    row.get("bool_value"),
+                    def_id,
+                    ent.id.clone(),
+                    ItemType::Entity,
+                ));
             }
             _ => {
                 log::warn!(

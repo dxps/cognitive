@@ -33,7 +33,7 @@ pub fn EntityLinkListPage() -> Element {
                     div { class: "p-6",
                         div { class: "flex justify-between mb-8",
                             p { class: "text-lg font-medium leading-snug tracking-normal text-gray-500 antialiased",
-                                "Entity Link Definitions"
+                                "Entity Links"
                             }
                             Link {
                                 class: "text-gray-500 text-3xl font-extralight hover:text-gray-800 px-2 rounded-xl transition duration-200",

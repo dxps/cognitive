@@ -36,19 +36,19 @@ pub fn EntityLinkForm(props: EntityLinkFormProps) -> Element {
     let is_view = action == "View";
 
     rsx! {
-        div { class: "flex",
-            label { class: "pr-3 py-2 min-w-32 text-gray-500", "Source entity" }
+        div { class: "flex py-2",
+            label { class: "pr-3 py-2 min-w-36 text-gray-500", "Source entity" }
             Select { items: source_entities_id_name, selected_item_id: source_entity_id }
         }
-        div { class: "flex",
-            label { class: "pr-3 py-2 min-w-32 text-gray-500", "Target entity" }
+        div { class: "flex py-2",
+            label { class: "pr-3 py-2 min-w-36 text-gray-500", "Target entity" }
             Select { items: target_entities_id_name, selected_item_id: target_entity_id }
         }
         div { class: "mt-4 space-y-4",
             div { class: "space-y-0",
                 for (id , attr) in text_attrs() {
                     div { class: "flex",
-                        label { class: "pr-3 py-2 min-w-36", "{attr.name}:" }
+                        label { class: "pr-3 py-2 min-w-36 text-gray-500", "{attr.name}" }
                         textarea {
                             class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
                             rows: 1,
@@ -72,7 +72,7 @@ pub fn EntityLinkForm(props: EntityLinkFormProps) -> Element {
                 }
                 for (id , attr) in smallint_attrs() {
                     div { class: "flex",
-                        label { class: "pr-3 py-2 min-w-36", "{attr.name}:" }
+                        label { class: "pr-3 py-2 min-w-36 text-gray-500", "{attr.name}" }
                         input {
                             class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
                             r#type: "number",
@@ -98,7 +98,7 @@ pub fn EntityLinkForm(props: EntityLinkFormProps) -> Element {
                 }
                 for (id , attr) in int_attrs() {
                     div { class: "flex",
-                        label { class: "pr-3 py-2 min-w-36", "{attr.name}:" }
+                        label { class: "pr-3 py-2 min-w-36 text-gray-500", "{attr.name}" }
                         input {
                             class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
                             r#type: "number",
@@ -124,7 +124,7 @@ pub fn EntityLinkForm(props: EntityLinkFormProps) -> Element {
                 }
                 for (id , attr) in boolean_attrs() {
                     div { class: "flex",
-                        label { class: "pr-3 py-2 min-w-36", "{attr.name}:" }
+                        label { class: "pr-3 py-2 min-w-36 text-gray-500", "{attr.name}" }
                         input {
                             class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300",
                             r#type: "checkbox",

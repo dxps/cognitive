@@ -18,7 +18,9 @@ impl EntityLinkMgmt {
         self.repo.list(None).await
     }
 
-    pub async fn add(&self, item: EntityLink) -> AppResult<Id> {
-        self.repo.add(&item).await
+    pub async fn add(&self, mut ent_link: EntityLink) -> AppResult<Id> {
+        ent_link.id = Id::new();
+        self.repo.add(&ent_link).await?;
+        Ok(ent_link.id)
     }
 }

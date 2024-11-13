@@ -1,5 +1,7 @@
 use crate::{
-    domain::model::{AttributeValueType, BooleanAttribute, Entity, EntityDef, Id, IntegerAttribute, SmallintAttribute, TextAttribute},
+    domain::model::{
+        AttributeValueType, BooleanAttribute, Entity, EntityDef, Id, IntegerAttribute, ItemType, SmallintAttribute, TextAttribute,
+    },
     ui::{
         comps::{AcknowledgeModal, Breadcrumb, EntityForm, Nav, Select},
         routes::Route,
@@ -54,23 +56,31 @@ pub fn EntityNewPage() -> Element {
             let mut si_attrs = HashMap::new();
             let mut i_attrs = HashMap::new();
             let mut b_attrs = HashMap::new();
-            ent_def.attributes.iter().for_each(|attr_def| {
+            ent_def.attributes.into_iter().for_each(|attr_def| {
                 if attr_def.id == ent_def.listing_attr_def_id {
                     listing_attr_def_id.set(attr_def.id.clone());
                     listing_attr_name.set(attr_def.name.clone());
                 }
-                match &attr_def.value_type {
-                    &AttributeValueType::Text => {
-                        txt_attrs.insert(attr_def.id.clone(), attr_def.clone().into());
+                match attr_def.value_type {
+                    AttributeValueType::Text => {
+                        let mut attr = TextAttribute::from(attr_def);
+                        attr.owner_type = ItemType::EntityLink;
+                        txt_attrs.insert(attr.def_id.clone(), attr);
                     }
-                    &AttributeValueType::SmallInteger => {
-                        si_attrs.insert(attr_def.id.clone(), attr_def.into());
+                    AttributeValueType::SmallInteger => {
+                        let mut attr = SmallintAttribute::from(attr_def);
+                        attr.owner_type = ItemType::EntityLink;
+                        si_attrs.insert(attr.def_id.clone(), attr);
                     }
-                    &AttributeValueType::Integer => {
-                        i_attrs.insert(attr_def.id.clone(), attr_def.into());
+                    AttributeValueType::Integer => {
+                        let mut attr = IntegerAttribute::from(attr_def);
+                        attr.owner_type = ItemType::EntityLink;
+                        i_attrs.insert(attr.def_id.clone(), attr);
                     }
-                    &AttributeValueType::Boolean => {
-                        b_attrs.insert(attr_def.id.clone(), attr_def.into());
+                    AttributeValueType::Boolean => {
+                        let mut attr = BooleanAttribute::from(attr_def);
+                        attr.owner_type = ItemType::EntityLink;
+                        b_attrs.insert(attr.def_id.clone(), attr);
                     }
                     _ => {}
                 }

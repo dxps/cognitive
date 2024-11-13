@@ -178,11 +178,11 @@ impl Route {
         ]
     }
 
-    pub fn get_path_to_ent_link_def(to: Route, ent_link_def_name: String) -> Vec<(String, Route)> {
+    pub fn get_path_to_ent_link_def(id: Id, ent_link_def_name: String) -> Vec<(String, Route)> {
         vec![
             ("Admin".into(), Route::AdminPage {}),
             ("Entity Link Definitions".into(), Route::EntityLinkDefListPage {}),
-            (ent_link_def_name, to),
+            (ent_link_def_name, Route::EntityLinkDefPage { id }),
         ]
     }
 

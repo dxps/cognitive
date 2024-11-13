@@ -63,7 +63,7 @@ pub fn EntityLinkDefPage(props: EntityLinkDefPageProps) -> Element {
     rsx! {
         div { class: "flex flex-col min-h-screen bg-gray-100",
             Nav {}
-            Breadcrumb { paths: Route::get_path_to_ent_link_def(Route::EntityDefPage { id: id() }, name()) }
+            Breadcrumb { paths: Route::get_path_to_ent_link_def(id(), name()) }
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
                 div { class: "bg-white rounded-lg p-3 min-w-[600px] mt-[min(80px)]",
                     div { class: "p-6",

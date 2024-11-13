@@ -13,11 +13,23 @@ pub struct BooleanAttribute {
 
     /// Its definition id.
     pub def_id: Id,
+
+    /// Its owner id.
+    pub owner_id: Id,
+
+    /// Its owner type.
+    pub owner_type: ItemType,
 }
 
 impl BooleanAttribute {
-    pub fn new(name: String, value: bool, def_id: Id) -> Self {
-        Self { name, value, def_id }
+    pub fn new(name: String, value: bool, def_id: Id, owner_id: Id, owner_type: ItemType) -> Self {
+        Self {
+            name,
+            value,
+            def_id,
+            owner_id,
+            owner_type,
+        }
     }
 }
 
@@ -27,12 +39,20 @@ impl Item for BooleanAttribute {
     }
 }
 
-impl From<&AttributeDef> for BooleanAttribute {
-    fn from(def: &AttributeDef) -> Self {
-        Self {
-            name: def.name.clone(),
-            value: false,
-            def_id: def.id.clone(),
-        }
+impl From<AttributeDef> for BooleanAttribute {
+    fn from(attr_def: AttributeDef) -> Self {
+        let value = match attr_def.default_value.parse() {
+            Ok(v) => v,
+            Err(e) => {
+                log::error!(
+                    "Failed to parse attr def id: '{}' default value: '{}' as i8. Reason: '{}'.",
+                    attr_def.id,
+                    attr_def.default_value,
+                    e,
+                );
+                false
+            }
+        };
+        Self::new(attr_def.name, value, attr_def.id, Id::default(), ItemType::Unknown)
     }
 }

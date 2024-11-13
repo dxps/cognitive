@@ -1,6 +1,6 @@
 use crate::{
     domain::model::{
-        AttributeValueType, BooleanAttribute, EntityLink, EntityLinkDef, Id, IntegerAttribute, SmallintAttribute, TextAttribute,
+        AttributeValueType, BooleanAttribute, EntityLink, EntityLinkDef, Id, IntegerAttribute, ItemType, SmallintAttribute, TextAttribute,
     },
     server::fns::list_entities_by_def_id,
     ui::{
@@ -56,67 +56,84 @@ pub fn EntityLinkNewPage() -> Element {
         selected_kind_name.set(ent_link_kinds().get(&kind_id).unwrap().clone());
 
         if let Some(ent_link_def) = UI_STATE.get_ent_link_def_sync(&kind_id) {
-            def_source_entity_id.set(ent_link_def.source_entity_def_id);
-            def_target_entity_id.set(ent_link_def.target_entity_def_id);
+            def_source_entity_id.set(ent_link_def.source_entity_def_id.clone());
+            def_target_entity_id.set(ent_link_def.target_entity_def_id.clone());
 
-            let mut txt_attrs = HashMap::new();
-            let mut si_attrs = HashMap::new();
-            let mut i_attrs = HashMap::new();
-            let mut b_attrs = HashMap::new();
-
-            // spawn(async move {
-            //     if let Ok(source_entities) = list_entities_by_def_id(ent_link_def.source_entity_def_id).await {
-            //         let mut id_name_map = HashMap::new();
-            //         for ent in source_entities {
-            //             id_name_map.insert(ent.id, format!("{}: {}", ent.listing_attr_name, ent.listing_attr_value));
-            //         }
-            //         source_entities_id_name.set(id_name_map);
-            //     }
-            //     let target_entities = list_entities_by_def_id(ent_link_def.target_entity_def_id).await;
-            // });
-
-            if ent_link_def.attributes.is_none() {
-                return;
-            }
-            log::debug!(
-                "[EntityLinkNewPage] Loading attributes from entity link def id:'{}' using the global state ...",
-                kind_id
-            );
-            let attr_defs = ent_link_def.attributes.unwrap();
-            attr_defs.iter().for_each(|attr_def| match &attr_def.value_type {
-                &AttributeValueType::Text => {
-                    txt_attrs.insert(attr_def.id.clone(), attr_def.clone().into());
+            let def_id = kind_id.clone();
+            spawn(async move {
+                log::debug!("[EntityLinkNewPage] Loading source entities by def id:'{}' ...", def_id);
+                match list_entities_by_def_id(ent_link_def.source_entity_def_id).await {
+                    Ok(source_entities) => {
+                        let mut id_name_map = HashMap::new();
+                        for ent in source_entities {
+                            id_name_map.insert(ent.id, format!("{}: {}", ent.listing_attr_name, ent.listing_attr_value));
+                        }
+                        source_entities_id_name.set(id_name_map);
+                    }
+                    Err(e) => {
+                        log::error!("[EntityLinkNewPage] Error loading source entities by def id:'{}': {}", def_id, e);
+                    }
                 }
-                &AttributeValueType::SmallInteger => {
-                    si_attrs.insert(attr_def.id.clone(), attr_def.into());
+                match list_entities_by_def_id(ent_link_def.target_entity_def_id).await {
+                    Ok(target_entities) => {
+                        let mut id_name_map = HashMap::new();
+                        for ent in target_entities {
+                            id_name_map.insert(ent.id, format!("{}: {}", ent.listing_attr_name, ent.listing_attr_value));
+                        }
+                        target_entities_id_name.set(id_name_map);
+                    }
+                    Err(e) => {
+                        log::error!("[EntityLinkNewPage] Error loading target entities by def id:'{}': {}", def_id, e);
+                    }
                 }
-                &AttributeValueType::Integer => {
-                    i_attrs.insert(attr_def.id.clone(), attr_def.into());
-                }
-                &AttributeValueType::Boolean => {
-                    b_attrs.insert(attr_def.id.clone(), attr_def.into());
-                }
-                _ => {}
             });
-            text_attrs.set(txt_attrs);
-            smallint_attrs.set(si_attrs);
-            int_attrs.set(i_attrs);
-            boolean_attrs.set(b_attrs);
-            log::debug!("[EntityLinkNewPage] Loaded attributes from entity link def id:'{}'", kind_id);
+
+            if ent_link_def.attributes.is_some() {
+                let attr_defs = ent_link_def.attributes.unwrap();
+                log::debug!(
+                    "[EntityLinkNewPage] Entity link def id:'{}' has {} attributes.",
+                    kind_id,
+                    attr_defs.len()
+                );
+                let mut txt_attrs = HashMap::new();
+                let mut si_attrs = HashMap::new();
+                let mut i_attrs = HashMap::new();
+                let mut b_attrs = HashMap::new();
+                attr_defs.into_iter().for_each(|attr_def| match attr_def.value_type {
+                    AttributeValueType::Text => {
+                        let mut attr = TextAttribute::from(attr_def);
+                        attr.owner_type = ItemType::EntityLink;
+                        txt_attrs.insert(attr.def_id.clone(), attr);
+                    }
+                    AttributeValueType::SmallInteger => {
+                        let mut attr = SmallintAttribute::from(attr_def);
+                        attr.owner_type = ItemType::EntityLink;
+                        si_attrs.insert(attr.def_id.clone(), attr);
+                    }
+                    AttributeValueType::Integer => {
+                        let mut attr = IntegerAttribute::from(attr_def);
+                        attr.owner_type = ItemType::EntityLink;
+                        i_attrs.insert(attr.def_id.clone(), attr);
+                    }
+                    AttributeValueType::Boolean => {
+                        let mut attr = BooleanAttribute::from(attr_def);
+                        attr.owner_type = ItemType::EntityLink;
+                        b_attrs.insert(attr.def_id.clone(), attr);
+                    }
+                    _ => {}
+                });
+                text_attrs.set(txt_attrs);
+                smallint_attrs.set(si_attrs);
+                int_attrs.set(i_attrs);
+                boolean_attrs.set(b_attrs);
+                log::debug!("[EntityLinkNewPage] Loaded attributes from entity link def id:'{}'", kind_id);
+            } else {
+                log::debug!("[EntityLinkNewPage] Entity link def id:'{}' has no attributes.", kind_id);
+            }
         } else {
             log::warn!("[EntityLinkNewPage] Failed to get entity link def id:'{}'", kind_id);
         }
     });
-
-    // use_resource(move || async move {
-    //     if let Ok(source_entities) = list_entities_by_def_id(def_source_entity_id()).await {
-    //         let mut id_name_map = HashMap::new();
-    //         for ent in source_entities {
-    //             id_name_map.insert(ent.id, format!("{}: {}", ent.listing_attr_name, ent.listing_attr_value));
-    //         }
-    //         source_entities_id_name.set(id_name_map);
-    //     }
-    // });
 
     let selected_kind_id_handler = move |_| {
         log::debug!("[EntityLinkNewPage] Doing select_handler ...");
@@ -211,9 +228,9 @@ pub fn EntityLinkNewPage() -> Element {
             if action_done() {
                 AcknowledgeModal {
                     title: "Confirmation",
-                    content: vec!["The entity has been successfully created.".into()],
+                    content: vec!["The entity link has been successfully created.".into()],
                     action_handler: move |_| {
-                        navigator().push(Route::EntityListPage {});
+                        navigator().push(Route::EntityLinkListPage {});
                     }
                 }
             }
@@ -247,17 +264,16 @@ async fn handle_create_ent_link(
 
     log::debug!("Creating the entity link {:?} ...", ent_link);
 
-    // match crate::server::fns::create_entity(ent).await {
-    //     Ok(id) => {
-    //         saved.set(true);
-    //         err.set(None);
-    //         Some(id)
-    //     }
-    //     Err(e) => {
-    //         saved.set(false);
-    //         err.set(Some(e.to_string()));
-    //         None
-    //     }
-    // }
-    Some(Id::default())
+    match crate::server::fns::create_entity_link(ent_link).await {
+        Ok(id) => {
+            saved.set(true);
+            err.set(None);
+            Some(id)
+        }
+        Err(e) => {
+            saved.set(false);
+            err.set(Some(e.to_string()));
+            None
+        }
+    }
 }

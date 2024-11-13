@@ -1,7 +1,4 @@
-use crate::{
-    domain::model::{Entity, Id},
-    server::session,
-};
+use crate::domain::model::{Entity, Id};
 
 #[cfg(feature = "server")]
 use crate::server::Session;
