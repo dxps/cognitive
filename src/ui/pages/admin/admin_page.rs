@@ -47,17 +47,17 @@ fn render_page() -> Element {
                                 Link {
                                     class: "py-2 px-4 rounded-lg transition duration-200",
                                     to: Route::EntityDefListPage {},
-                                    "Entities Definitions"
+                                    "Entities"
                                 }
                                 Link {
                                     class: "py-2 px-4 rounded-lg transition duration-200",
                                     to: Route::EntityLinkDefListPage {},
-                                    "Entity Links Definitions"
+                                    "Entity Links"
                                 }
                                 Link {
                                     class: "py-2 px-4 rounded-lg transition duration-200",
                                     to: Route::AttributeDefListPage {},
-                                    "Attributes Definitions"
+                                    "Attributes"
                                 }
                             }
                             div { class: "pr-3 flex flex-col grow ml-1",

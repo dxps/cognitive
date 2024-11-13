@@ -2,8 +2,9 @@ use crate::{
     domain::model::Id,
     ui::pages::{
         AdminPage, AttributeDefListPage, AttributeDefNewPage, AttributeDefPage, EntityDefListPage, EntityDefNewPage, EntityDefPage,
-        EntityLinkDefListPage, EntityLinkDefNewPage, EntityLinkDefPage, EntityLinkListPage, EntityLinkNewPage, EntityListPage,
-        EntityNewPage, EntityPage, Home, Login, LoginIsRequiredPage, Logout, TagListPage, TagNewPage, TagPage, UserProfilePage,
+        EntityLinkDefListPage, EntityLinkDefNewPage, EntityLinkDefPage, EntityLinkListPage, EntityLinkNewPage, EntityLinkPage,
+        EntityListPage, EntityNewPage, EntityPage, Home, Login, LoginIsRequiredPage, Logout, TagListPage, TagNewPage, TagPage,
+        UserProfilePage,
     },
 };
 use dioxus::prelude::*;
@@ -28,6 +29,9 @@ pub enum Route {
     #[route("/admin")]
     AdminPage {},
 
+    // ---------------------
+    // Attribute Definitions
+    // ---------------------
     #[route("/admin/definitions/attributes")]
     AttributeDefListPage {},
 
@@ -37,6 +41,9 @@ pub enum Route {
     #[route("/admin/definitions/attributes/:attr_def_id")]
     AttributeDefPage { attr_def_id: Id },
 
+    // ------------------
+    // Entity Definitions
+    // ------------------
     #[route("/admin/definitions/entities")]
     EntityDefListPage {},
 
@@ -46,6 +53,9 @@ pub enum Route {
     #[route("/admin/definitions/entities/:id")]
     EntityDefPage { id: Id },
 
+    // -----------------------
+    // Entity Link Definitions
+    // -----------------------
     #[route("/admin/definitions/entity-links")]
     EntityLinkDefListPage {},
 
@@ -55,6 +65,9 @@ pub enum Route {
     #[route("/admin/definitions/entity-links/:id")]
     EntityLinkDefPage { id: Id },
 
+    // --------
+    // Entities
+    // --------
     #[route("/admin/entities")]
     EntityListPage {},
 
@@ -64,12 +77,21 @@ pub enum Route {
     #[route("/admin/entities/:id")]
     EntityPage { id: Id },
 
+    // ------------
+    // Entity Links
+    // ------------
     #[route("/admin/entity-links")]
     EntityLinkListPage {},
 
     #[route("/admin/entity-links/new")]
     EntityLinkNewPage {},
 
+    #[route("/admin/entity-links/:id")]
+    EntityLinkPage { id: Id },
+
+    // ----
+    // Tags
+    // ----
     #[route("/admin/tags")]
     TagListPage {},
 
@@ -88,6 +110,9 @@ impl Route {
             Route::UserProfilePage { username: _ } => vec![("User Profile".into(), to)],
             Route::AdminPage {} => vec![("Admin".into(), to)],
 
+            // ---------------------
+            // Attribute Definitions
+            // ---------------------
             Route::AttributeDefListPage {} => vec![("Admin".into(), Route::AdminPage {}), ("Attributes Definitions".into(), to)],
             Route::AttributeDefNewPage {} => vec![
                 ("Admin".into(), Route::AdminPage {}),
@@ -95,6 +120,9 @@ impl Route {
                 ("New".into(), to),
             ],
 
+            // ------------------
+            // Entity Definitions
+            // ------------------
             Route::EntityDefListPage {} => vec![
                 ("Admin".into(), Route::AdminPage {}),
                 ("Entities Definitions".into(), Route::EntityDefListPage {}),
@@ -121,6 +149,9 @@ impl Route {
                 ("New".into(), to),
             ],
 
+            // ------------
+            // Entity Links
+            // ------------
             Route::EntityLinkListPage {} => vec![
                 ("Admin".into(), Route::AdminPage {}),
                 ("Entity Links".into(), Route::EntityLinkListPage {}),
@@ -131,6 +162,9 @@ impl Route {
                 ("New".into(), to),
             ],
 
+            // ----
+            // Tags
+            // ----
             Route::TagListPage {} => vec![("Admin".into(), Route::AdminPage {}), ("Tags".into(), to)],
             Route::TagNewPage {} => vec![
                 ("Admin".into(), Route::AdminPage {}),
@@ -142,9 +176,13 @@ impl Route {
                 let tag_name = format!("id:{}", id);
                 Route::get_path_to_tag(to, tag_name)
             }
+
             _ => vec![("Admin".into(), Route::AdminPage {})],
         }
     }
+
+    // TODO: All `get_path_to_...` functions should be refactored to use the id
+    //       of the referred element, instead of `to` route. It simplifies the usage.
 
     pub fn get_path_to_tag(to: Route, tag_name: String) -> Vec<(String, Route)> {
         vec![
@@ -186,11 +224,11 @@ impl Route {
         ]
     }
 
-    pub fn get_path_to_ent_link(to: Route, ent_link_def_name: String) -> Vec<(String, Route)> {
+    pub fn get_path_to_ent_link(id: Id, name: String) -> Vec<(String, Route)> {
         vec![
             ("Admin".into(), Route::AdminPage {}),
             ("Entity Links".into(), Route::EntityLinkListPage {}),
-            (ent_link_def_name, to),
+            (name, Route::EntityLinkPage { id }),
         ]
     }
 }
