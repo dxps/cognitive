@@ -23,4 +23,12 @@ impl EntityLinkMgmt {
         self.repo.add(&ent_link).await?;
         Ok(ent_link.id)
     }
+
+    pub async fn get(&self, id: &Id) -> AppResult<Option<EntityLink>> {
+        self.repo.get(id).await
+    }
+
+    pub async fn remove(&self, id: &Id) -> AppResult<()> {
+        self.repo.remove(id).await
+    }
 }

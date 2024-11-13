@@ -126,6 +126,41 @@ impl EntityLinkRepo {
 
         Ok(())
     }
+
+    pub async fn get(&self, _id: &Id) -> AppResult<Option<EntityLink>> {
+        // TODO
+        Ok(None)
+    }
+
+    pub async fn remove(&self, id: &Id) -> AppResult<()> {
+        //
+        log::debug!("Deleting entity link w/ id:'{}' ...", id);
+
+        let mut txn = self.dbcp.begin().await?;
+
+        if let Err(e) = sqlx::query("DELETE FROM entity_links WHERE id = $1")
+            .bind(id.as_str())
+            .execute(&mut *txn)
+            .await
+        {
+            log::error!("Failed to delete entity link w/ id:'{}'. Cause: '{}'.", id, e);
+            return AppResult::Err(e.into());
+        }
+
+        if let Err(e) = sqlx::query("DELETE FROM text_attributes WHERE owner_id = $1 and owner_type = $2")
+            .bind(id.as_str())
+            .bind(ItemType::EntityLink.value())
+            .execute(&mut *txn)
+            .await
+        {
+            log::error!("Failed to delete entity link w/ id:'{}'. Cause: '{}'.", id, e);
+            return AppResult::Err(e.into());
+        }
+
+        txn.commit().await?;
+
+        Ok(())
+    }
 }
 
 impl FromRow<'_, PgRow> for EntityLink {
@@ -137,7 +172,6 @@ impl FromRow<'_, PgRow> for EntityLink {
             def_id: Id::new_from(row.get("def_id")),
             source_entity_id: Id::new_from(row.get("source_entity_id")),
             target_entity_id: Id::new_from(row.get("target_entity_id")),
-
             text_attributes: vec![],
             smallint_attributes: vec![],
             int_attributes: vec![],

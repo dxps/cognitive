@@ -23,12 +23,12 @@ pub async fn create_entity_link(item: EntityLink) -> Result<Id, ServerFnError> {
 }
 
 // /// Get an entity link.
-// #[server(endpoint = "admin/get_ent_link", input = GetUrl)]
-// pub async fn get_entity_link(id: Id) -> Result<Option<EntityLink>, ServerFnError> {
-//     let session: Session = extract().await?;
-//     let ent_link_def = session.6.get(&id).await?;
-//     Ok(ent_link_def)
-// }
+#[server(endpoint = "admin/get_ent_link", input = GetUrl)]
+pub async fn get_entity_link(id: Id) -> Result<Option<EntityLink>, ServerFnError> {
+    let session: Session = extract().await?;
+    let ent_link = session.7.get(&id).await?;
+    Ok(ent_link)
+}
 
 // /// Update an entity link.
 // #[server(endpoint = "admin/update_ent_link")]
@@ -39,9 +39,9 @@ pub async fn create_entity_link(item: EntityLink) -> Result<Id, ServerFnError> {
 // }
 
 // /// Remove an entity link definition.
-// #[server(endpoint = "admin/remove_ent_link", input = PostUrl)]
-// pub async fn remove_entity_link(id: Id) -> Result<(), ServerFnError> {
-//     let session: Session = extract().await?;
-//     let result = session.6.remove(&id).await;
-//     result.map_err(|e| e.into())
-// }
+#[server(endpoint = "admin/remove_ent_link", input = PostUrl)]
+pub async fn remove_entity_link(id: Id) -> Result<(), ServerFnError> {
+    let session: Session = extract().await?;
+    let result = session.7.remove(&id).await;
+    result.map_err(|e| e.into())
+}
