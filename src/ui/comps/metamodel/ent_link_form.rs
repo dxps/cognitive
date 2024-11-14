@@ -44,7 +44,7 @@ pub fn EntityLinkForm(props: EntityLinkFormProps) -> Element {
             label { class: "pr-3 py-2 min-w-36 text-gray-500", "Target entity" }
             Select { items: target_entities_id_name, selected_item_id: target_entity_id, disabled: is_view }
         }
-        div { class: "mt-4 space-y-4",
+        div { class: "mt-4",
             div { class: "space-y-0",
                 for (id , attr) in text_attrs() {
                     div { class: "flex",
@@ -129,7 +129,7 @@ pub fn EntityLinkForm(props: EntityLinkFormProps) -> Element {
                             class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300",
                             r#type: "checkbox",
                             checked: attr.value,
-                            readonly: is_view,
+                            disabled: is_view,
                             oninput: move |evt| {
                                 let id = id.clone();
                                 boolean_attrs

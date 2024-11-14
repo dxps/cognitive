@@ -1,7 +1,8 @@
 use crate::{
-    domain::model::{BooleanAttribute, Id, IntegerAttribute, SmallintAttribute, TextAttribute},
+    domain::model::{BooleanAttribute, EntityLink, Id, IntegerAttribute, SmallintAttribute, TextAttribute},
     server::fns::{
         get_entity_def, get_entity_link, get_entity_link_def, list_entities_by_def_id, list_entity_links_by_def_id, remove_entity_link,
+        update_entity_link,
     },
     ui::{
         comps::{AcknowledgeModal, Breadcrumb, ConfirmationModal, EntityLinkForm, Nav},
@@ -298,7 +299,7 @@ async fn init(
     }
 
     log::debug!(
-        "[EntityLinkPage] Loaded source_entities_id_name:{:?} target_entities_id_name:{:?}",
+        "[EntityLinkPage] Loaded source_entities_id_name: {:?} target_entities_id_name: {:?}",
         source_entities_id_name(),
         target_entities_id_name()
     );
@@ -316,6 +317,31 @@ async fn handle_update(
     mut err: Signal<Option<String>>,
 ) {
     //
+    let item = EntityLink {
+        id: ent_link_id.clone(),
+        kind: Name::default(), // Not used further.
+        def_id: Id::default(), // Not used further.
+        source_entity_id,
+        target_entity_id,
+        text_attributes,
+        smallint_attributes,
+        int_attributes,
+        boolean_attributes,
+    };
+
+    log::debug!("Updating entity link '{:?}' ... ", item);
+
+    match update_entity_link(item).await {
+        Ok(_) => {
+            saved.set(true);
+            err.set(None);
+        }
+        Err(e) => {
+            saved.set(false);
+            err.set(Some(e.to_string()));
+        }
+    }
+
     // let ent = Entity::new_with_id_attrs(
     //     ent_id,
     //     kind,
@@ -327,7 +353,7 @@ async fn handle_update(
     //     listing_attr_def_id,
     // );
 
-    // log::debug!("Updating entity '{:?}' ... ", ent);
+    //
 
     // match update_entity(ent).await {
     //     Ok(_) => {

@@ -1,10 +1,17 @@
+use std::collections::HashMap;
+
 use dioxus_fullstack::prelude::*;
 use server_fn::codec::{GetUrl, PostUrl};
 
-use crate::domain::model::{EntityLink, Id};
+use crate::{
+    domain::model::{EntityLink, Id},
+    ui::pages::Name,
+};
 
 #[cfg(feature = "server")]
 use crate::server::Session;
+
+use super::get_entity_link_def;
 
 /// List the entity links.
 #[server(endpoint = "admin/list_ent_links", input = GetUrl)]
@@ -30,21 +37,86 @@ pub async fn create_entity_link(item: EntityLink) -> Result<Id, ServerFnError> {
     result.map_err(|e| e.into())
 }
 
-// /// Get an entity link.
+/// Get an entity link.
 #[server(endpoint = "admin/get_ent_link", input = GetUrl)]
 pub async fn get_entity_link(id: Id) -> Result<Option<EntityLink>, ServerFnError> {
     let session: Session = extract().await?;
-    let ent_link = session.7.get(&id).await?;
-    Ok(ent_link)
+    let ent_link_opt = session.7.get(&id).await?;
+    Ok(ent_link_opt)
 }
 
-// /// Update an entity link.
-// #[server(endpoint = "admin/update_ent_link")]
-// pub async fn update_entity_link(ent_link_def: EntityLink) -> Result<(), ServerFnError> {
-//     let session: Session = extract().await?;
-//     let result = session.6.update(&ent_link_def).await;
-//     result.map_err(|e| e.into())
-// }
+/// Get all the details needed for presenting an entity link in the page.\
+/// It returns the entity link, maps of source_entities_id_name and target_entities_id_name.
+#[server(endpoint = "admin/get_ent_link_page_data", input = GetUrl)]
+pub async fn get_entity_link_page_data(id: Id) -> Result<Option<(EntityLink, HashMap<Id, Name>, HashMap<Id, Name>)>, ServerFnError> {
+    //
+    let session: Session = extract().await?;
+    let ent_link = session.7.get(&id).await?;
+
+    if ent_link.is_none() {
+        return Ok(None);
+    }
+    let ent_link = ent_link.unwrap();
+    let mut source_entities_id_name = HashMap::<Id, Name>::new();
+    let mut target_entities_id_name = HashMap::<Id, Name>::new();
+
+    match get_entity_link_def(ent_link.def_id.clone()).await {
+        Result::Ok(eld_opt) => {
+            if let Some(eld) = eld_opt {
+                match session.5.list_by_def_id(&eld.source_entity_def_id).await {
+                    Ok(source_entities) => {
+                        for ent in source_entities {
+                            source_entities_id_name.insert(ent.id, format!("{}: {}", ent.listing_attr_name, ent.listing_attr_value));
+                        }
+                    }
+                    Err(e) => {
+                        log::error!(
+                            "[EntityLinkNewPage] Error loading source entities by def id:'{}': {}",
+                            eld.source_entity_def_id,
+                            e
+                        );
+                    }
+                }
+                match session.5.list_by_def_id(&eld.target_entity_def_id).await {
+                    Ok(target_entities) => {
+                        for ent in target_entities {
+                            target_entities_id_name.insert(ent.id, format!("{}: {}", ent.listing_attr_name, ent.listing_attr_value));
+                        }
+                    }
+                    Err(e) => {
+                        log::error!(
+                            "[EntityLinkNewPage] Error loading target entities by def id:'{}': {}",
+                            eld.source_entity_def_id,
+                            e
+                        );
+                    }
+                }
+            }
+        }
+        Err(e) => {
+            log::error!(
+                "[EntityLinkPage] Failed to get entity link def w/ id: '{}'. Reason: '{}'.",
+                ent_link.def_id,
+                e
+            );
+            return Err(e);
+        }
+    }
+
+    Result::<Option<(EntityLink, HashMap<Id, String>, HashMap<Id, String>)>, ServerFnError>::Ok(Some((
+        ent_link,
+        source_entities_id_name,
+        target_entities_id_name,
+    )))
+}
+
+/// Update an entity link.
+#[server(endpoint = "admin/update_ent_link")]
+pub async fn update_entity_link(ent_link_def: EntityLink) -> Result<(), ServerFnError> {
+    let session: Session = extract().await?;
+    let result = session.7.update(&ent_link_def).await;
+    result.map_err(|e| e.into())
+}
 
 // /// Remove an entity link definition.
 #[server(endpoint = "admin/remove_ent_link", input = PostUrl)]

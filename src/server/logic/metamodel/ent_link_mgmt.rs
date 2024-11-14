@@ -32,6 +32,10 @@ impl EntityLinkMgmt {
         self.repo.get(id).await
     }
 
+    pub async fn update(&self, item: &EntityLink) -> AppResult<()> {
+        self.repo.update(item).await
+    }
+
     pub async fn remove(&self, id: &Id) -> AppResult<()> {
         self.repo.remove(id).await
     }

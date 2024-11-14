@@ -43,18 +43,21 @@ impl Item for IntegerAttribute {
 
 impl From<AttributeDef> for IntegerAttribute {
     fn from(attr_def: AttributeDef) -> Self {
-        let value = match attr_def.default_value.parse() {
-            Ok(v) => v,
-            Err(e) => {
-                log::error!(
-                    "Failed to parse attr def id: '{}' default value: '{}' as i32. Reason: '{}'.",
-                    attr_def.id,
-                    attr_def.default_value,
-                    e,
-                );
-                0
+        let mut value: i32 = 0;
+        if !attr_def.default_value.trim().is_empty() {
+            value = match attr_def.default_value.parse() {
+                Ok(v) => v,
+                Err(e) => {
+                    log::error!(
+                        "Failed to parse attr def id: '{}' default value: '{}' as i32. Reason: '{}'.",
+                        attr_def.id,
+                        attr_def.default_value,
+                        e,
+                    );
+                    0
+                }
             }
-        };
+        }
         Self::new(attr_def.name, value, attr_def.id, Id::default(), ItemType::Unknown)
     }
 }

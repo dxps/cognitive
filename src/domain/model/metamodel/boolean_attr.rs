@@ -41,18 +41,21 @@ impl Item for BooleanAttribute {
 
 impl From<AttributeDef> for BooleanAttribute {
     fn from(attr_def: AttributeDef) -> Self {
-        let value = match attr_def.default_value.parse() {
-            Ok(v) => v,
-            Err(e) => {
-                log::error!(
-                    "Failed to parse attr def id: '{}' default value: '{}' as i8. Reason: '{}'.",
-                    attr_def.id,
-                    attr_def.default_value,
-                    e,
-                );
-                false
-            }
-        };
+        let mut value = false;
+        if !attr_def.default_value.trim().is_empty() {
+            value = match attr_def.default_value.parse() {
+                Ok(v) => v,
+                Err(e) => {
+                    log::error!(
+                        "Failed to parse attr def id: '{}' default value: '{}' as boolean. Reason: '{}'.",
+                        attr_def.id,
+                        attr_def.default_value,
+                        e,
+                    );
+                    false
+                }
+            };
+        }
         Self::new(attr_def.name, value, attr_def.id, Id::default(), ItemType::Unknown)
     }
 }

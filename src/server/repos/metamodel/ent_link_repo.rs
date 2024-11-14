@@ -96,9 +96,9 @@ impl EntityLinkRepo {
 
         for attr in ent_link.smallint_attributes.iter() {
             if let Err(e) = sqlx::query("INSERT INTO smallint_attributes (owner_id, owner_type, def_id, value) VALUES ($1, $2, $3, $4)")
-                .bind(&ent_link.id)
+                .bind(&ent_link.id.as_str())
                 .bind(ItemType::EntityLink.value())
-                .bind(&attr.def_id)
+                .bind(&attr.def_id.as_str())
                 .bind(&attr.value)
                 .execute(&mut *txn)
                 .await
@@ -111,9 +111,9 @@ impl EntityLinkRepo {
 
         for attr in ent_link.int_attributes.iter() {
             if let Err(e) = sqlx::query("INSERT INTO int_attributes (owner_id, owner_type, def_id, value) VALUES ($1, $2, $3, $4)")
-                .bind(&ent_link.id)
+                .bind(&ent_link.id.as_str())
                 .bind(ItemType::EntityLink.value())
-                .bind(&attr.def_id)
+                .bind(&attr.def_id.as_str())
                 .bind(&attr.value)
                 .execute(&mut *txn)
                 .await
@@ -125,13 +125,16 @@ impl EntityLinkRepo {
         }
 
         for attr in ent_link.boolean_attributes.iter() {
-            if let Err(e) = sqlx::query("INSERT INTO boolean_attributes (owner_id, owner_type, def_id, value) VALUES ($1, $2, $3, $4)")
-                .bind(&ent_link.id)
-                .bind(ItemType::EntityLink.value())
-                .bind(&attr.def_id)
-                .bind(&attr.value)
-                .execute(&mut *txn)
-                .await
+            if let Err(e) = sqlx::query(
+                "INSERT INTO boolean_attributes (owner_id, owner_type, def_id, value) 
+                 VALUES ($1, $2, $3, $4)",
+            )
+            .bind(&ent_link.id.as_str())
+            .bind(ItemType::EntityLink.value())
+            .bind(&attr.def_id.as_str())
+            .bind(&attr.value)
+            .execute(&mut *txn)
+            .await
             {
                 txn.rollback().await?;
                 log::error!("Failed to add entity link boolean attribute. Cause: '{}'.", e);
@@ -222,6 +225,124 @@ impl EntityLinkRepo {
             }
         }
         Ok(res)
+    }
+
+    pub async fn update(&self, item: &EntityLink) -> AppResult<()> {
+        //
+        log::debug!("Updating entity link: '{:?}'.", item);
+
+        let mut txn = self.dbcp.begin().await?;
+
+        if let Err(e) = sqlx::query(
+            "UPDATE entity_links SET source_entity_id = $2, target_entity_id = $3 
+             WHERE id = $1",
+        )
+        .bind(&item.id.as_str())
+        .bind(&item.source_entity_id.as_str())
+        .bind(&item.target_entity_id.as_str())
+        .execute(&mut *txn)
+        .await
+        {
+            txn.rollback().await?;
+            log::error!("Failed to update entity link w/ id:'{}'. Reason: '{}'.", item.id, e);
+            return AppResult::Err(e.into());
+        }
+
+        for attr in item.text_attributes.iter() {
+            if let Err(e) = sqlx::query(
+                "UPDATE text_attributes SET value = $3
+                 WHERE owner_id = $1 AND owner_type = $2",
+            )
+            .bind(&item.id.as_str())
+            .bind(ItemType::EntityLink.value())
+            .bind(&attr.value)
+            .execute(&mut *txn)
+            .await
+            {
+                txn.rollback().await?;
+                log::error!(
+                    "Failed to update entity link w/ id:'{}' on text attribute '{}' as '{}'. Reason: '{}'.",
+                    item.id,
+                    attr.name,
+                    attr.value,
+                    e,
+                );
+                return AppResult::Err(e.into());
+            }
+        }
+
+        for attr in item.smallint_attributes.iter() {
+            if let Err(e) = sqlx::query(
+                "UPDATE smallint_attributes SET value = $3
+                 WHERE owner_id = $1 AND owner_type = $2",
+            )
+            .bind(&item.id.as_str())
+            .bind(ItemType::EntityLink.value())
+            .bind(attr.value)
+            .execute(&mut *txn)
+            .await
+            {
+                txn.rollback().await?;
+                log::error!(
+                    "Failed to update entity link w/ id:'{}' on smallint attribute '{}' as '{}'. Reason: '{}'.",
+                    item.id,
+                    attr.name,
+                    attr.value,
+                    e,
+                );
+                return AppResult::Err(e.into());
+            }
+        }
+
+        for attr in item.int_attributes.iter() {
+            if let Err(e) = sqlx::query(
+                "UPDATE integer_attributes SET value = $3
+                 WHERE owner_id = $1 AND owner_type = $2",
+            )
+            .bind(&item.id.as_str())
+            .bind(ItemType::EntityLink.value())
+            .bind(attr.value)
+            .execute(&mut *txn)
+            .await
+            {
+                txn.rollback().await?;
+                log::error!(
+                    "Failed to update entity link w/ id:'{}' on integer attribute '{}' as '{}'. Reason: '{}'.",
+                    item.id,
+                    attr.name,
+                    attr.value,
+                    e,
+                );
+                return AppResult::Err(e.into());
+            }
+        }
+
+        for attr in item.boolean_attributes.iter() {
+            if let Err(e) = sqlx::query(
+                "UPDATE boolean_attributes SET value = $3
+                 WHERE owner_id= $1 AND owner_type= $2",
+            )
+            .bind(&item.id.as_str())
+            .bind(ItemType::EntityLink.value())
+            .bind(attr.value)
+            .execute(&mut *txn)
+            .await
+            {
+                txn.rollback().await?;
+                log::error!(
+                    "Failed to update entity link w/ id:'{}' on boolean attribute '{}' as '{}'. Reason: '{}'.",
+                    item.id,
+                    attr.name,
+                    attr.value,
+                    e,
+                );
+                return AppResult::Err(e.into());
+            }
+        }
+
+        txn.commit().await?;
+
+        Ok(())
     }
 
     pub async fn remove(&self, id: &Id) -> AppResult<()> {

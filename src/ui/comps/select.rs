@@ -36,18 +36,22 @@ pub fn Select(props: SelectProps) -> Element {
     };
 
     rsx! {
-        select {
-            class: "px-3 py-1 min-w-80",
-            disabled: "{disabled}",
-            multiple: false,
-            oninput: move |evt| {
-                selected_item_id.set(evt.value().into());
-                log::debug!("[Select] set selected_item_id: {:?}", evt.value());
-            },
-            if default_selected_id.is_empty() {
-                option { value: "", selected: "{selected_item_id().is_empty()}", "" }
-            }
-            if !items().is_empty() {
+        if !items().is_empty() {
+            select {
+                class: "px-3 py-1 min-w-80",
+                disabled: "{disabled}",
+                multiple: false,
+                oninput: move |evt| {
+                    selected_item_id.set(evt.value().into());
+                    log::debug!("[Select] set selected_item_id: {:?}", evt.value());
+                },
+                if default_selected_id.is_empty() {
+                    option {
+                        value: "",
+                        selected: "{selected_item_id().is_empty()}",
+                        ""
+                    }
+                }
                 for (id , kind) in items() {
                     option {
                         value: "{id}",
