@@ -1,9 +1,6 @@
 use crate::{
     domain::model::{BooleanAttribute, EntityLink, Id, IntegerAttribute, SmallintAttribute, TextAttribute},
-    server::fns::{
-        get_entity_def, get_entity_link, get_entity_link_def, list_entities_by_def_id, list_entity_links_by_def_id, remove_entity_link,
-        update_entity_link,
-    },
+    server::fns::{get_entity_link, get_entity_link_def, list_entities_by_def_id, remove_entity_link, update_entity_link},
     ui::{
         comps::{AcknowledgeModal, Breadcrumb, ConfirmationModal, EntityLinkForm, Nav},
         pages::Name,
@@ -26,9 +23,6 @@ pub fn EntityLinkPage(props: EntityLinkPageProps) -> Element {
 
     let kind = use_signal(|| Name::default());
     let kind_id = use_signal(|| Id::default());
-
-    let def_source_entity_id = use_signal(|| Id::default());
-    let def_target_entity_id = use_signal(|| Id::default());
 
     let source_entity_id = use_signal(|| Id::default());
     let target_entity_id = use_signal(|| Id::default());
