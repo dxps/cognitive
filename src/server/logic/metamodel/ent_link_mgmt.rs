@@ -18,6 +18,10 @@ impl EntityLinkMgmt {
         self.repo.list(None).await
     }
 
+    pub async fn list_by_def_id(&self, def_id: &Id) -> AppResult<Vec<EntityLink>> {
+        self.repo.list_by_def_id(def_id).await
+    }
+
     pub async fn add(&self, mut ent_link: EntityLink) -> AppResult<Id> {
         ent_link.id = Id::new();
         self.repo.add(&ent_link).await?;

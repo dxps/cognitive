@@ -14,6 +14,14 @@ pub async fn list_entity_links() -> Result<Vec<EntityLink>, ServerFnError> {
     result.map_err(|e| e.into())
 }
 
+/// List the entity links with the same definition.
+#[server(endpoint = "admin/list_ent_links_by_def_id/:id", input = GetUrl)]
+pub async fn list_entity_links_by_def_id(id: Id) -> Result<Vec<EntityLink>, ServerFnError> {
+    let session: Session = extract().await?;
+    let result = session.7.list_by_def_id(&id).await;
+    result.map_err(|e| e.into())
+}
+
 /// Create an entity link.
 #[server(endpoint = "admin/create_ent_link", input = PostUrl)]
 pub async fn create_entity_link(item: EntityLink) -> Result<Id, ServerFnError> {

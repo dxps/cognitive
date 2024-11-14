@@ -25,7 +25,10 @@ impl EntityRepo {
         let offset = (pagination_opts.page.unwrap_or(1) - 1) * limit;
         let query = format!(
             "SELECT e.id, e.def_id, e.listing_attr_def_id, e.listing_attr_name, e.listing_attr_value, ed.name as kind 
-             FROM entities e JOIN entity_defs ed ON e.def_id = ed.id ORDER BY name LIMIT {limit} OFFSET {offset}"
+             FROM entities e 
+             JOIN entity_defs ed 
+             ON e.def_id = ed.id 
+             ORDER BY name LIMIT {limit} OFFSET {offset}"
         );
 
         sqlx::query_as::<_, Entity>(query.as_str())
@@ -39,7 +42,9 @@ impl EntityRepo {
     pub async fn list_by_def_id(&self, def_id: &Id) -> AppResult<Vec<Entity>> {
         //
         let query = "SELECT e.id, e.def_id, e.listing_attr_def_id, e.listing_attr_name, e.listing_attr_value, ed.name as kind 
-                FROM entities e JOIN entity_defs ed ON e.def_id = ed.id 
+                FROM entities e 
+                JOIN entity_defs ed 
+                ON e.def_id = ed.id 
                 WHERE e.def_id = $1";
         sqlx::query_as::<_, Entity>(query)
             .bind(&def_id.as_str())
@@ -51,8 +56,12 @@ impl EntityRepo {
     pub async fn get(&self, id: &Id) -> AppResult<Option<Entity>> {
         //
         let mut res = None;
+        // TODO: use match (to capture the error as well and log it, at least)
         if let Ok(ent_opt) = sqlx::query_as::<_, Entity>(
-            "SELECT e.id, e.def_id, e.listing_attr_def_id, e.listing_attr_name, e.listing_attr_value, ed.name as kind FROM entities e JOIN entity_defs ed ON e.def_id = ed.id WHERE e.id = $1",
+            "SELECT e.id, e.def_id, e.listing_attr_def_id, e.listing_attr_name, e.listing_attr_value, ed.name as kind 
+             FROM entities e 
+             JOIN entity_defs ed 
+             ON e.def_id = ed.id WHERE e.id = $1",
         )
         .bind(id.as_str())
         .fetch_optional(self.dbcp.as_ref())
@@ -467,7 +476,7 @@ impl FromRow<'_, PgRow> for Entity {
     }
 }
 
-fn fill_in_entity_attributes(ent: &mut Entity, rows: Vec<PgRow>) {
+fn fill_in_entity_attributes(item: &mut Entity, rows: Vec<PgRow>) {
     //
     for row in rows {
         let name: String = row.get("name");
@@ -476,47 +485,47 @@ fn fill_in_entity_attributes(ent: &mut Entity, rows: Vec<PgRow>) {
         match value_type {
             "text" => {
                 log::debug!("Found text attribute '{}'.", name);
-                ent.text_attributes.push(TextAttribute::new(
+                item.text_attributes.push(TextAttribute::new(
                     name,
                     row.get("text_value"),
                     def_id,
-                    ent.id.clone(),
+                    item.id.clone(),
                     ItemType::Entity,
                 ));
             }
             "smallint" => {
                 log::debug!("Found smallint attribute '{}'.", name);
-                ent.smallint_attributes.push(SmallintAttribute::new(
+                item.smallint_attributes.push(SmallintAttribute::new(
                     name,
                     row.get("smallint_value"),
                     def_id,
-                    ent.id.clone(),
+                    item.id.clone(),
                     ItemType::Entity,
                 ));
             }
             "integer" => {
                 log::debug!("Found integer attribute '{}'.", name);
-                ent.int_attributes.push(IntegerAttribute::new(
+                item.int_attributes.push(IntegerAttribute::new(
                     name,
                     row.get("integer_value"),
                     def_id,
-                    ent.id.clone(),
+                    item.id.clone(),
                     ItemType::Entity,
                 ));
             }
             "boolean" => {
                 log::debug!("Found boolean attribute '{}'.", name);
-                ent.boolean_attributes.push(BooleanAttribute::new(
+                item.boolean_attributes.push(BooleanAttribute::new(
                     name,
                     row.get("bool_value"),
                     def_id,
-                    ent.id.clone(),
+                    item.id.clone(),
                     ItemType::Entity,
                 ));
             }
             _ => {
                 log::warn!(
-                    "[fill_in_entity_attributes] Found attribute w/ value_type: '{}' name:'{}' but not handled.",
+                    "[fill_in_entity_attributes] Unhandled attribute w/ value_type: '{}' name:'{}'.",
                     value_type,
                     name
                 );

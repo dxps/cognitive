@@ -38,11 +38,11 @@ pub fn EntityLinkForm(props: EntityLinkFormProps) -> Element {
     rsx! {
         div { class: "flex py-2",
             label { class: "pr-3 py-2 min-w-36 text-gray-500", "Source entity" }
-            Select { items: source_entities_id_name, selected_item_id: source_entity_id }
+            Select { items: source_entities_id_name, selected_item_id: source_entity_id, disabled: is_view }
         }
         div { class: "flex py-2",
             label { class: "pr-3 py-2 min-w-36 text-gray-500", "Target entity" }
-            Select { items: target_entities_id_name, selected_item_id: target_entity_id }
+            Select { items: target_entities_id_name, selected_item_id: target_entity_id, disabled: is_view }
         }
         div { class: "mt-4 space-y-4",
             div { class: "space-y-0",

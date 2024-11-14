@@ -1,6 +1,8 @@
 use crate::{
     domain::model::{BooleanAttribute, Id, IntegerAttribute, SmallintAttribute, TextAttribute},
-    server::fns::{get_entity_link, remove_entity_link},
+    server::fns::{
+        get_entity_def, get_entity_link, get_entity_link_def, list_entities_by_def_id, list_entity_links_by_def_id, remove_entity_link,
+    },
     ui::{
         comps::{AcknowledgeModal, Breadcrumb, ConfirmationModal, EntityLinkForm, Nav},
         pages::Name,
@@ -22,20 +24,23 @@ pub fn EntityLinkPage(props: EntityLinkPageProps) -> Element {
     let id = use_signal(|| props.id);
 
     let kind = use_signal(|| Name::default());
+    let kind_id = use_signal(|| Id::default());
 
-    let mut def_source_entity_id = use_signal(|| Id::default());
-    let mut def_target_entity_id = use_signal(|| Id::default());
+    let def_source_entity_id = use_signal(|| Id::default());
+    let def_target_entity_id = use_signal(|| Id::default());
 
     let source_entity_id = use_signal(|| Id::default());
     let target_entity_id = use_signal(|| Id::default());
+    let source_entity_def_id = use_signal(|| Id::default());
+    let target_entity_def_id = use_signal(|| Id::default());
 
-    let mut source_entities_id_name = use_signal(|| HashMap::<Id, Name>::new());
-    let mut target_entities_id_name = use_signal(|| HashMap::<Id, Name>::new());
+    let source_entities_id_name = use_signal(|| HashMap::<Id, Name>::new());
+    let target_entities_id_name = use_signal(|| HashMap::<Id, Name>::new());
 
-    let mut text_attrs = use_signal::<HashMap<Id, TextAttribute>>(|| HashMap::new());
-    let mut smallint_attrs = use_signal::<HashMap<Id, SmallintAttribute>>(|| HashMap::new());
-    let mut int_attrs = use_signal::<HashMap<Id, IntegerAttribute>>(|| HashMap::new());
-    let mut boolean_attrs = use_signal::<HashMap<Id, BooleanAttribute>>(|| HashMap::new());
+    let text_attrs = use_signal::<HashMap<Id, TextAttribute>>(|| HashMap::new());
+    let smallint_attrs = use_signal::<HashMap<Id, SmallintAttribute>>(|| HashMap::new());
+    let int_attrs = use_signal::<HashMap<Id, IntegerAttribute>>(|| HashMap::new());
+    let boolean_attrs = use_signal::<HashMap<Id, BooleanAttribute>>(|| HashMap::new());
 
     let mut show_delete_confirm = use_signal(|| false);
     let mut action = use_signal(|| Action::View);
@@ -43,7 +48,22 @@ pub fn EntityLinkPage(props: EntityLinkPageProps) -> Element {
     let err: Signal<Option<String>> = use_signal(|| None);
 
     use_future(move || async move {
-        init(id, kind, text_attrs, smallint_attrs, int_attrs, boolean_attrs).await;
+        init(
+            id,
+            kind,
+            kind_id,
+            source_entity_id,
+            target_entity_id,
+            source_entity_def_id,
+            target_entity_def_id,
+            source_entities_id_name,
+            target_entities_id_name,
+            text_attrs,
+            smallint_attrs,
+            int_attrs,
+            boolean_attrs,
+        )
+        .await;
     });
 
     rsx! {
@@ -73,7 +93,7 @@ pub fn EntityLinkPage(props: EntityLinkPageProps) -> Element {
                             smallint_attrs,
                             int_attrs,
                             boolean_attrs,
-                            action: Action::Edit
+                            action
                         }
                         hr { class: "mt-8 mb-1" }
                         div { class: "flex justify-between mt-8",
@@ -181,47 +201,107 @@ pub fn EntityLinkPage(props: EntityLinkPageProps) -> Element {
 async fn init(
     id: Signal<Id>,
     mut kind: Signal<Name>,
+    mut kind_id: Signal<Id>,
+    mut source_entity_id: Signal<Id>,
+    mut target_entity_id: Signal<Id>,
+    mut source_entity_def_id: Signal<Id>,
+    mut target_entity_def_id: Signal<Id>,
+    mut source_entities_id_name: Signal<HashMap<Id, Name>>,
+    mut target_entities_id_name: Signal<HashMap<Id, Name>>,
     mut text_attrs: Signal<HashMap<Id, TextAttribute>>,
     mut smallint_attrs: Signal<HashMap<Id, SmallintAttribute>>,
     mut int_attrs: Signal<HashMap<Id, IntegerAttribute>>,
     mut boolean_attrs: Signal<HashMap<Id, BooleanAttribute>>,
 ) {
     match get_entity_link(id()).await {
-        Ok(Some(ent)) => {
-            log::debug!("[EntityLinkPage] Based on id {id}, got entity {:?}", ent);
-            let attrs: HashMap<Id, TextAttribute> = ent
+        Ok(Some(ent_link)) => {
+            log::debug!("[EntityLinkPage] Based on id '{id}', got {:?}", ent_link);
+
+            kind.set(ent_link.kind);
+            kind_id.set(ent_link.def_id);
+            source_entity_id.set(ent_link.source_entity_id);
+            target_entity_id.set(ent_link.target_entity_id);
+
+            match get_entity_link_def(kind_id()).await {
+                Ok(eld_opt) => {
+                    if let Some(eld) = eld_opt {
+                        source_entity_def_id.set(eld.source_entity_def_id);
+                        target_entity_def_id.set(eld.target_entity_def_id);
+                    }
+                }
+                Err(e) => {
+                    log::error!(
+                        "[EntityLinkPage] Failed to get entity link def w/ id: '{}'. Reason: '{}'.",
+                        kind_id(),
+                        e
+                    );
+                }
+            }
+
+            let attrs: HashMap<Id, TextAttribute> = ent_link
                 .text_attributes
                 .iter()
                 .map(|attr| (attr.name.clone().into(), attr.clone()))
                 .collect();
             text_attrs.set(attrs);
-            let attrs: HashMap<Id, SmallintAttribute> = ent
+            let attrs: HashMap<Id, SmallintAttribute> = ent_link
                 .smallint_attributes
                 .iter()
                 .map(|attr| (attr.name.clone().into(), attr.clone()))
                 .collect();
             smallint_attrs.set(attrs);
-            let attrs: HashMap<Id, IntegerAttribute> = ent
+            let attrs: HashMap<Id, IntegerAttribute> = ent_link
                 .int_attributes
                 .iter()
                 .map(|attr| (attr.name.clone().into(), attr.clone()))
                 .collect();
             int_attrs.set(attrs);
-            let attrs: HashMap<Id, BooleanAttribute> = ent
+            let attrs: HashMap<Id, BooleanAttribute> = ent_link
                 .boolean_attributes
                 .iter()
                 .map(|attr| (attr.name.clone().into(), attr.clone()))
                 .collect();
             boolean_attrs.set(attrs);
-            kind.set(ent.kind);
         }
         Ok(None) => {
             log::error!("[EntityLinkPage] Entity link with id '{id}' not found.");
+            return;
         }
         Err(err) => {
             log::error!("[EntityLinkPage] Failed to get entity by id '{id}'. Cause: {err}");
+            return;
         }
     }
+    match list_entities_by_def_id(source_entity_def_id()).await {
+        Ok(source_entities) => {
+            let mut id_name_map = HashMap::new();
+            for ent in source_entities {
+                id_name_map.insert(ent.id, format!("{}: {}", ent.listing_attr_name, ent.listing_attr_value));
+            }
+            source_entities_id_name.set(id_name_map);
+        }
+        Err(e) => {
+            log::error!("[EntityLinkNewPage] Error loading source entities by def id:'{}': {}", kind_id(), e);
+        }
+    }
+    match list_entities_by_def_id(target_entity_def_id()).await {
+        Ok(target_entities) => {
+            let mut id_name_map = HashMap::new();
+            for ent in target_entities {
+                id_name_map.insert(ent.id, format!("{}: {}", ent.listing_attr_name, ent.listing_attr_value));
+            }
+            target_entities_id_name.set(id_name_map);
+        }
+        Err(e) => {
+            log::error!("[EntityLinkNewPage] Error loading target entities by def id:'{}': {}", kind_id(), e);
+        }
+    }
+
+    log::debug!(
+        "[EntityLinkPage] Loaded source_entities_id_name:{:?} target_entities_id_name:{:?}",
+        source_entities_id_name(),
+        target_entities_id_name()
+    );
 }
 
 async fn handle_update(
