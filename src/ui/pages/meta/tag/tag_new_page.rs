@@ -26,7 +26,7 @@ pub fn TagNewPage() -> Element {
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
                 div { class: "bg-white rounded-md p-3 min-w-[600px] mt-[min(100px)]",
                     div { class: "p-6",
-                        div { class: "flex justify-between mb-4",
+                        div { class: "flex justify-between mb-10",
                             p { class: "text-lg font-medium leading-snug tracking-normal text-gray-500 antialiased",
                                 "Create a Tag"
                             }
@@ -36,8 +36,6 @@ pub fn TagNewPage() -> Element {
                                 "X"
                             }
                         }
-                        hr { class: "pb-2" }
-                        "Fill in the following form to create a new tag."
                         TagForm { name, description, action: Action::Edit }
                         div { class: "flex justify-betweent mt-8",
                             // Show the button's action result in the UI.

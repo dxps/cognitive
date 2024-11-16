@@ -102,7 +102,7 @@ pub fn EntityNewPage() -> Element {
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
                 div { class: "bg-white rounded-md p-3 min-w-[600px] mt-[min(100px)]",
                     div { class: "p-6",
-                        div { class: "flex justify-between mb-4",
+                        div { class: "flex justify-between mb-8",
                             p { class: "text-lg font-medium leading-snug tracking-normal text-gray-500 antialiased",
                                 "Create Entity"
                             }
@@ -112,7 +112,6 @@ pub fn EntityNewPage() -> Element {
                                 "X"
                             }
                         }
-                        hr { class: "flex" }
                         div { class: "flex py-4",
                             p { class: "py-2 pr-4 text-gray-600 block", "Kind:" }
                             if !ent_defs().is_empty() {

@@ -27,7 +27,7 @@ pub fn TagListPage() -> Element {
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
                 div { class: "bg-white rounded-lg p-3 min-w-[600px] mt-[min(100px)]",
                     div { class: "p-6",
-                        div { class: "flex justify-between mb-4",
+                        div { class: "flex justify-between mb-8",
                             p { class: "text-lg font-medium leading-snug tracking-normal text-gray-500 antialiased",
                                 "Tags"
                             }
@@ -37,7 +37,6 @@ pub fn TagListPage() -> Element {
                                 "+"
                             }
                         }
-                        hr { class: "pb-2" }
                         if !entries_loaded() {
                             p { class: "pb-4 text-gray-500", "Loading tags ..." }
                         } else {

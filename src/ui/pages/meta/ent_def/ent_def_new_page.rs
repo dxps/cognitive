@@ -33,7 +33,7 @@ pub fn EntityDefNewPage() -> Element {
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
                 div { class: "bg-white rounded-md p-3 min-w-[600px] mt-[min(100px)]",
                     div { class: "p-6",
-                        div { class: "flex justify-between mb-4",
+                        div { class: "flex justify-between mb-10",
                             p { class: "text-lg font-medium leading-snug tracking-normal text-gray-500 antialiased",
                                 "Create Entity Definition"
                             }
@@ -43,7 +43,6 @@ pub fn EntityDefNewPage() -> Element {
                                 "X"
                             }
                         }
-                        hr { class: "pb-2" }
                         EntityDefForm {
                             name,
                             description,

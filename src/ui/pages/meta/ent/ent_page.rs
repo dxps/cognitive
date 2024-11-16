@@ -59,7 +59,7 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
                 div { class: "bg-white rounded-lg p-3 min-w-[600px] mt-[min(100px)]",
                     div { class: "p-6",
-                        div { class: "flex justify-between mb-4",
+                        div { class: "flex justify-between mb-10",
                             p { class: "text-lg font-medium leading-snug tracking-normal text-gray-500 antialiased",
                                 "{action} Entity"
                             }
@@ -69,7 +69,6 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
                                 "X"
                             }
                         }
-                        hr { class: "pb-2" }
                         EntityForm {
                             text_attrs,
                             smallint_attrs,
@@ -77,7 +76,6 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
                             boolean_attrs,
                             action: action()
                         }
-                        hr { class: "mt-8 mb-1" }
                         div { class: "flex justify-between mt-8",
                             button {
                                 class: "text-red-300 hover:text-red-600 hover:bg-red-100 drop-shadow-sm px-4 rounded-md",

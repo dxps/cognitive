@@ -58,7 +58,7 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
                 div { class: "bg-white rounded-lg p-3 min-w-[600px] mt-[min(80px)]",
                     div { class: "p-6",
-                        div { class: "flex justify-between mb-4",
+                        div { class: "flex justify-between mb-10",
                             p { class: "text-lg font-medium leading-snug tracking-normal text-gray-500 antialiased",
                                 "{action} Entity Definition"
                             }
@@ -68,7 +68,6 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
                                 "X"
                             }
                         }
-                        hr { class: "pb-2" }
                         EntityDefForm {
                             name,
                             description,
