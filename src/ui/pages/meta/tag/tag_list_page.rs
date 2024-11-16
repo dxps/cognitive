@@ -58,7 +58,7 @@ pub fn TagListPage() -> Element {
 fn TagCard(item: Tag) -> Element {
     rsx! {
         Link { to: Route::TagPage { id: item.id },
-            div { class: "flex flex-col p-2 my-3 bg-white rounded-lg border hover:bg-slate-100 hover:border-slate-100 transition duration-200",
+            div { class: "flex flex-col px-4 py-2 my-3 bg-white rounded-lg border hover:bg-slate-100 hover:border-slate-100 transition duration-200",
                 div { class: "flex justify-between text-gray-600",
                     p { class: "font-medium leading-snug tracking-normal antialiased",
                         "{item.name}"

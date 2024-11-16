@@ -118,7 +118,7 @@ pub async fn update_entity_link(ent_link_def: EntityLink) -> Result<(), ServerFn
     result.map_err(|e| e.into())
 }
 
-// /// Remove an entity link definition.
+// /// Remove an entity link.
 #[server(endpoint = "admin/remove_ent_link", input = PostUrl)]
 pub async fn remove_entity_link(id: Id) -> Result<(), ServerFnError> {
     let session: Session = extract().await?;
