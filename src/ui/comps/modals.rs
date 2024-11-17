@@ -1,6 +1,8 @@
+use crate::{
+    domain::model::{Id, ItemType},
+    ui::{pages::Name, routes::Route, Action},
+};
 use dioxus::prelude::*;
-
-use crate::ui::Action;
 
 #[derive(Props, PartialEq, Clone)]
 pub struct ModalProps {
@@ -31,6 +33,10 @@ pub fn Modal(props: ModalProps) -> Element {
 pub struct AcknowledgeModalProps {
     pub title: String,
     pub content: Vec<String>,
+    #[props(default = Vec::new())]
+    pub links: Vec<(Id, Name)>,
+    #[props(default = ItemType::AttributeDef)]
+    pub links_item_type: ItemType,
     pub action_handler: EventHandler,
 }
 
@@ -40,6 +46,8 @@ pub fn AcknowledgeModal(props: AcknowledgeModalProps) -> Element {
     let AcknowledgeModalProps {
         title,
         content,
+        links,
+        links_item_type,
         action_handler,
     } = props;
 
@@ -50,6 +58,24 @@ pub fn AcknowledgeModal(props: AcknowledgeModalProps) -> Element {
                     h4 { class: "text-sm text-gray-800 font-semibold mb-8", {title} }
                     for stmt in content {
                         p { class: "text text-gray-600", { stmt } }
+                    }
+                    if !links.is_empty() {
+                        ul {
+                            for (id , name) in links {
+                                li {
+                                    Link {
+                                        to: if links_item_type == ItemType::EntityDef {
+                                            Route::EntityDefPage { id: id }
+                                        } else {
+                                            Route::AttributeDefPage {
+                                                attr_def_id: id,
+                                            }
+                                        },
+                                        {name}
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
                 div { class: "flex justify-center mt-8",

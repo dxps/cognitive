@@ -1,8 +1,9 @@
 use crate::{
-    domain::model::{AttributeDef, Id},
-    server::fns::{get_attribute_def, remove_attr_def, update_attribute_def},
+    domain::model::{AttributeDef, Id, ItemType},
+    server::fns::{get_attribute_def, list_entity_defs_refs_by_attr_def_id, remove_attr_def, update_attribute_def},
     ui::{
         comps::{AcknowledgeModal, AttributeDefForm, Breadcrumb, ConfirmationModal, Nav},
+        pages::Name,
         routes::Route,
         Action, UI_STATE,
     },
@@ -32,6 +33,7 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
     let mut action = use_signal(|| Action::View);
     let action_done = use_signal(|| false);
     let mut err: Signal<Option<String>> = use_signal(|| None);
+    let err_refs = use_signal(|| Vec::<(Id, Name)>::new());
 
     use_future(move || async move {
         tags.set(UI_STATE.get_tags_list().await);
@@ -149,7 +151,7 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
                     action_handler: move |_| {
                         spawn(async move {
                             log::debug!("Calling handle_delete ...");
-                            handle_delete(&id(), action_done, err).await;
+                            handle_delete(&id(), action_done, err, err_refs).await;
                         });
                     }
                 }
@@ -169,6 +171,8 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
                 AcknowledgeModal {
                     title: "Error",
                     content: if action() == Action::Delete { vec![err().unwrap()] } else { vec![err().unwrap()] },
+                    links: err_refs(),
+                    links_item_type: ItemType::EntityDef,
                     action_handler: move |_| {
                         err.set(None);
                     }
@@ -197,7 +201,7 @@ async fn handle_update(item: AttributeDef, mut action_done: Signal<bool>, mut er
     }
 }
 
-async fn handle_delete(id: &Id, mut saved: Signal<bool>, mut err: Signal<Option<String>>) {
+async fn handle_delete(id: &Id, mut saved: Signal<bool>, mut err: Signal<Option<String>>, mut err_refs: Signal<Vec<(Id, String)>>) {
     //
     log::debug!(">>> Deleting attribute definition: {:?}", id);
     match remove_attr_def(id.clone()).await {
@@ -208,6 +212,14 @@ async fn handle_delete(id: &Id, mut saved: Signal<bool>, mut err: Signal<Option<
         Err(e) => {
             saved.set(false);
             if let ServerFnError::ServerError(s) = e {
+                log::debug!(">>> Failed to delete attribute definition: {:?}.", s);
+                // Note: Hackish, but works, for now.
+                if s.contains("it is included") {
+                    if let Ok(refs) = list_entity_defs_refs_by_attr_def_id(id.clone()).await {
+                        log::debug!(">>> refs: {:?}.", refs);
+                        err_refs.set(refs);
+                    }
+                }
                 err.set(Some(s));
             } else {
                 err.set(Some(e.to_string()));

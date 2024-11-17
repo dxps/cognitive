@@ -1,6 +1,7 @@
 use crate::{
     domain::model::{EntityDef, Id},
     server::{AppResult, EntityDefRepo},
+    ui::pages::Name,
 };
 use std::{collections::HashMap, sync::Arc};
 
@@ -22,6 +23,10 @@ impl EntityDefMgmt {
 
     pub async fn list(&self) -> AppResult<Vec<EntityDef>> {
         self.ent_repo.list(None).await
+    }
+
+    pub async fn list_refs_by_attr_def_id(&self, attr_def_id: Id) -> AppResult<Vec<(Id, Name)>> {
+        self.ent_repo.list_refs_by_attr_def_id(&attr_def_id).await
     }
 
     pub async fn add(&self, mut ent_def: EntityDef) -> AppResult<Id> {

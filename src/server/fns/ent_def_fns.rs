@@ -16,6 +16,14 @@ pub async fn list_entities_defs_id_name() -> Result<HashMap<Id, String>, ServerF
     Ok(result)
 }
 
+/// List the entities definitions id and names, containing an attribute definition with the provided id.
+#[server(endpoint = "admin/list_entity_defs_refs_by_attr_def_id", input = GetUrl)]
+pub async fn list_entity_defs_refs_by_attr_def_id(attr_def_id: Id) -> Result<Vec<(Id, String)>, ServerFnError> {
+    let session: Session = extract().await?;
+    let result = session.4.list_refs_by_attr_def_id(attr_def_id).await?;
+    Ok(result)
+}
+
 /// List the entities definitions.
 #[server(endpoint = "admin/list_ent_defs", input = GetUrl)]
 pub async fn list_entities_defs() -> Result<Vec<EntityDef>, ServerFnError> {

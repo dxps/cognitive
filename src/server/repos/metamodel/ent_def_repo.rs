@@ -4,6 +4,7 @@ use std::sync::Arc;
 use crate::{
     domain::model::{AttributeDef, EntityDef, Id},
     server::{AppResult, PaginationOpts},
+    ui::pages::Name,
 };
 
 pub struct EntityDefRepo {
@@ -34,9 +35,8 @@ impl EntityDefRepo {
         let pagination_opts = pagination_opts.unwrap_or(&default_opts);
         let limit = pagination_opts.limit.unwrap_or(10);
         let offset = (pagination_opts.page.unwrap_or(1) - 1) * limit;
-        let query = format!(
-            "SELECT id, name, description, listing_attr_def_id FROM entity_defs ORDER BY name LIMIT {limit} OFFSET {offset}"
-        );
+        let query =
+            format!("SELECT id, name, description, listing_attr_def_id FROM entity_defs ORDER BY name LIMIT {limit} OFFSET {offset}");
 
         let mut ent_defs = sqlx::query_as::<_, EntityDef>(query.as_str()) // FYI: Binding (such as .bind(limit) didn't work, that's why the query.
             .fetch_all(self.dbcp.as_ref())
@@ -59,18 +59,35 @@ impl EntityDefRepo {
         Ok(ent_defs)
     }
 
+    pub async fn list_refs_by_attr_def_id(&self, attr_def_id: &Id) -> AppResult<Vec<(Id, Name)>> {
+        //
+        let res = sqlx::query_as::<_, (String, Name)>(
+            "SELECT id, name FROM entity_defs 
+             JOIN entity_defs_attribute_defs_xref ON entity_defs.id = entity_defs_attribute_defs_xref.entity_def_id
+             WHERE entity_defs_attribute_defs_xref.attribute_def_id = $1
+             ORDER BY name",
+        )
+        .bind(attr_def_id.as_str())
+        .fetch_all(self.dbcp.as_ref())
+        .await?
+        .into_iter()
+        .map(|(id, name)| (Id::from(id), name))
+        .collect();
+
+        Ok(res)
+    }
+
     pub async fn add(&self, ent_def: &EntityDef) -> AppResult<()> {
         //
         let mut txn = self.dbcp.begin().await?;
 
-        if let Err(e) =
-            sqlx::query("INSERT INTO entity_defs (id, name, description, listing_attr_def_id) VALUES ($1, $2, $3, $4)")
-                .bind(ent_def.id.as_str())
-                .bind(ent_def.name.clone())
-                .bind(ent_def.description.clone())
-                .bind(ent_def.listing_attr_def_id.as_str())
-                .execute(&mut *txn)
-                .await
+        if let Err(e) = sqlx::query("INSERT INTO entity_defs (id, name, description, listing_attr_def_id) VALUES ($1, $2, $3, $4)")
+            .bind(ent_def.id.as_str())
+            .bind(ent_def.name.clone())
+            .bind(ent_def.description.clone())
+            .bind(ent_def.listing_attr_def_id.as_str())
+            .execute(&mut *txn)
+            .await
         {
             txn.rollback().await?;
             log::error!("Failed to add entity def. Cause: '{}'.", e);
@@ -78,12 +95,11 @@ impl EntityDefRepo {
         }
 
         for attr_def in ent_def.attributes.clone() {
-            if let Err(e) =
-                sqlx::query("INSERT INTO entity_defs_attribute_defs_xref (entity_def_id, attribute_def_id) VALUES ($1, $2)")
-                    .bind(ent_def.id.as_str())
-                    .bind(attr_def.id.as_str())
-                    .execute(&mut *txn)
-                    .await
+            if let Err(e) = sqlx::query("INSERT INTO entity_defs_attribute_defs_xref (entity_def_id, attribute_def_id) VALUES ($1, $2)")
+                .bind(ent_def.id.as_str())
+                .bind(attr_def.id.as_str())
+                .execute(&mut *txn)
+                .await
             {
                 txn.rollback().await?;
                 log::error!("Failed to add entity def's attribute defs: {}", e);
@@ -150,12 +166,11 @@ impl EntityDefRepo {
         }
 
         for attr_def in ent_def.attributes.clone() {
-            if let Err(e) =
-                sqlx::query("INSERT INTO entity_defs_attribute_defs_xref (entity_def_id, attribute_def_id) VALUES ($1, $2)")
-                    .bind(ent_def.id.as_str())
-                    .bind(attr_def.id.as_str())
-                    .execute(&mut *txn)
-                    .await
+            if let Err(e) = sqlx::query("INSERT INTO entity_defs_attribute_defs_xref (entity_def_id, attribute_def_id) VALUES ($1, $2)")
+                .bind(ent_def.id.as_str())
+                .bind(attr_def.id.as_str())
+                .execute(&mut *txn)
+                .await
             {
                 txn.rollback().await?;
                 log::error!("Failed to update entity def's attribute defs: {}", e);

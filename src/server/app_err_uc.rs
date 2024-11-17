@@ -3,6 +3,8 @@
 //!                and convert them into an app (domain) specific ones.
 //! - `AppUseCase`s - relevant for the proper conversion from a low-level error to a higher (`AppError`) one.
 
+use std::str::FromStr;
+
 use thiserror::Error;
 
 pub type AppResult<T> = std::result::Result<T, AppError>;
@@ -30,6 +32,14 @@ pub enum AppError {
 impl From<&str> for AppError {
     fn from(s: &str) -> Self {
         Self::Err(s.to_string())
+    }
+}
+
+impl FromStr for AppError {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, <AppError as FromStr>::Err> {
+        Ok(Self::from(s))
     }
 }
 
