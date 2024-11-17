@@ -19,8 +19,8 @@ pub use entity::*;
 mod int_attr;
 pub use int_attr::*;
 
-mod item_type;
-pub use item_type::*;
+mod item;
+pub use item::*;
 
 mod smallint_attr;
 pub use smallint_attr::*;

@@ -4,6 +4,7 @@ use crate::{
     },
     ui::{
         comps::{AcknowledgeModal, Breadcrumb, EntityForm, Nav, Select},
+        pages::Name,
         routes::Route,
         Action, UI_STATE,
     },
@@ -16,10 +17,10 @@ pub fn EntityNewPage() -> Element {
     let mut ent_defs = use_signal::<Vec<EntityDef>>(|| Vec::new());
     let mut ent_kinds = use_signal::<HashMap<Id, String>>(|| HashMap::new());
     let selected_kind_id = use_signal(|| Id::default());
-    let mut selected_kind_name = use_signal(|| "".into());
+    let mut selected_kind_name = use_signal(|| Name::default());
     let mut listing_attr_def_id = use_signal(|| Id::default());
-    let mut listing_attr_name = use_signal(|| "".to_string());
-    let listing_attr_value = use_signal(|| "".to_string());
+    let mut listing_attr_name = use_signal(|| Name::default());
+    let listing_attr_value = use_signal(|| String::default());
 
     let mut text_attrs = use_signal::<HashMap<Id, TextAttribute>>(|| HashMap::new());
     let mut smallint_attrs = use_signal::<HashMap<Id, SmallintAttribute>>(|| HashMap::new());
@@ -46,7 +47,6 @@ pub fn EntityNewPage() -> Element {
             return;
         }
         selected_kind_name.set(ent_kinds().get(&kind_id).unwrap().clone());
-        log::debug!("[EntityNewPage] Loading attributes from entity def id:'{}' ...", kind_id);
         log::debug!(
             "[EntityNewPage] Loading attributes from entity def id:'{}' using the global state ...",
             kind_id

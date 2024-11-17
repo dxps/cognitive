@@ -44,8 +44,8 @@ impl From<AttributeDef> for TextAttribute {
             attr_def.name,
             attr_def.default_value,
             attr_def.id,
-            Id::default(),
-            ItemType::Unknown,
+            Id::default(),     // owner id
+            ItemType::Unknown, // owner type
         )
     }
 }

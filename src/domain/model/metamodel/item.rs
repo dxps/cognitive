@@ -13,13 +13,13 @@ pub enum ItemType {
     Entity,
     EntityLink,
     TextAttribute,
-    BooleanAttribute,
     SmallintAttribute,
+    IntegerAttribute,
+    BooleanAttribute,
     Unknown,
 }
 
 impl ItemType {
-    // TODO if needed.
     pub fn value(&self) -> String {
         match self {
             ItemType::Tag => "tag".to_string(),
@@ -29,8 +29,9 @@ impl ItemType {
             ItemType::Entity => "eni".to_string(),
             ItemType::EntityLink => "enl".to_string(),
             ItemType::TextAttribute => "tea".to_string(),
-            ItemType::BooleanAttribute => "boa".to_string(),
             ItemType::SmallintAttribute => "sma".to_string(),
+            ItemType::IntegerAttribute => "ina".to_string(),
+            ItemType::BooleanAttribute => "boa".to_string(),
             ItemType::Unknown => "unk".to_string(),
         }
     }
@@ -48,6 +49,7 @@ impl From<&str> for ItemType {
             "tea" => ItemType::TextAttribute,
             "boa" => ItemType::BooleanAttribute,
             "sma" => ItemType::SmallintAttribute,
+            "ina" => ItemType::IntegerAttribute,
             "unk" => ItemType::Unknown,
             _ => ItemType::Tag,
         }

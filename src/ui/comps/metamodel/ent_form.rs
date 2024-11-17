@@ -1,4 +1,4 @@
-use crate::domain::model::{BooleanAttribute, Id, IntegerAttribute, SmallintAttribute, TextAttribute};
+use crate::domain::model::{BooleanAttribute, Id, IntegerAttribute, Item, ItemType, SmallintAttribute, TextAttribute};
 use dioxus::prelude::*;
 use std::collections::HashMap;
 
@@ -24,99 +24,86 @@ pub fn EntityForm(props: EntityFormProps) -> Element {
 
     let is_view = action == "View";
 
+    let ordered_attrs = order_entity_attributes(text_attrs(), smallint_attrs(), int_attrs(), boolean_attrs());
+
     rsx! {
         div { class: "mt-4 space-y-4",
             div { class: "space-y-0",
-                for (id , attr) in text_attrs() {
+                //
+                for (name , id , item_type) in ordered_attrs {
                     div { class: "flex",
-                        label { class: "pr-3 py-2 min-w-36", "{attr.name}:" }
-                        textarea {
-                            class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
-                            rows: 1,
-                            cols: 32,
-                            value: "{attr.value}",
-                            readonly: is_view,
-                            maxlength: 256,
-                            oninput: move |evt| {
-                                let id = id.clone();
-                                text_attrs
-                                    .write()
-                                    .entry(id.clone())
-                                    .and_modify(|attr| { attr.value = evt.value() });
-                                log::debug!(
-                                    "[EntityForm] After the change, text attr is {:?} and all text_attrs are {:?}",
-                                    text_attrs().entry(id), text_attrs()
-                                );
+                        label { class: "pr-3 py-2 min-w-36", "{name}:" }
+                        if item_type == ItemType::TextAttribute {
+                            textarea {
+                                key: "{id}",
+                                class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
+                                rows: 1,
+                                cols: 32,
+                                value: "{text_attrs().get(&id).unwrap().value}",
+                                readonly: is_view,
+                                maxlength: 256,
+                                oninput: move |evt| {
+                                    let id = id.clone();
+                                    text_attrs
+                                        .write()
+                                        .entry(id.clone())
+                                        .and_modify(|attr| { attr.value = evt.value() });
+                                }
                             }
-                        }
-                    }
-                }
-                for (id , attr) in smallint_attrs() {
-                    div { class: "flex",
-                        label { class: "pr-3 py-2 min-w-36", "{attr.name}:" }
-                        input {
-                            class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
-                            r#type: "number",
-                            value: "{attr.value}",
-                            readonly: is_view,
-                            maxlength: 3,
-                            oninput: move |evt| {
-                                let id = id.clone();
-                                smallint_attrs
-                                    .write()
-                                    .entry(id)
-                                    .and_modify(|attr| {
-                                        let value = evt.value();
-                                        if let Ok(value) = value.parse::<i8>() {
-                                            attr.value = value
-                                        } else {
-                                            log::warn!("[EntityForm] value {} cannot be parsed as i8", value);
-                                        }
-                                    });
+                        } else if item_type == ItemType::SmallintAttribute {
+                            input {
+                                key: "{id}",
+                                class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
+                                r#type: "number",
+                                value: "{smallint_attrs().get(&id).unwrap().value}",
+                                readonly: is_view,
+                                oninput: move |evt| {
+                                    let id = id.clone();
+                                    smallint_attrs
+                                        .write()
+                                        .entry(id.clone())
+                                        .and_modify(|attr| { attr.value = evt.value().parse().unwrap() });
+                                    log::debug!(
+                                        "[EntityForm] Changed smallint attr '{:?}' value to '{}'.", smallint_attrs()
+                                        .get(& id).unwrap().name, smallint_attrs().get(& id).unwrap().value
+                                    );
+                                }
                             }
-                        }
-                    }
-                }
-                for (id , attr) in int_attrs() {
-                    div { class: "flex",
-                        label { class: "pr-3 py-2 min-w-36", "{attr.name}:" }
-                        input {
-                            class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
-                            r#type: "number",
-                            value: "{attr.value}",
-                            readonly: is_view,
-                            maxlength: 10,
-                            oninput: move |evt| {
-                                let id = id.clone();
-                                int_attrs
-                                    .write()
-                                    .entry(id)
-                                    .and_modify(|attr| {
-                                        let value = evt.value();
-                                        if let Ok(value) = value.parse::<i32>() {
-                                            attr.value = value
-                                        } else {
-                                            log::warn!("[EntityForm] value {} cannot be parsed as i32", value);
-                                        }
-                                    });
+                        } else if item_type == ItemType::IntegerAttribute {
+                            input {
+                                class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
+                                r#type: "number",
+                                value: "{int_attrs().get(&id).unwrap().value}",
+                                readonly: is_view,
+                                oninput: move |evt| {
+                                    let id = id.clone();
+                                    int_attrs
+                                        .write()
+                                        .entry(id.clone())
+                                        .and_modify(|attr| { attr.value = evt.value().parse().unwrap() });
+                                    log::debug!(
+                                        "[EntityForm] Changed int attr '{:?}' value to '{}'.", int_attrs().get(& id)
+                                        .unwrap().name, int_attrs().get(& id).unwrap().value
+                                    );
+                                }
                             }
-                        }
-                    }
-                }
-                for (id , attr) in boolean_attrs() {
-                    div { class: "flex",
-                        label { class: "pr-3 py-2 min-w-36", "{attr.name}:" }
-                        input {
-                            class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300",
-                            r#type: "checkbox",
-                            checked: attr.value,
-                            readonly: is_view,
-                            oninput: move |evt| {
-                                let id = id.clone();
-                                boolean_attrs
-                                    .write()
-                                    .entry(id)
-                                    .and_modify(|attr| { attr.value = evt.value() == "true" });
+                        } else if item_type == ItemType::BooleanAttribute {
+                            input {
+                                class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
+                                r#type: "checkbox",
+                                checked: "{boolean_attrs().get(&id).unwrap().value}",
+                                readonly: is_view,
+                                oninput: move |evt| {
+                                    let id = id.clone();
+                                    boolean_attrs
+                                        .write()
+                                        .entry(id.clone())
+                                        .and_modify(|attr| { attr.value = evt.value().parse().unwrap() });
+                                    log::debug!(
+                                        "[EntityForm] Changed boolean attr '{:?}' value to '{}'.", boolean_attrs()
+                                        .get(& id).unwrap().name, boolean_attrs().get(& id).unwrap().value
+                                    );
+                                }
                             }
                         }
                     }
@@ -124,4 +111,34 @@ pub fn EntityForm(props: EntityFormProps) -> Element {
             }
         }
     }
+}
+
+/// Order the attributes of an entity in the alphabetical order,\
+/// to be nicely and consistently displayed in the form.
+pub fn order_entity_attributes(
+    text_attrs: HashMap<Id, TextAttribute>,
+    smallint_attrs: HashMap<Id, SmallintAttribute>,
+    int_attrs: HashMap<Id, IntegerAttribute>,
+    boolean_attrs: HashMap<Id, BooleanAttribute>,
+) -> Vec<(String, Id, ItemType)> {
+    //
+    let mut ordered_attrs = Vec::new();
+    ordered_attrs.extend(
+        text_attrs
+            .iter()
+            .map(|(id, attr)| (attr.name.clone(), id.clone(), attr.item_type())),
+    );
+    ordered_attrs.extend(
+        smallint_attrs
+            .iter()
+            .map(|(id, attr)| (attr.name.clone(), id.clone(), attr.item_type())),
+    );
+    ordered_attrs.extend(int_attrs.iter().map(|(id, attr)| (attr.name.clone(), id.clone(), attr.item_type())));
+    ordered_attrs.extend(
+        boolean_attrs
+            .iter()
+            .map(|(id, attr)| (attr.name.clone(), id.clone(), attr.item_type())),
+    );
+    ordered_attrs.sort_by(|attr1, attr2| attr1.0.cmp(&attr2.0));
+    ordered_attrs
 }
