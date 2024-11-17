@@ -113,6 +113,17 @@ impl AttributeDefRepo {
         {
             Ok(_) => AppResult::Ok(()),
             Err(e) => {
+                if let Some(db_err) = e.as_database_error() {
+                    if let Some(db_err_code) = db_err.code() {
+                        // 23503 is postgres specific code for dependencies (named "foreign_key_violation").
+                        // See: https://www.postgresql.org/docs/16/errcodes-appendix.htm
+                        if db_err_code.as_ref() == "23503" {
+                            return AppResult::Err(AppError::Err(
+                                "Cannot delete it because it is included in one or more entity definitions.".to_string(),
+                            ));
+                        }
+                    }
+                }
                 log::error!("Failed to delete entry: {}", e);
                 AppResult::Err(AppError::InternalErr)
             }

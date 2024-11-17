@@ -168,11 +168,7 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
             } else if err().is_some() {
                 AcknowledgeModal {
                     title: "Error",
-                    content: if action() == Action::Delete {
-                        vec!["Failed to delete the attribute definition. Cause:".into(), err().unwrap()]
-                    } else {
-                        vec!["Failed to update the attribute definition. Cause:".into(), err().unwrap()]
-                    },
+                    content: if action() == Action::Delete { vec![err().unwrap()] } else { vec![err().unwrap()] },
                     action_handler: move |_| {
                         err.set(None);
                     }
@@ -192,7 +188,11 @@ async fn handle_update(item: AttributeDef, mut action_done: Signal<bool>, mut er
         }
         Err(e) => {
             action_done.set(false);
-            err.set(Some(e.to_string()));
+            if let ServerFnError::ServerError(s) = e {
+                err.set(Some(s));
+            } else {
+                err.set(Some(e.to_string()));
+            }
         }
     }
 }
@@ -207,7 +207,11 @@ async fn handle_delete(id: &Id, mut saved: Signal<bool>, mut err: Signal<Option<
         }
         Err(e) => {
             saved.set(false);
-            err.set(Some(e.to_string()));
+            if let ServerFnError::ServerError(s) = e {
+                err.set(Some(s));
+            } else {
+                err.set(Some(e.to_string()));
+            }
         }
     }
 }

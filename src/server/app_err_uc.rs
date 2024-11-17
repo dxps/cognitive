@@ -19,6 +19,7 @@ pub enum AppError {
     #[error("internal error")]
     InternalErr,
 
+    /// Generic error.
     #[error("{0}")]
     Err(String),
 
