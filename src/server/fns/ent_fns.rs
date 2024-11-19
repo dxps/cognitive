@@ -38,6 +38,14 @@ pub async fn list_entities_by_def_id(id: Id) -> Result<Vec<Entity>, ServerFnErro
     result.map_err(|e| e.into())
 }
 
+/// List the entities refs (id and namew) with the same definition.
+#[server(endpoint = "admin/list_ents__refs_by_def_id/:id", input = GetUrl)]
+pub async fn list_entities_refs_by_def_id(id: Id) -> Result<Vec<(Id, String)>, ServerFnError> {
+    let session: Session = extract().await?;
+    let result = session.5.list_refs_by_def_id(&id).await?;
+    Ok(result)
+}
+
 /// Update an entity instance.
 #[server(endpoint = "admin/update_ent")]
 pub async fn update_entity(ent: Entity) -> Result<(), ServerFnError> {

@@ -1,6 +1,7 @@
 use crate::{
     domain::model::{Entity, Id},
     server::{AppResult, EntityRepo},
+    ui::pages::Name,
 };
 use std::sync::Arc;
 
@@ -20,6 +21,10 @@ impl EntityMgmt {
 
     pub async fn list_by_def_id(&self, def_id: &Id) -> AppResult<Vec<Entity>> {
         self.repo.list_by_def_id(def_id).await
+    }
+
+    pub async fn list_refs_by_def_id(&self, def_id: &Id) -> AppResult<Vec<(Id, Name)>> {
+        self.repo.list_refs_by_def_id(def_id).await
     }
 
     pub async fn add(&self, mut ent: Entity) -> AppResult<Id> {

@@ -15,6 +15,11 @@ pub enum AppError {
     #[error("{0} already exists")]
     AlreadyExists(String),
 
+    /// Commonly used to indicate that an item deletion cannot be done since it is referred
+    /// (mainly at the database level through a foreign key).
+    #[error("dependencies exist")]
+    DependenciesExist,
+
     #[error("")]
     Ignorable,
 

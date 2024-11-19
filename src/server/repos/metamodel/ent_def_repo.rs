@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use crate::{
     domain::model::{AttributeDef, EntityDef, Id},
-    server::{AppResult, PaginationOpts},
+    server::{AppError, AppResult, PaginationOpts},
     ui::pages::Name,
 };
 
@@ -202,6 +202,13 @@ impl EntityDefRepo {
             .await
         {
             txn.rollback().await?;
+            if let Some(db_err) = e.as_database_error() {
+                if let Some(db_err_code) = db_err.code() {
+                    if db_err_code == "23503" {
+                        return AppResult::Err(AppError::DependenciesExist);
+                    }
+                }
+            }
             log::error!("Failed to delete entity def: {}", e);
             return AppResult::Err(e.into());
         }

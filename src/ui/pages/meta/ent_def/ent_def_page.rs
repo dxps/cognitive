@@ -1,9 +1,12 @@
 use crate::{
-    domain::model::{EntityDef, Id},
-    server::fns::{get_entity_def, remove_entity_def, update_entity_def},
+    domain::model::{EntityDef, Id, ItemType},
+    server::{
+        fns::{get_entity_def, list_entities_refs_by_def_id, remove_entity_def, update_entity_def},
+        AppError,
+    },
     ui::{
         comps::{AcknowledgeModal, Breadcrumb, ConfirmationModal, Nav},
-        pages::{meta::ent_def::fetch_all_attr_defs, EntityDefForm},
+        pages::{meta::ent_def::fetch_all_attr_defs, EntityDefForm, Name},
         routes::Route,
         Action, UI_STATE,
     },
@@ -31,6 +34,7 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
     let action_done = use_signal(|| false);
     let mut action = use_signal(|| Action::View);
     let mut err: Signal<Option<String>> = use_signal(|| None);
+    let err_refs: Signal<Vec<(Id, Name)>> = use_signal(|| Vec::new());
 
     use_future(move || async move {
         all_attr_defs.set(fetch_all_attr_defs().await);
@@ -157,7 +161,7 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
                         action_handler: move |_| {
                             spawn(async move {
                                 log::debug!("[ent_def_page] Calling handle_delete ...");
-                                handle_delete(&id(), action_done, err).await;
+                                handle_delete(&id(), action_done, err, err_refs).await;
                             });
                         }
                     }
@@ -177,11 +181,9 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
             } else if err().is_some() {
                 AcknowledgeModal {
                     title: "Error",
-                    content: if action() == Action::Delete {
-                        vec!["Failed to delete the entity definition. Reason:".into(), err().unwrap()]
-                    } else {
-                        vec!["Failed to update the entity definition. Reason:".into(), err().unwrap()]
-                    },
+                    content: vec![err().unwrap()],
+                    links_item_type: ItemType::Entity,
+                    links: err_refs(),
                     action_handler: move |_| {
                         err.set(None);
                     }
@@ -199,7 +201,7 @@ async fn handle_update(
     listing_attr_def_id: Id,
     all_attr_defs: HashMap<Id, String>,
     included_attr_defs: HashMap<Id, String>,
-    mut saved: Signal<bool>,
+    mut action_done: Signal<bool>,
     mut err: Signal<Option<String>>,
 ) {
     //
@@ -220,18 +222,22 @@ async fn handle_update(
     let ent_def = EntityDef::new_with_attr_def_ids(id, name, description, attributes, listing_attr_def_id);
     match update_entity_def(ent_def.clone()).await {
         Ok(_) => {
-            saved.set(true);
+            action_done.set(true);
             err.set(None);
             UI_STATE.update_ent_def(ent_def);
         }
         Err(e) => {
-            saved.set(false);
-            err.set(Some(e.to_string()));
+            action_done.set(false);
+            if let ServerFnError::ServerError(s) = e {
+                err.set(Some(s));
+            } else {
+                err.set(Some(e.to_string()));
+            }
         }
     }
 }
 
-async fn handle_delete(id: &Id, mut action_done: Signal<bool>, mut err: Signal<Option<String>>) {
+async fn handle_delete(id: &Id, mut action_done: Signal<bool>, mut err: Signal<Option<String>>, mut err_refs: Signal<Vec<(Id, String)>>) {
     //
     log::debug!("[ent_def_page] Deleting entity definition: {:?}", id);
     match remove_entity_def(id.clone()).await {
@@ -242,7 +248,24 @@ async fn handle_delete(id: &Id, mut action_done: Signal<bool>, mut err: Signal<O
         }
         Err(e) => {
             action_done.set(false);
-            err.set(Some(e.to_string()));
+            if let ServerFnError::ServerError(s) = e {
+                log::debug!(
+                    ">>> s={:?} AppError::DependenciesExist.to_string()={:?}.",
+                    s,
+                    AppError::DependenciesExist.to_string()
+                );
+                if s == AppError::DependenciesExist.to_string() {
+                    if let Ok(refs) = list_entities_refs_by_def_id(id.clone()).await {
+                        err.set(Some("Cannot delete it because it is refered by the following entities:".into()));
+                        err_refs.set(refs);
+                    } else {
+                        err.set(Some("Cannot delete it because it is refered by one or more entities.".into()));
+                        log::error!(">>> Failed to delete entity definition, but no entities referring to it were found.");
+                    }
+                }
+            } else {
+                err.set(Some(e.to_string()));
+            }
         }
     }
 }

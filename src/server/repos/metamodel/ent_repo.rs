@@ -1,6 +1,7 @@
 use crate::{
     domain::model::{BooleanAttribute, Entity, Id, IntegerAttribute, ItemType, SmallintAttribute, TextAttribute},
     server::{AppResult, PaginationOpts},
+    ui::pages::Name,
 };
 use sqlx::{postgres::PgRow, FromRow, PgPool, Row};
 use std::sync::Arc;
@@ -43,14 +44,30 @@ impl EntityRepo {
         //
         let query = "SELECT e.id, e.def_id, e.listing_attr_def_id, e.listing_attr_name, e.listing_attr_value, ed.name as kind 
                 FROM entities e 
-                JOIN entity_defs ed 
-                ON e.def_id = ed.id 
+                JOIN entity_defs ed ON e.def_id = ed.id 
                 WHERE e.def_id = $1";
         sqlx::query_as::<_, Entity>(query)
             .bind(&def_id.as_str())
             .fetch_all(self.dbcp.as_ref())
             .await
             .map(|res| AppResult::Ok(res))?
+    }
+
+    pub async fn list_refs_by_def_id(&self, def_id: &Id) -> AppResult<Vec<(Id, Name)>> {
+        //
+        let res = sqlx::query_as::<_, (String, Name)>(
+            "SELECT e.id, ed.name as kind FROM entities e
+             JOIN entity_defs ed ON e.def_id = ed.id 
+             WHERE e.def_id = $1",
+        )
+        .bind(def_id.as_str())
+        .fetch_all(self.dbcp.as_ref())
+        .await?
+        .into_iter()
+        .map(|(id, name)| (Id::from(id), name))
+        .collect();
+
+        Ok(res)
     }
 
     pub async fn get(&self, id: &Id) -> AppResult<Option<Entity>> {
