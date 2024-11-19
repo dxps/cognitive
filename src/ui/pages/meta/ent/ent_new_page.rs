@@ -120,7 +120,7 @@ pub fn EntityNewPage() -> Element {
                         }
                         if selected_kind_id().is_empty() {
                             p { class: "py-2 text-gray-500 block",
-                                "Select a kind to create an entity."
+                                "You need to select its kind (entity definition) first."
                             }
                         } else {
                             EntityForm {

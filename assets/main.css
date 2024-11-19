@@ -1492,18 +1492,9 @@ select[disabled]:focus {
   color: rgb(31 41 55 / var(--tw-text-opacity, 1));
 }
 
-.text-green-1 {
-  --tw-text-opacity: 1;
-  color: rgb(98 167 15 / var(--tw-text-opacity, 1));
-}
-
 .text-green-600 {
   --tw-text-opacity: 1;
   color: rgb(22 163 74 / var(--tw-text-opacity, 1));
-}
-
-.text-inherit {
-  color: inherit;
 }
 
 .text-red-200 {
