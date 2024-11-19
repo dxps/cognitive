@@ -35,7 +35,7 @@ fn render_page() -> Element {
                         h5 { class: "mb-2 block text-lg font-semibold leading snug tracking-normal text-gray-500 antialiased",
                             "Model Management"
                         }
-                        p { class: "block font-sans text-base text-gray-500 font-light leading-relaxed text-inherit antialiased",
+                        p { class: "block font-sans text-base text-gray-500 leading-relaxed antialiased",
                             "Manage the definitions and instances of attributes, entities, entities links, and tags."
                         }
                         hr { class: "mt-2 mb-4" }

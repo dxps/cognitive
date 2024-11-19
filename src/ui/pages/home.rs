@@ -14,7 +14,7 @@ pub fn Home() -> Element {
                     src: "/akasha.svg"
                 }
                 p { class: "text-4xl font-bold text-gray-300", "Akasha" }
-                p { class: "text-sm text-green-1", "A space of knowledge." }
+                p { class: "pt-1 text-sm text-gray-400", "A space of knowledge." }
             }
         }
     }
