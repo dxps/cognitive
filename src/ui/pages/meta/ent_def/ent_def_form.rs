@@ -1,14 +1,14 @@
 use crate::domain::model::Id;
 use dioxus::prelude::*;
-use std::collections::HashMap;
+use indexmap::IndexMap;
 
 #[derive(Props, PartialEq, Clone)]
 pub struct EntityDefFormProps {
     pub name: Signal<String>,
     pub description: Signal<String>,
-    pub included_attr_defs: Signal<HashMap<Id, String>>,
+    pub included_attr_defs: Signal<IndexMap<Id, String>>,
     pub listing_attr_def_id: Signal<Id>,
-    pub all_attr_defs: Signal<HashMap<Id, String>>,
+    pub all_attr_defs: Signal<IndexMap<Id, String>>,
     pub action: String,
     pub action_done: Signal<bool>,
     pub err: Signal<Option<String>>,
@@ -85,7 +85,7 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
                                     let id = id.clone();
                                     let name = name.clone();
                                     let mut temp = included_attr_defs();
-                                    temp.remove(&id);
+                                    temp.swap_remove(&id);
                                     included_attr_defs.set(temp);
                                     let mut temp = all_attr_defs();
                                     temp.insert(id.clone(), name);
@@ -163,7 +163,7 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
                         included.insert(selected_attr_def_id(), selected_attr_def_name());
                         included_attr_defs.set(included);
                         let mut attr_defs = all_attr_defs();
-                        attr_defs.remove(&selected_attr_def_id());
+                        attr_defs.swap_remove(&selected_attr_def_id());
                         all_attr_defs.set(attr_defs);
                         selected_attr_def_id.set(Id::default());
                         selected_attr_def_name.set("".to_string());

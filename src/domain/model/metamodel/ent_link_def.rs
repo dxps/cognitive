@@ -1,5 +1,4 @@
-use std::collections::HashMap;
-
+use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 
 use crate::{domain::model::Id, ui::pages::Name};
@@ -78,8 +77,8 @@ impl Cardinality {
     }
 
     /// Get the (enum) variants.
-    pub fn get_select_variants() -> HashMap<Id, Name> {
-        HashMap::from([
+    pub fn get_select_variants() -> IndexMap<Id, Name> {
+        IndexMap::from([
             (Id::from(Self::OneToOne.as_string()), Self::OneToOne.as_string()),
             (Id::from(Self::OneToMany.as_string()), Self::OneToMany.as_string()),
             (Id::from(Self::ManyToMany.as_string()), Self::ManyToMany.as_string()),

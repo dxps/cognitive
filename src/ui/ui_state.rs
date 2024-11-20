@@ -3,6 +3,7 @@ use crate::{
     server::fns::{get_tags, list_entities_defs, list_entity_link_defs},
 };
 use dioxus::signals::{GlobalSignal, Readable};
+use indexmap::IndexMap;
 use std::ops::Deref;
 use std::{collections::HashMap, sync::Arc};
 
@@ -138,7 +139,7 @@ impl UiState {
         self.ent_defs_list.read().clone()
     }
 
-    pub async fn get_ent_defs(&self) -> HashMap<Id, Name> {
+    pub async fn get_ent_defs(&self) -> IndexMap<Id, Name> {
         let items = self.get_ent_defs_list().await;
         items.iter().map(|item| (item.id.clone(), item.name.clone())).collect()
     }

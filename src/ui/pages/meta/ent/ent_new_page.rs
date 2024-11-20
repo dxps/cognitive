@@ -10,29 +10,29 @@ use crate::{
     },
 };
 use dioxus::prelude::*;
-use std::collections::HashMap;
+use indexmap::IndexMap;
 
 pub fn EntityNewPage() -> Element {
     //
     let mut ent_defs = use_signal::<Vec<EntityDef>>(|| Vec::new());
-    let mut ent_kinds = use_signal::<HashMap<Id, String>>(|| HashMap::new());
+    let mut ent_kinds = use_signal::<IndexMap<Id, String>>(|| IndexMap::new());
     let selected_kind_id = use_signal(|| Id::default());
     let mut selected_kind_name = use_signal(|| Name::default());
     let mut listing_attr_def_id = use_signal(|| Id::default());
     let mut listing_attr_name = use_signal(|| Name::default());
     let listing_attr_value = use_signal(|| String::default());
 
-    let mut text_attrs = use_signal::<HashMap<Id, TextAttribute>>(|| HashMap::new());
-    let mut smallint_attrs = use_signal::<HashMap<Id, SmallintAttribute>>(|| HashMap::new());
-    let mut int_attrs = use_signal::<HashMap<Id, IntegerAttribute>>(|| HashMap::new());
-    let mut boolean_attrs = use_signal::<HashMap<Id, BooleanAttribute>>(|| HashMap::new());
+    let mut text_attrs = use_signal::<IndexMap<Id, TextAttribute>>(|| IndexMap::new());
+    let mut smallint_attrs = use_signal::<IndexMap<Id, SmallintAttribute>>(|| IndexMap::new());
+    let mut int_attrs = use_signal::<IndexMap<Id, IntegerAttribute>>(|| IndexMap::new());
+    let mut boolean_attrs = use_signal::<IndexMap<Id, BooleanAttribute>>(|| IndexMap::new());
 
     let err: Signal<Option<String>> = use_signal(|| None);
     let action_done = use_signal(|| false);
 
     use_future(move || async move {
         let ent_defs_list = UI_STATE.get_ent_defs_list().await;
-        let mut ent_kinds_map = HashMap::new();
+        let mut ent_kinds_map = IndexMap::new();
         ent_defs_list.iter().for_each(|ent_def| {
             ent_kinds_map.insert(ent_def.id.clone(), ent_def.name.clone());
         });
@@ -52,10 +52,10 @@ pub fn EntityNewPage() -> Element {
             kind_id
         );
         if let Some(ent_def) = UI_STATE.get_ent_def_sync(&kind_id) {
-            let mut txt_attrs = HashMap::new();
-            let mut si_attrs = HashMap::new();
-            let mut i_attrs = HashMap::new();
-            let mut b_attrs = HashMap::new();
+            let mut txt_attrs = IndexMap::new();
+            let mut si_attrs = IndexMap::new();
+            let mut i_attrs = IndexMap::new();
+            let mut b_attrs = IndexMap::new();
             ent_def.attributes.into_iter().for_each(|attr_def| {
                 if attr_def.id == ent_def.listing_attr_def_id {
                     listing_attr_def_id.set(attr_def.id.clone());

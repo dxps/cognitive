@@ -3,7 +3,7 @@ use crate::{
     ui::{comps::Select, pages::Name},
 };
 use dioxus::prelude::*;
-use std::collections::HashMap;
+use indexmap::IndexMap;
 
 #[derive(Clone, Debug, Props, PartialEq)]
 pub struct EntityLinkDefFormProps {
@@ -12,9 +12,9 @@ pub struct EntityLinkDefFormProps {
     pub cardinality_id: Signal<Id>,
     pub source_ent_def_id: Signal<Id>,
     pub target_ent_def_id: Signal<Id>,
-    pub ent_defs: Signal<HashMap<Id, Name>>,
-    pub included_attr_defs: Signal<HashMap<Id, Name>>,
-    pub all_attr_defs: Signal<HashMap<Id, Name>>,
+    pub ent_defs: Signal<IndexMap<Id, Name>>,
+    pub included_attr_defs: Signal<IndexMap<Id, Name>>,
+    pub all_attr_defs: Signal<IndexMap<Id, Name>>,
     pub action: String,
     pub action_done: Signal<bool>,
     pub err: Signal<Option<String>>,
@@ -112,7 +112,7 @@ pub fn EntityLinkDefForm(props: EntityLinkDefFormProps) -> Element {
                                     let id = id.clone();
                                     let name = name.clone();
                                     let mut temp = included_attr_defs();
-                                    temp.remove(&id);
+                                    temp.swap_remove(&id);
                                     included_attr_defs.set(temp);
                                     let mut temp = all_attr_defs();
                                     temp.insert(id.clone(), name);
@@ -164,7 +164,7 @@ pub fn EntityLinkDefForm(props: EntityLinkDefFormProps) -> Element {
                         included.insert(selected_attr_def_id(), selected_attr_def_name());
                         included_attr_defs.set(included);
                         let mut attr_defs = all_attr_defs();
-                        attr_defs.remove(&selected_attr_def_id());
+                        attr_defs.swap_remove(&selected_attr_def_id());
                         all_attr_defs.set(attr_defs);
                         selected_attr_def_id.set(Id::default());
                         selected_attr_def_name.set("".to_string());

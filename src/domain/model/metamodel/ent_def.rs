@@ -1,7 +1,6 @@
-use std::collections::HashMap;
-
 use super::{AttributeDef, Item, ItemType};
 use crate::domain::model::Id;
+use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 
 /// The definition of an `Entity`.
@@ -29,7 +28,7 @@ impl EntityDef {
         id: Id,
         name: String,
         description: Option<String>,
-        attributes: HashMap<Id, String>,
+        attributes: IndexMap<Id, String>,
         listing_attr_def_id: Id,
     ) -> Self {
         Self {

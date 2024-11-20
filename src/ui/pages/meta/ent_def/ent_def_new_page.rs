@@ -8,16 +8,16 @@ use crate::{
     },
 };
 use dioxus::prelude::*;
-use std::collections::HashMap;
+use indexmap::IndexMap;
 
 pub fn EntityDefNewPage() -> Element {
     //
     let name = use_signal(|| "".to_string());
     let description = use_signal(|| "".to_string());
-    let included_attr_defs = use_signal::<HashMap<Id, String>>(|| HashMap::new());
+    let included_attr_defs = use_signal::<IndexMap<Id, String>>(|| IndexMap::new());
     let listing_attr_def_id = use_signal(|| Id::default());
 
-    let mut all_attr_defs = use_signal(|| HashMap::<Id, String>::new());
+    let mut all_attr_defs = use_signal(|| IndexMap::<Id, String>::new());
 
     let mut err: Signal<Option<String>> = use_signal(|| None);
     let action_done = use_signal(|| false);
@@ -124,8 +124,8 @@ async fn handle_create_ent_def(
     name: String,
     description: Option<String>,
     listing_attr_def_id: Id,
-    included_attr_defs: HashMap<Id, String>,
-    all_attr_defs: HashMap<Id, String>,
+    included_attr_defs: IndexMap<Id, String>,
+    all_attr_defs: IndexMap<Id, String>,
     mut action_done: Signal<bool>,
     mut err: Signal<Option<String>>,
 ) {

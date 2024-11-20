@@ -12,7 +12,7 @@ use crate::{
     },
 };
 use dioxus::prelude::*;
-use std::collections::HashMap;
+use indexmap::IndexMap;
 
 #[derive(PartialEq, Props, Clone)]
 pub struct EntityDefPageProps {
@@ -25,10 +25,10 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
     let id = use_signal(|| props.id);
     let mut name = use_signal(|| "".to_string());
     let mut description = use_signal(|| "".to_string());
-    let mut included_attr_defs = use_signal(|| HashMap::<Id, String>::new());
+    let mut included_attr_defs = use_signal(|| IndexMap::<Id, String>::new());
     let mut listing_attr_def_id = use_signal(|| Id::default());
 
-    let mut all_attr_defs = use_signal(|| HashMap::<Id, String>::new());
+    let mut all_attr_defs = use_signal(|| IndexMap::<Id, String>::new());
 
     let mut show_modal = use_signal(|| false);
     let action_done = use_signal(|| false);
@@ -199,8 +199,8 @@ async fn handle_update(
     description: Option<String>,
     included_attr_def_ids: Vec<Id>,
     listing_attr_def_id: Id,
-    all_attr_defs: HashMap<Id, String>,
-    included_attr_defs: HashMap<Id, String>,
+    all_attr_defs: IndexMap<Id, String>,
+    included_attr_defs: IndexMap<Id, String>,
     mut action_done: Signal<bool>,
     mut err: Signal<Option<String>>,
 ) {

@@ -9,7 +9,7 @@ use crate::{
     },
 };
 use dioxus::prelude::*;
-use std::collections::HashMap;
+use indexmap::IndexMap;
 
 #[component]
 pub fn EntityLinkDefNewPage() -> Element {
@@ -19,12 +19,12 @@ pub fn EntityLinkDefNewPage() -> Element {
 
     let source_ent_def_id = use_signal(|| Id::default());
     let target_ent_def_id = use_signal(|| Id::default());
-    let mut ent_defs = use_signal::<HashMap<Id, Name>>(|| HashMap::new());
+    let mut ent_defs = use_signal::<IndexMap<Id, Name>>(|| IndexMap::new());
 
     let cardinality_id = use_signal(|| Id::from(Cardinality::OneToOne.as_string()));
 
-    let included_attr_defs = use_signal(|| HashMap::<Id, Name>::new());
-    let mut all_attr_defs = use_signal(|| HashMap::<Id, Name>::new());
+    let included_attr_defs = use_signal(|| IndexMap::<Id, Name>::new());
+    let mut all_attr_defs = use_signal(|| IndexMap::<Id, Name>::new());
 
     let action_done = use_signal(|| false);
     let action = use_signal(|| Action::Create);
@@ -130,7 +130,7 @@ async fn handle_create_ent_link_def(
     cardinality_id: Id,
     source_entity_def_id: Id,
     target_entity_def_id: Id,
-    included_attr_defs: HashMap<Id, Name>,
+    included_attr_defs: IndexMap<Id, Name>,
     mut action_done: Signal<bool>,
     mut err: Signal<Option<String>>,
 ) {

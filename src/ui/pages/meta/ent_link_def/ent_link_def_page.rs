@@ -9,7 +9,7 @@ use crate::{
     },
 };
 use dioxus::prelude::*;
-use std::collections::HashMap;
+use indexmap::IndexMap;
 
 #[derive(PartialEq, Props, Clone)]
 pub struct EntityLinkDefPageProps {
@@ -26,10 +26,10 @@ pub fn EntityLinkDefPage(props: EntityLinkDefPageProps) -> Element {
 
     let mut source_ent_def_id = use_signal(|| Id::default());
     let mut target_ent_def_id = use_signal(|| Id::default());
-    let mut ent_defs = use_signal::<HashMap<Id, Name>>(|| HashMap::new());
+    let mut ent_defs = use_signal::<IndexMap<Id, Name>>(|| IndexMap::new());
 
-    let mut included_attr_defs = use_signal(|| HashMap::<Id, Name>::new());
-    let mut all_attr_defs = use_signal(|| HashMap::<Id, Name>::new());
+    let mut included_attr_defs = use_signal(|| IndexMap::<Id, Name>::new());
+    let mut all_attr_defs = use_signal(|| IndexMap::<Id, Name>::new());
 
     let mut show_modal = use_signal(|| false);
     let action_done = use_signal(|| false);
@@ -215,8 +215,8 @@ async fn handle_update(
     source_entity_def_id: Id,
     target_entity_def_id: Id,
     included_attr_def_ids: Vec<Id>,
-    all_attr_defs: HashMap<Id, String>,
-    included_attr_defs: HashMap<Id, String>,
+    all_attr_defs: IndexMap<Id, String>,
+    included_attr_defs: IndexMap<Id, String>,
     mut saved: Signal<bool>,
     mut err: Signal<Option<String>>,
 ) {

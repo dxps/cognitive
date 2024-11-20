@@ -1,11 +1,11 @@
 use crate::{domain::model::Id, server::fns::list_entities_by_def_id, ui::pages::Name};
 
 use dioxus::prelude::*;
-use std::collections::HashMap;
+use indexmap::IndexMap;
 
 #[derive(Clone, Debug, Props, PartialEq)]
 pub struct SelectProps {
-    pub items: Signal<HashMap<Id, Name>>,
+    pub items: Signal<IndexMap<Id, Name>>,
 
     pub selected_item_id: Signal<Id>,
 
@@ -66,7 +66,7 @@ pub fn Select(props: SelectProps) -> Element {
 
 #[derive(Clone, Debug, Props, PartialEq)]
 pub struct SelectWithHandlerProps {
-    pub items: Signal<HashMap<Id, Name>>,
+    pub items: Signal<IndexMap<Id, Name>>,
 
     pub selected_item_id: Signal<Id>,
 

@@ -9,7 +9,7 @@ use crate::{
     },
 };
 use dioxus::prelude::*;
-use std::collections::HashMap;
+use indexmap::IndexMap;
 
 #[derive(PartialEq, Props, Clone)]
 pub struct EntityLinkPageProps {
@@ -29,13 +29,13 @@ pub fn EntityLinkPage(props: EntityLinkPageProps) -> Element {
     let source_entity_def_id = use_signal(|| Id::default());
     let target_entity_def_id = use_signal(|| Id::default());
 
-    let source_entities_id_name = use_signal(|| HashMap::<Id, Name>::new());
-    let target_entities_id_name = use_signal(|| HashMap::<Id, Name>::new());
+    let source_entities_id_name = use_signal(|| IndexMap::<Id, Name>::new());
+    let target_entities_id_name = use_signal(|| IndexMap::<Id, Name>::new());
 
-    let text_attrs = use_signal::<HashMap<Id, TextAttribute>>(|| HashMap::new());
-    let smallint_attrs = use_signal::<HashMap<Id, SmallintAttribute>>(|| HashMap::new());
-    let int_attrs = use_signal::<HashMap<Id, IntegerAttribute>>(|| HashMap::new());
-    let boolean_attrs = use_signal::<HashMap<Id, BooleanAttribute>>(|| HashMap::new());
+    let text_attrs = use_signal::<IndexMap<Id, TextAttribute>>(|| IndexMap::new());
+    let smallint_attrs = use_signal::<IndexMap<Id, SmallintAttribute>>(|| IndexMap::new());
+    let int_attrs = use_signal::<IndexMap<Id, IntegerAttribute>>(|| IndexMap::new());
+    let boolean_attrs = use_signal::<IndexMap<Id, BooleanAttribute>>(|| IndexMap::new());
 
     let mut show_delete_confirm = use_signal(|| false);
     let mut action = use_signal(|| Action::View);
@@ -201,12 +201,12 @@ async fn init(
     mut target_entity_id: Signal<Id>,
     mut source_entity_def_id: Signal<Id>,
     mut target_entity_def_id: Signal<Id>,
-    mut source_entities_id_name: Signal<HashMap<Id, Name>>,
-    mut target_entities_id_name: Signal<HashMap<Id, Name>>,
-    mut text_attrs: Signal<HashMap<Id, TextAttribute>>,
-    mut smallint_attrs: Signal<HashMap<Id, SmallintAttribute>>,
-    mut int_attrs: Signal<HashMap<Id, IntegerAttribute>>,
-    mut boolean_attrs: Signal<HashMap<Id, BooleanAttribute>>,
+    mut source_entities_id_name: Signal<IndexMap<Id, Name>>,
+    mut target_entities_id_name: Signal<IndexMap<Id, Name>>,
+    mut text_attrs: Signal<IndexMap<Id, TextAttribute>>,
+    mut smallint_attrs: Signal<IndexMap<Id, SmallintAttribute>>,
+    mut int_attrs: Signal<IndexMap<Id, IntegerAttribute>>,
+    mut boolean_attrs: Signal<IndexMap<Id, BooleanAttribute>>,
 ) {
     match get_entity_link(id()).await {
         Ok(Some(ent_link)) => {
@@ -233,25 +233,25 @@ async fn init(
                 }
             }
 
-            let attrs: HashMap<Id, TextAttribute> = ent_link
+            let attrs: IndexMap<Id, TextAttribute> = ent_link
                 .text_attributes
                 .iter()
                 .map(|attr| (attr.name.clone().into(), attr.clone()))
                 .collect();
             text_attrs.set(attrs);
-            let attrs: HashMap<Id, SmallintAttribute> = ent_link
+            let attrs: IndexMap<Id, SmallintAttribute> = ent_link
                 .smallint_attributes
                 .iter()
                 .map(|attr| (attr.name.clone().into(), attr.clone()))
                 .collect();
             smallint_attrs.set(attrs);
-            let attrs: HashMap<Id, IntegerAttribute> = ent_link
+            let attrs: IndexMap<Id, IntegerAttribute> = ent_link
                 .int_attributes
                 .iter()
                 .map(|attr| (attr.name.clone().into(), attr.clone()))
                 .collect();
             int_attrs.set(attrs);
-            let attrs: HashMap<Id, BooleanAttribute> = ent_link
+            let attrs: IndexMap<Id, BooleanAttribute> = ent_link
                 .boolean_attributes
                 .iter()
                 .map(|attr| (attr.name.clone().into(), attr.clone()))
@@ -269,7 +269,7 @@ async fn init(
     }
     match list_entities_by_def_id(source_entity_def_id()).await {
         Ok(source_entities) => {
-            let mut id_name_map = HashMap::new();
+            let mut id_name_map = IndexMap::new();
             for ent in source_entities {
                 id_name_map.insert(ent.id, format!("{}: {}", ent.listing_attr_name, ent.listing_attr_value));
             }
@@ -281,7 +281,7 @@ async fn init(
     }
     match list_entities_by_def_id(target_entity_def_id()).await {
         Ok(target_entities) => {
-            let mut id_name_map = HashMap::new();
+            let mut id_name_map = IndexMap::new();
             for ent in target_entities {
                 id_name_map.insert(ent.id, format!("{}: {}", ent.listing_attr_name, ent.listing_attr_value));
             }

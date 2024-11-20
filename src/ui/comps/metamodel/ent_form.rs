@@ -1,13 +1,13 @@
 use crate::domain::model::{BooleanAttribute, Id, IntegerAttribute, Item, ItemType, SmallintAttribute, TextAttribute};
 use dioxus::prelude::*;
-use std::collections::HashMap;
+use indexmap::IndexMap;
 
 #[derive(Props, PartialEq, Clone)]
 pub struct EntityFormProps {
-    pub text_attrs: Signal<HashMap<Id, TextAttribute>>,
-    pub smallint_attrs: Signal<HashMap<Id, SmallintAttribute>>,
-    pub int_attrs: Signal<HashMap<Id, IntegerAttribute>>,
-    pub boolean_attrs: Signal<HashMap<Id, BooleanAttribute>>,
+    pub text_attrs: Signal<IndexMap<Id, TextAttribute>>,
+    pub smallint_attrs: Signal<IndexMap<Id, SmallintAttribute>>,
+    pub int_attrs: Signal<IndexMap<Id, IntegerAttribute>>,
+    pub boolean_attrs: Signal<IndexMap<Id, BooleanAttribute>>,
     pub action: String,
 }
 
@@ -116,10 +116,10 @@ pub fn EntityForm(props: EntityFormProps) -> Element {
 /// Order the attributes of an entity in the alphabetical order,\
 /// to be nicely and consistently displayed in the form.
 pub fn order_entity_attributes(
-    text_attrs: HashMap<Id, TextAttribute>,
-    smallint_attrs: HashMap<Id, SmallintAttribute>,
-    int_attrs: HashMap<Id, IntegerAttribute>,
-    boolean_attrs: HashMap<Id, BooleanAttribute>,
+    text_attrs: IndexMap<Id, TextAttribute>,
+    smallint_attrs: IndexMap<Id, SmallintAttribute>,
+    int_attrs: IndexMap<Id, IntegerAttribute>,
+    boolean_attrs: IndexMap<Id, BooleanAttribute>,
 ) -> Vec<(String, Id, ItemType)> {
     //
     let mut ordered_attrs = Vec::new();

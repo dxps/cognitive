@@ -3,18 +3,18 @@ use crate::{
     ui::{comps::Select, pages::Name},
 };
 use dioxus::prelude::*;
-use std::collections::HashMap;
+use indexmap::IndexMap;
 
 #[derive(Props, PartialEq, Clone)]
 pub struct EntityLinkFormProps {
     pub source_entity_id: Signal<Id>,
-    pub source_entities_id_name: Signal<HashMap<Id, Name>>,
+    pub source_entities_id_name: Signal<IndexMap<Id, Name>>,
     pub target_entity_id: Signal<Id>,
-    pub target_entities_id_name: Signal<HashMap<Id, Name>>,
-    pub text_attrs: Signal<HashMap<Id, TextAttribute>>,
-    pub smallint_attrs: Signal<HashMap<Id, SmallintAttribute>>,
-    pub int_attrs: Signal<HashMap<Id, IntegerAttribute>>,
-    pub boolean_attrs: Signal<HashMap<Id, BooleanAttribute>>,
+    pub target_entities_id_name: Signal<IndexMap<Id, Name>>,
+    pub text_attrs: Signal<IndexMap<Id, TextAttribute>>,
+    pub smallint_attrs: Signal<IndexMap<Id, SmallintAttribute>>,
+    pub int_attrs: Signal<IndexMap<Id, IntegerAttribute>>,
+    pub boolean_attrs: Signal<IndexMap<Id, BooleanAttribute>>,
     pub action: String,
 }
 

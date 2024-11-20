@@ -11,12 +11,12 @@ use crate::{
     },
 };
 use dioxus::prelude::*;
-use std::collections::HashMap;
+use indexmap::IndexMap;
 
 pub fn EntityLinkNewPage() -> Element {
     //
     let mut ent_link_defs = use_signal::<Vec<EntityLinkDef>>(|| Vec::new());
-    let mut ent_link_kinds = use_signal::<HashMap<Id, Name>>(|| HashMap::new());
+    let mut ent_link_kinds = use_signal::<IndexMap<Id, Name>>(|| IndexMap::new());
     let selected_kind_id = use_signal(|| Id::default());
     let mut selected_kind_name = use_signal(|| Name::default());
 
@@ -26,20 +26,20 @@ pub fn EntityLinkNewPage() -> Element {
     let source_entity_id = use_signal(|| Id::default());
     let target_entity_id = use_signal(|| Id::default());
 
-    let mut source_entities_id_name = use_signal(|| HashMap::<Id, Name>::new());
-    let mut target_entities_id_name = use_signal(|| HashMap::<Id, Name>::new());
+    let mut source_entities_id_name = use_signal(|| IndexMap::<Id, Name>::new());
+    let mut target_entities_id_name = use_signal(|| IndexMap::<Id, Name>::new());
 
-    let mut text_attrs = use_signal::<HashMap<Id, TextAttribute>>(|| HashMap::new());
-    let mut smallint_attrs = use_signal::<HashMap<Id, SmallintAttribute>>(|| HashMap::new());
-    let mut int_attrs = use_signal::<HashMap<Id, IntegerAttribute>>(|| HashMap::new());
-    let mut boolean_attrs = use_signal::<HashMap<Id, BooleanAttribute>>(|| HashMap::new());
+    let mut text_attrs = use_signal::<IndexMap<Id, TextAttribute>>(|| IndexMap::new());
+    let mut smallint_attrs = use_signal::<IndexMap<Id, SmallintAttribute>>(|| IndexMap::new());
+    let mut int_attrs = use_signal::<IndexMap<Id, IntegerAttribute>>(|| IndexMap::new());
+    let mut boolean_attrs = use_signal::<IndexMap<Id, BooleanAttribute>>(|| IndexMap::new());
 
     let err: Signal<Option<String>> = use_signal(|| None);
     let action_done = use_signal(|| false);
 
     use_future(move || async move {
         let ent_link_defs_list = UI_STATE.get_ent_link_def_list().await;
-        let mut id_kind_map = HashMap::new();
+        let mut id_kind_map = IndexMap::new();
         ent_link_defs_list.iter().for_each(|ent_def| {
             id_kind_map.insert(ent_def.id.clone(), ent_def.name.clone());
         });
@@ -64,7 +64,7 @@ pub fn EntityLinkNewPage() -> Element {
                 log::debug!("[EntityLinkNewPage] Loading source entities by def id:'{}' ...", def_id);
                 match list_entities_by_def_id(ent_link_def.source_entity_def_id).await {
                     Ok(source_entities) => {
-                        let mut id_name_map = HashMap::new();
+                        let mut id_name_map = IndexMap::new();
                         for ent in source_entities {
                             id_name_map.insert(ent.id, format!("{}: {}", ent.listing_attr_name, ent.listing_attr_value));
                         }
@@ -76,7 +76,7 @@ pub fn EntityLinkNewPage() -> Element {
                 }
                 match list_entities_by_def_id(ent_link_def.target_entity_def_id).await {
                     Ok(target_entities) => {
-                        let mut id_name_map = HashMap::new();
+                        let mut id_name_map = IndexMap::new();
                         for ent in target_entities {
                             id_name_map.insert(ent.id, format!("{}: {}", ent.listing_attr_name, ent.listing_attr_value));
                         }
@@ -95,10 +95,10 @@ pub fn EntityLinkNewPage() -> Element {
                     kind_id,
                     attr_defs.len()
                 );
-                let mut txt_attrs = HashMap::new();
-                let mut si_attrs = HashMap::new();
-                let mut i_attrs = HashMap::new();
-                let mut b_attrs = HashMap::new();
+                let mut txt_attrs = IndexMap::new();
+                let mut si_attrs = IndexMap::new();
+                let mut i_attrs = IndexMap::new();
+                let mut b_attrs = IndexMap::new();
                 attr_defs.into_iter().for_each(|attr_def| match attr_def.value_type {
                     AttributeValueType::Text => {
                         let mut attr = TextAttribute::from(attr_def);

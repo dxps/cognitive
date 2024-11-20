@@ -8,7 +8,7 @@ use crate::{
     },
 };
 use dioxus::prelude::*;
-use std::collections::HashMap;
+use indexmap::IndexMap;
 
 #[derive(PartialEq, Props, Clone)]
 pub struct EntityPageProps {
@@ -23,10 +23,10 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
     let kind = use_signal(|| "".to_string());
     let listing_attr_def_id = use_signal(|| Id::default());
 
-    let text_attrs = use_signal::<HashMap<Id, TextAttribute>>(|| HashMap::new());
-    let smallint_attrs = use_signal::<HashMap<Id, SmallintAttribute>>(|| HashMap::new());
-    let int_attrs = use_signal::<HashMap<Id, IntegerAttribute>>(|| HashMap::new());
-    let boolean_attrs = use_signal::<HashMap<Id, BooleanAttribute>>(|| HashMap::new());
+    let text_attrs = use_signal::<IndexMap<Id, TextAttribute>>(|| IndexMap::new());
+    let smallint_attrs = use_signal::<IndexMap<Id, SmallintAttribute>>(|| IndexMap::new());
+    let int_attrs = use_signal::<IndexMap<Id, IntegerAttribute>>(|| IndexMap::new());
+    let boolean_attrs = use_signal::<IndexMap<Id, BooleanAttribute>>(|| IndexMap::new());
 
     let mut show_delete_confirm = use_signal(|| false);
     let mut action = use_signal(|| Action::View);
@@ -183,34 +183,34 @@ async fn init(
     id: Signal<Id>,
     mut kind: Signal<String>,
     mut def_id: Signal<Id>,
-    mut text_attrs: Signal<HashMap<Id, TextAttribute>>,
-    mut smallint_attrs: Signal<HashMap<Id, SmallintAttribute>>,
-    mut int_attrs: Signal<HashMap<Id, IntegerAttribute>>,
-    mut boolean_attrs: Signal<HashMap<Id, BooleanAttribute>>,
+    mut text_attrs: Signal<IndexMap<Id, TextAttribute>>,
+    mut smallint_attrs: Signal<IndexMap<Id, SmallintAttribute>>,
+    mut int_attrs: Signal<IndexMap<Id, IntegerAttribute>>,
+    mut boolean_attrs: Signal<IndexMap<Id, BooleanAttribute>>,
     mut listing_attr_def_id: Signal<Id>,
 ) {
     match get_entity(id()).await {
         Ok(Some(ent)) => {
             log::debug!("[EntityPage] Based on id {id}, got entity {:?}", ent);
-            let attrs: HashMap<Id, TextAttribute> = ent
+            let attrs: IndexMap<Id, TextAttribute> = ent
                 .text_attributes
                 .iter()
                 .map(|attr| (attr.name.clone().into(), attr.clone()))
                 .collect();
             text_attrs.set(attrs);
-            let attrs: HashMap<Id, SmallintAttribute> = ent
+            let attrs: IndexMap<Id, SmallintAttribute> = ent
                 .smallint_attributes
                 .iter()
                 .map(|attr| (attr.name.clone().into(), attr.clone()))
                 .collect();
             smallint_attrs.set(attrs);
-            let attrs: HashMap<Id, IntegerAttribute> = ent
+            let attrs: IndexMap<Id, IntegerAttribute> = ent
                 .int_attributes
                 .iter()
                 .map(|attr| (attr.name.clone().into(), attr.clone()))
                 .collect();
             int_attrs.set(attrs);
-            let attrs: HashMap<Id, BooleanAttribute> = ent
+            let attrs: IndexMap<Id, BooleanAttribute> = ent
                 .boolean_attributes
                 .iter()
                 .map(|attr| (attr.name.clone().into(), attr.clone()))
