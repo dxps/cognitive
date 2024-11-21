@@ -1,4 +1,7 @@
-use crate::domain::model::{Entity, Id};
+use crate::{
+    domain::model::{Entity, Id},
+    ui::pages::Name,
+};
 
 #[cfg(feature = "server")]
 use crate::server::Session;
@@ -38,11 +41,15 @@ pub async fn list_entities_by_def_id(id: Id) -> Result<Vec<Entity>, ServerFnErro
     result.map_err(|e| e.into())
 }
 
-/// List the entities refs (id and namew) with the same definition.
-#[server(endpoint = "admin/list_ents__refs_by_def_id/:id", input = GetUrl)]
-pub async fn list_entities_refs_by_def_id(id: Id) -> Result<Vec<(Id, String)>, ServerFnError> {
+/// List the entities refs (id and name) with the same definition.
+#[server(endpoint = "admin/list_ents_refs_by_def_id/:id", input = GetUrl)]
+pub async fn list_entities_refs_by_def_id(id: Id) -> Result<Vec<(Id, Name)>, ServerFnError> {
     let session: Session = extract().await?;
     let result = session.5.list_refs_by_def_id(&id).await?;
+    let result = result
+        .into_iter()
+        .map(|(id, name)| (id.clone(), format!("{} (id: {})", name, id)))
+        .collect::<Vec<(Id, Name)>>();
     Ok(result)
 }
 
