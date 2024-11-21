@@ -20,12 +20,27 @@ pub async fn list_entity_links() -> Result<Vec<EntityLink>, ServerFnError> {
     result.map_err(|e| e.into())
 }
 
-/// List the entity links with the same definition.
+/// List the entity links by their definition id.
 #[server(endpoint = "admin/list_ent_links_by_def_id/:id", input = GetUrl)]
 pub async fn list_entity_links_by_def_id(id: Id) -> Result<Vec<EntityLink>, ServerFnError> {
     let session: Session = extract().await?;
     let result = session.7.list_by_def_id(&id).await;
     result.map_err(|e| e.into())
+}
+
+/// List the entity links as references (containing only the id and name) by their definition id.
+#[server(endpoint = "admin/list_ent_links_refs_by_def_id/:id", input = GetUrl)]
+pub async fn list_entity_links_refs_by_def_id(id: Id) -> Result<Vec<(Id, Name)>, ServerFnError> {
+    let session: Session = extract().await?;
+    let result = session.7.list_by_def_id(&id).await;
+    result
+        .map(|items| {
+            items
+                .into_iter()
+                .map(|ent_link| (ent_link.id.clone(), format!("{} (id: {})", ent_link.kind, ent_link.id)))
+                .collect()
+        })
+        .map_err(|e| e.into())
 }
 
 /// Create an entity link.

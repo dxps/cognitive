@@ -1,6 +1,9 @@
 use crate::{
-    domain::model::{AttributeDef, Cardinality, EntityLinkDef, Id},
-    server::fns::{get_entity_link_def, remove_entity_link_def, update_entity_link_def},
+    domain::model::{AttributeDef, Cardinality, EntityLinkDef, Id, ItemType},
+    server::{
+        fns::{get_entity_link_def, list_entity_links_refs_by_def_id, remove_entity_link_def, update_entity_link_def},
+        AppError,
+    },
     ui::{
         comps::{AcknowledgeModal, Breadcrumb, ConfirmationModal, Nav},
         pages::{meta::ent_def::fetch_all_attr_defs, EntityLinkDefForm, Name},
@@ -35,6 +38,7 @@ pub fn EntityLinkDefPage(props: EntityLinkDefPageProps) -> Element {
     let action_done = use_signal(|| false);
     let mut action = use_signal(|| Action::View);
     let mut err: Signal<Option<String>> = use_signal(|| None);
+    let err_refs: Signal<Vec<(Id, String)>> = use_signal(|| Vec::new());
 
     use_future(move || async move {
         all_attr_defs.set(fetch_all_attr_defs().await);
@@ -167,7 +171,7 @@ pub fn EntityLinkDefPage(props: EntityLinkDefPageProps) -> Element {
                         action_handler: move |_| {
                             spawn(async move {
                                 log::debug!("[ent_link_def_page] Calling handle_delete ...");
-                                handle_delete(&id(), action_done, err).await;
+                                handle_delete(&id(), action_done, err, err_refs).await;
                             });
                         }
                     }
@@ -187,17 +191,9 @@ pub fn EntityLinkDefPage(props: EntityLinkDefPageProps) -> Element {
             } else if err().is_some() {
                 AcknowledgeModal {
                     title: "Error",
-                    content: if action() == Action::Delete {
-                        vec![
-                            "Failed to delete the entity link definition. Reason:".into(),
-                            err().unwrap(),
-                        ]
-                    } else {
-                        vec![
-                            "Failed to update the entity link definition. Reason:".into(),
-                            err().unwrap(),
-                        ]
-                    },
+                    content: if action() == Action::Delete { vec![err().unwrap()] } else { vec![err().unwrap()] },
+                    links: err_refs(),
+                    links_item_type: ItemType::EntityLink,
                     action_handler: move |_| {
                         err.set(None);
                     }
@@ -260,7 +256,7 @@ async fn handle_update(
     UI_STATE.update_ent_link_def(ent_link_def);
 }
 
-async fn handle_delete(id: &Id, mut action_done: Signal<bool>, mut err: Signal<Option<String>>) {
+async fn handle_delete(id: &Id, mut action_done: Signal<bool>, mut err: Signal<Option<String>>, mut err_refs: Signal<Vec<(Id, String)>>) {
     //
     log::debug!("[ent_link_def_page] Deleting entity link definition: {:?}", id);
     match remove_entity_link_def(id.clone()).await {
@@ -271,7 +267,19 @@ async fn handle_delete(id: &Id, mut action_done: Signal<bool>, mut err: Signal<O
         }
         Err(e) => {
             action_done.set(false);
-            err.set(Some(e.to_string()));
+            if let ServerFnError::ServerError(s) = e {
+                if s == AppError::DependenciesExist.to_string() {
+                    if let Ok(refs) = list_entity_links_refs_by_def_id(id.clone()).await {
+                        err.set(Some("Cannot delete it because it is refered by the following entities:".into()));
+                        err_refs.set(refs);
+                    } else {
+                        err.set(Some("Cannot delete it because it is refered by one or more entities.".into()));
+                        log::error!(">>> Failed to delete entity definition, but no entities referring to it were found.");
+                    }
+                }
+            } else {
+                err.set(Some(e.to_string()));
+            }
         }
     }
 }

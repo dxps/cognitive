@@ -68,6 +68,8 @@ pub fn AcknowledgeModal(props: AcknowledgeModalProps) -> Element {
                                             Route::EntityDefPage { id: id }
                                         } else if links_item_type == ItemType::Entity {
                                             Route::EntityPage { id: id }
+                                        } else if links_item_type == ItemType::EntityLink {
+                                            Route::EntityLinkPage { id: id }
                                         } else {
                                             Route::AttributeDefPage {
                                                 attr_def_id: id,

@@ -182,6 +182,13 @@ impl EntityLinkDefRepo {
             .execute(self.dbcp.as_ref())
             .await
         {
+            if let Some(db_err) = e.as_database_error() {
+                if let Some(db_err_code) = db_err.code() {
+                    if db_err_code == "23503" {
+                        return AppResult::Err(AppError::DependenciesExist);
+                    }
+                }
+            }
             log::error!("Failed to delete entity link def by id:'{}'. Cause: '{}'.", id, e);
             return AppResult::Err(e.into());
         }

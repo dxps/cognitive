@@ -249,11 +249,6 @@ async fn handle_delete(id: &Id, mut action_done: Signal<bool>, mut err: Signal<O
         Err(e) => {
             action_done.set(false);
             if let ServerFnError::ServerError(s) = e {
-                log::debug!(
-                    ">>> s={:?} AppError::DependenciesExist.to_string()={:?}.",
-                    s,
-                    AppError::DependenciesExist.to_string()
-                );
                 if s == AppError::DependenciesExist.to_string() {
                     if let Ok(refs) = list_entities_refs_by_def_id(id.clone()).await {
                         err.set(Some("Cannot delete it because it is refered by the following entities:".into()));
