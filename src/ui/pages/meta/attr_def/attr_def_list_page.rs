@@ -89,7 +89,10 @@ fn AttrDefCard(props: AttrDefCardProps) -> Element {
                     }
                 }
                 div { class: "flex justify-between text-gray-500 px-2",
-                    p { class: "text-xs leading-5 pt-1", "{attr_def.description.unwrap_or_default()}" }
+                    div {
+                        class: "flex justify-between text-xs leading-5 text-gray-500 pt-1",
+                        dangerous_inner_html: "{attr_def.description.unwrap_or_default()} &nbsp;"
+                    }
                     {   if attr_def.tag_id.is_some() {
                         let tag_id = attr_def.tag_id.unwrap();
                         match tags.get(&tag_id) {
