@@ -1,6 +1,5 @@
-use std::collections::HashMap;
-
 use dioxus_fullstack::prelude::*;
+use indexmap::IndexMap;
 use server_fn::codec::{GetUrl, PostUrl};
 
 use crate::{
@@ -48,7 +47,7 @@ pub async fn get_entity_link(id: Id) -> Result<Option<EntityLink>, ServerFnError
 /// Get all the details needed for presenting an entity link in the page.\
 /// It returns the entity link, maps of source_entities_id_name and target_entities_id_name.
 #[server(endpoint = "admin/get_ent_link_page_data", input = GetUrl)]
-pub async fn get_entity_link_page_data(id: Id) -> Result<Option<(EntityLink, HashMap<Id, Name>, HashMap<Id, Name>)>, ServerFnError> {
+pub async fn get_entity_link_page_data(id: Id) -> Result<Option<(EntityLink, IndexMap<Id, Name>, IndexMap<Id, Name>)>, ServerFnError> {
     //
     let session: Session = extract().await?;
     let ent_link = session.7.get(&id).await?;
@@ -57,8 +56,8 @@ pub async fn get_entity_link_page_data(id: Id) -> Result<Option<(EntityLink, Has
         return Ok(None);
     }
     let ent_link = ent_link.unwrap();
-    let mut source_entities_id_name = HashMap::<Id, Name>::new();
-    let mut target_entities_id_name = HashMap::<Id, Name>::new();
+    let mut source_entities_id_name = IndexMap::<Id, Name>::new();
+    let mut target_entities_id_name = IndexMap::<Id, Name>::new();
 
     match get_entity_link_def(ent_link.def_id.clone()).await {
         Result::Ok(eld_opt) => {
@@ -103,11 +102,7 @@ pub async fn get_entity_link_page_data(id: Id) -> Result<Option<(EntityLink, Has
         }
     }
 
-    Result::<Option<(EntityLink, HashMap<Id, String>, HashMap<Id, String>)>, ServerFnError>::Ok(Some((
-        ent_link,
-        source_entities_id_name,
-        target_entities_id_name,
-    )))
+    Ok(Some((ent_link, source_entities_id_name, target_entities_id_name)))
 }
 
 /// Update an entity link.

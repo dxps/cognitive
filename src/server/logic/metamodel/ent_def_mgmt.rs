@@ -1,9 +1,11 @@
+use indexmap::IndexMap;
+
 use crate::{
     domain::model::{EntityDef, Id},
     server::{AppResult, EntityDefRepo},
     ui::pages::Name,
 };
-use std::{collections::HashMap, sync::Arc};
+use std::sync::Arc;
 
 pub struct EntityDefMgmt {
     ent_repo: Arc<EntityDefRepo>,
@@ -15,10 +17,8 @@ impl EntityDefMgmt {
         Self { ent_repo }
     }
 
-    pub async fn list_ids_names(&self) -> AppResult<HashMap<Id, String>> {
-        let items = self.ent_repo.list_ids_names().await?;
-        let result: HashMap<Id, String> = items.into_iter().map(|item| (item.0, item.1)).collect();
-        Ok(result)
+    pub async fn list_ids_names(&self) -> AppResult<IndexMap<Id, String>> {
+        self.ent_repo.list_ids_names().await
     }
 
     pub async fn list(&self) -> AppResult<Vec<EntityDef>> {

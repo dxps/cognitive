@@ -1,3 +1,4 @@
+use indexmap::IndexMap;
 use sqlx::{postgres::PgRow, FromRow, PgPool, Row};
 use std::sync::Arc;
 
@@ -17,7 +18,7 @@ impl EntityDefRepo {
         Self { dbcp }
     }
 
-    pub async fn list_ids_names(&self) -> AppResult<Vec<(Id, String)>> {
+    pub async fn list_ids_names(&self) -> AppResult<IndexMap<Id, String>> {
         //
         let query = "SELECT id, name FROM entity_defs ORDER BY name";
         sqlx::query_as::<_, (String, String)>(query)

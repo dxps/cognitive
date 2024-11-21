@@ -5,7 +5,7 @@ use crate::{
 use dioxus::signals::{GlobalSignal, Readable};
 use indexmap::IndexMap;
 use std::ops::Deref;
-use std::{collections::HashMap, sync::Arc};
+use std::sync::Arc;
 
 use super::pages::Name;
 
@@ -14,7 +14,7 @@ use super::pages::Name;
 pub struct UiState {
     pub app_ready: GlobalSignal<bool>,
 
-    pub tags: GlobalSignal<Arc<HashMap<Id, Tag>>>,
+    pub tags: GlobalSignal<Arc<IndexMap<Id, Tag>>>,
 
     /// the ordered list of tags
     pub tags_list: GlobalSignal<Arc<Vec<Tag>>>,
@@ -30,7 +30,7 @@ impl UiState {
     pub const fn new() -> Self {
         Self {
             app_ready: GlobalSignal::new(|| false),
-            tags: GlobalSignal::new(|| Arc::new(HashMap::new())),
+            tags: GlobalSignal::new(|| Arc::new(IndexMap::new())),
             tags_list: GlobalSignal::new(|| Arc::new(Vec::new())),
             tags_loaded: GlobalSignal::new(|| false),
             ent_defs_list: GlobalSignal::new(|| Vec::new()),
@@ -42,13 +42,13 @@ impl UiState {
     // Tags
     // ----
 
-    pub async fn get_tags(&self) -> Arc<HashMap<Id, Tag>> {
+    pub async fn get_tags(&self) -> Arc<IndexMap<Id, Tag>> {
         if self.tags.read().is_empty() {
             let res = get_tags().await;
             match res {
                 Ok(tags) => {
                     *self.tags_list.write() = Arc::new(tags.clone());
-                    let tags_map: HashMap<Id, Tag> = tags.into_iter().map(|tag| (tag.id.clone(), tag)).collect();
+                    let tags_map: IndexMap<Id, Tag> = tags.into_iter().map(|tag| (tag.id.clone(), tag)).collect();
                     let tags_map = Arc::new(tags_map);
                     *self.tags.write() = tags_map;
                 }
@@ -85,7 +85,7 @@ impl UiState {
 
     pub async fn update_tag(&self, tag: Tag) {
         let tags = self.tags.read().clone();
-        let updated_tags: HashMap<Id, Tag> = tags
+        let updated_tags: IndexMap<Id, Tag> = tags
             .iter()
             .map(|(k, v)| {
                 if v.id == tag.id {
@@ -113,7 +113,7 @@ impl UiState {
 
     pub async fn remove_tag(&self, id: Id) {
         let tags = self.tags.read().clone();
-        let updated_tags: HashMap<Id, Tag> = tags
+        let updated_tags: IndexMap<Id, Tag> = tags
             .iter()
             .filter(|(_, v)| v.id != id)
             .map(|(k, v)| (k.clone(), v.clone()))

@@ -1,16 +1,15 @@
-use std::collections::HashMap;
-
 use crate::domain::model::{EntityDef, Id};
 
 #[cfg(feature = "server")]
 use crate::server::Session;
 
 use dioxus_fullstack::prelude::*;
+use indexmap::IndexMap;
 use server_fn::codec::GetUrl;
 
 /// List the entities definitions names, these being entities kinds.
 #[server(endpoint = "admin/list_ent_defs_id_name", input = GetUrl)]
-pub async fn list_entities_defs_id_name() -> Result<HashMap<Id, String>, ServerFnError> {
+pub async fn list_entities_defs_id_name() -> Result<IndexMap<Id, String>, ServerFnError> {
     let session: Session = extract().await?;
     let result = session.4.list_ids_names().await?;
     Ok(result)

@@ -10,14 +10,15 @@ use crate::{
     },
 };
 use dioxus::prelude::*;
-use std::{collections::HashMap, sync::Arc};
+use indexmap::IndexMap;
+use std::sync::Arc;
 
 #[component]
 pub fn AttributeDefListPage() -> Element {
     //
     let mut entries = use_signal::<Vec<AttributeDef>>(|| vec![]);
 
-    let mut tags = use_signal(|| Arc::new(HashMap::new()));
+    let mut tags = use_signal(|| Arc::new(IndexMap::new()));
 
     use_future(move || async move {
         tags.set(UI_STATE.get_tags().await);
@@ -61,7 +62,7 @@ pub fn AttributeDefListPage() -> Element {
 #[derive(Props, PartialEq, Clone)]
 pub struct AttrDefCardProps {
     pub attr_def: AttributeDef,
-    pub tags: Arc<HashMap<Id, Tag>>,
+    pub tags: Arc<IndexMap<Id, Tag>>,
 }
 
 #[component]
@@ -75,7 +76,7 @@ fn AttrDefCard(props: AttrDefCardProps) -> Element {
             to: Route::AttributeDefPage {
                 attr_def_id: attr_def.id,
             },
-            div { class: "flex flex-col p-3 my-3 bg-white rounded-lg border hover:bg-slate-100 hover:border-slate-100 transition duration-200",
+            div { class: "flex flex-col p-2 my-3 bg-white rounded-lg border hover:bg-slate-100 hover:border-slate-100 transition duration-200",
                 div { class: "flex justify-between text-gray-600 px-2",
                     p { class: "font-medium leading-snug tracking-normal antialiased",
                         "{attr_def.name}"
@@ -87,7 +88,7 @@ fn AttrDefCard(props: AttrDefCardProps) -> Element {
                         img { class: "h-4 w-4 mt-px", src: "/struct.png" }
                     }
                 }
-                div { class: "flex justify-between text-gray-500",
+                div { class: "flex justify-between text-gray-500 px-2",
                     p { class: "text-xs leading-5 pt-1", "{attr_def.description.unwrap_or_default()}" }
                     {   if attr_def.tag_id.is_some() {
                         let tag_id = attr_def.tag_id.unwrap();
