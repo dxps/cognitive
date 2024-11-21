@@ -64,10 +64,9 @@ fn TagCard(item: Tag) -> Element {
                         "{item.name}"
                     }
                 }
-                div { class: "flex justify-between",
-                    p { class: "text-xs leading-5 text-gray-500 pt-1 inline-block",
-                        "{item.description.unwrap_or_default()}"
-                    }
+                div {
+                    class: "flex justify-between text-xs leading-5 text-gray-500 pt-1",
+                    dangerous_inner_html: "{item.description.unwrap_or_default()} &nbsp;"
                 }
             }
         }
