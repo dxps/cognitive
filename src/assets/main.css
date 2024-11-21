@@ -39,7 +39,7 @@
 
 	/* Defaults for textarea elements. */
 	textarea {
-		@apply border-[1.4px] border-slate-300 text-sm rounded-lg py-2.5 px-3;
+		@apply border-[1.4px] border-slate-300 text-base rounded-lg py-2.5 px-3;
 	}
 	textarea:read-only {
 		@apply border-slate-200 outline-none;

@@ -32,7 +32,7 @@ pub fn EntityForm(props: EntityFormProps) -> Element {
                 //
                 for (name , id , item_type) in ordered_attrs {
                     div { class: "flex",
-                        label { class: "pr-3 py-2 min-w-36", "{name}:" }
+                        label { class: "pr-3 py-2 min-w-36 text-gray-600", "{name}:" }
                         if item_type == ItemType::TextAttribute {
                             textarea {
                                 key: "{id}",

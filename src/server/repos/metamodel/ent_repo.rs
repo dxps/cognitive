@@ -463,15 +463,33 @@ impl EntityRepo {
 
     pub async fn remove(&self, id: &Id) -> AppResult<()> {
         //
-        if let Err(e) = sqlx::query("DELETE FROM entities WHERE id = $1")
-            .bind(id.as_str())
-            .execute(self.dbcp.as_ref())
-            .await
+        let mut txn = self.dbcp.begin().await?;
+
+        if let Err(e) = sqlx::query(
+            "WITH del_text_attrs AS (DELETE FROM text_attributes WHERE owner_id = $1 RETURNING *),
+              del_smallint_attrs AS (DELETE FROM smallint_attributes WHERE owner_id = $1 RETURNING *),
+                   del_int_attrs AS (DELETE FROM integer_attributes WHERE owner_id = $1 RETURNING *),
+               del_boolean_attrs AS (DELETE FROM boolean_attributes WHERE owner_id = $1 RETURNING *)
+            SELECT * FROM del_text_attrs, del_smallint_attrs, del_int_attrs, del_boolean_attrs",
+        )
+        .bind(id.as_str())
+        .execute(&mut *txn)
+        .await
         {
-            log::error!("Failed to delete entity by id:'{}'. Cause: '{}'.", id, e);
+            log::error!("Failed to delete the attributes of entity id:'{}': '{}'.", id, e);
             return AppResult::Err(e.into());
         }
 
+        if let Err(e) = sqlx::query("DELETE FROM entities WHERE id = $1")
+            .bind(id.as_str())
+            .execute(&mut *txn)
+            .await
+        {
+            log::error!("Failed to delete entity by id:'{}': '{}'.", id, e);
+            return AppResult::Err(e.into());
+        }
+
+        txn.commit().await?;
         Ok(())
     }
 }

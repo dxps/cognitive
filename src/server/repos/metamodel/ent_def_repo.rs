@@ -108,7 +108,6 @@ impl EntityDefRepo {
         }
 
         txn.commit().await?;
-
         AppResult::Ok(())
     }
 
@@ -212,6 +211,7 @@ impl EntityDefRepo {
             log::error!("Failed to delete entity def: {}", e);
             return AppResult::Err(e.into());
         }
+
         txn.commit().await?;
         AppResult::Ok(())
     }
