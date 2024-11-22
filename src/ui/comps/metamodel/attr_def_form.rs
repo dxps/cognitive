@@ -37,7 +37,6 @@ pub fn AttributeDefForm(props: AttributeDefFormProps) -> Element {
                 input {
                     class: "rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
                     r#type: "text",
-                    placeholder: "its name",
                     value: "{name}",
                     maxlength: 64,
                     readonly: is_view,

@@ -22,6 +22,7 @@ pub fn AttributeDefNewPage() -> Element {
     let tag_id = use_signal(|| Id::default());
     let mut tags = use_signal(|| Arc::new(Vec::new()));
 
+    let create_btn_disabled = use_memo(move || name().is_empty());
     let err: Signal<Option<String>> = use_signal(|| None);
     let action_done = use_signal(|| false);
 
@@ -58,7 +59,8 @@ pub fn AttributeDefNewPage() -> Element {
                         }
                         div { class: "grid justify-items-end mt-8",
                             button {
-                                class: "bg-gray-100 hover:bg-green-100 drop-shadow-sm px-4 py-2 rounded-md",
+                                class: "bg-gray-100 hover:bg-green-100 disabled:text-gray-400 disabled:hover:bg-gray-200 drop-shadow-sm px-4 py-2 rounded-md",
+                                disabled: create_btn_disabled(),
                                 onclick: move |_| {
                                     async move {
                                         if action_done() {

@@ -29,6 +29,7 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
     let mut tag_id = use_signal(|| Id::default());
     let mut tags = use_signal(|| Arc::new(Vec::new()));
 
+    let update_btn_disabled = use_memo(move || name().is_empty());
     let mut show_modal = use_signal(|| false);
     let mut action = use_signal(|| Action::View);
     let action_done = use_signal(|| false);
@@ -96,6 +97,7 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
                             }
                             button {
                                 class: "bg-gray-100 enabled:hover:bg-green-100 disabled:text-gray-400 hover:disabled:bg-gray-100 drop-shadow-sm px-4 rounded-md",
+                                disabled: update_btn_disabled(),
                                 onclick: move |_| {
                                     let curr_action = action().clone();
                                     async move {

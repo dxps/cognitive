@@ -1736,6 +1736,11 @@ select[disabled]:focus {
   background-color: rgb(243 244 246 / var(--tw-bg-opacity, 1));
 }
 
+.disabled\:hover\:bg-gray-200:hover:disabled {
+  --tw-bg-opacity: 1;
+  background-color: rgb(229 231 235 / var(--tw-bg-opacity, 1));
+}
+
 .group:hover .group-hover\:opacity-100 {
   opacity: 1;
 }
