@@ -1,6 +1,6 @@
 use crate::{
     domain::model::{BooleanAttribute, EntityLink, Id, IntegerAttribute, ItemType, SmallintAttribute, TextAttribute},
-    server::{AppResult, PaginationOpts},
+    server::{AppResult, Pagination},
 };
 use sqlx::{postgres::PgRow, FromRow, PgPool, Row};
 use std::sync::Arc;
@@ -17,17 +17,13 @@ impl EntityLinkRepo {
 
     /// List all the entities.<br/>
     /// Note that the attributes of the entities are not loaded.
-    pub async fn list(&self, pagination_opts: Option<&PaginationOpts>) -> AppResult<Vec<EntityLink>> {
+    pub async fn list(&self, pagination_opts: Option<&Pagination>) -> AppResult<Vec<EntityLink>> {
         //
-        let default_opts = PaginationOpts::default();
-        let pagination_opts = pagination_opts.unwrap_or(&default_opts);
-        let limit = pagination_opts.limit.unwrap_or(10);
-        let offset = (pagination_opts.page.unwrap_or(1) - 1) * limit;
+        let (offset, limit) = Pagination::from(pagination_opts).get_offset_limit();
         let query = format!(
             "SELECT el.id, el.def_id, el.source_entity_id, el.target_entity_id, eld.name as kind 
              FROM entity_links el 
-             JOIN entity_link_defs eld 
-             ON el.def_id = eld.id 
+             JOIN entity_link_defs eld ON el.def_id = eld.id 
              ORDER BY name LIMIT {limit} OFFSET {offset}"
         );
 
@@ -42,10 +38,9 @@ impl EntityLinkRepo {
     pub async fn list_by_def_id(&self, def_id: &Id) -> AppResult<Vec<EntityLink>> {
         //
         let query = "SELECT el.id, el.def_id, el.source_entity_id, el.target_entity_id, eld.name as kind 
-             FROM entity_links el 
-             JOIN entity_link_defs eld 
-             ON el.def_id = eld.id  
-             WHERE el.def_id = $1";
+                     FROM entity_links el 
+                     JOIN entity_link_defs eld ON el.def_id = eld.id  
+                     WHERE el.def_id = $1";
         sqlx::query_as::<_, EntityLink>(query)
             .bind(&def_id.as_str())
             .fetch_all(self.dbcp.as_ref())

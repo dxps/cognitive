@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use crate::{
     domain::model::{AttributeDef, EntityDef, Id},
-    server::{AppError, AppResult, PaginationOpts},
+    server::{AppError, AppResult, Pagination},
     ui::pages::Name,
 };
 
@@ -30,14 +30,13 @@ impl EntityDefRepo {
             })?
     }
 
-    pub async fn list(&self, pagination_opts: Option<&PaginationOpts>) -> AppResult<Vec<EntityDef>> {
+    pub async fn list(&self, pagination_opts: Option<&Pagination>) -> AppResult<Vec<EntityDef>> {
         //
-        let default_opts = PaginationOpts::default();
-        let pagination_opts = pagination_opts.unwrap_or(&default_opts);
-        let limit = pagination_opts.limit.unwrap_or(10);
-        let offset = (pagination_opts.page.unwrap_or(1) - 1) * limit;
-        let query =
-            format!("SELECT id, name, description, listing_attr_def_id FROM entity_defs ORDER BY name LIMIT {limit} OFFSET {offset}");
+        let (offset, limit) = Pagination::from(pagination_opts).get_offset_limit();
+        let query = format!(
+            "SELECT id, name, description, listing_attr_def_id 
+             FROM entity_defs ORDER BY name LIMIT {limit} OFFSET {offset}"
+        );
 
         let mut ent_defs = sqlx::query_as::<_, EntityDef>(query.as_str()) // FYI: Binding (such as .bind(limit) didn't work, that's why the query.
             .fetch_all(self.dbcp.as_ref())
@@ -46,8 +45,8 @@ impl EntityDefRepo {
         for ent_def in &mut ent_defs {
             if let Ok(attrs) = sqlx::query_as::<_, AttributeDef>(
                 "SELECT id, name, description, value_type, default_value, required, tag_id
-             FROM attribute_defs ad JOIN entity_defs_attribute_defs_xref ed_ad_xref
-             ON ad.id = ed_ad_xref.attribute_def_id where ed_ad_xref.entity_def_id = $1 ORDER BY name",
+                 FROM attribute_defs ad JOIN entity_defs_attribute_defs_xref ed_ad_xref
+                 ON ad.id = ed_ad_xref.attribute_def_id where ed_ad_xref.entity_def_id = $1 ORDER BY name",
             )
             .bind(&ent_def.id.as_str())
             .fetch_all(self.dbcp.as_ref())

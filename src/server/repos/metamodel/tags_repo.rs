@@ -4,7 +4,7 @@ use sqlx::{postgres::PgRow, FromRow, PgPool, Row};
 
 use crate::{
     domain::model::{Id, Tag},
-    server::{AppError, AppResult, PaginationOpts},
+    server::{AppError, AppResult, Pagination},
 };
 
 pub struct TagsRepo {
@@ -30,12 +30,9 @@ impl TagsRepo {
         }
     }
 
-    pub async fn list(&self, pagination_opts: Option<&PaginationOpts>) -> AppResult<Vec<Tag>> {
+    pub async fn list(&self, pagination_opts: Option<&Pagination>) -> AppResult<Vec<Tag>> {
         //
-        let default_opts = PaginationOpts::default();
-        let pagination_opts = pagination_opts.unwrap_or(&default_opts);
-        let limit = pagination_opts.limit.unwrap_or(10);
-        let offset = (pagination_opts.page.unwrap_or(1) - 1) * limit;
+        let (offset, limit) = Pagination::from(pagination_opts).get_offset_limit();
         let query = format!("SELECT id, name, description FROM tags ORDER BY name LIMIT {limit} OFFSET {offset}");
         log::debug!("Listing tags w/ limit: {}, offset: {}.", limit, offset);
 

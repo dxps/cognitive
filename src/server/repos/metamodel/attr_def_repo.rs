@@ -1,7 +1,7 @@
 use crate::domain::model::Id;
 use crate::{
     domain::model::{AttributeDef, AttributeValueType},
-    server::{AppError, AppResult, PaginationOpts},
+    server::{AppError, AppResult, Pagination},
 };
 use sqlx::{postgres::PgRow, FromRow, PgPool, Row};
 use std::sync::Arc;
@@ -28,12 +28,9 @@ impl AttributeDefRepo {
         .ok()
     }
 
-    pub async fn list(&self, pagination_opts: Option<&PaginationOpts>) -> Vec<AttributeDef> {
+    pub async fn list(&self, pagination_opts: Option<&Pagination>) -> Vec<AttributeDef> {
         //
-        let default_opts = PaginationOpts::default();
-        let pagination_opts = pagination_opts.unwrap_or(&default_opts);
-        let limit = pagination_opts.limit.unwrap_or(10);
-        let offset = (pagination_opts.page.unwrap_or(1) - 1) * limit;
+        let (offset, limit) = Pagination::from(pagination_opts).get_offset_limit();
         let query = format!(
             "SELECT id, name, description, value_type, default_value, required, tag_id 
              FROM attribute_defs ORDER BY name LIMIT {limit} OFFSET {offset}"

@@ -1,6 +1,6 @@
 use crate::{
     domain::model::{BooleanAttribute, Entity, Id, IntegerAttribute, ItemType, SmallintAttribute, TextAttribute},
-    server::{AppResult, PaginationOpts},
+    server::{AppResult, Pagination},
     ui::pages::Name,
 };
 use sqlx::{postgres::PgRow, FromRow, PgPool, Row};
@@ -18,17 +18,13 @@ impl EntityRepo {
 
     /// List all the entities.<br/>
     /// Note that the attributes of the entities are not loaded.
-    pub async fn list(&self, pagination_opts: Option<&PaginationOpts>) -> AppResult<Vec<Entity>> {
+    pub async fn list(&self, pagination_opts: Option<&Pagination>) -> AppResult<Vec<Entity>> {
         //
-        let default_opts = PaginationOpts::default();
-        let pagination_opts = pagination_opts.unwrap_or(&default_opts);
-        let limit = pagination_opts.limit.unwrap_or(10);
-        let offset = (pagination_opts.page.unwrap_or(1) - 1) * limit;
+        let (offset, limit) = Pagination::from(pagination_opts).get_offset_limit();
         let query = format!(
             "SELECT e.id, e.def_id, e.listing_attr_def_id, e.listing_attr_name, e.listing_attr_value, ed.name as kind 
              FROM entities e 
-             JOIN entity_defs ed 
-             ON e.def_id = ed.id 
+             JOIN entity_defs ed ON e.def_id = ed.id 
              ORDER BY name LIMIT {limit} OFFSET {offset}"
         );
 
@@ -43,9 +39,9 @@ impl EntityRepo {
     pub async fn list_by_def_id(&self, def_id: &Id) -> AppResult<Vec<Entity>> {
         //
         let query = "SELECT e.id, e.def_id, e.listing_attr_def_id, e.listing_attr_name, e.listing_attr_value, ed.name as kind 
-                FROM entities e 
-                JOIN entity_defs ed ON e.def_id = ed.id 
-                WHERE e.def_id = $1";
+                     FROM entities e 
+                     JOIN entity_defs ed ON e.def_id = ed.id 
+                     WHERE e.def_id = $1";
         sqlx::query_as::<_, Entity>(query)
             .bind(&def_id.as_str())
             .fetch_all(self.dbcp.as_ref())
@@ -77,8 +73,8 @@ impl EntityRepo {
         if let Ok(ent_opt) = sqlx::query_as::<_, Entity>(
             "SELECT e.id, e.def_id, e.listing_attr_def_id, e.listing_attr_name, e.listing_attr_value, ed.name as kind 
              FROM entities e 
-             JOIN entity_defs ed 
-             ON e.def_id = ed.id WHERE e.id = $1",
+             JOIN entity_defs ed ON e.def_id = ed.id 
+             WHERE e.id = $1",
         )
         .bind(id.as_str())
         .fetch_optional(self.dbcp.as_ref())
@@ -150,7 +146,8 @@ impl EntityRepo {
         let mut txn = self.dbcp.begin().await?;
 
         if let Err(e) = sqlx::query(
-            "INSERT INTO entities (id, def_id, listing_attr_def_id, listing_attr_name, listing_attr_value) VALUES ($1, $2, $3, $4, $5)",
+            "INSERT INTO entities (id, def_id, listing_attr_def_id, listing_attr_name, listing_attr_value) 
+             VALUES ($1, $2, $3, $4, $5)",
         )
         .bind(&ent.id.as_str())
         .bind(&ent.def_id.as_str())
@@ -167,13 +164,16 @@ impl EntityRepo {
 
         // TODO: Use .iter() and refs, instead of clone().
         for attr in ent.text_attributes.clone() {
-            if let Err(e) = sqlx::query("INSERT INTO text_attributes (owner_id, owner_type, def_id, value) VALUES ($1, $2, $3, $4)")
-                .bind(&ent.id.as_str())
-                .bind(ItemType::Entity.value())
-                .bind(attr.def_id.as_str())
-                .bind(attr.value)
-                .execute(&mut *txn)
-                .await
+            if let Err(e) = sqlx::query(
+                "INSERT INTO text_attributes (owner_id, owner_type, def_id, value) 
+                 VALUES ($1, $2, $3, $4)",
+            )
+            .bind(&ent.id.as_str())
+            .bind(ItemType::Entity.value())
+            .bind(attr.def_id.as_str())
+            .bind(attr.value)
+            .execute(&mut *txn)
+            .await
             {
                 txn.rollback().await?;
                 log::error!("Failed to add entity's text attribute: {}", e);
@@ -182,13 +182,16 @@ impl EntityRepo {
         }
 
         for attr in ent.smallint_attributes.clone() {
-            if let Err(e) = sqlx::query("INSERT INTO smallint_attributes (owner_id, owner_type, def_id, value) VALUES ($1, $2, $3, $4)")
-                .bind(&ent.id.as_str())
-                .bind(ItemType::Entity.value())
-                .bind(attr.def_id.as_str())
-                .bind(attr.value)
-                .execute(&mut *txn)
-                .await
+            if let Err(e) = sqlx::query(
+                "INSERT INTO smallint_attributes (owner_id, owner_type, def_id, value)
+                 VALUES ($1, $2, $3, $4)",
+            )
+            .bind(&ent.id.as_str())
+            .bind(ItemType::Entity.value())
+            .bind(attr.def_id.as_str())
+            .bind(attr.value)
+            .execute(&mut *txn)
+            .await
             {
                 txn.rollback().await?;
                 log::error!("Failed to add an entity smallint attribute. Cause: {}", e);
@@ -197,13 +200,16 @@ impl EntityRepo {
         }
 
         for attr in ent.int_attributes.clone() {
-            if let Err(e) = sqlx::query("INSERT INTO integer_attributes (owner_id, owner_type, def_id, value) VALUES ($1, $2, $3, $4)")
-                .bind(&ent.id.as_str())
-                .bind(ItemType::Entity.value())
-                .bind(attr.def_id.as_str())
-                .bind(attr.value)
-                .execute(&mut *txn)
-                .await
+            if let Err(e) = sqlx::query(
+                "INSERT INTO integer_attributes (owner_id, owner_type, def_id, value) 
+                 VALUES ($1, $2, $3, $4)",
+            )
+            .bind(&ent.id.as_str())
+            .bind(ItemType::Entity.value())
+            .bind(attr.def_id.as_str())
+            .bind(attr.value)
+            .execute(&mut *txn)
+            .await
             {
                 txn.rollback().await?;
                 log::error!("Failed to add an entity integer attribute. Cause: {}", e);
@@ -212,13 +218,16 @@ impl EntityRepo {
         }
 
         for attr in ent.boolean_attributes.clone() {
-            if let Err(e) = sqlx::query("INSERT INTO boolean_attributes (owner_id, owner_type, def_id, value) VALUES ($1, $2, $3, $4)")
-                .bind(&ent.id.as_str())
-                .bind(ItemType::Entity.value())
-                .bind(attr.def_id.as_str())
-                .bind(attr.value)
-                .execute(&mut *txn)
-                .await
+            if let Err(e) = sqlx::query(
+                "INSERT INTO boolean_attributes (owner_id, owner_type, def_id, value) 
+                 VALUES ($1, $2, $3, $4)",
+            )
+            .bind(&ent.id.as_str())
+            .bind(ItemType::Entity.value())
+            .bind(attr.def_id.as_str())
+            .bind(attr.value)
+            .execute(&mut *txn)
+            .await
             {
                 txn.rollback().await?;
                 log::error!("Failed to add an entity boolean attribute. Cause: {}", e);
@@ -236,13 +245,16 @@ impl EntityRepo {
 
         for attr in ent.text_attributes.iter() {
             log::debug!("Updating entity id:'{}' w/ text attribute def_id:'{}'", &ent.id, &attr.def_id);
-            if let Err(e) = sqlx::query("UPDATE text_attributes SET value = $4 WHERE owner_id = $1 AND owner_type= $2 AND def_id= $3")
-                .bind(&ent.id.as_str())
-                .bind(ItemType::Entity.value())
-                .bind(&attr.def_id.as_str())
-                .bind(&attr.value)
-                .execute(&mut *txn)
-                .await
+            if let Err(e) = sqlx::query(
+                "UPDATE text_attributes SET value = $4 
+                 WHERE owner_id = $1 AND owner_type= $2 AND def_id= $3",
+            )
+            .bind(&ent.id.as_str())
+            .bind(ItemType::Entity.value())
+            .bind(&attr.def_id.as_str())
+            .bind(&attr.value)
+            .execute(&mut *txn)
+            .await
             {
                 txn.rollback().await?;
                 log::error!(
@@ -274,13 +286,16 @@ impl EntityRepo {
 
         for attr in ent.smallint_attributes.iter() {
             log::debug!("Updating entity id:'{}' w/ smallint attribute def_id:'{}'", &ent.id, &attr.def_id);
-            if let Err(e) = sqlx::query("UPDATE smallint_attributes SET value = $4 WHERE owner_id = $1 AND owner_type= $2 AND def_id= $3")
-                .bind(&ent.id.as_str())
-                .bind(ItemType::Entity.value())
-                .bind(&attr.def_id.as_str())
-                .bind(&attr.value)
-                .execute(&mut *txn)
-                .await
+            if let Err(e) = sqlx::query(
+                "UPDATE smallint_attributes SET value = $4 
+                 WHERE owner_id = $1 AND owner_type= $2 AND def_id= $3",
+            )
+            .bind(&ent.id.as_str())
+            .bind(ItemType::Entity.value())
+            .bind(&attr.def_id.as_str())
+            .bind(&attr.value)
+            .execute(&mut *txn)
+            .await
             {
                 txn.rollback().await?;
                 log::error!(
@@ -312,13 +327,16 @@ impl EntityRepo {
 
         for attr in ent.int_attributes.iter() {
             log::debug!("Updating entity id:'{}' w/ integer attribute def_id:'{}'", &ent.id, &attr.def_id);
-            if let Err(e) = sqlx::query("UPDATE integer_attributes SET value = $4 WHERE owner_id = $1 AND owner_type= $2 AND def_id= $3")
-                .bind(&ent.id.as_str())
-                .bind(ItemType::Entity.value())
-                .bind(&attr.def_id.as_str())
-                .bind(&attr.value)
-                .execute(&mut *txn)
-                .await
+            if let Err(e) = sqlx::query(
+                "UPDATE integer_attributes SET value = $4 
+                 WHERE owner_id = $1 AND owner_type= $2 AND def_id= $3",
+            )
+            .bind(&ent.id.as_str())
+            .bind(ItemType::Entity.value())
+            .bind(&attr.def_id.as_str())
+            .bind(&attr.value)
+            .execute(&mut *txn)
+            .await
             {
                 txn.rollback().await?;
                 log::error!(
@@ -350,13 +368,16 @@ impl EntityRepo {
 
         for attr in ent.boolean_attributes.iter() {
             log::debug!("Updating entity id:'{}' w/ boolean attribute def_id:'{}'", &ent.id, &attr.def_id);
-            if let Err(e) = sqlx::query("UPDATE boolean_attributes SET value = $4 WHERE owner_id = $1 AND owner_type= $2 AND def_id= $3")
-                .bind(&ent.id.as_str())
-                .bind(ItemType::Entity.value())
-                .bind(&attr.def_id.as_str())
-                .bind(&attr.value)
-                .execute(&mut *txn)
-                .await
+            if let Err(e) = sqlx::query(
+                "UPDATE boolean_attributes SET value = $4 
+                 WHERE owner_id = $1 AND owner_type= $2 AND def_id= $3",
+            )
+            .bind(&ent.id.as_str())
+            .bind(ItemType::Entity.value())
+            .bind(&attr.def_id.as_str())
+            .bind(&attr.value)
+            .execute(&mut *txn)
+            .await
             {
                 txn.rollback().await?;
                 log::error!(

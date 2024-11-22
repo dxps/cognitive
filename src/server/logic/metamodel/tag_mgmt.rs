@@ -2,7 +2,6 @@ use crate::{
     domain::model::{Id, Tag},
     server::{AppResult, TagsRepo},
 };
-use serde::Deserialize;
 use std::sync::Arc;
 
 #[derive(Clone)]
@@ -43,10 +42,4 @@ impl TagMgmt {
         //
         self.tag_repo.remove(id).await
     }
-}
-
-#[derive(Debug, Default, Deserialize)]
-pub struct PaginationOpts {
-    pub page: Option<i32>,
-    pub limit: Option<i32>,
 }
