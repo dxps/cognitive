@@ -131,7 +131,7 @@ pub fn EntityNewPage() -> Element {
                                 action: Action::Edit
                             }
                         }
-                        div { class: "flex justify-betweent mt-8",
+                        div { class: "grid justify-between mt-8",
                             // Show the button's action result in the UI.
                             div { class: "min-w-[450px] max-w-[450px] text-sm flex justify-center items-center",
                                 if err().is_some() {

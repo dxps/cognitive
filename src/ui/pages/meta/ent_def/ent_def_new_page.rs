@@ -110,9 +110,9 @@ pub fn EntityDefNewPage() -> Element {
                 } else {
                     AcknowledgeModal {
                         title: "Error",
-                        content: vec!["Failed to create the entity definition. Cause:".into(), err.unwrap()],
+                        content: vec!["Failed to create the entity definition. Reason:".into(), err.unwrap()],
                         action_handler: move |_| {
-                            navigator().push(Route::EntityListPage {});
+                            navigator().push(Route::EntityDefListPage {});
                         }
                     }
                 }
