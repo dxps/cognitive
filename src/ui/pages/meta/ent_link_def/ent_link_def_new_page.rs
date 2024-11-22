@@ -26,6 +26,9 @@ pub fn EntityLinkDefNewPage() -> Element {
     let included_attr_defs = use_signal(|| IndexMap::<Id, Name>::new());
     let mut all_attr_defs = use_signal(|| IndexMap::<Id, Name>::new());
 
+    let create_btn_disabled = use_memo(move || {
+        name().is_empty() || source_ent_def_id().is_empty() || target_ent_def_id().is_empty() || target_ent_def_id().is_empty()
+    });
     let action_done = use_signal(|| false);
     let action = use_signal(|| Action::Create);
     let mut err: Signal<Option<String>> = use_signal(|| None);
@@ -67,8 +70,8 @@ pub fn EntityLinkDefNewPage() -> Element {
                         }
                         div { class: "flex justify-end mt-8",
                             button {
-                                class: "bg-gray-100 hover:bg-green-100 disabled:text-gray-300 hover:disabled:bg-gray-100 drop-shadow-sm px-4 rounded-md",
-                                disabled: !form_is_valid(name, source_ent_def_id, target_ent_def_id),
+                                class: "bg-gray-100 hover:bg-green-100 disabled:text-gray-400 hover:disabled:bg-gray-100 drop-shadow-sm px-4 rounded-md",
+                                disabled: create_btn_disabled(),
                                 onclick: move |_| {
                                     let description = match description().is_empty() {
                                         true => None,
@@ -117,11 +120,6 @@ pub fn EntityLinkDefNewPage() -> Element {
             }
         }
     }
-}
-
-fn form_is_valid(_name: Signal<String>, _source_ent_def_id: Signal<Id>, _target_ent_def_id: Signal<Id>) -> bool {
-    // TODO: add form validation
-    true
 }
 
 async fn handle_create_ent_link_def(
