@@ -37,6 +37,7 @@ pub fn EntityLinkPage(props: EntityLinkPageProps) -> Element {
     let int_attrs = use_signal::<IndexMap<Id, IntegerAttribute>>(|| IndexMap::new());
     let boolean_attrs = use_signal::<IndexMap<Id, BooleanAttribute>>(|| IndexMap::new());
 
+    let update_btn_disabled = use_memo(move || source_entity_def_id().is_empty() || target_entity_def_id().is_empty());
     let mut show_delete_confirm = use_signal(|| false);
     let mut action = use_signal(|| Action::View);
     let action_done = use_signal(|| false);
@@ -67,7 +68,7 @@ pub fn EntityLinkPage(props: EntityLinkPageProps) -> Element {
             Breadcrumb { paths: Route::get_path_to_ent_link(id(), format!("{} ({})", kind(), id())) }
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
                 div { class: "bg-white rounded-lg p-3 min-w-[600px] mt-[min(100px)]",
-                    div { class: "p-6",
+                    div { class: "p-6 mt-8",
                         div { class: "flex justify-between mb-4",
                             p { class: "text-lg font-medium leading-snug tracking-normal text-gray-500 antialiased",
                                 "{action} Entity Link"
@@ -78,7 +79,6 @@ pub fn EntityLinkPage(props: EntityLinkPageProps) -> Element {
                                 "X"
                             }
                         }
-                        hr { class: "pb-2" }
                         EntityLinkForm {
                             source_entity_id,
                             source_entities_id_name,
@@ -90,7 +90,6 @@ pub fn EntityLinkPage(props: EntityLinkPageProps) -> Element {
                             boolean_attrs,
                             action
                         }
-                        hr { class: "mt-8 mb-1" }
                         div { class: "flex justify-between mt-8",
                             button {
                                 class: "text-red-300 hover:text-red-600 hover:bg-red-100 drop-shadow-sm px-4 rounded-md",
@@ -117,6 +116,7 @@ pub fn EntityLinkPage(props: EntityLinkPageProps) -> Element {
                             }
                             button {
                                 class: "bg-gray-100 hover:bg-green-100 min-w-[90px] disabled:text-gray-300 hover:disabled:bg-gray-100 drop-shadow-sm px-4 rounded-md",
+                                disabled: update_btn_disabled,
                                 onclick: move |_| {
                                     async move {
                                         match action().clone() {

@@ -34,6 +34,8 @@ pub fn EntityLinkNewPage() -> Element {
     let mut int_attrs = use_signal::<IndexMap<Id, IntegerAttribute>>(|| IndexMap::new());
     let mut boolean_attrs = use_signal::<IndexMap<Id, BooleanAttribute>>(|| IndexMap::new());
 
+    let create_btn_disabled =
+        use_memo(move || selected_kind_name().is_empty() || source_entity_id().is_empty() || target_entity_id().is_empty());
     let err: Signal<Option<String>> = use_signal(|| None);
     let action_done = use_signal(|| false);
 
@@ -177,15 +179,10 @@ pub fn EntityLinkNewPage() -> Element {
                                 action: Action::Edit
                             }
                         }
-                        div { class: "flex justify-betweent mt-8",
-                            // Show the button's action result in the UI.
-                            div { class: "min-w-[450px] max-w-[450px] text-sm flex justify-center items-center",
-                                if err().is_some() {
-                                    span { class: "text-red-600", { err().unwrap() } }
-                                }
-                            }
+                        div { class: "grid justify-items-end mt-8",
                             button {
                                 class: "bg-gray-100 hover:bg-green-100 disabled:text-gray-300 hover:disabled:bg-gray-100 drop-shadow-sm px-4 rounded-md",
+                                disabled: create_btn_disabled(),
                                 onclick: move |_| {
                                     async move {
                                         if action_done() {
@@ -218,11 +215,21 @@ pub fn EntityLinkNewPage() -> Element {
                 }
             }
             if action_done() {
-                AcknowledgeModal {
-                    title: "Confirmation",
-                    content: vec!["The entity link has been successfully created.".into()],
-                    action_handler: move |_| {
-                        navigator().push(Route::EntityLinkListPage {});
+                if err().is_none() {
+                    AcknowledgeModal {
+                        title: "Confirmation",
+                        content: vec!["The entity link has been successfully created.".into()],
+                        action_handler: move |_| {
+                            navigator().push(Route::EntityLinkListPage {});
+                        }
+                    }
+                } else {
+                    AcknowledgeModal {
+                        title: "Error",
+                        content: vec!["Failed to create the entity link. Reason:".into(), err.unwrap()],
+                        action_handler: move |_| {
+                            navigator().push(Route::EntityListPage {});
+                        }
                     }
                 }
             }

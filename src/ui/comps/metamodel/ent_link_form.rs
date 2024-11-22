@@ -35,6 +35,10 @@ pub fn EntityLinkForm(props: EntityLinkFormProps) -> Element {
 
     let is_view = action == "View";
 
+    let has_attributes = use_memo(move || {
+        !text_attrs().is_empty() || !smallint_attrs().is_empty() || !int_attrs().is_empty() || !boolean_attrs().is_empty()
+    });
+
     rsx! {
         div { class: "flex py-2",
             label { class: "pr-3 py-2 min-w-36 text-gray-500", "Source entity" }
@@ -44,98 +48,105 @@ pub fn EntityLinkForm(props: EntityLinkFormProps) -> Element {
             label { class: "pr-3 py-2 min-w-36 text-gray-500", "Target entity" }
             Select { items: target_entities_id_name, selected_item_id: target_entity_id, disabled: is_view }
         }
-        div { class: "mt-4",
-            div { class: "space-y-0",
-                for (id , attr) in text_attrs() {
-                    div { class: "flex",
-                        label { class: "pr-3 py-2 min-w-36 text-gray-500", "{attr.name}" }
-                        textarea {
-                            class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
-                            rows: 1,
-                            cols: 32,
-                            value: "{attr.value}",
-                            readonly: is_view,
-                            maxlength: 256,
-                            oninput: move |evt| {
-                                let id = id.clone();
-                                text_attrs
-                                    .write()
-                                    .entry(id.clone())
-                                    .and_modify(|attr| { attr.value = evt.value() });
-                                log::debug!(
-                                    "[EntityForm] After the change, text attr is {:?} and all text_attrs are {:?}",
-                                    text_attrs().entry(id), text_attrs()
-                                );
+        div {
+            class: "text-gray-400 mt-8 mb-4",
+            display: if has_attributes() { "block" } else { "none" },
+            "Attributes"
+        }
+        if has_attributes() {
+            div { class: "mt-4",
+                div { class: "space-y-0",
+                    for (id , attr) in text_attrs() {
+                        div { class: "flex",
+                            label { class: "pr-3 py-2 min-w-36 text-gray-500", "{attr.name}" }
+                            textarea {
+                                class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
+                                rows: 1,
+                                cols: 32,
+                                value: "{attr.value}",
+                                readonly: is_view,
+                                maxlength: 256,
+                                oninput: move |evt| {
+                                    let id = id.clone();
+                                    text_attrs
+                                        .write()
+                                        .entry(id.clone())
+                                        .and_modify(|attr| { attr.value = evt.value() });
+                                    log::debug!(
+                                        "[EntityForm] After the change, text attr is {:?} and all text_attrs are {:?}",
+                                        text_attrs().entry(id), text_attrs()
+                                    );
+                                }
                             }
                         }
                     }
-                }
-                for (id , attr) in smallint_attrs() {
-                    div { class: "flex",
-                        label { class: "pr-3 py-2 min-w-36 text-gray-500", "{attr.name}" }
-                        input {
-                            class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
-                            r#type: "number",
-                            value: "{attr.value}",
-                            readonly: is_view,
-                            maxlength: 3,
-                            oninput: move |evt| {
-                                let id = id.clone();
-                                smallint_attrs
-                                    .write()
-                                    .entry(id)
-                                    .and_modify(|attr| {
-                                        let value = evt.value();
-                                        if let Ok(value) = value.parse::<i16>() {
-                                            attr.value = value
-                                        } else {
-                                            log::warn!("[EntityForm] value {} cannot be parsed as i16", value);
-                                        }
-                                    });
+                    for (id , attr) in smallint_attrs() {
+                        div { class: "flex",
+                            label { class: "pr-3 py-2 min-w-36 text-gray-500", "{attr.name}" }
+                            input {
+                                class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
+                                r#type: "number",
+                                value: "{attr.value}",
+                                readonly: is_view,
+                                maxlength: 3,
+                                oninput: move |evt| {
+                                    let id = id.clone();
+                                    smallint_attrs
+                                        .write()
+                                        .entry(id)
+                                        .and_modify(|attr| {
+                                            let value = evt.value();
+                                            if let Ok(value) = value.parse::<i16>() {
+                                                attr.value = value
+                                            } else {
+                                                log::warn!("[EntityForm] value {} cannot be parsed as i16", value);
+                                            }
+                                        });
+                                }
                             }
                         }
                     }
-                }
-                for (id , attr) in int_attrs() {
-                    div { class: "flex",
-                        label { class: "pr-3 py-2 min-w-36 text-gray-500", "{attr.name}" }
-                        input {
-                            class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
-                            r#type: "number",
-                            value: "{attr.value}",
-                            readonly: is_view,
-                            maxlength: 10,
-                            oninput: move |evt| {
-                                let id = id.clone();
-                                int_attrs
-                                    .write()
-                                    .entry(id)
-                                    .and_modify(|attr| {
-                                        let value = evt.value();
-                                        if let Ok(value) = value.parse::<i32>() {
-                                            attr.value = value
-                                        } else {
-                                            log::warn!("[EntityForm] value {} cannot be parsed as i32", value);
-                                        }
-                                    });
+                    for (id , attr) in int_attrs() {
+                        div { class: "flex",
+                            label { class: "pr-3 py-2 min-w-36 text-gray-500", "{attr.name}" }
+                            input {
+                                class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
+                                r#type: "number",
+                                value: "{attr.value}",
+                                readonly: is_view,
+                                maxlength: 10,
+                                oninput: move |evt| {
+                                    let id = id.clone();
+                                    int_attrs
+                                        .write()
+                                        .entry(id)
+                                        .and_modify(|attr| {
+                                            let value = evt.value();
+                                            if let Ok(value) = value.parse::<i32>() {
+                                                attr.value = value
+                                            } else {
+                                                log::warn!("[EntityForm] value {} cannot be parsed as i32", value);
+                                            }
+                                        });
+                                }
                             }
                         }
                     }
-                }
-                for (id , attr) in boolean_attrs() {
-                    div { class: "flex",
-                        label { class: "pr-3 py-2 min-w-36 text-gray-500", "{attr.name}" }
-                        input {
-                            class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300",
-                            r#type: "checkbox",
-                            checked: attr.value,
-                            disabled: is_view,
-                            oninput: move |evt| {
-                                let id = id.clone();
-                                boolean_attrs
-                                    .write()
-                                    .entry(id)
-                                    .and_modify(|attr| { attr.value = evt.value() == "true" });
+                    for (id , attr) in boolean_attrs() {
+                        div { class: "flex",
+                            label { class: "pr-3 py-2 min-w-36 text-gray-500", "{attr.name}" }
+                            input {
+                                class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300",
+                                r#type: "checkbox",
+                                checked: attr.value,
+                                disabled: is_view,
+                                oninput: move |evt| {
+                                    let id = id.clone();
+                                    boolean_attrs
+                                        .write()
+                                        .entry(id)
+                                        .and_modify(|attr| { attr.value = evt.value() == "true" });
+                                }
                             }
                         }
                     }
