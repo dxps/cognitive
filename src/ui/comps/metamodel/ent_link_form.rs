@@ -86,10 +86,10 @@ pub fn EntityLinkForm(props: EntityLinkFormProps) -> Element {
                                     .entry(id)
                                     .and_modify(|attr| {
                                         let value = evt.value();
-                                        if let Ok(value) = value.parse::<i8>() {
+                                        if let Ok(value) = value.parse::<i16>() {
                                             attr.value = value
                                         } else {
-                                            log::warn!("[EntityForm] value {} cannot be parsed as i8", value);
+                                            log::warn!("[EntityForm] value {} cannot be parsed as i16", value);
                                         }
                                     });
                             }

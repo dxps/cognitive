@@ -11,7 +11,7 @@ pub struct SmallintAttribute {
     pub name: String,
 
     /// Its value.
-    pub value: i8,
+    pub value: i16,
 
     /// Its definition id.
     pub def_id: Id,
@@ -24,7 +24,7 @@ pub struct SmallintAttribute {
 }
 
 impl SmallintAttribute {
-    pub fn new(name: String, value: i8, def_id: Id, owner_id: Id, owner_type: ItemType) -> Self {
+    pub fn new(name: String, value: i16, def_id: Id, owner_id: Id, owner_type: ItemType) -> Self {
         Self {
             name,
             value,
@@ -43,13 +43,13 @@ impl Item for SmallintAttribute {
 
 impl From<AttributeDef> for SmallintAttribute {
     fn from(attr_def: AttributeDef) -> Self {
-        let mut value: i8 = 0;
+        let mut value: i16 = 0;
         if !attr_def.default_value.trim().is_empty() {
             value = match attr_def.default_value.parse() {
                 Ok(v) => v,
                 Err(e) => {
                     log::error!(
-                        "Failed to parse attr def id: '{}' default value: '{}' as i8. Reason: '{}'.",
+                        "Failed to parse attr def id: '{}' default value: '{}' as i16. Reason: '{}'.",
                         attr_def.id,
                         attr_def.default_value,
                         e,
