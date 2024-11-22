@@ -30,6 +30,7 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
 
     let mut all_attr_defs = use_signal(|| IndexMap::<Id, String>::new());
 
+    let update_btn_disabled = use_memo(move || name().is_empty() || included_attr_defs().is_empty());
     let mut show_modal = use_signal(|| false);
     let action_done = use_signal(|| false);
     let mut action = use_signal(|| Action::View);
@@ -92,6 +93,7 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
                             }
                             button {
                                 class: "bg-gray-100 hover:bg-green-100 min-w-[90px] disabled:text-gray-300 hover:disabled:bg-gray-100 drop-shadow-sm px-4 rounded-md",
+                                disabled: update_btn_disabled(),
                                 onclick: move |_| {
                                     async move {
                                         match action().clone() {

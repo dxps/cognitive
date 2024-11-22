@@ -19,6 +19,7 @@ pub fn EntityDefNewPage() -> Element {
 
     let mut all_attr_defs = use_signal(|| IndexMap::<Id, String>::new());
 
+    let create_btn_disabled = use_memo(move || name().is_empty() || included_attr_defs().is_empty());
     let mut err: Signal<Option<String>> = use_signal(|| None);
     let action_done = use_signal(|| false);
 
@@ -55,8 +56,8 @@ pub fn EntityDefNewPage() -> Element {
                         }
                         div { class: "flex justify-end mt-8",
                             button {
-                                class: "bg-gray-100 hover:bg-green-100 disabled:text-gray-300 hover:disabled:bg-gray-100 drop-shadow-sm px-4 rounded-md",
-                                disabled: included_attr_defs().is_empty(),
+                                class: "bg-gray-100 hover:bg-green-100 disabled:text-gray-400 hover:disabled:bg-gray-100 drop-shadow-sm px-4 rounded-md",
+                                disabled: create_btn_disabled(),
                                 onclick: move |_| {
                                     let description = match description().is_empty() {
                                         true => None,
