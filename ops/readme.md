@@ -1,8 +1,27 @@
 ## Database Migrations
 
+### Prerequisites
+
+You need `sqlx-cli` to be installed. To install it, use:
+
+```
+cargo install --version=0.7.4 sqlx-cli --no-default-features --features native-tls,postgres
+```
+
+On an Ubuntu based Linux distro, you need to have `libssl-dev` package installed,
+so that `sqlx-cli` can be compiled and installed. Install it using:
+
+```
+sudo apt-get install libssl-dev
+```
+
+<br/>
+
 ### Init Database
 
 Use `./db_init.sh` to create and initialize (populating it with all the changes that exist) the database as a Docker container.
+
+<br/>
 
 ### Apply Changes
 
