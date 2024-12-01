@@ -94,12 +94,14 @@ impl EntityDefRepo {
             return AppResult::Err(e.into());
         }
 
-        for attr_def in ent_def.attributes.clone() {
-            if let Err(e) = sqlx::query("INSERT INTO entity_defs_attribute_defs_xref (entity_def_id, attribute_def_id) VALUES ($1, $2)")
-                .bind(ent_def.id.as_str())
-                .bind(attr_def.id.as_str())
-                .execute(&mut *txn)
-                .await
+        for (index, attr_def) in ent_def.attributes.clone().iter().enumerate() {
+            if let Err(e) =
+                sqlx::query("INSERT INTO entity_defs_attribute_defs_xref (entity_def_id, attribute_def_id, show_index) VALUES ($1, $2, $3)")
+                    .bind(ent_def.id.as_str())
+                    .bind(attr_def.id.as_str())
+                    .bind((index + 1) as i16)
+                    .execute(&mut *txn)
+                    .await
             {
                 txn.rollback().await?;
                 log::error!("Failed to add entity def's attribute defs: {}", e);
@@ -124,7 +126,7 @@ impl EntityDefRepo {
                 if let Ok(attrs) = sqlx::query_as::<_, AttributeDef>(
                     "SELECT id, name, description, value_type, default_value, required, tag_id 
                      FROM attribute_defs ad JOIN entity_defs_attribute_defs_xref ed_ad_xref 
-                     ON ad.id = ed_ad_xref.attribute_def_id where ed_ad_xref.entity_def_id = $1 ORDER BY name",
+                     ON ad.id = ed_ad_xref.attribute_def_id where ed_ad_xref.entity_def_id = $1 ORDER BY ed_ad_xref.show_index",
                 )
                 .bind(id.as_str())
                 .fetch_all(self.dbcp.as_ref())
@@ -164,12 +166,14 @@ impl EntityDefRepo {
             return AppResult::Err(e.into());
         }
 
-        for attr_def in ent_def.attributes.clone() {
-            if let Err(e) = sqlx::query("INSERT INTO entity_defs_attribute_defs_xref (entity_def_id, attribute_def_id) VALUES ($1, $2)")
-                .bind(ent_def.id.as_str())
-                .bind(attr_def.id.as_str())
-                .execute(&mut *txn)
-                .await
+        for (index, attr_def) in ent_def.attributes.clone().iter().enumerate() {
+            if let Err(e) =
+                sqlx::query("INSERT INTO entity_defs_attribute_defs_xref (entity_def_id, attribute_def_id, show_index) VALUES ($1, $2, $3)")
+                    .bind(ent_def.id.as_str())
+                    .bind(attr_def.id.as_str())
+                    .bind((index + 1) as i16)
+                    .execute(&mut *txn)
+                    .await
             {
                 txn.rollback().await?;
                 log::error!("Failed to update entity def's attribute defs: {}", e);

@@ -9,22 +9,51 @@ use crate::{
 };
 use dioxus::prelude::*;
 use indexmap::IndexMap;
+use log::debug;
 
 pub fn EntityDefNewPage() -> Element {
     //
     let name = use_signal(|| "".to_string());
     let description = use_signal(|| "".to_string());
-    let included_attr_defs = use_signal::<IndexMap<Id, String>>(|| IndexMap::new());
+
+    let mut ordered_included_attr_defs = use_signal::<IndexMap<Id, String>>(|| IndexMap::new());
+    let mut ordered_included_attrs_order_change = use_signal::<(usize, usize)>(|| (0, 0));
+    let ordered_included_attrs_dragging_in_progress = use_signal(|| false);
+    let mut included_attr_defs = ordered_included_attr_defs();
+
     let listing_attr_def_id = use_signal(|| Id::default());
 
     let mut all_attr_defs = use_signal(|| IndexMap::<Id, String>::new());
 
-    let create_btn_disabled = use_memo(move || name().is_empty() || included_attr_defs().is_empty());
+    let create_btn_disabled = use_memo(move || name().is_empty() || ordered_included_attr_defs().is_empty());
     let mut err: Signal<Option<String>> = use_signal(|| None);
     let action_done = use_signal(|| false);
 
     use_future(move || async move {
         all_attr_defs.set(fetch_all_attr_defs().await);
+    });
+
+    // React to DnD changes.
+    use_effect(move || {
+        let (source_attr_index, target_attr_index) = ordered_included_attrs_order_change();
+        if !ordered_included_attrs_dragging_in_progress() && source_attr_index != target_attr_index {
+            let mut changed_attr_defs = included_attr_defs.clone();
+            let range: &mut dyn Iterator<Item = usize> = if source_attr_index < target_attr_index {
+                &mut (source_attr_index..target_attr_index)
+            } else {
+                &mut (target_attr_index..source_attr_index).rev().into_iter()
+            };
+            for index in range {
+                changed_attr_defs.swap_indices(index, index + 1);
+            }
+            included_attr_defs = changed_attr_defs.clone();
+            ordered_included_attr_defs.set(changed_attr_defs);
+            ordered_included_attrs_order_change.set((0, 0));
+            debug!(
+                ">>> [EntityDefNewPage] After DnD change, ordered_included_attr_defs: {:?}",
+                ordered_included_attr_defs(),
+            );
+        }
     });
 
     rsx! {
@@ -47,7 +76,9 @@ pub fn EntityDefNewPage() -> Element {
                         EntityDefForm {
                             name,
                             description,
-                            included_attr_defs,
+                            ordered_included_attr_defs,
+                            ordered_included_attrs_order_change,
+                            ordered_included_attrs_dragging_in_progress,
                             listing_attr_def_id,
                             all_attr_defs,
                             action: Action::Edit,
@@ -71,7 +102,7 @@ pub fn EntityDefNewPage() -> Element {
                                                 err.set(Some("Name cannot be empty".to_string()));
                                                 return;
                                             }
-                                            if included_attr_defs().is_empty() {
+                                            if ordered_included_attr_defs().is_empty() {
                                                 err.set(Some("Include at least one attribute".to_string()));
                                                 return;
                                             }
@@ -79,7 +110,7 @@ pub fn EntityDefNewPage() -> Element {
                                                     name(),
                                                     description.clone(),
                                                     listing_attr_def_id(),
-                                                    included_attr_defs(),
+                                                    ordered_included_attr_defs(),
                                                     all_attr_defs(),
                                                     action_done,
                                                     err,

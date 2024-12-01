@@ -1059,6 +1059,10 @@ select[disabled]:focus {
   cursor: pointer;
 }
 
+.cursor-move {
+  cursor: move;
+}
+
 .flex-row {
   flex-direction: row;
 }

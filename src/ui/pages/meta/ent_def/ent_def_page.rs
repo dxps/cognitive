@@ -13,6 +13,7 @@ use crate::{
 };
 use dioxus::prelude::*;
 use indexmap::IndexMap;
+use log::debug;
 
 #[derive(PartialEq, Props, Clone)]
 pub struct EntityDefPageProps {
@@ -25,12 +26,17 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
     let id = use_signal(|| props.id);
     let mut name = use_signal(|| "".to_string());
     let mut description = use_signal(|| "".to_string());
-    let mut included_attr_defs = use_signal(|| IndexMap::<Id, String>::new());
+
+    let mut ordered_included_attr_defs = use_signal(|| IndexMap::<Id, String>::new());
+    let mut ordered_included_attrs_order_change = use_signal::<(usize, usize)>(|| (0, 0));
+    let ordered_included_attrs_dragging_in_progress = use_signal(|| false);
+    let mut included_attr_defs = ordered_included_attr_defs();
+
     let mut listing_attr_def_id = use_signal(|| Id::default());
 
     let mut all_attr_defs = use_signal(|| IndexMap::<Id, String>::new());
 
-    let update_btn_disabled = use_memo(move || name().is_empty() || included_attr_defs().is_empty());
+    let update_btn_disabled = use_memo(move || name().is_empty() || ordered_included_attr_defs().is_empty());
     let mut show_modal = use_signal(|| false);
     let action_done = use_signal(|| false);
     let mut action = use_signal(|| Action::View);
@@ -41,18 +47,42 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
         all_attr_defs.set(fetch_all_attr_defs().await);
     });
 
+    // Fetch the entity def data.
     use_future(move || async move {
         if let Some(item) = get_entity_def(id()).await.unwrap_or_default() {
             name.set(item.name);
             description.set(item.description.unwrap_or_default());
             let attrs = item.attributes.iter().map(|attr| (attr.id.clone(), attr.name.clone())).collect();
-            included_attr_defs.set(attrs);
+            ordered_included_attr_defs.set(attrs);
             // Remove the items that exist in `included_attr_defs` from `all_attr_defs`.
-            let included_ids = included_attr_defs().iter().map(|item| item.0.clone()).collect::<Vec<Id>>();
+            let included_ids = ordered_included_attr_defs().iter().map(|item| item.0.clone()).collect::<Vec<Id>>();
             let mut temp = all_attr_defs();
             temp.retain(|id, _| !included_ids.contains(&id));
             all_attr_defs.set(temp);
             listing_attr_def_id.set(item.listing_attr_def_id);
+        }
+    });
+
+    // React to DnD changes.
+    use_effect(move || {
+        let (source_attr_index, target_attr_index) = ordered_included_attrs_order_change();
+        if !ordered_included_attrs_dragging_in_progress() && source_attr_index != target_attr_index {
+            let mut changed_attr_defs = included_attr_defs.clone();
+            let range: &mut dyn Iterator<Item = usize> = if source_attr_index < target_attr_index {
+                &mut (source_attr_index..target_attr_index)
+            } else {
+                &mut (target_attr_index..source_attr_index).rev().into_iter()
+            };
+            for index in range {
+                changed_attr_defs.swap_indices(index, index + 1);
+            }
+            included_attr_defs = changed_attr_defs.clone();
+            ordered_included_attr_defs.set(changed_attr_defs);
+            ordered_included_attrs_order_change.set((0, 0));
+            debug!(
+                ">>> [EntityDefPage] After DnD change, ordered_included_attr_defs: {:?}",
+                ordered_included_attr_defs(),
+            );
         }
     });
 
@@ -76,7 +106,9 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
                         EntityDefForm {
                             name,
                             description,
-                            included_attr_defs,
+                            ordered_included_attr_defs,
+                            ordered_included_attrs_order_change,
+                            ordered_included_attrs_dragging_in_progress,
                             listing_attr_def_id,
                             all_attr_defs,
                             action: action(),
@@ -115,11 +147,11 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
                                                         true => None,
                                                         false => Some(description()),
                                                     };
-                                                    if included_attr_defs().is_empty() {
+                                                    if ordered_included_attr_defs().is_empty() {
                                                         err.set(Some("Include at least one attribute".to_string()));
                                                         return;
                                                     }
-                                                    let attributes_ids: Vec<Id> = included_attr_defs()
+                                                    let attributes_ids: Vec<Id> = ordered_included_attr_defs()
                                                         .iter()
                                                         .map(|(id, _)| id.clone())
                                                         .collect();
@@ -130,7 +162,7 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
                                                             attributes_ids,
                                                             listing_attr_def_id(),
                                                             all_attr_defs(),
-                                                            included_attr_defs(),
+                                                            ordered_included_attr_defs(),
                                                             action_done,
                                                             err,
                                                         )

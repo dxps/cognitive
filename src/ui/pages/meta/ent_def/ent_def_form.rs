@@ -6,7 +6,9 @@ use indexmap::IndexMap;
 pub struct EntityDefFormProps {
     pub name: Signal<String>,
     pub description: Signal<String>,
-    pub included_attr_defs: Signal<IndexMap<Id, String>>,
+    pub ordered_included_attr_defs: Signal<IndexMap<Id, String>>,
+    pub ordered_included_attrs_order_change: Signal<(usize, usize)>,
+    pub ordered_included_attrs_dragging_in_progress: Signal<bool>,
     pub listing_attr_def_id: Signal<Id>,
     pub all_attr_defs: Signal<IndexMap<Id, String>>,
     pub action: String,
@@ -20,7 +22,9 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
     let EntityDefFormProps {
         mut name,
         mut description,
-        mut included_attr_defs,
+        mut ordered_included_attr_defs,
+        mut ordered_included_attrs_order_change,
+        mut ordered_included_attrs_dragging_in_progress,
         mut listing_attr_def_id,
         mut all_attr_defs,
         action,
@@ -33,7 +37,14 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
     let mut selected_attr_def_id = use_signal(|| Id::default());
     let mut selected_attr_def_name = use_signal(|| "".to_string());
 
-    log::debug!("[EntityDefForm] listing_attr_def_id: {:?}", listing_attr_def_id);
+    let mut drag_source_attr_index = use_signal(|| 0usize);
+    let mut drag_target_attr_index = use_signal(|| 0usize);
+
+    use_effect(move || {
+        let attr_source_index = drag_source_attr_index();
+        let attr_target_index = drag_target_attr_index();
+        ordered_included_attrs_order_change.set((attr_source_index, attr_target_index));
+    });
 
     rsx! {
         div { class: "mt-4 space-y-4",
@@ -74,19 +85,40 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
             div { class: "flex",
                 p { class: "min-w-32 text-gray-500", "Attributes" }
                 div {
-                    for (id , name) in included_attr_defs() {
-                        div { class: "flex justify-between min-w-80",
-                            p { class: "pl-3 pr-3", "{name}" }
+                    for (index , (id , name)) in ordered_included_attr_defs().into_iter().enumerate() {
+                        div {
+                            class: if is_view {
+                                "flex justify-between min-w-80"
+                            } else {
+                                "flex justify-between min-w-80 cursor-move"
+                            },
+                            p {
+                                class: "pl-3 pr-3",
+                                draggable: if is_view { false } else { true },
+                                ondragstart: move |_| {
+                                    drag_source_attr_index.set(index);
+                                    ordered_included_attrs_dragging_in_progress.set(true);
+                                },
+                                ondragover: move |_| {
+                                    if index != drag_target_attr_index() {
+                                        drag_target_attr_index.set(index);
+                                    }
+                                },
+                                ondragend: move |_| {
+                                    ordered_included_attrs_dragging_in_progress.set(false);
+                                },
+                                "{name}"
+                            }
                             button {
                                 class: "text-red-200 hover:text-red-500 hover:bg-red-100 disabled:text-white disabled:hover:bg-white ml-4 px-3 py-0 rounded-xl transition duration-200",
                                 display: if is_view { "none" } else { "inline" },
-                                // Remove the item from `included_attr_defs` and put it back into `all_attr_defs`.
+                                // Remove the item from `ordered_included_attr_defs` and put it back into `all_attr_defs`.
                                 onclick: move |_| {
                                     let id = id.clone();
                                     let name = name.clone();
-                                    let mut temp = included_attr_defs();
+                                    let mut temp = ordered_included_attr_defs();
                                     temp.swap_remove(&id);
-                                    included_attr_defs.set(temp);
+                                    ordered_included_attr_defs.set(temp);
                                     let mut temp = all_attr_defs();
                                     temp.insert(id.clone(), name);
                                     all_attr_defs.set(temp);
@@ -110,7 +142,7 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
                         listing_attr_def_id.set(evt.value().into());
                         log::debug!("[EntityDefForm] selected_attr_def_id: {:?}", evt.value());
                     },
-                    for (id , name) in included_attr_defs() {
+                    for (id , name) in ordered_included_attr_defs() {
                         option {
                             value: "{id}",
                             selected: "{listing_attr_def_id() == id}",
@@ -159,9 +191,9 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
                         if listing_attr_def_id().is_empty() {
                             listing_attr_def_id.set(selected_attr_def_id());
                         }
-                        let mut included = included_attr_defs();
+                        let mut included = ordered_included_attr_defs();
                         included.insert(selected_attr_def_id(), selected_attr_def_name());
-                        included_attr_defs.set(included);
+                        ordered_included_attr_defs.set(included);
                         let mut attr_defs = all_attr_defs();
                         attr_defs.swap_remove(&selected_attr_def_id());
                         all_attr_defs.set(attr_defs);
