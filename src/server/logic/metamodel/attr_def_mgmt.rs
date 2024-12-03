@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use crate::{
     domain::model::{AttributeDef, Id},
-    server::{AppResult, AttributeDefRepo},
+    server::{AppError, AppResult, AttributeDefRepo},
 };
 
 pub struct AttributeDefMgmt {
@@ -28,23 +28,40 @@ impl AttributeDefMgmt {
     /// Add a new attribute definition. It returns the id of the stored entry.
     pub async fn add(&self, item: AttributeDef) -> AppResult<Id> {
         //
+        let id = Id::new();
         self.attr_repo
             .add(
-                Id::new(),
+                &id,
                 item.name,
-                item.description.unwrap_or_default(),
+                item.description,
                 item.value_type.to_string(),
                 item.default_value,
                 item.is_required,
-                item.tag_id.unwrap_or_default(),
+                item.tag_id,
             )
             .await
+            .map(|_| id)
+            .map_err(|e| {
+                log::error!("Failed to add attribute definition: {}", e);
+                if e.to_string().contains("name_desc_unique") {
+                    AppError::Err("The pair of name and description must be unique.".into())
+                } else {
+                    AppError::Err("An internal error occurred.".into())
+                }
+            })
     }
 
     /// Update an existing attribute definition.
     pub async fn update(&self, item: &AttributeDef) -> AppResult<()> {
         //
-        self.attr_repo.update(item).await
+        self.attr_repo.update(item).await.map_err(|e| {
+            log::error!("Failed to update attribute definition: {}", e);
+            if e.to_string().contains("name_desc_unique") {
+                AppError::Err("The pair of name and description must be unique.".into())
+            } else {
+                AppError::Err("An internal error occurred.".into())
+            }
+        })
     }
 
     /// Remove an existing attribute definition.

@@ -47,17 +47,16 @@ impl AttributeDefRepo {
     /// Add a new attribute definition. It returns the id of the repository entry.
     pub async fn add(
         &self,
-        id: Id,
+        id: &Id,
         name: String,
-        description: String,
+        description: Option<String>,
         value_type: String,
         default_value: String,
         is_required: bool,
-        tag_id: Id,
-    ) -> AppResult<Id> {
+        tag_id: Option<Id>,
+    ) -> AppResult<()> {
         //
-        let tag_id = if tag_id.is_empty() { None } else { Some(tag_id.as_str()) };
-        match sqlx::query(
+        sqlx::query(
             "INSERT INTO attribute_defs (id, name, description, value_type, default_value, required, tag_id)
              VALUES ($1, $2, $3, $4, $5, $6, $7)",
         )
@@ -70,13 +69,8 @@ impl AttributeDefRepo {
         .bind(tag_id)
         .execute(self.dbcp.as_ref())
         .await
-        {
-            Ok(_) => AppResult::Ok(id),
-            Err(e) => {
-                log::error!("Failed to add entry: {}", e);
-                AppResult::Err(AppError::InternalErr)
-            }
-        }
+        .map(|_| Ok(()))
+        .map_err(|e| AppError::Err(e.to_string()))?
     }
 
     /// Edit an existing attribute definition.
@@ -97,7 +91,8 @@ impl AttributeDefRepo {
         .bind(tag_id)
         .execute(self.dbcp.as_ref())
         .await
-        .map(|_| Ok(()))?
+        .map(|_| Ok(()))
+        .map_err(|e| AppError::Err(e.to_string()))?
     }
 
     /// Remove (delete) an existing attribute definition.

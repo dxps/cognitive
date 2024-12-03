@@ -23,8 +23,8 @@ pub fn AttributeDefNewPage() -> Element {
     let mut tags = use_signal(|| Arc::new(Vec::new()));
 
     let create_btn_disabled = use_memo(move || name().is_empty());
-    let err: Signal<Option<String>> = use_signal(|| None);
-    let action_done = use_signal(|| false);
+    let mut err: Signal<Option<String>> = use_signal(|| None);
+    let mut action_done = use_signal(|| false);
 
     use_future(move || async move {
         tags.set(UI_STATE.get_tags_list().await);
@@ -98,11 +98,22 @@ pub fn AttributeDefNewPage() -> Element {
                 }
             }
             if action_done() {
-                AcknowledgeModal {
-                    title: "Confirmation",
-                    content: vec!["The attribute definition has been successfully created.".into()],
-                    action_handler: move |_| {
-                        navigator().push(Route::AttributeDefListPage {});
+                if err().is_none() {
+                    AcknowledgeModal {
+                        title: "Confirmation",
+                        content: vec!["The attribute definition has been successfully created.".into()],
+                        action_handler: move |_| {
+                            navigator().push(Route::AttributeDefListPage {});
+                        }
+                    }
+                } else {
+                    AcknowledgeModal {
+                        title: "Error",
+                        content: vec!["Failed to create the attribute definition. Reason:".into(), err.unwrap()],
+                        action_handler: move |_| {
+                            action_done.set(false);
+                            err.set(None);
+                        }
                     }
                 }
             }
@@ -110,16 +121,17 @@ pub fn AttributeDefNewPage() -> Element {
     }
 }
 
-async fn create_handler(item: AttributeDef, mut saved: Signal<bool>, mut err: Signal<Option<String>>) {
+async fn create_handler(item: AttributeDef, mut action_done: Signal<bool>, mut err: Signal<Option<String>>) {
     log::debug!("Creating an attribute definition {:?}: ", item);
-    match create_attribute_def(item).await {
-        Ok(_) => {
-            saved.set(true);
-            err.set(None);
-        }
+    err.set(match create_attribute_def(item).await {
+        Ok(_) => None,
         Err(e) => {
-            saved.set(false);
-            err.set(Some(e.to_string()));
+            if let ServerFnError::ServerError(s) = e {
+                Some(s)
+            } else {
+                Some(e.to_string())
+            }
         }
-    }
+    });
+    action_done.set(true);
 }

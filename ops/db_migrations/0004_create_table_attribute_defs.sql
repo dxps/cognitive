@@ -7,6 +7,6 @@ CREATE TABLE attribute_defs
     default_value   VARCHAR(20),
     required        BOOLEAN       DEFAULT false,
     tag_id          CHAR(10),
-    CONSTRAINT tag_fk FOREIGN KEY(tag_id) REFERENCES tags(id)
+    CONSTRAINT tag_fk FOREIGN KEY(tag_id) REFERENCES tags(id),
+    CONSTRAINT name_desc_unique UNIQUE NULLS NOT DISTINCT (name, description)
 );
-

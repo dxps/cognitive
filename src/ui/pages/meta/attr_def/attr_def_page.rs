@@ -172,7 +172,11 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
             } else if err().is_some() {
                 AcknowledgeModal {
                     title: "Error",
-                    content: if action() == Action::Delete { vec![err().unwrap()] } else { vec![err().unwrap()] },
+                    content: if action() == Action::Delete {
+                        vec!["Failed to delete the attribute definition. Reason:".into(), err.unwrap()]
+                    } else {
+                        vec!["Failed to update the attribute definition. Reason:".into(), err.unwrap()]
+                    },
                     links: err_refs(),
                     links_item_type: ItemType::EntityDef,
                     action_handler: move |_| {
