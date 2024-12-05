@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use crate::{
     domain::model::{AttributeDef, Id},
-    server::{AppError, AppResult, AttributeDefRepo},
+    server::{AppResult, AttributeDefRepo},
 };
 
 pub struct AttributeDefMgmt {
@@ -41,27 +41,12 @@ impl AttributeDefMgmt {
             )
             .await
             .map(|_| id)
-            .map_err(|e| {
-                log::error!("Failed to add attribute definition: {}", e);
-                if e.to_string().contains("name_desc_unique") {
-                    AppError::Err("The pair of name and description must be unique.".into())
-                } else {
-                    AppError::Err("An internal error occurred.".into())
-                }
-            })
     }
 
     /// Update an existing attribute definition.
     pub async fn update(&self, item: &AttributeDef) -> AppResult<()> {
         //
-        self.attr_repo.update(item).await.map_err(|e| {
-            log::error!("Failed to update attribute definition: {}", e);
-            if e.to_string().contains("name_desc_unique") {
-                AppError::Err("The pair of name and description must be unique.".into())
-            } else {
-                AppError::Err("An internal error occurred.".into())
-            }
-        })
+        self.attr_repo.update(item).await
     }
 
     /// Remove an existing attribute definition.

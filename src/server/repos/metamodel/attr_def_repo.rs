@@ -70,7 +70,14 @@ impl AttributeDefRepo {
         .execute(self.dbcp.as_ref())
         .await
         .map(|_| Ok(()))
-        .map_err(|e| AppError::Err(e.to_string()))?
+        .map_err(|e| {
+            if e.to_string().contains("name_desc_unique") {
+                AppError::NameDescriptionNotUnique
+            } else {
+                log::error!("Failed to add attribute definition. Reason: '{}'.", e);
+                AppError::Err("An internal error occurred.".into())
+            }
+        })?
     }
 
     /// Edit an existing attribute definition.
@@ -92,7 +99,14 @@ impl AttributeDefRepo {
         .execute(self.dbcp.as_ref())
         .await
         .map(|_| Ok(()))
-        .map_err(|e| AppError::Err(e.to_string()))?
+        .map_err(|e| {
+            if e.to_string().contains("name_desc_unique") {
+                AppError::NameDescriptionNotUnique
+            } else {
+                log::error!("Failed to update attribute definition. Reason: '{}'.", e);
+                AppError::Err("An internal error occurred.".into())
+            }
+        })?
     }
 
     /// Remove (delete) an existing attribute definition.

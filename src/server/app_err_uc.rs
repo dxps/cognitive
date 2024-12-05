@@ -32,6 +32,9 @@ pub enum AppError {
 
     #[error("unauthorized: {0}")]
     Unauthorized(String),
+
+    #[error("The pair of name and description must be unique.")]
+    NameDescriptionNotUnique,
 }
 
 impl From<&str> for AppError {

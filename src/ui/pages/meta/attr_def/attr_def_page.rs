@@ -127,8 +127,7 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
                                                 is_required(),
                                                 tag_id,
                                             );
-                                            handle_update(item, action_done, err).await;
-                                            action.set(Action::View);
+                                            handle_update(item, action, action_done, err).await;
                                         }
                                     }
                                 },
@@ -188,11 +187,12 @@ pub fn AttributeDefPage(props: AttributeDefEditPageProps) -> Element {
     }
 }
 
-async fn handle_update(item: AttributeDef, mut action_done: Signal<bool>, mut err: Signal<Option<String>>) {
+async fn handle_update(item: AttributeDef, mut action: Signal<Action>, mut action_done: Signal<bool>, mut err: Signal<Option<String>>) {
     //
     log::debug!(">>> Updating attribute definition: {:?}", item);
     match update_attribute_def(item).await {
         Ok(_) => {
+            action.set(Action::View);
             action_done.set(true);
             err.set(None);
         }
