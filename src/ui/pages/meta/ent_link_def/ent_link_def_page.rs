@@ -31,8 +31,8 @@ pub fn EntityLinkDefPage(props: EntityLinkDefPageProps) -> Element {
     let mut target_ent_def_id = use_signal(|| Id::default());
     let mut ent_defs = use_signal::<IndexMap<Id, Name>>(|| IndexMap::new());
 
-    let mut included_attr_defs = use_signal(|| IndexMap::<Id, Name>::new());
-    let mut all_attr_defs = use_signal(|| IndexMap::<Id, Name>::new());
+    let mut included_attr_defs = use_signal(|| IndexMap::<Id, (Name, Option<String>)>::new());
+    let mut all_attr_defs = use_signal(|| IndexMap::<Id, (Name, Option<String>)>::new());
 
     let update_btn_disabled = use_memo(move || {
         name().is_empty() || source_ent_def_id().is_empty() || target_ent_def_id().is_empty() || target_ent_def_id().is_empty()
@@ -60,7 +60,7 @@ pub fn EntityLinkDefPage(props: EntityLinkDefPageProps) -> Element {
                     .attributes
                     .unwrap()
                     .iter()
-                    .map(|attr| (attr.id.clone(), attr.name.clone()))
+                    .map(|attr| (attr.id.clone(), (attr.name.clone(), attr.description.clone())))
                     .collect();
                 included_attr_defs.set(attrs);
             }
@@ -215,8 +215,8 @@ async fn handle_update(
     source_entity_def_id: Id,
     target_entity_def_id: Id,
     included_attr_def_ids: Vec<Id>,
-    all_attr_defs: IndexMap<Id, String>,
-    included_attr_defs: IndexMap<Id, String>,
+    all_attr_defs: IndexMap<Id, (Name, Option<String>)>,
+    included_attr_defs: IndexMap<Id, (Name, Option<String>)>,
     mut saved: Signal<bool>,
     mut err: Signal<Option<String>>,
 ) {
@@ -233,8 +233,8 @@ async fn handle_update(
     let attributes: Vec<AttributeDef> = included_attr_def_ids
         .iter()
         .map(|id| {
-            let name = all_attr_defs.get(id).unwrap_or(included_attr_defs.get(id).unwrap()).clone();
-            AttributeDef::new_with_id_name(id.clone(), name)
+            let name_desc = all_attr_defs.get(id).unwrap_or(included_attr_defs.get(id).unwrap()).clone();
+            AttributeDef::new_with_id_name(id.clone(), name_desc.0)
         })
         .collect();
     let attributes = if attributes.len() > 0 { Some(attributes) } else { None };

@@ -13,8 +13,8 @@ pub struct EntityLinkDefFormProps {
     pub source_ent_def_id: Signal<Id>,
     pub target_ent_def_id: Signal<Id>,
     pub ent_defs: Signal<IndexMap<Id, Name>>,
-    pub included_attr_defs: Signal<IndexMap<Id, Name>>,
-    pub all_attr_defs: Signal<IndexMap<Id, Name>>,
+    pub included_attr_defs: Signal<IndexMap<Id, (Name, Option<String>)>>,
+    pub all_attr_defs: Signal<IndexMap<Id, (Name, Option<String>)>>,
     pub action: String,
     pub action_done: Signal<bool>,
     pub err: Signal<Option<String>>,
@@ -44,6 +44,7 @@ pub fn EntityLinkDefForm(props: EntityLinkDefFormProps) -> Element {
     let cardinality_options = use_signal(|| Cardinality::get_select_variants());
     let mut selected_attr_def_id = use_signal(|| Id::default());
     let mut selected_attr_def_name = use_signal(|| "".to_string());
+    let mut selected_attr_def_desc = use_signal(|| None);
 
     rsx! {
         div { class: "mt-4 space-y-4",
@@ -101,7 +102,7 @@ pub fn EntityLinkDefForm(props: EntityLinkDefFormProps) -> Element {
             div { class: "flex mb-12",
                 p { class: "min-w-32 text-gray-500", "Attributes" }
                 div {
-                    for (id , name) in included_attr_defs() {
+                    for (id , (name , desc)) in included_attr_defs() {
                         div { class: "flex justify-between min-w-80",
                             p { class: "pl-3 pr-3", "{name}" }
                             button {
@@ -111,11 +112,12 @@ pub fn EntityLinkDefForm(props: EntityLinkDefFormProps) -> Element {
                                 onclick: move |_| {
                                     let id = id.clone();
                                     let name = name.clone();
+                                    let desc = desc.clone();
                                     let mut temp = included_attr_defs();
                                     temp.swap_remove(&id);
                                     included_attr_defs.set(temp);
                                     let mut temp = all_attr_defs();
-                                    temp.insert(id.clone(), name);
+                                    temp.insert(id.clone(), (name, desc));
                                     all_attr_defs.set(temp);
                                 },
                                 "-"
@@ -141,15 +143,20 @@ pub fn EntityLinkDefForm(props: EntityLinkDefFormProps) -> Element {
                     disabled: is_view,
                     oninput: move |evt| {
                         selected_attr_def_id.set(evt.value().into());
-                        selected_attr_def_name
-                            .set(all_attr_defs().get(&selected_attr_def_id()).unwrap().to_string());
+                        let attr_def = all_attr_defs().get(&selected_attr_def_id()).unwrap().clone();
+                        selected_attr_def_name.set(attr_def.0);
+                        selected_attr_def_desc.set(attr_def.1);
                     },
                     option { value: "", selected: true, "" }
-                    for (id , name) in all_attr_defs() {
+                    for (id , (name , desc)) in all_attr_defs() {
                         option {
                             value: "{id}",
                             selected: "{selected_attr_def_id() == id}",
-                            "{name}"
+                            if desc.is_some() {
+                                "{name}   ({desc.unwrap()})"
+                            } else {
+                                "{name}"
+                            }
                         }
                     }
                 }
@@ -161,7 +168,11 @@ pub fn EntityLinkDefForm(props: EntityLinkDefFormProps) -> Element {
                             return;
                         }
                         let mut included = included_attr_defs();
-                        included.insert(selected_attr_def_id(), selected_attr_def_name());
+                        included
+                            .insert(
+                                selected_attr_def_id(),
+                                (selected_attr_def_name(), selected_attr_def_desc()),
+                            );
                         included_attr_defs.set(included);
                         let mut attr_defs = all_attr_defs();
                         attr_defs.swap_remove(&selected_attr_def_id());

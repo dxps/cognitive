@@ -16,14 +16,14 @@ pub fn EntityDefNewPage() -> Element {
     let name = use_signal(|| "".to_string());
     let description = use_signal(|| "".to_string());
 
-    let mut ordered_included_attr_defs = use_signal::<IndexMap<Id, String>>(|| IndexMap::new());
+    let mut ordered_included_attr_defs = use_signal::<IndexMap<Id, (String, Option<String>)>>(|| IndexMap::new());
     let mut ordered_included_attrs_order_change = use_signal::<(usize, usize)>(|| (0, 0));
     let ordered_included_attrs_dragging_in_progress = use_signal(|| false);
     let mut included_attr_defs = ordered_included_attr_defs();
 
     let listing_attr_def_id = use_signal(|| Id::default());
 
-    let mut all_attr_defs = use_signal(|| IndexMap::<Id, String>::new());
+    let mut all_attr_defs = use_signal(|| IndexMap::<Id, (String, Option<String>)>::new());
 
     let create_btn_disabled = use_memo(move || name().is_empty() || ordered_included_attr_defs().is_empty());
     let mut err: Signal<Option<String>> = use_signal(|| None);
@@ -156,8 +156,8 @@ async fn handle_create_ent_def(
     name: String,
     description: Option<String>,
     listing_attr_def_id: Id,
-    included_attr_defs: IndexMap<Id, String>,
-    all_attr_defs: IndexMap<Id, String>,
+    included_attr_defs: IndexMap<Id, (String, Option<String>)>,
+    all_attr_defs: IndexMap<Id, (String, Option<String>)>,
     mut action_done: Signal<bool>,
     mut err: Signal<Option<String>>,
 ) {
@@ -167,6 +167,10 @@ async fn handle_create_ent_def(
         all_attr_defs
     );
 
+    let included_attr_defs: IndexMap<Id, String> = included_attr_defs
+        .iter()
+        .map(|(id, (name, _))| (id.clone(), name.clone()))
+        .collect();
     let mut ent_def = EntityDef::new_with_attr_def_ids("".into(), name, description, included_attr_defs, listing_attr_def_id);
     log::debug!("[handle_create_ent_def] Creating ent def: {:?}: ", ent_def);
     match crate::server::fns::create_entity_def(ent_def.clone()).await {

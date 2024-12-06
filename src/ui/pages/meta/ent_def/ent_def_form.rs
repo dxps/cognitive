@@ -6,11 +6,11 @@ use indexmap::IndexMap;
 pub struct EntityDefFormProps {
     pub name: Signal<String>,
     pub description: Signal<String>,
-    pub ordered_included_attr_defs: Signal<IndexMap<Id, String>>,
+    pub ordered_included_attr_defs: Signal<IndexMap<Id, (String, Option<String>)>>,
     pub ordered_included_attrs_order_change: Signal<(usize, usize)>,
     pub ordered_included_attrs_dragging_in_progress: Signal<bool>,
     pub listing_attr_def_id: Signal<Id>,
-    pub all_attr_defs: Signal<IndexMap<Id, String>>,
+    pub all_attr_defs: Signal<IndexMap<Id, (String, Option<String>)>>,
     pub action: String,
     pub action_done: Signal<bool>,
     pub err: Signal<Option<String>>,
@@ -36,6 +36,7 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
 
     let mut selected_attr_def_id = use_signal(|| Id::default());
     let mut selected_attr_def_name = use_signal(|| "".to_string());
+    let mut selected_attr_def_desc = use_signal(|| None);
 
     let mut drag_source_attr_index = use_signal(|| 0usize);
     let mut drag_target_attr_index = use_signal(|| 0usize);
@@ -85,7 +86,7 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
             div { class: "flex",
                 p { class: "min-w-32 text-gray-500", "Attributes" }
                 div {
-                    for (index , (id , name)) in ordered_included_attr_defs().into_iter().enumerate() {
+                    for (index , (id , (name , desc))) in ordered_included_attr_defs().into_iter().enumerate() {
                         div {
                             class: if is_view {
                                 "flex justify-between min-w-80"
@@ -107,7 +108,11 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
                                 ondragend: move |_| {
                                     ordered_included_attrs_dragging_in_progress.set(false);
                                 },
-                                "{name}"
+                                if desc.is_some() {
+                                    "{name}   ({desc.clone().unwrap()})"
+                                } else {
+                                    "{name}"
+                                }
                             }
                             button {
                                 class: "text-red-200 hover:text-red-500 hover:bg-red-100 disabled:text-white disabled:hover:bg-white ml-4 px-3 py-0 rounded-xl transition duration-200",
@@ -116,11 +121,12 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
                                 onclick: move |_| {
                                     let id = id.clone();
                                     let name = name.clone();
+                                    let desc = desc.clone();
                                     let mut temp = ordered_included_attr_defs();
                                     temp.swap_remove(&id);
                                     ordered_included_attr_defs.set(temp);
                                     let mut temp = all_attr_defs();
-                                    temp.insert(id.clone(), name);
+                                    temp.insert(id.clone(), (name, desc));
                                     all_attr_defs.set(temp);
                                     if listing_attr_def_id() == id {
                                         listing_attr_def_id.set(Id::default());
@@ -142,11 +148,15 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
                         listing_attr_def_id.set(evt.value().into());
                         log::debug!("[EntityDefForm] selected_attr_def_id: {:?}", evt.value());
                     },
-                    for (id , name) in ordered_included_attr_defs() {
+                    for (id , (name , desc)) in ordered_included_attr_defs() {
                         option {
                             value: "{id}",
                             selected: "{listing_attr_def_id() == id}",
-                            "{name}"
+                            if desc.is_some() {
+                                "{name}   ({desc.unwrap()})"
+                            } else {
+                                "{name}"
+                            }
                         }
                     }
                 }
@@ -160,24 +170,27 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
                     "block"
                 },
                 label { class: "pr-3 py-1 min-w-28", "" }
-                p { class: "text-gray-500 font-sm",
-                    "Select an attribute definition to include it in this entity definition."
-                }
+                p { class: "text-gray-500 font-sm", "Select an attribute definition to include." }
                 select {
                     class: "px-3 py-2 min-w-80",
                     multiple: false,
                     disabled: is_view,
                     oninput: move |evt| {
                         selected_attr_def_id.set(evt.value().into());
-                        selected_attr_def_name
-                            .set(all_attr_defs().get(&selected_attr_def_id()).unwrap().to_string());
+                        let attr_def = all_attr_defs().get(&selected_attr_def_id()).unwrap().clone();
+                        selected_attr_def_name.set(attr_def.0);
+                        selected_attr_def_desc.set(attr_def.1);
                     },
                     option { value: "", selected: true, "" }
-                    for (id , name) in all_attr_defs() {
+                    for (id , (name , desc)) in all_attr_defs() {
                         option {
                             value: "{id}",
                             selected: "{selected_attr_def_id() == id}",
-                            "{name}"
+                            if desc.is_some() {
+                                "{name}   ({desc.unwrap()})"
+                            } else {
+                                "{name}"
+                            }
                         }
                     }
                 }
@@ -192,7 +205,11 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
                             listing_attr_def_id.set(selected_attr_def_id());
                         }
                         let mut included = ordered_included_attr_defs();
-                        included.insert(selected_attr_def_id(), selected_attr_def_name());
+                        included
+                            .insert(
+                                selected_attr_def_id(),
+                                (selected_attr_def_name(), selected_attr_def_desc()),
+                            );
                         ordered_included_attr_defs.set(included);
                         let mut attr_defs = all_attr_defs();
                         attr_defs.swap_remove(&selected_attr_def_id());

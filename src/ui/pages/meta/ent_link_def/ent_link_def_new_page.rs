@@ -23,8 +23,8 @@ pub fn EntityLinkDefNewPage() -> Element {
 
     let cardinality_id = use_signal(|| Id::from(Cardinality::OneToOne.as_string()));
 
-    let included_attr_defs = use_signal(|| IndexMap::<Id, Name>::new());
-    let mut all_attr_defs = use_signal(|| IndexMap::<Id, Name>::new());
+    let included_attr_defs = use_signal(|| IndexMap::<Id, (Name, Option<String>)>::new());
+    let mut all_attr_defs = use_signal(|| IndexMap::<Id, (Name, Option<String>)>::new());
 
     let create_btn_disabled = use_memo(move || {
         name().is_empty() || source_ent_def_id().is_empty() || target_ent_def_id().is_empty() || target_ent_def_id().is_empty()
@@ -128,7 +128,7 @@ async fn handle_create_ent_link_def(
     cardinality_id: Id,
     source_entity_def_id: Id,
     target_entity_def_id: Id,
-    included_attr_defs: IndexMap<Id, Name>,
+    included_attr_defs: IndexMap<Id, (Name, Option<String>)>,
     mut action_done: Signal<bool>,
     mut err: Signal<Option<String>>,
 ) {
@@ -136,7 +136,7 @@ async fn handle_create_ent_link_def(
 
     let attrs: Vec<AttributeDef> = included_attr_defs
         .iter()
-        .map(|(id, name)| AttributeDef::new_with_id_name(id.clone(), name.clone()))
+        .map(|(id, (name, _))| AttributeDef::new_with_id_name(id.clone(), name.clone()))
         .collect();
     let attrs = if attrs.len() > 0 { Some(attrs) } else { None };
     let mut ent_link_def = EntityLinkDef::from(

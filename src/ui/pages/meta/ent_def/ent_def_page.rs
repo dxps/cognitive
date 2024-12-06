@@ -27,14 +27,14 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
     let mut name = use_signal(|| "".to_string());
     let mut description = use_signal(|| "".to_string());
 
-    let mut ordered_included_attr_defs = use_signal(|| IndexMap::<Id, String>::new());
+    let mut ordered_included_attr_defs = use_signal(|| IndexMap::<Id, (String, Option<String>)>::new());
     let mut ordered_included_attrs_order_change = use_signal::<(usize, usize)>(|| (0, 0));
     let ordered_included_attrs_dragging_in_progress = use_signal(|| false);
     let mut included_attr_defs = ordered_included_attr_defs();
 
     let mut listing_attr_def_id = use_signal(|| Id::default());
 
-    let mut all_attr_defs = use_signal(|| IndexMap::<Id, String>::new());
+    let mut all_attr_defs = use_signal(|| IndexMap::<Id, (String, Option<String>)>::new());
 
     let update_btn_disabled = use_memo(move || name().is_empty() || ordered_included_attr_defs().is_empty());
     let mut show_modal = use_signal(|| false);
@@ -52,7 +52,11 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
         if let Some(item) = get_entity_def(id()).await.unwrap_or_default() {
             name.set(item.name);
             description.set(item.description.unwrap_or_default());
-            let attrs = item.attributes.iter().map(|attr| (attr.id.clone(), attr.name.clone())).collect();
+            let attrs = item
+                .attributes
+                .iter()
+                .map(|attr| (attr.id.clone(), (attr.name.clone(), attr.description.clone())))
+                .collect();
             ordered_included_attr_defs.set(attrs);
             // Remove the items that exist in `included_attr_defs` from `all_attr_defs`.
             let included_ids = ordered_included_attr_defs().iter().map(|item| item.0.clone()).collect::<Vec<Id>>();
@@ -233,8 +237,8 @@ async fn handle_update(
     description: Option<String>,
     included_attr_def_ids: Vec<Id>,
     listing_attr_def_id: Id,
-    all_attr_defs: IndexMap<Id, String>,
-    included_attr_defs: IndexMap<Id, String>,
+    all_attr_defs: IndexMap<Id, (String, Option<String>)>,
+    included_attr_defs: IndexMap<Id, (String, Option<String>)>,
     mut action_done: Signal<bool>,
     mut err: Signal<Option<String>>,
 ) {
@@ -249,7 +253,7 @@ async fn handle_update(
         .map(|id| {
             (
                 id.clone(),
-                all_attr_defs.get(id).unwrap_or(included_attr_defs.get(id).unwrap()).clone(),
+                all_attr_defs.get(id).unwrap_or(included_attr_defs.get(id).unwrap()).0.clone(),
             )
         })
         .collect();
