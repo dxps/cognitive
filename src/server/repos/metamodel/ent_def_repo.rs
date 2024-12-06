@@ -46,7 +46,8 @@ impl EntityDefRepo {
             if let Ok(attrs) = sqlx::query_as::<_, AttributeDef>(
                 "SELECT id, name, description, value_type, default_value, required, tag_id
                  FROM attribute_defs ad JOIN entity_defs_attribute_defs_xref ed_ad_xref
-                 ON ad.id = ed_ad_xref.attribute_def_id where ed_ad_xref.entity_def_id = $1 ORDER BY name",
+                 ON ad.id = ed_ad_xref.attribute_def_id where ed_ad_xref.entity_def_id = $1 
+                 ORDER BY ed_ad_xref.show_index",
             )
             .bind(&ent_def.id.as_str())
             .fetch_all(self.dbcp.as_ref())
@@ -63,9 +64,9 @@ impl EntityDefRepo {
         //
         let res = sqlx::query_as::<_, (String, Name)>(
             "SELECT id, name FROM entity_defs 
-             JOIN entity_defs_attribute_defs_xref ON entity_defs.id = entity_defs_attribute_defs_xref.entity_def_id
-             WHERE entity_defs_attribute_defs_xref.attribute_def_id = $1
-             ORDER BY name",
+             JOIN entity_defs_attribute_defs_xref ed_ad_xref ON entity_defs.id = ed_ad_xref.entity_def_id
+             WHERE ed_ad_xref.attribute_def_id = $1
+             ORDER BY ed_ad_xref.show_index",
         )
         .bind(attr_def_id.as_str())
         .fetch_all(self.dbcp.as_ref())
@@ -126,7 +127,8 @@ impl EntityDefRepo {
                 if let Ok(attrs) = sqlx::query_as::<_, AttributeDef>(
                     "SELECT id, name, description, value_type, default_value, required, tag_id 
                      FROM attribute_defs ad JOIN entity_defs_attribute_defs_xref ed_ad_xref 
-                     ON ad.id = ed_ad_xref.attribute_def_id where ed_ad_xref.entity_def_id = $1 ORDER BY ed_ad_xref.show_index",
+                     ON ad.id = ed_ad_xref.attribute_def_id where ed_ad_xref.entity_def_id = $1 
+                     ORDER BY ed_ad_xref.show_index",
                 )
                 .bind(id.as_str())
                 .fetch_all(self.dbcp.as_ref())
