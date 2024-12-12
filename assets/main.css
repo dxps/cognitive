@@ -996,10 +996,6 @@ select[disabled]:focus {
   min-width: 440px;
 }
 
-.min-w-\[450px\] {
-  min-width: 450px;
-}
-
 .min-w-\[600px\] {
   min-width: 600px;
 }
@@ -1022,10 +1018,6 @@ select[disabled]:focus {
 
 .max-w-\[440px\] {
   max-width: 440px;
-}
-
-.max-w-\[450px\] {
-  max-width: 450px;
 }
 
 .max-w-lg {

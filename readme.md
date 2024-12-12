@@ -1,9 +1,9 @@
 # Akasha
 
-A generic ecosystem of knowledge and behavior.
+A generic ecosystem of knowledge and with cognitive functions.
 
 Currently, the focus is on the knowledge: the structure (of entities with their attributes) and links (between entities).<br/>
-Later, the behavior will be introduced through a pluggable mechanism. Most probably, a WASM based server side implementation.
+Later, the cognitive functions will be introduced through a pluggable mechanism. Most probably, a WASM based server side implementation.
 
 ---
 
@@ -17,6 +17,9 @@ Its initial triggers were three needs for having a:
     -   including various (and relevant) details about them, based on their self published metadata
     -   their dependencies
     -   their deployments
+-   Centralized Configuration
+    -   each service can get its configuration from a central place
+    -   as per service versions, configuration would also need to be versioned
 
 <br/>
 
@@ -26,11 +29,10 @@ The followings are the required tools and steps to have the proper setup for the
 
 ### Front-end related
 
-Note: These are needed during development. In other words, if you don't change any code in the components (within `rsx` blocks), then there is no need to run the Tailwind CSS compiler in parallel with the back-end.
+Note: These are needed during development. In other words, if you don't change any code in the components (within `rsx` blocks), then there is no need to run the Tailwind CSS compiler in parallel with the back-end. However, updates to `tailwindcss` npm package generate updates the final `main.css` file.
 
 1. Install [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
 2. Install the Tailwind CSS [CLI](https://tailwindcss.com/docs/installation).
-3. Start the Tailwind CSS compiler using `./run_css.sh` script.
 
 ### Back-end related
 
@@ -40,11 +42,10 @@ Have `rust` installed using [rustup.rs](https://rustup.rs/).
 
 ### Run
 
-Launch the app using `./run-dev.sh`.
+-   Start the (Tailwind related) CSS compiler using `./run_css.sh` script.
+-   Start the back-end (that includes the front-end pages/views) using `./run-dev.sh`.
 
 In case of compilation error that remain hidden behind Dioxus CLI, run `cargo check --features server,web` to reveal them.
-
-For further development, as previously mentioned, make sure you have `./run_css.sh` running, to pick up the newly used Tailwind CSS utility classes.
 
 <br/>
 
