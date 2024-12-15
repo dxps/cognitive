@@ -1,9 +1,10 @@
-use crate::domain::model::Id;
-
 use super::{BooleanAttribute, IntegerAttribute, SmallintAttribute, TextAttribute};
+use crate::domain::model::Id;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Entity {
+    //
     pub id: Id,
 
     /// Its kind, that is its definition name.
@@ -11,6 +12,10 @@ pub struct Entity {
 
     /// Its definition id.
     pub def_id: Id,
+
+    /// The show order of the attributes.
+    #[serde(default)]
+    pub attributes_order: Vec<Id>,
 
     #[serde(default)]
     pub text_attributes: Vec<TextAttribute>,
@@ -44,7 +49,8 @@ impl Entity {
         Self {
             id: Id::default(),
             kind,
-            def_id: def_id,
+            def_id,
+            attributes_order: vec![],
             text_attributes,
             smallint_attributes,
             int_attributes,
@@ -69,6 +75,7 @@ impl Entity {
             id,
             kind,
             def_id,
+            attributes_order: vec![],
             text_attributes,
             smallint_attributes,
             int_attributes,

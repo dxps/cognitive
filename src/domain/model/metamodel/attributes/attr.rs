@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use chrono::{DateTime, NaiveDate};
 
 use crate::domain::model::AttributeValueType;
@@ -13,4 +15,14 @@ pub trait Attribute {
     fn bool_value(&self) -> bool;
     fn date_value(&self) -> NaiveDate;
     fn datetime_value(&self) -> DateTime<chrono::Utc>;
+}
+
+impl Debug for dyn Attribute {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Attribute")
+            .field("name", &self.name())
+            .field("value_type", &self.value_type())
+            // TODO: add value, based on value type
+            .finish()
+    }
 }
