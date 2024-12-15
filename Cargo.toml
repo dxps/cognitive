@@ -9,6 +9,16 @@ edition = "2021"
 #############
 codegen-units = 18
 
+[profile.wasm-dev]
+inherits = "dev"
+opt-level = 1
+
+[profile.server-dev]
+inherits = "dev"
+
+[profile.android-dev]
+inherits = "dev"
+
 
 ##############
 [dependencies]

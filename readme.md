@@ -36,7 +36,8 @@ Note: These are needed during development. In other words, if you don't change a
 
 ### Back-end related
 
-Have `rust` installed using [rustup.rs](https://rustup.rs/).
+1. Have `rust` installed using [rustup.rs](https://rustup.rs/).
+2. Install Dioxus CLI ver. 0.5.7 using `cargo install dioxus-cli@0.5.7`.
 
 <br/>
 
