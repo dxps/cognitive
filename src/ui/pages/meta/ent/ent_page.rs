@@ -1,5 +1,5 @@
 use crate::{
-    domain::model::{BooleanAttribute, Entity, Id, IntegerAttribute, SmallintAttribute, TextAttribute},
+    domain::model::{AttributeValueType, BooleanAttribute, Entity, Id, IntegerAttribute, SmallintAttribute, TextAttribute},
     server::fns::{get_entity, remove_entity, update_entity},
     ui::{
         comps::{AcknowledgeModal, Breadcrumb, ConfirmationModal, EntityForm, Nav},
@@ -27,6 +27,7 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
     let smallint_attrs = use_signal::<IndexMap<Id, SmallintAttribute>>(|| IndexMap::new());
     let int_attrs = use_signal::<IndexMap<Id, IntegerAttribute>>(|| IndexMap::new());
     let boolean_attrs = use_signal::<IndexMap<Id, BooleanAttribute>>(|| IndexMap::new());
+    let attributes_order = use_signal::<Vec<(AttributeValueType, Id)>>(|| Vec::new());
 
     let mut show_delete_confirm = use_signal(|| false);
     let mut action = use_signal(|| Action::View);
@@ -38,6 +39,7 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
             id,
             kind,
             def_id,
+            attributes_order,
             text_attrs,
             smallint_attrs,
             int_attrs,
@@ -70,6 +72,7 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
                             }
                         }
                         EntityForm {
+                            attributes_order,
                             text_attrs,
                             smallint_attrs,
                             int_attrs,
@@ -119,10 +122,10 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
                                                             id(),
                                                             kind(),
                                                             def_id(),
-                                                            text_attrs().values().cloned().collect(),
-                                                            smallint_attrs().values().cloned().collect(),
-                                                            int_attrs().values().cloned().collect(),
-                                                            boolean_attrs().values().cloned().collect(),
+                                                            text_attrs(),
+                                                            smallint_attrs(),
+                                                            int_attrs(),
+                                                            boolean_attrs(),
                                                             listing_attr_def_id(),
                                                             action_done,
                                                             err,
@@ -183,6 +186,7 @@ async fn init(
     id: Signal<Id>,
     mut kind: Signal<String>,
     mut def_id: Signal<Id>,
+    mut attributes_order: Signal<Vec<(AttributeValueType, Id)>>,
     mut text_attrs: Signal<IndexMap<Id, TextAttribute>>,
     mut smallint_attrs: Signal<IndexMap<Id, SmallintAttribute>>,
     mut int_attrs: Signal<IndexMap<Id, IntegerAttribute>>,
@@ -192,30 +196,11 @@ async fn init(
     match get_entity(id()).await {
         Ok(Some(ent)) => {
             log::debug!("[EntityPage] Based on id {id}, got entity {:?}", ent);
-            let attrs: IndexMap<Id, TextAttribute> = ent
-                .text_attributes
-                .iter()
-                .map(|attr| (attr.name.clone().into(), attr.clone()))
-                .collect();
-            text_attrs.set(attrs);
-            let attrs: IndexMap<Id, SmallintAttribute> = ent
-                .smallint_attributes
-                .iter()
-                .map(|attr| (attr.name.clone().into(), attr.clone()))
-                .collect();
-            smallint_attrs.set(attrs);
-            let attrs: IndexMap<Id, IntegerAttribute> = ent
-                .int_attributes
-                .iter()
-                .map(|attr| (attr.name.clone().into(), attr.clone()))
-                .collect();
-            int_attrs.set(attrs);
-            let attrs: IndexMap<Id, BooleanAttribute> = ent
-                .boolean_attributes
-                .iter()
-                .map(|attr| (attr.name.clone().into(), attr.clone()))
-                .collect();
-            boolean_attrs.set(attrs);
+            attributes_order.set(ent.attributes_order);
+            text_attrs.set(ent.text_attributes);
+            smallint_attrs.set(ent.smallint_attributes);
+            int_attrs.set(ent.int_attributes);
+            boolean_attrs.set(ent.boolean_attributes);
             kind.set(ent.kind);
             def_id.set(ent.def_id);
             listing_attr_def_id.set(ent.listing_attr_def_id);
@@ -233,10 +218,10 @@ async fn handle_update(
     ent_id: Id,
     kind: String,
     def_id: Id,
-    text_attributes: Vec<TextAttribute>,
-    smallint_attributes: Vec<SmallintAttribute>,
-    int_attributes: Vec<IntegerAttribute>,
-    boolean_attributes: Vec<BooleanAttribute>,
+    text_attributes: IndexMap<Id, TextAttribute>,
+    smallint_attributes: IndexMap<Id, SmallintAttribute>,
+    int_attributes: IndexMap<Id, IntegerAttribute>,
+    boolean_attributes: IndexMap<Id, BooleanAttribute>,
     listing_attr_def_id: Id,
     mut saved: Signal<bool>,
     mut err: Signal<Option<String>>,

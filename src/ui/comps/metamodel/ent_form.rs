@@ -1,9 +1,10 @@
-use crate::domain::model::{BooleanAttribute, Id, IntegerAttribute, Item, ItemType, SmallintAttribute, TextAttribute};
+use crate::domain::model::{AttributeValueType, BooleanAttribute, Id, IntegerAttribute, SmallintAttribute, TextAttribute};
 use dioxus::prelude::*;
 use indexmap::IndexMap;
 
 #[derive(Props, PartialEq, Clone)]
 pub struct EntityFormProps {
+    pub attributes_order: Signal<Vec<(AttributeValueType, Id)>>,
     pub text_attrs: Signal<IndexMap<Id, TextAttribute>>,
     pub smallint_attrs: Signal<IndexMap<Id, SmallintAttribute>>,
     pub int_attrs: Signal<IndexMap<Id, IntegerAttribute>>,
@@ -15,6 +16,7 @@ pub struct EntityFormProps {
 pub fn EntityForm(props: EntityFormProps) -> Element {
     //
     let EntityFormProps {
+        attributes_order,
         mut text_attrs,
         mut smallint_attrs,
         mut int_attrs,
@@ -24,16 +26,16 @@ pub fn EntityForm(props: EntityFormProps) -> Element {
 
     let is_view = action == "View";
 
-    let ordered_attrs = order_entity_attributes(text_attrs(), smallint_attrs(), int_attrs(), boolean_attrs());
-
     rsx! {
         div { class: "mt-4 space-y-4",
             div { class: "space-y-0",
                 //
-                for (name , id , item_type) in ordered_attrs {
+                for (value_type , id) in attributes_order() {
                     div { class: "flex",
-                        label { class: "pr-3 py-2 min-w-36 text-gray-600", "{name}:" }
-                        if item_type == ItemType::TextAttribute {
+                        if value_type == AttributeValueType::Text {
+                            label { class: "pr-3 py-2 min-w-36 text-gray-600",
+                                "{text_attrs().get(&id).unwrap().name}:"
+                            }
                             textarea {
                                 key: "{id}",
                                 class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
@@ -50,7 +52,10 @@ pub fn EntityForm(props: EntityFormProps) -> Element {
                                         .and_modify(|attr| { attr.value = evt.value() });
                                 }
                             }
-                        } else if item_type == ItemType::SmallintAttribute {
+                        } else if value_type == AttributeValueType::SmallInteger {
+                            label { class: "pr-3 py-2 min-w-36 text-gray-600",
+                                "{smallint_attrs().get(&id).unwrap().name}:"
+                            }
                             input {
                                 key: "{id}",
                                 class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
@@ -69,7 +74,10 @@ pub fn EntityForm(props: EntityFormProps) -> Element {
                                     );
                                 }
                             }
-                        } else if item_type == ItemType::IntegerAttribute {
+                        } else if value_type == AttributeValueType::Integer {
+                            label { class: "pr-3 py-2 min-w-36 text-gray-600",
+                                "{int_attrs().get(&id).unwrap().name}:"
+                            }
                             input {
                                 class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
                                 r#type: "number",
@@ -87,7 +95,10 @@ pub fn EntityForm(props: EntityFormProps) -> Element {
                                     );
                                 }
                             }
-                        } else if item_type == ItemType::BooleanAttribute {
+                        } else if value_type == AttributeValueType::Boolean {
+                            label { class: "pr-3 py-2 min-w-36 text-gray-600",
+                                "{boolean_attrs().get(&id).unwrap().name}:"
+                            }
                             input {
                                 class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
                                 r#type: "checkbox",
@@ -111,34 +122,4 @@ pub fn EntityForm(props: EntityFormProps) -> Element {
             }
         }
     }
-}
-
-/// Order the attributes of an entity in the alphabetical order,\
-/// to be nicely and consistently displayed in the form.
-pub fn order_entity_attributes(
-    text_attrs: IndexMap<Id, TextAttribute>,
-    smallint_attrs: IndexMap<Id, SmallintAttribute>,
-    int_attrs: IndexMap<Id, IntegerAttribute>,
-    boolean_attrs: IndexMap<Id, BooleanAttribute>,
-) -> Vec<(String, Id, ItemType)> {
-    //
-    let mut ordered_attrs = Vec::new();
-    ordered_attrs.extend(
-        text_attrs
-            .iter()
-            .map(|(id, attr)| (attr.name.clone(), id.clone(), attr.item_type())),
-    );
-    ordered_attrs.extend(
-        smallint_attrs
-            .iter()
-            .map(|(id, attr)| (attr.name.clone(), id.clone(), attr.item_type())),
-    );
-    ordered_attrs.extend(int_attrs.iter().map(|(id, attr)| (attr.name.clone(), id.clone(), attr.item_type())));
-    ordered_attrs.extend(
-        boolean_attrs
-            .iter()
-            .map(|(id, attr)| (attr.name.clone(), id.clone(), attr.item_type())),
-    );
-    ordered_attrs.sort_by(|attr1, attr2| attr1.0.cmp(&attr2.0));
-    ordered_attrs
 }

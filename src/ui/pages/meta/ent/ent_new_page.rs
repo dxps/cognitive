@@ -24,6 +24,7 @@ pub fn EntityNewPage() -> Element {
     let mut smallint_attrs = use_signal::<IndexMap<Id, SmallintAttribute>>(|| IndexMap::new());
     let mut int_attrs = use_signal::<IndexMap<Id, IntegerAttribute>>(|| IndexMap::new());
     let mut boolean_attrs = use_signal::<IndexMap<Id, BooleanAttribute>>(|| IndexMap::new());
+    let attributes_order = use_signal::<Vec<(AttributeValueType, Id)>>(|| Vec::new());
 
     let err: Signal<Option<String>> = use_signal(|| None);
     let action_done = use_signal(|| false);
@@ -118,6 +119,7 @@ pub fn EntityNewPage() -> Element {
                             }
                         } else {
                             EntityForm {
+                                attributes_order,
                                 text_attrs,
                                 smallint_attrs,
                                 int_attrs,
@@ -136,10 +138,10 @@ pub fn EntityNewPage() -> Element {
                                             handle_create_ent(
                                                     selected_kind_name(),
                                                     selected_kind_id(),
-                                                    text_attrs().values().cloned().collect(),
-                                                    smallint_attrs().values().cloned().collect(),
-                                                    int_attrs().values().cloned().collect(),
-                                                    boolean_attrs().values().cloned().collect(),
+                                                    text_attrs(),
+                                                    smallint_attrs(),
+                                                    int_attrs(),
+                                                    boolean_attrs(),
                                                     listing_attr_def_id(),
                                                     listing_attr_name(),
                                                     listing_attr_value(),
@@ -176,10 +178,10 @@ pub fn EntityNewPage() -> Element {
 async fn handle_create_ent(
     kind: String, // TODO: Review the usage of kind.
     def_id: Id,
-    text_attrs: Vec<TextAttribute>,
-    smallint_attrs: Vec<SmallintAttribute>,
-    int_attrs: Vec<IntegerAttribute>,
-    boolean_attrs: Vec<BooleanAttribute>,
+    text_attrs: IndexMap<Id, TextAttribute>,
+    smallint_attrs: IndexMap<Id, SmallintAttribute>,
+    int_attrs: IndexMap<Id, IntegerAttribute>,
+    boolean_attrs: IndexMap<Id, BooleanAttribute>,
     listing_attr_def_id: Id,
     listing_attr_name: String,
     listing_attr_value: String,

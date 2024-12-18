@@ -1,5 +1,6 @@
 use super::{AttributeValueType, BooleanAttribute, IntegerAttribute, SmallintAttribute, TextAttribute};
 use crate::domain::model::Id;
+use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -18,16 +19,16 @@ pub struct Entity {
     pub attributes_order: Vec<(AttributeValueType, Id)>,
 
     #[serde(default)]
-    pub text_attributes: Vec<TextAttribute>,
+    pub text_attributes: IndexMap<Id, TextAttribute>,
 
     #[serde(default)]
-    pub smallint_attributes: Vec<SmallintAttribute>,
+    pub smallint_attributes: IndexMap<Id, SmallintAttribute>,
 
     #[serde(default)]
-    pub int_attributes: Vec<IntegerAttribute>,
+    pub int_attributes: IndexMap<Id, IntegerAttribute>,
 
     #[serde(default)]
-    pub boolean_attributes: Vec<BooleanAttribute>,
+    pub boolean_attributes: IndexMap<Id, BooleanAttribute>,
 
     pub listing_attr_def_id: Id,
     pub listing_attr_name: String,
@@ -38,10 +39,10 @@ impl Entity {
     pub fn new(
         kind: String,
         def_id: Id,
-        text_attributes: Vec<TextAttribute>,
-        smallint_attributes: Vec<SmallintAttribute>,
-        int_attributes: Vec<IntegerAttribute>,
-        boolean_attributes: Vec<BooleanAttribute>,
+        text_attributes: IndexMap<Id, TextAttribute>,
+        smallint_attributes: IndexMap<Id, SmallintAttribute>,
+        int_attributes: IndexMap<Id, IntegerAttribute>,
+        boolean_attributes: IndexMap<Id, BooleanAttribute>,
         listing_attr_def_id: Id,
         listing_attr_name: String,
         listing_attr_value: String,
@@ -65,10 +66,10 @@ impl Entity {
         id: Id,
         kind: String,
         def_id: Id,
-        text_attributes: Vec<TextAttribute>,
-        smallint_attributes: Vec<SmallintAttribute>,
-        int_attributes: Vec<IntegerAttribute>,
-        boolean_attributes: Vec<BooleanAttribute>,
+        text_attributes: IndexMap<Id, TextAttribute>,
+        smallint_attributes: IndexMap<Id, SmallintAttribute>,
+        int_attributes: IndexMap<Id, IntegerAttribute>,
+        boolean_attributes: IndexMap<Id, BooleanAttribute>,
         listing_attr_def_id: Id,
     ) -> Self {
         Self {
