@@ -1,7 +1,5 @@
 use crate::{
-    domain::model::{
-        AttributeValueType, BooleanAttribute, Entity, EntityDef, Id, IntegerAttribute, ItemType, SmallintAttribute, TextAttribute,
-    },
+    domain::model::{AttributeValueType, BooleanAttribute, Entity, EntityDef, Id, IntegerAttribute, SmallintAttribute, TextAttribute},
     ui::{
         comps::{AcknowledgeModal, Breadcrumb, EntityForm, Nav, Select},
         pages::Name,
@@ -63,19 +61,19 @@ pub fn EntityNewPage() -> Element {
                 }
                 match attr_def.value_type {
                     AttributeValueType::Text => {
-                        let mut attr = TextAttribute::from(attr_def);
+                        let attr = TextAttribute::from(attr_def);
                         txt_attrs.insert(attr.def_id.clone(), attr);
                     }
                     AttributeValueType::SmallInteger => {
-                        let mut attr = SmallintAttribute::from(attr_def);
+                        let attr = SmallintAttribute::from(attr_def);
                         si_attrs.insert(attr.def_id.clone(), attr);
                     }
                     AttributeValueType::Integer => {
-                        let mut attr = IntegerAttribute::from(attr_def);
+                        let attr = IntegerAttribute::from(attr_def);
                         i_attrs.insert(attr.def_id.clone(), attr);
                     }
                     AttributeValueType::Boolean => {
-                        let mut attr = BooleanAttribute::from(attr_def);
+                        let attr = BooleanAttribute::from(attr_def);
                         b_attrs.insert(attr.def_id.clone(), attr);
                     }
                     _ => {}

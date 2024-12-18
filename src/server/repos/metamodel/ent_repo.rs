@@ -1,5 +1,5 @@
 use crate::{
-    domain::model::{BooleanAttribute, Entity, Id, IntegerAttribute, ItemType, SmallintAttribute, TextAttribute},
+    domain::model::{BooleanAttribute, Entity, Id, IntegerAttribute, SmallintAttribute, TextAttribute},
     server::{AppResult, Pagination},
     ui::pages::Name,
 };
