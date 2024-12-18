@@ -1,4 +1,4 @@
-use super::{BooleanAttribute, IntegerAttribute, SmallintAttribute, TextAttribute};
+use super::{AttributeValueType, BooleanAttribute, IntegerAttribute, SmallintAttribute, TextAttribute};
 use crate::domain::model::Id;
 use serde::{Deserialize, Serialize};
 
@@ -15,7 +15,7 @@ pub struct Entity {
 
     /// The show order of the attributes.
     #[serde(default)]
-    pub attributes_order: Vec<Id>,
+    pub attributes_order: Vec<(AttributeValueType, Id)>,
 
     #[serde(default)]
     pub text_attributes: Vec<TextAttribute>,

@@ -2,9 +2,13 @@ use super::{AttributeDef, Item, ItemType};
 use crate::domain::model::Id;
 use serde::{Deserialize, Serialize};
 
-/// An instance of an attribute of type boolean.
+/// An instance of an attribute whose value type is boolean.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct BooleanAttribute {
+    //
+    /// Its identifier.
+    pub id: Id,
+
     /// Its name.
     pub name: String,
 
@@ -16,19 +20,16 @@ pub struct BooleanAttribute {
 
     /// Its owner id.
     pub owner_id: Id,
-
-    /// Its owner type.
-    pub owner_type: ItemType,
 }
 
 impl BooleanAttribute {
-    pub fn new(name: String, value: bool, def_id: Id, owner_id: Id, owner_type: ItemType) -> Self {
+    pub fn new(id: Id, name: String, value: bool, def_id: Id, owner_id: Id) -> Self {
         Self {
+            id,
             name,
             value,
             def_id,
             owner_id,
-            owner_type,
         }
     }
 }
@@ -56,6 +57,6 @@ impl From<AttributeDef> for BooleanAttribute {
                 }
             };
         }
-        Self::new(attr_def.name, value, attr_def.id, Id::default(), ItemType::Unknown)
+        Self::new(Id::default(), attr_def.name, value, attr_def.id, Id::default())
     }
 }

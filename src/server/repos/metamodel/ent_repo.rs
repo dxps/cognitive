@@ -84,77 +84,77 @@ impl EntityRepo {
                 // Get the attributes of an entity, all in one shot.
                 let query = "
                     SELECT * FROM (
-                        SELECT ad.name, ad.value_type, a.def_id, edad.show_index, a.value as text_value, 
+                        SELECT a.id, ad.name, ad.value_type, a.def_id, edad.show_index, a.value as text_value, 
                             CAST (0 as int2) as smallint_value, 0 as integer_value, 0 as bigint_value, 0 as real_value,
                             false as bool_value, CURRENT_DATE as date_value, CURRENT_TIMESTAMP as timestamp_value
                             FROM attribute_defs ad 
                             JOIN text_attributes a ON a.def_id = ad.id
                             JOIN entity_defs_attribute_defs_xref edad
                                 ON ad.id = edad.attribute_def_id AND edad.entity_def_id = $2
-                            WHERE a.owner_type = 'eni' AND a.owner_id = $1
+                            WHERE a.owner_id = $1
                         UNION ALL 
-                        SELECT ad.name, ad.value_type, a.def_id, edad.show_index, '' as text_value, 
+                        SELECT a.id, ad.name, ad.value_type, a.def_id, edad.show_index, '' as text_value, 
                             a.value as smallint_value, 0 as integer_value, 0 as bigint_value, 0 as real_value,
                             false as bool_value, CURRENT_DATE as date_value, CURRENT_TIMESTAMP as timestamp_value
                             FROM attribute_defs ad
                             JOIN smallint_attributes a ON a.def_id = ad.id
                             JOIN entity_defs_attribute_defs_xref edad
                                 ON ad.id = edad.attribute_def_id AND edad.entity_def_id = $2
-                            WHERE a.owner_type = 'eni' and a.owner_id = $1
+                            WHERE a.owner_id = $1
                         UNION ALL 
-                        SELECT ad.name, ad.value_type, a.def_id, edad.show_index, '' as text_value, 
+                        SELECT a.id, ad.name, ad.value_type, a.def_id, edad.show_index, '' as text_value, 
                             CAST (0 as int2) as smallint_value, a.value as integer_value, 0 as bigint_value, 0 as real_value, 
                             false as bool_value, CURRENT_DATE as date_value, CURRENT_TIMESTAMP as timestamp_value 
                             FROM attribute_defs ad
                             JOIN integer_attributes a ON a.def_id = ad.id
                             JOIN entity_defs_attribute_defs_xref edad
                                 ON ad.id = edad.attribute_def_id AND edad.entity_def_id = $2
-                            WHERE a.owner_type = 'eni' and a.owner_id = $1
+                            WHERE a.owner_id = $1
                         UNION ALL 
-                        SELECT ad.name, ad.value_type, a.def_id, edad.show_index, '' as text_value, 
+                        SELECT a.id, ad.name, ad.value_type, a.def_id, edad.show_index, '' as text_value, 
                             CAST (0 as int2) as smallint_value, 0 as integer_value, a.value as bigint_value, 0 as real_value,
                             false as bool_value, CURRENT_DATE as date_value, CURRENT_TIMESTAMP as timestamp_value 
                             FROM attribute_defs ad
                             JOIN bigint_attributes a ON a.def_id = ad.id
                             JOIN entity_defs_attribute_defs_xref edad
                                 ON ad.id = edad.attribute_def_id AND edad.entity_def_id = $2
-                            WHERE a.owner_type = 'eni' and a.owner_id = $1
+                            WHERE a.owner_id = $1
                         UNION ALL 
-                        SELECT ad.name, ad.value_type, a.def_id, edad.show_index, '' as text_value, 
+                        SELECT a.id, ad.name, ad.value_type, a.def_id, edad.show_index, '' as text_value, 
                             CAST (0 as int2) as smallint_value, 0 integer_value, 0 as bigint_value, a.value as real_value,
                             false as bool_value, CURRENT_DATE as date_value, CURRENT_TIMESTAMP as timestamp_value
                             FROM attribute_defs ad
                             JOIN real_attributes a ON a.def_id = ad.id
                             JOIN entity_defs_attribute_defs_xref edad
                                 ON ad.id = edad.attribute_def_id AND edad.entity_def_id = $2
-                            WHERE a.owner_type = 'eni' and a.owner_id = $1
+                            WHERE a.owner_id = $1
                         UNION ALL 
-                        SELECT ad.name, ad.value_type, a.def_id, edad.show_index, '' as text_value, 
+                        SELECT a.id, ad.name, ad.value_type, a.def_id, edad.show_index, '' as text_value, 
                             CAST (0 as int2) as smallint_value, 0 integer_value, 0 as bigint_value, 0 as real_value,
                             a.value as bool_value, CURRENT_DATE as date_value, CURRENT_TIMESTAMP as timestamp_value
                             FROM attribute_defs ad
                             JOIN boolean_attributes a ON a.def_id = ad.id
                             JOIN entity_defs_attribute_defs_xref edad
                                 ON ad.id = edad.attribute_def_id AND edad.entity_def_id = $2
-                            WHERE a.owner_type = 'eni' and a.owner_id = $1
+                            WHERE a.owner_id = $1
                         UNION ALL 
-                        SELECT ad.name, ad.value_type, a.def_id, edad.show_index, '' as text_value, 
+                        SELECT a.id, ad.name, ad.value_type, a.def_id, edad.show_index, '' as text_value, 
                             CAST (0 as int2) as smallint_value, 0 integer_value, 0 as bigint_value, 0 as real_value,
                             false as bool_value, a.value as date_value, CURRENT_TIMESTAMP as timestamp_value 
                             FROM attribute_defs ad
                             JOIN date_attributes a ON a.def_id = ad.id
                             JOIN entity_defs_attribute_defs_xref edad
                                 ON ad.id = edad.attribute_def_id AND edad.entity_def_id = $2
-                            WHERE a.owner_type = 'eni' and a.owner_id = $1
+                            WHERE a.owner_id = $1
                         UNION ALL 
-                        SELECT ad.name, ad.value_type, a.def_id, edad.show_index, '' as text_value, 
+                        SELECT a.id, ad.name, ad.value_type, a.def_id, edad.show_index, '' as text_value, 
                             CAST (0 as int2) as smallint_value, 0 integer_value, 0 as bigint_value, 0 as real_value,
                             false as bool_value, CURRENT_DATE as date_value, a.value as timestamp_value 
                             FROM attribute_defs ad
                             JOIN timestamp_attributes a ON a.def_id = ad.id
                             JOIN entity_defs_attribute_defs_xref edad
                                 ON ad.id = edad.attribute_def_id AND edad.entity_def_id = $2
-                            WHERE a.owner_type = 'eni' and a.owner_id = $1
+                            WHERE a.owner_id = $1
                     ) ORDER by show_index;
                 ";
                 let rows = sqlx::query(query)
@@ -195,11 +195,11 @@ impl EntityRepo {
         // TODO: Use .iter() and refs, instead of clone().
         for attr in ent.text_attributes.clone() {
             if let Err(e) = sqlx::query(
-                "INSERT INTO text_attributes (owner_id, owner_type, def_id, value) 
+                "INSERT INTO text_attributes (id, owner_id, def_id, value) 
                  VALUES ($1, $2, $3, $4)",
             )
+            .bind(Id::new().to_string())
             .bind(&ent.id.as_str())
-            .bind(ItemType::Entity.value())
             .bind(attr.def_id.as_str())
             .bind(attr.value)
             .execute(&mut *txn)
@@ -213,11 +213,11 @@ impl EntityRepo {
 
         for attr in ent.smallint_attributes.clone() {
             if let Err(e) = sqlx::query(
-                "INSERT INTO smallint_attributes (owner_id, owner_type, def_id, value)
+                "INSERT INTO smallint_attributes (id, owner_id, def_id, value)
                  VALUES ($1, $2, $3, $4)",
             )
+            .bind(Id::new().to_string())
             .bind(&ent.id.as_str())
-            .bind(ItemType::Entity.value())
             .bind(attr.def_id.as_str())
             .bind(attr.value)
             .execute(&mut *txn)
@@ -231,11 +231,11 @@ impl EntityRepo {
 
         for attr in ent.int_attributes.clone() {
             if let Err(e) = sqlx::query(
-                "INSERT INTO integer_attributes (owner_id, owner_type, def_id, value) 
+                "INSERT INTO integer_attributes (id, owner_id, def_id, value) 
                  VALUES ($1, $2, $3, $4)",
             )
+            .bind(Id::new().to_string())
             .bind(&ent.id.as_str())
-            .bind(ItemType::Entity.value())
             .bind(attr.def_id.as_str())
             .bind(attr.value)
             .execute(&mut *txn)
@@ -249,11 +249,11 @@ impl EntityRepo {
 
         for attr in ent.boolean_attributes.clone() {
             if let Err(e) = sqlx::query(
-                "INSERT INTO boolean_attributes (owner_id, owner_type, def_id, value) 
+                "INSERT INTO boolean_attributes (id, owner_id, def_id, value) 
                  VALUES ($1, $2, $3, $4)",
             )
+            .bind(Id::new().to_string())
             .bind(&ent.id.as_str())
-            .bind(ItemType::Entity.value())
             .bind(attr.def_id.as_str())
             .bind(attr.value)
             .execute(&mut *txn)
@@ -275,16 +275,11 @@ impl EntityRepo {
 
         for attr in ent.text_attributes.iter() {
             log::debug!("Updating entity id:'{}' w/ text attribute def_id:'{}'", &ent.id, &attr.def_id);
-            if let Err(e) = sqlx::query(
-                "UPDATE text_attributes SET value = $4 
-                 WHERE owner_id = $1 AND owner_type= $2 AND def_id= $3",
-            )
-            .bind(&ent.id.as_str())
-            .bind(ItemType::Entity.value())
-            .bind(&attr.def_id.as_str())
-            .bind(&attr.value)
-            .execute(&mut *txn)
-            .await
+            if let Err(e) = sqlx::query("UPDATE text_attributes SET value = $2 WHERE id = $1")
+                .bind(&attr.id.as_str())
+                .bind(&attr.value)
+                .execute(&mut *txn)
+                .await
             {
                 txn.rollback().await?;
                 log::error!(
@@ -316,16 +311,11 @@ impl EntityRepo {
 
         for attr in ent.smallint_attributes.iter() {
             log::debug!("Updating entity id:'{}' w/ smallint attribute def_id:'{}'", &ent.id, &attr.def_id);
-            if let Err(e) = sqlx::query(
-                "UPDATE smallint_attributes SET value = $4 
-                 WHERE owner_id = $1 AND owner_type= $2 AND def_id= $3",
-            )
-            .bind(&ent.id.as_str())
-            .bind(ItemType::Entity.value())
-            .bind(&attr.def_id.as_str())
-            .bind(&attr.value)
-            .execute(&mut *txn)
-            .await
+            if let Err(e) = sqlx::query("UPDATE smallint_attributes SET value = $2 WHERE id = $1")
+                .bind(&attr.id.as_str())
+                .bind(&attr.value)
+                .execute(&mut *txn)
+                .await
             {
                 txn.rollback().await?;
                 log::error!(
@@ -357,16 +347,11 @@ impl EntityRepo {
 
         for attr in ent.int_attributes.iter() {
             log::debug!("Updating entity id:'{}' w/ integer attribute def_id:'{}'", &ent.id, &attr.def_id);
-            if let Err(e) = sqlx::query(
-                "UPDATE integer_attributes SET value = $4 
-                 WHERE owner_id = $1 AND owner_type= $2 AND def_id= $3",
-            )
-            .bind(&ent.id.as_str())
-            .bind(ItemType::Entity.value())
-            .bind(&attr.def_id.as_str())
-            .bind(&attr.value)
-            .execute(&mut *txn)
-            .await
+            if let Err(e) = sqlx::query("UPDATE integer_attributes SET value = $2 WHERE id = $1")
+                .bind(&attr.id.as_str())
+                .bind(&attr.value)
+                .execute(&mut *txn)
+                .await
             {
                 txn.rollback().await?;
                 log::error!(
@@ -398,16 +383,11 @@ impl EntityRepo {
 
         for attr in ent.boolean_attributes.iter() {
             log::debug!("Updating entity id:'{}' w/ boolean attribute def_id:'{}'", &ent.id, &attr.def_id);
-            if let Err(e) = sqlx::query(
-                "UPDATE boolean_attributes SET value = $4 
-                 WHERE owner_id = $1 AND owner_type= $2 AND def_id= $3",
-            )
-            .bind(&ent.id.as_str())
-            .bind(ItemType::Entity.value())
-            .bind(&attr.def_id.as_str())
-            .bind(&attr.value)
-            .execute(&mut *txn)
-            .await
+            if let Err(e) = sqlx::query("UPDATE boolean_attributes SET value = $2 WHERE id = $1")
+                .bind(&attr.id.as_str())
+                .bind(&attr.value)
+                .execute(&mut *txn)
+                .await
             {
                 txn.rollback().await?;
                 log::error!(
@@ -567,49 +547,30 @@ fn fill_in_entity_attributes(item: &mut Entity, rows: Vec<PgRow>) {
     //
     item.attributes_order = Vec::with_capacity(rows.len());
     for row in rows {
+        let id = Id::new_from(row.get("id"));
         let name: String = row.get("name");
         let value_type: &str = row.get("value_type");
         let def_id = Id::new_from(row.get("def_id"));
         match value_type {
             "text" => {
                 log::debug!("Found text attribute '{}'.", name);
-                item.text_attributes.push(TextAttribute::new(
-                    name,
-                    row.get("text_value"),
-                    def_id,
-                    item.id.clone(),
-                    ItemType::Entity,
-                ));
+                item.text_attributes
+                    .push(TextAttribute::new(id, name, row.get("text_value"), def_id, item.id.clone()));
             }
             "smallint" => {
                 log::debug!("Found smallint attribute '{}'.", name);
-                item.smallint_attributes.push(SmallintAttribute::new(
-                    name,
-                    row.get("smallint_value"),
-                    def_id,
-                    item.id.clone(),
-                    ItemType::Entity,
-                ));
+                item.smallint_attributes
+                    .push(SmallintAttribute::new(id, name, row.get("smallint_value"), def_id, item.id.clone()));
             }
             "integer" => {
                 log::debug!("Found integer attribute '{}'.", name);
-                item.int_attributes.push(IntegerAttribute::new(
-                    name,
-                    row.get("integer_value"),
-                    def_id,
-                    item.id.clone(),
-                    ItemType::Entity,
-                ));
+                item.int_attributes
+                    .push(IntegerAttribute::new(id, name, row.get("integer_value"), def_id, item.id.clone()));
             }
             "boolean" => {
                 log::debug!("Found boolean attribute '{}'.", name);
-                item.boolean_attributes.push(BooleanAttribute::new(
-                    name,
-                    row.get("bool_value"),
-                    def_id,
-                    item.id.clone(),
-                    ItemType::Entity,
-                ));
+                item.boolean_attributes
+                    .push(BooleanAttribute::new(id, name, row.get("bool_value"), def_id, item.id.clone()));
             }
             _ => {
                 log::warn!(

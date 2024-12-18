@@ -104,22 +104,18 @@ pub fn EntityLinkNewPage() -> Element {
                 attr_defs.into_iter().for_each(|attr_def| match attr_def.value_type {
                     AttributeValueType::Text => {
                         let mut attr = TextAttribute::from(attr_def);
-                        attr.owner_type = ItemType::EntityLink;
                         txt_attrs.insert(attr.def_id.clone(), attr);
                     }
                     AttributeValueType::SmallInteger => {
                         let mut attr = SmallintAttribute::from(attr_def);
-                        attr.owner_type = ItemType::EntityLink;
                         si_attrs.insert(attr.def_id.clone(), attr);
                     }
                     AttributeValueType::Integer => {
                         let mut attr = IntegerAttribute::from(attr_def);
-                        attr.owner_type = ItemType::EntityLink;
                         i_attrs.insert(attr.def_id.clone(), attr);
                     }
                     AttributeValueType::Boolean => {
                         let mut attr = BooleanAttribute::from(attr_def);
-                        attr.owner_type = ItemType::EntityLink;
                         b_attrs.insert(attr.def_id.clone(), attr);
                     }
                     _ => {}
