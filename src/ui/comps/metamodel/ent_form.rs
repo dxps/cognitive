@@ -26,6 +26,12 @@ pub fn EntityForm(props: EntityFormProps) -> Element {
 
     let is_view = action == "View";
 
+    log::debug!(
+        "[EntityForm] attributes_order: {:?} text_attrs: {:?}",
+        attributes_order(),
+        text_attrs()
+    );
+
     rsx! {
         div { class: "mt-4 space-y-4",
             div { class: "space-y-0",
@@ -50,7 +56,7 @@ pub fn EntityForm(props: EntityFormProps) -> Element {
                                         .write()
                                         .entry(id.clone())
                                         .and_modify(|attr| { attr.value = evt.value() });
-                                }
+                                },
                             }
                         } else if value_type == AttributeValueType::SmallInteger {
                             label { class: "pr-3 py-2 min-w-36 text-gray-600",
@@ -72,7 +78,7 @@ pub fn EntityForm(props: EntityFormProps) -> Element {
                                         "[EntityForm] Changed smallint attr '{:?}' value to '{}'.", smallint_attrs()
                                         .get(& id).unwrap().name, smallint_attrs().get(& id).unwrap().value
                                     );
-                                }
+                                },
                             }
                         } else if value_type == AttributeValueType::Integer {
                             label { class: "pr-3 py-2 min-w-36 text-gray-600",
@@ -93,7 +99,7 @@ pub fn EntityForm(props: EntityFormProps) -> Element {
                                         "[EntityForm] Changed int attr '{:?}' value to '{}'.", int_attrs().get(& id)
                                         .unwrap().name, int_attrs().get(& id).unwrap().value
                                     );
-                                }
+                                },
                             }
                         } else if value_type == AttributeValueType::Boolean {
                             label { class: "pr-3 py-2 min-w-36 text-gray-600",
@@ -114,7 +120,7 @@ pub fn EntityForm(props: EntityFormProps) -> Element {
                                         "[EntityForm] Changed boolean attr '{:?}' value to '{}'.", boolean_attrs()
                                         .get(& id).unwrap().name, boolean_attrs().get(& id).unwrap().value
                                     );
-                                }
+                                },
                             }
                         }
                     }

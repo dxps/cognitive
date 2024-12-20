@@ -39,6 +39,7 @@ impl Entity {
     pub fn new(
         kind: String,
         def_id: Id,
+        attributes_order: Vec<(AttributeValueType, Id)>,
         text_attributes: IndexMap<Id, TextAttribute>,
         smallint_attributes: IndexMap<Id, SmallintAttribute>,
         int_attributes: IndexMap<Id, IntegerAttribute>,
@@ -51,7 +52,7 @@ impl Entity {
             id: Id::default(),
             kind,
             def_id,
-            attributes_order: vec![],
+            attributes_order,
             text_attributes,
             smallint_attributes,
             int_attributes,

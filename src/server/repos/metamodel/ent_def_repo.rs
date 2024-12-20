@@ -45,9 +45,11 @@ impl EntityDefRepo {
         for ent_def in &mut ent_defs {
             if let Ok(attrs) = sqlx::query_as::<_, AttributeDef>(
                 "SELECT id, name, description, value_type, default_value, required, tag_id
-                 FROM attribute_defs ad JOIN entity_defs_attribute_defs_xref ed_ad_xref
-                 ON ad.id = ed_ad_xref.attribute_def_id where ed_ad_xref.entity_def_id = $1 
-                 ORDER BY ed_ad_xref.show_index",
+                 FROM attribute_defs ad 
+                 JOIN entity_defs_attribute_defs_xref edad
+                    ON ad.id = edad.attribute_def_id 
+                 WHERE edad.entity_def_id = $1 
+                 ORDER BY edad.show_index",
             )
             .bind(&ent_def.id.as_str())
             .fetch_all(self.dbcp.as_ref())

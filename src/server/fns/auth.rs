@@ -1,7 +1,7 @@
-use crate::domain::model::{Id, UserAccount};
+use crate::domain::model::UserAccount;
 
 #[cfg(feature = "server")]
-use crate::server::Session;
+use crate::{domain::model::Id, server::Session};
 
 #[cfg(feature = "server")]
 use log::debug;

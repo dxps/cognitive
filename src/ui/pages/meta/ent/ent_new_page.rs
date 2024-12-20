@@ -24,7 +24,7 @@ pub fn EntityNewPage() -> Element {
     let mut smallint_attrs = use_signal::<IndexMap<Id, SmallintAttribute>>(|| IndexMap::new());
     let mut int_attrs = use_signal::<IndexMap<Id, IntegerAttribute>>(|| IndexMap::new());
     let mut boolean_attrs = use_signal::<IndexMap<Id, BooleanAttribute>>(|| IndexMap::new());
-    let attributes_order = use_signal::<Vec<(AttributeValueType, Id)>>(|| Vec::new());
+    let mut attributes_order = use_signal::<Vec<(AttributeValueType, Id)>>(|| Vec::new());
 
     let err: Signal<Option<String>> = use_signal(|| None);
     let action_done = use_signal(|| false);
@@ -39,6 +39,12 @@ pub fn EntityNewPage() -> Element {
         ent_defs.set(ent_defs_list);
     });
 
+    log::debug!(
+        "[EntityNewPage] selected kind_id: {:?} is empty ? => {}",
+        selected_kind_id(),
+        selected_kind_id().is_empty()
+    );
+
     use_memo(move || {
         let kind_id = selected_kind_id();
         log::debug!("[EntityNewPage] Changed selected kind_id: {:?}", kind_id);
@@ -47,7 +53,7 @@ pub fn EntityNewPage() -> Element {
         }
         selected_kind_name.set(ent_kinds().get(&kind_id).unwrap().clone());
         log::debug!(
-            "[EntityNewPage] Loading attributes from entity def id:'{}' using the global state ...",
+            "[EntityNewPage] Loading attributes of entity def w/ id:'{}' from the global state ...",
             kind_id
         );
         if let Some(ent_def) = UI_STATE.get_ent_def_sync(&kind_id) {
@@ -55,6 +61,7 @@ pub fn EntityNewPage() -> Element {
             let mut si_attrs = IndexMap::new();
             let mut i_attrs = IndexMap::new();
             let mut b_attrs = IndexMap::new();
+            let mut attrs_order = Vec::new();
             ent_def.attributes.into_iter().for_each(|attr_def| {
                 if attr_def.id == ent_def.listing_attr_def_id {
                     listing_attr_def_id.set(attr_def.id.clone());
@@ -62,31 +69,36 @@ pub fn EntityNewPage() -> Element {
                 }
                 match attr_def.value_type {
                     AttributeValueType::Text => {
+                        attrs_order.push((AttributeValueType::Text, attr_def.id.clone()));
                         let attr = TextAttribute::from(attr_def);
                         txt_attrs.insert(attr.def_id.clone(), attr);
                     }
                     AttributeValueType::SmallInteger => {
+                        attrs_order.push((AttributeValueType::SmallInteger, attr_def.id.clone()));
                         let attr = SmallintAttribute::from(attr_def);
                         si_attrs.insert(attr.def_id.clone(), attr);
                     }
                     AttributeValueType::Integer => {
+                        attrs_order.push((AttributeValueType::Integer, attr_def.id.clone()));
                         let attr = IntegerAttribute::from(attr_def);
                         i_attrs.insert(attr.def_id.clone(), attr);
                     }
                     AttributeValueType::Boolean => {
+                        attrs_order.push((AttributeValueType::Boolean, attr_def.id.clone()));
                         let attr = BooleanAttribute::from(attr_def);
                         b_attrs.insert(attr.def_id.clone(), attr);
                     }
                     _ => {}
                 }
             });
+            attributes_order.set(attrs_order);
             text_attrs.set(txt_attrs);
             smallint_attrs.set(si_attrs);
             int_attrs.set(i_attrs);
             boolean_attrs.set(b_attrs);
-            log::debug!("[EntityNewPage] Loaded attributes from entity def id:'{}'", kind_id);
+            log::debug!("[EntityNewPage] Loaded attributes from entity def w/ id:'{}'.", kind_id);
         } else {
-            log::warn!("[EntityNewPage] Failed to get entity def id:'{}'", kind_id);
+            log::warn!("[EntityNewPage] Failed to get entity def w/ id:'{}'.", kind_id);
         }
     });
 
@@ -104,13 +116,17 @@ pub fn EntityNewPage() -> Element {
                             Link {
                                 class: "text-gray-500 hover:text-gray-800 px-2 rounded-xl transition duration-200",
                                 to: Route::EntityListPage {},
-                                "X"
+                                "x"
                             }
                         }
                         div { class: "flex py-4",
                             p { class: "py-2 pr-4 text-gray-600 block", "Kind:" }
                             if !ent_defs().is_empty() {
-                                Select { items: ent_kinds, selected_item_id: selected_kind_id, disabled: false }
+                                Select {
+                                    items: ent_kinds,
+                                    selected_item_id: selected_kind_id,
+                                    disabled: false,
+                                }
                             }
                         }
                         if selected_kind_id().is_empty() {
@@ -124,12 +140,13 @@ pub fn EntityNewPage() -> Element {
                                 smallint_attrs,
                                 int_attrs,
                                 boolean_attrs,
-                                action: Action::Edit
+                                action: Action::Edit,
                             }
                         }
                         div { class: "flex justify-end mt-8",
                             button {
                                 class: "bg-gray-100 hover:bg-green-100 disabled:text-gray-300 hover:disabled:bg-gray-100 drop-shadow-sm px-4 rounded-md",
+                                disabled: selected_kind_id().is_empty(),
                                 onclick: move |_| {
                                     async move {
                                         if action_done() {
@@ -138,6 +155,7 @@ pub fn EntityNewPage() -> Element {
                                             handle_create_ent(
                                                     selected_kind_name(),
                                                     selected_kind_id(),
+                                                    attributes_order(),
                                                     text_attrs(),
                                                     smallint_attrs(),
                                                     int_attrs(),
@@ -168,7 +186,7 @@ pub fn EntityNewPage() -> Element {
                     content: vec!["The entity has been successfully created.".into()],
                     action_handler: move |_| {
                         navigator().push(Route::EntityListPage {});
-                    }
+                    },
                 }
             }
         }
@@ -176,8 +194,9 @@ pub fn EntityNewPage() -> Element {
 }
 
 async fn handle_create_ent(
-    kind: String, // TODO: Review the usage of kind.
+    kind: String, // TODO: Review its usage.
     def_id: Id,
+    attributes_order: Vec<(AttributeValueType, Id)>,
     text_attrs: IndexMap<Id, TextAttribute>,
     smallint_attrs: IndexMap<Id, SmallintAttribute>,
     int_attrs: IndexMap<Id, IntegerAttribute>,
@@ -193,6 +212,7 @@ async fn handle_create_ent(
     let ent = Entity::new(
         kind,
         def_id,
+        attributes_order,
         text_attrs,
         smallint_attrs,
         int_attrs,
@@ -202,7 +222,7 @@ async fn handle_create_ent(
         listing_attr_value,
     );
 
-    log::debug!("Creating the entity {:?} ...", ent);
+    log::debug!("[EntityNewPage] [handle_create_ent] Creating {:?} ...", ent);
 
     match crate::server::fns::create_entity(ent).await {
         Ok(id) => {

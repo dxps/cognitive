@@ -20,6 +20,7 @@ pub async fn list_entities() -> Result<Vec<Entity>, ServerFnError> {
 /// Create an entity instance.
 #[server(endpoint = "admin/create_ent")]
 pub async fn create_entity(item: Entity) -> Result<Id, ServerFnError> {
+    log::debug!("[create_entity (fn)] {:?}.", item);
     let session: Session = extract().await?;
     let result = session.5.add(item).await;
     result.map_err(|e| e.into())
