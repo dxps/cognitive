@@ -36,25 +36,25 @@ impl EntityMgmt {
 
     fn set_listing_attr_value(&self, ent: &mut Entity) {
         //
-        for (_id, attr) in ent.text_attributes.iter() {
+        for attr in ent.text_attributes.iter() {
             if attr.def_id == ent.listing_attr_def_id {
                 ent.listing_attr_value = attr.value.clone();
                 return;
             }
         }
-        for (_id, attr) in ent.smallint_attributes.iter() {
+        for attr in ent.smallint_attributes.iter() {
             if attr.def_id == ent.listing_attr_def_id {
                 ent.listing_attr_value = attr.value.to_string();
                 return;
             }
         }
-        for (_id, attr) in ent.int_attributes.iter() {
+        for attr in ent.int_attributes.iter() {
             if attr.def_id == ent.listing_attr_def_id {
                 ent.listing_attr_value = attr.value.to_string();
                 return;
             }
         }
-        for (_id, attr) in ent.boolean_attributes.iter() {
+        for attr in ent.boolean_attributes.iter() {
             if attr.def_id == ent.listing_attr_def_id {
                 ent.listing_attr_value = attr.value.to_string();
                 return;

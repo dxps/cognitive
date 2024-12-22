@@ -1,14 +1,15 @@
+use std::collections::HashMap;
+
 use crate::domain::model::{AttributeValueType, BooleanAttribute, Id, IntegerAttribute, SmallintAttribute, TextAttribute};
 use dioxus::prelude::*;
-use indexmap::IndexMap;
 
 #[derive(Props, PartialEq, Clone)]
 pub struct EntityFormProps {
     pub attributes_order: Signal<Vec<(AttributeValueType, Id)>>,
-    pub text_attrs: Signal<IndexMap<Id, TextAttribute>>,
-    pub smallint_attrs: Signal<IndexMap<Id, SmallintAttribute>>,
-    pub int_attrs: Signal<IndexMap<Id, IntegerAttribute>>,
-    pub boolean_attrs: Signal<IndexMap<Id, BooleanAttribute>>,
+    pub text_attrs: Signal<HashMap<Id, TextAttribute>>,
+    pub smallint_attrs: Signal<HashMap<Id, SmallintAttribute>>,
+    pub int_attrs: Signal<HashMap<Id, IntegerAttribute>>,
+    pub boolean_attrs: Signal<HashMap<Id, BooleanAttribute>>,
     pub action: String,
 }
 

@@ -3,7 +3,6 @@ use crate::{
     server::{AppResult, Pagination},
     ui::pages::Name,
 };
-use indexmap::IndexMap;
 use sqlx::{postgres::PgRow, FromRow, PgPool, Row};
 use std::sync::Arc;
 
@@ -194,12 +193,12 @@ impl EntityRepo {
         }
 
         // TODO: Use .iter() and refs, instead of clone().
-        for (_id, attr) in ent.text_attributes.clone() {
+        for attr in ent.text_attributes.iter() {
             if let Err(e) = sqlx::query("INSERT INTO text_attributes (id, owner_id, def_id, value) VALUES ($1, $2, $3, $4)")
                 .bind(Id::new().to_string())
                 .bind(&ent.id.as_str())
                 .bind(attr.def_id.as_str())
-                .bind(attr.value)
+                .bind(&attr.value)
                 .execute(&mut *txn)
                 .await
             {
@@ -209,7 +208,7 @@ impl EntityRepo {
             }
         }
 
-        for (_id, attr) in ent.smallint_attributes.clone() {
+        for attr in ent.smallint_attributes.iter() {
             if let Err(e) = sqlx::query("INSERT INTO smallint_attributes (id, owner_id, def_id, value) VALUES ($1, $2, $3, $4)")
                 .bind(Id::new().to_string())
                 .bind(&ent.id.as_str())
@@ -224,7 +223,7 @@ impl EntityRepo {
             }
         }
 
-        for (_id, attr) in ent.int_attributes.clone() {
+        for attr in ent.int_attributes.iter() {
             if let Err(e) = sqlx::query("INSERT INTO integer_attributes (id, owner_id, def_id, value) VALUES ($1, $2, $3, $4)")
                 .bind(Id::new().to_string())
                 .bind(&ent.id.as_str())
@@ -239,7 +238,7 @@ impl EntityRepo {
             }
         }
 
-        for (_id, attr) in ent.boolean_attributes.clone() {
+        for attr in ent.boolean_attributes.iter() {
             if let Err(e) = sqlx::query("INSERT INTO boolean_attributes (id, owner_id, def_id, value) VALUES ($1, $2, $3, $4)")
                 .bind(Id::new().to_string())
                 .bind(&ent.id.as_str())
@@ -262,7 +261,7 @@ impl EntityRepo {
         //
         let mut txn = self.dbcp.begin().await?;
 
-        for (_id, attr) in ent.text_attributes.iter() {
+        for attr in ent.text_attributes.iter() {
             log::debug!("Updating entity id:'{}' w/ text attribute def_id:'{}'", &ent.id, &attr.def_id);
             if let Err(e) = sqlx::query("UPDATE text_attributes SET value = $2 WHERE id = $1")
                 .bind(&attr.id.as_str())
@@ -298,7 +297,7 @@ impl EntityRepo {
             }
         }
 
-        for (_id, attr) in ent.smallint_attributes.iter() {
+        for attr in ent.smallint_attributes.iter() {
             log::debug!("Updating entity id:'{}' w/ smallint attribute def_id:'{}'", &ent.id, &attr.def_id);
             if let Err(e) = sqlx::query("UPDATE smallint_attributes SET value = $2 WHERE id = $1")
                 .bind(&attr.id.as_str())
@@ -334,7 +333,7 @@ impl EntityRepo {
             }
         }
 
-        for (_id, attr) in ent.int_attributes.iter() {
+        for attr in ent.int_attributes.iter() {
             log::debug!("Updating entity id:'{}' w/ integer attribute def_id:'{}'", &ent.id, &attr.def_id);
             if let Err(e) = sqlx::query("UPDATE integer_attributes SET value = $2 WHERE id = $1")
                 .bind(&attr.id.as_str())
@@ -370,7 +369,7 @@ impl EntityRepo {
             }
         }
 
-        for (_id, attr) in ent.boolean_attributes.iter() {
+        for attr in ent.boolean_attributes.iter() {
             log::debug!("Updating entity id:'{}' w/ boolean attribute def_id:'{}'", &ent.id, &attr.def_id);
             if let Err(e) = sqlx::query("UPDATE boolean_attributes SET value = $2 WHERE id = $1")
                 .bind(&attr.id.as_str())
@@ -420,25 +419,25 @@ impl EntityRepo {
         let mut txn = self.dbcp.begin().await?;
         for mut ent in ents {
             ent = self.get(&ent.id).await?.unwrap();
-            for (_id, attr) in ent.text_attributes.clone() {
+            for attr in ent.text_attributes.clone() {
                 if attr.def_id == *attr_id {
                     ent.listing_attr_name = attr.name;
                     ent.listing_attr_value = attr.value;
                 }
             }
-            for (_id, attr) in ent.smallint_attributes.clone() {
+            for attr in ent.smallint_attributes.clone() {
                 if attr.def_id == *attr_id {
                     ent.listing_attr_name = attr.name;
                     ent.listing_attr_value = format!("{:?}", attr.value);
                 }
             }
-            for (_id, attr) in ent.int_attributes.clone() {
+            for attr in ent.int_attributes.clone() {
                 if attr.def_id == *attr_id {
                     ent.listing_attr_name = attr.name;
                     ent.listing_attr_value = format!("{:?}", attr.value);
                 }
             }
-            for (_id, attr) in ent.boolean_attributes.clone() {
+            for attr in ent.boolean_attributes.clone() {
                 if attr.def_id == *attr_id {
                     ent.listing_attr_name = attr.name;
                     ent.listing_attr_value = format!("{:?}", attr.value);
@@ -521,10 +520,10 @@ impl FromRow<'_, PgRow> for Entity {
             kind: row.get("kind"),
             def_id: Id::new_from(row.get("def_id")),
             attributes_order: vec![],
-            text_attributes: IndexMap::new(),
-            smallint_attributes: IndexMap::new(),
-            int_attributes: IndexMap::new(),
-            boolean_attributes: IndexMap::new(),
+            text_attributes: Vec::new(),
+            smallint_attributes: Vec::new(),
+            int_attributes: Vec::new(),
+            boolean_attributes: Vec::new(),
             listing_attr_def_id: Id::new_from(row.get("listing_attr_def_id")),
             listing_attr_name: row.get("listing_attr_name"),
             listing_attr_value: row.get("listing_attr_value"),
@@ -543,34 +542,41 @@ fn fill_in_entity_attributes(item: &mut Entity, rows: Vec<PgRow>) {
         match value_type {
             "text" => {
                 log::debug!("Found text attribute '{}'.", name);
-                item.text_attributes.insert(
-                    id.clone(),
-                    TextAttribute::new(id.clone(), name, row.get("text_value"), def_id, item.id.clone()),
-                );
+                item.text_attributes
+                    .push(TextAttribute::new(id.clone(), name, row.get("text_value"), def_id, item.id.clone()));
                 item.attributes_order.push((AttributeValueType::Text, id));
             }
             "smallint" => {
                 log::debug!("Found smallint attribute '{}'.", name);
-                item.smallint_attributes.insert(
+                item.smallint_attributes.push(SmallintAttribute::new(
                     id.clone(),
-                    SmallintAttribute::new(id.clone(), name, row.get("smallint_value"), def_id, item.id.clone()),
-                );
+                    name,
+                    row.get("smallint_value"),
+                    def_id,
+                    item.id.clone(),
+                ));
                 item.attributes_order.push((AttributeValueType::SmallInteger, id));
             }
             "integer" => {
                 log::debug!("Found integer attribute '{}'.", name);
-                item.int_attributes.insert(
+                item.int_attributes.push(IntegerAttribute::new(
                     id.clone(),
-                    IntegerAttribute::new(id.clone(), name, row.get("integer_value"), def_id, item.id.clone()),
-                );
+                    name,
+                    row.get("integer_value"),
+                    def_id,
+                    item.id.clone(),
+                ));
                 item.attributes_order.push((AttributeValueType::Integer, id));
             }
             "boolean" => {
                 log::debug!("Found boolean attribute '{}'.", name);
-                item.boolean_attributes.insert(
+                item.boolean_attributes.push(BooleanAttribute::new(
                     id.clone(),
-                    BooleanAttribute::new(id.clone(), name, row.get("bool_value"), def_id, item.id.clone()),
-                );
+                    name,
+                    row.get("bool_value"),
+                    def_id,
+                    item.id.clone(),
+                ));
                 item.attributes_order.push((AttributeValueType::Boolean, id));
             }
             _ => {

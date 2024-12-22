@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::{
     domain::model::{AttributeValueType, BooleanAttribute, Entity, EntityDef, Id, IntegerAttribute, SmallintAttribute, TextAttribute},
     ui::{
@@ -20,14 +22,14 @@ pub fn EntityNewPage() -> Element {
     let mut listing_attr_name = use_signal(|| Name::default());
     let listing_attr_value = use_signal(|| String::default());
 
-    let mut text_attrs = use_signal::<IndexMap<Id, TextAttribute>>(|| IndexMap::new());
-    let mut smallint_attrs = use_signal::<IndexMap<Id, SmallintAttribute>>(|| IndexMap::new());
-    let mut int_attrs = use_signal::<IndexMap<Id, IntegerAttribute>>(|| IndexMap::new());
-    let mut boolean_attrs = use_signal::<IndexMap<Id, BooleanAttribute>>(|| IndexMap::new());
+    let mut text_attrs = use_signal::<HashMap<Id, TextAttribute>>(|| HashMap::new());
+    let mut smallint_attrs = use_signal::<HashMap<Id, SmallintAttribute>>(|| HashMap::new());
+    let mut int_attrs = use_signal::<HashMap<Id, IntegerAttribute>>(|| HashMap::new());
+    let mut boolean_attrs = use_signal::<HashMap<Id, BooleanAttribute>>(|| HashMap::new());
     let mut attributes_order = use_signal::<Vec<(AttributeValueType, Id)>>(|| Vec::new());
 
-    let err: Signal<Option<String>> = use_signal(|| None);
-    let action_done = use_signal(|| false);
+    let mut err: Signal<Option<String>> = use_signal(|| None);
+    let mut action_done = use_signal(|| false);
 
     use_future(move || async move {
         let ent_defs_list = UI_STATE.get_ent_defs_list().await;
@@ -38,12 +40,6 @@ pub fn EntityNewPage() -> Element {
         ent_kinds.set(ent_kinds_map);
         ent_defs.set(ent_defs_list);
     });
-
-    log::debug!(
-        "[EntityNewPage] selected kind_id: {:?} is empty ? => {}",
-        selected_kind_id(),
-        selected_kind_id().is_empty()
-    );
 
     use_memo(move || {
         let kind_id = selected_kind_id();
@@ -57,10 +53,10 @@ pub fn EntityNewPage() -> Element {
             kind_id
         );
         if let Some(ent_def) = UI_STATE.get_ent_def_sync(&kind_id) {
-            let mut txt_attrs = IndexMap::new();
-            let mut si_attrs = IndexMap::new();
-            let mut i_attrs = IndexMap::new();
-            let mut b_attrs = IndexMap::new();
+            let mut txt_attrs = HashMap::new();
+            let mut si_attrs = HashMap::new();
+            let mut i_attrs = HashMap::new();
+            let mut b_attrs = HashMap::new();
             let mut attrs_order = Vec::new();
             ent_def.attributes.into_iter().for_each(|attr_def| {
                 if attr_def.id == ent_def.listing_attr_def_id {
@@ -156,10 +152,10 @@ pub fn EntityNewPage() -> Element {
                                                     selected_kind_name(),
                                                     selected_kind_id(),
                                                     attributes_order(),
-                                                    text_attrs(),
-                                                    smallint_attrs(),
-                                                    int_attrs(),
-                                                    boolean_attrs(),
+                                                    text_attrs().values().cloned().collect(),
+                                                    smallint_attrs().values().cloned().collect(),
+                                                    int_attrs().values().cloned().collect(),
+                                                    boolean_attrs().values().cloned().collect(),
                                                     listing_attr_def_id(),
                                                     listing_attr_name(),
                                                     listing_attr_value(),
@@ -181,12 +177,23 @@ pub fn EntityNewPage() -> Element {
                 }
             }
             if action_done() {
-                AcknowledgeModal {
-                    title: "Confirmation",
-                    content: vec!["The entity has been successfully created.".into()],
-                    action_handler: move |_| {
-                        navigator().push(Route::EntityListPage {});
-                    },
+                if err().is_none() {
+                    AcknowledgeModal {
+                        title: "Confirmation",
+                        content: vec!["The entity has been successfully created.".into()],
+                        action_handler: move |_| {
+                            navigator().push(Route::EntityListPage {});
+                        },
+                    }
+                } else {
+                    AcknowledgeModal {
+                        title: "Error",
+                        content: vec!["Failed to create the entity instance. Reason:".into(), err.unwrap()],
+                        action_handler: move |_| {
+                            err.set(None);
+                            action_done.set(false);
+                        },
+                    }
                 }
             }
         }
@@ -197,14 +204,14 @@ async fn handle_create_ent(
     kind: String, // TODO: Review its usage.
     def_id: Id,
     attributes_order: Vec<(AttributeValueType, Id)>,
-    text_attrs: IndexMap<Id, TextAttribute>,
-    smallint_attrs: IndexMap<Id, SmallintAttribute>,
-    int_attrs: IndexMap<Id, IntegerAttribute>,
-    boolean_attrs: IndexMap<Id, BooleanAttribute>,
+    text_attrs: Vec<TextAttribute>,
+    smallint_attrs: Vec<SmallintAttribute>,
+    int_attrs: Vec<IntegerAttribute>,
+    boolean_attrs: Vec<BooleanAttribute>,
     listing_attr_def_id: Id,
     listing_attr_name: String,
     listing_attr_value: String,
-    mut saved: Signal<bool>,
+    mut action_done: Signal<bool>,
     mut err: Signal<Option<String>>,
 ) -> Option<Id> {
     //
@@ -226,12 +233,12 @@ async fn handle_create_ent(
 
     match crate::server::fns::create_entity(ent).await {
         Ok(id) => {
-            saved.set(true);
+            action_done.set(true);
             err.set(None);
             Some(id)
         }
         Err(e) => {
-            saved.set(false);
+            action_done.set(true);
             err.set(Some(e.to_string()));
             None
         }

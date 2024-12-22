@@ -1,6 +1,5 @@
 use super::{AttributeValueType, BooleanAttribute, IntegerAttribute, SmallintAttribute, TextAttribute};
 use crate::domain::model::Id;
-use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -19,16 +18,16 @@ pub struct Entity {
     pub attributes_order: Vec<(AttributeValueType, Id)>,
 
     #[serde(default)]
-    pub text_attributes: IndexMap<Id, TextAttribute>,
+    pub text_attributes: Vec<TextAttribute>,
 
     #[serde(default)]
-    pub smallint_attributes: IndexMap<Id, SmallintAttribute>,
+    pub smallint_attributes: Vec<SmallintAttribute>,
 
     #[serde(default)]
-    pub int_attributes: IndexMap<Id, IntegerAttribute>,
+    pub int_attributes: Vec<IntegerAttribute>,
 
     #[serde(default)]
-    pub boolean_attributes: IndexMap<Id, BooleanAttribute>,
+    pub boolean_attributes: Vec<BooleanAttribute>,
 
     pub listing_attr_def_id: Id,
     pub listing_attr_name: String,
@@ -40,10 +39,10 @@ impl Entity {
         kind: String,
         def_id: Id,
         attributes_order: Vec<(AttributeValueType, Id)>,
-        text_attributes: IndexMap<Id, TextAttribute>,
-        smallint_attributes: IndexMap<Id, SmallintAttribute>,
-        int_attributes: IndexMap<Id, IntegerAttribute>,
-        boolean_attributes: IndexMap<Id, BooleanAttribute>,
+        text_attributes: Vec<TextAttribute>,
+        smallint_attributes: Vec<SmallintAttribute>,
+        int_attributes: Vec<IntegerAttribute>,
+        boolean_attributes: Vec<BooleanAttribute>,
         listing_attr_def_id: Id,
         listing_attr_name: String,
         listing_attr_value: String,
@@ -67,10 +66,10 @@ impl Entity {
         id: Id,
         kind: String,
         def_id: Id,
-        text_attributes: IndexMap<Id, TextAttribute>,
-        smallint_attributes: IndexMap<Id, SmallintAttribute>,
-        int_attributes: IndexMap<Id, IntegerAttribute>,
-        boolean_attributes: IndexMap<Id, BooleanAttribute>,
+        text_attributes: Vec<TextAttribute>,
+        smallint_attributes: Vec<SmallintAttribute>,
+        int_attributes: Vec<IntegerAttribute>,
+        boolean_attributes: Vec<BooleanAttribute>,
         listing_attr_def_id: Id,
     ) -> Self {
         Self {

@@ -8,7 +8,7 @@ use crate::{
     },
 };
 use dioxus::prelude::*;
-use indexmap::IndexMap;
+use std::collections::HashMap;
 
 #[derive(PartialEq, Props, Clone)]
 pub struct EntityPageProps {
@@ -23,10 +23,10 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
     let kind = use_signal(|| "".to_string());
     let listing_attr_def_id = use_signal(|| Id::default());
 
-    let text_attrs = use_signal::<IndexMap<Id, TextAttribute>>(|| IndexMap::new());
-    let smallint_attrs = use_signal::<IndexMap<Id, SmallintAttribute>>(|| IndexMap::new());
-    let int_attrs = use_signal::<IndexMap<Id, IntegerAttribute>>(|| IndexMap::new());
-    let boolean_attrs = use_signal::<IndexMap<Id, BooleanAttribute>>(|| IndexMap::new());
+    let text_attrs = use_signal::<HashMap<Id, TextAttribute>>(|| HashMap::new());
+    let smallint_attrs = use_signal::<HashMap<Id, SmallintAttribute>>(|| HashMap::new());
+    let int_attrs = use_signal::<HashMap<Id, IntegerAttribute>>(|| HashMap::new());
+    let boolean_attrs = use_signal::<HashMap<Id, BooleanAttribute>>(|| HashMap::new());
     let attributes_order = use_signal::<Vec<(AttributeValueType, Id)>>(|| Vec::new());
 
     let mut show_delete_confirm = use_signal(|| false);
@@ -56,7 +56,7 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
                 paths: Route::get_path_to_ent(
                     Route::EntityPage { id: id() },
                     format!("{} ({})", kind(), id()),
-                )
+                ),
             }
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
                 div { class: "bg-white rounded-lg p-3 min-w-[600px] mt-[min(100px)]",
@@ -77,7 +77,7 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
                             smallint_attrs,
                             int_attrs,
                             boolean_attrs,
-                            action: action()
+                            action: action(),
                         }
                         div { class: "flex justify-between mt-8",
                             button {
@@ -90,16 +90,10 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
                             // Show the buttons's action result in the UI.
                             div { class: "min-w-[400px] max-w-[400px] text-sm flex justify-center items-center",
                                 if err().is_some() {
-                                    span { class: "text-red-600", { err().unwrap() } }
+                                    span { class: "text-red-600", {err().unwrap()} }
                                 } else if action_done() {
                                     span { class: "text-green-600",
-                                        {
-                                            if action() == Action::Edit {
-                                                "Successfully updated"
-                                            } else {
-                                                ""
-                                            }
-                                        }
+                                        {if action() == Action::Edit { "Successfully updated" } else { "" }}
                                     }
                                 }
                             }
@@ -162,20 +156,16 @@ pub fn EntityPage(props: EntityPageProps) -> Element {
                                 log::debug!("Calling handle_delete ...");
                                 handle_delete(&id(), action_done, err).await;
                             });
-                        }
+                        },
                     }
                 }
             } else if action_done() {
                 AcknowledgeModal {
                     title: "Confirmation",
-                    content: if action() == Action::Delete {
-                        vec!["The entity has been successfully deleted.".into()]
-                    } else {
-                        vec!["The entity has been successfully updated.".into()]
-                    },
+                    content: if action() == Action::Delete { vec!["The entity has been successfully deleted.".into()] } else { vec!["The entity has been successfully updated.".into()] },
                     action_handler: move |_| {
                         navigator().push(Route::EntityListPage {});
-                    }
+                    },
                 }
             }
         }
@@ -187,20 +177,41 @@ async fn init(
     mut kind: Signal<String>,
     mut def_id: Signal<Id>,
     mut attributes_order: Signal<Vec<(AttributeValueType, Id)>>,
-    mut text_attrs: Signal<IndexMap<Id, TextAttribute>>,
-    mut smallint_attrs: Signal<IndexMap<Id, SmallintAttribute>>,
-    mut int_attrs: Signal<IndexMap<Id, IntegerAttribute>>,
-    mut boolean_attrs: Signal<IndexMap<Id, BooleanAttribute>>,
+    mut text_attrs: Signal<HashMap<Id, TextAttribute>>,
+    mut smallint_attrs: Signal<HashMap<Id, SmallintAttribute>>,
+    mut int_attrs: Signal<HashMap<Id, IntegerAttribute>>,
+    mut boolean_attrs: Signal<HashMap<Id, BooleanAttribute>>,
     mut listing_attr_def_id: Signal<Id>,
 ) {
     match get_entity(id()).await {
         Ok(Some(ent)) => {
             log::debug!("[EntityPage] Based on id {id}, got entity {:?}", ent);
             attributes_order.set(ent.attributes_order);
-            text_attrs.set(ent.text_attributes);
-            smallint_attrs.set(ent.smallint_attributes);
-            int_attrs.set(ent.int_attributes);
-            boolean_attrs.set(ent.boolean_attributes);
+
+            let mut ent_text_attrs = HashMap::new();
+            ent.text_attributes.iter().for_each(|attr| {
+                ent_text_attrs.insert(attr.id.clone(), attr.clone());
+            });
+            text_attrs.set(ent_text_attrs);
+
+            let mut ent_smallint_attrs = HashMap::new();
+            ent.smallint_attributes.iter().for_each(|attr| {
+                ent_smallint_attrs.insert(attr.id.clone(), attr.clone());
+            });
+            smallint_attrs.set(ent_smallint_attrs);
+
+            let mut ent_int_attrs = HashMap::new();
+            ent.int_attributes.iter().for_each(|attr| {
+                ent_int_attrs.insert(attr.id.clone(), attr.clone());
+            });
+            int_attrs.set(ent_int_attrs);
+
+            let mut ent_boolean_attrs = HashMap::new();
+            ent.boolean_attributes.iter().for_each(|attr| {
+                ent_boolean_attrs.insert(attr.id.clone(), attr.clone());
+            });
+            boolean_attrs.set(ent_boolean_attrs);
+
             kind.set(ent.kind);
             def_id.set(ent.def_id);
             listing_attr_def_id.set(ent.listing_attr_def_id);
@@ -218,10 +229,10 @@ async fn handle_update(
     ent_id: Id,
     kind: String,
     def_id: Id,
-    text_attributes: IndexMap<Id, TextAttribute>,
-    smallint_attributes: IndexMap<Id, SmallintAttribute>,
-    int_attributes: IndexMap<Id, IntegerAttribute>,
-    boolean_attributes: IndexMap<Id, BooleanAttribute>,
+    text_attributes: HashMap<Id, TextAttribute>,
+    smallint_attributes: HashMap<Id, SmallintAttribute>,
+    int_attributes: HashMap<Id, IntegerAttribute>,
+    boolean_attributes: HashMap<Id, BooleanAttribute>,
     listing_attr_def_id: Id,
     mut saved: Signal<bool>,
     mut err: Signal<Option<String>>,
@@ -231,10 +242,10 @@ async fn handle_update(
         ent_id,
         kind,
         def_id,
-        text_attributes,
-        smallint_attributes,
-        int_attributes,
-        boolean_attributes,
+        text_attributes.values().cloned().collect(),
+        smallint_attributes.values().cloned().collect(),
+        int_attributes.values().cloned().collect(),
+        boolean_attributes.values().cloned().collect(),
         listing_attr_def_id,
     );
 
