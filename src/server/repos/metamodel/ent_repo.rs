@@ -192,7 +192,6 @@ impl EntityRepo {
             return AppResult::Err(e.into());
         }
 
-        // TODO: Use .iter() and refs, instead of clone().
         for attr in ent.text_attributes.iter() {
             if let Err(e) = sqlx::query("INSERT INTO text_attributes (id, owner_id, def_id, value) VALUES ($1, $2, $3, $4)")
                 .bind(Id::new().to_string())
