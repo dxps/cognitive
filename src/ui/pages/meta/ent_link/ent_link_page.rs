@@ -68,7 +68,7 @@ pub fn EntityLinkPage(props: EntityLinkPageProps) -> Element {
             Breadcrumb { paths: Route::get_path_to_ent_link(id(), format!("{} ({})", kind(), id())) }
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
                 div { class: "bg-white rounded-lg p-3 min-w-[600px] mt-[min(100px)]",
-                    div { class: "p-6 mt-8",
+                    div { class: "p-6",
                         div { class: "flex justify-between mb-4",
                             p { class: "text-lg font-medium leading-snug tracking-normal text-gray-500 antialiased",
                                 "{action} Entity Link"
@@ -88,7 +88,7 @@ pub fn EntityLinkPage(props: EntityLinkPageProps) -> Element {
                             smallint_attrs,
                             int_attrs,
                             boolean_attrs,
-                            action
+                            action,
                         }
                         div { class: "flex justify-between mt-8",
                             button {
@@ -101,16 +101,10 @@ pub fn EntityLinkPage(props: EntityLinkPageProps) -> Element {
                             // Show the buttons's action result in the UI.
                             div { class: "min-w-[400px] max-w-[400px] text-sm flex justify-center items-center",
                                 if err().is_some() {
-                                    span { class: "text-red-600", { err().unwrap() } }
+                                    span { class: "text-red-600", {err().unwrap()} }
                                 } else if action_done() {
                                     span { class: "text-green-600",
-                                        {
-                                            if action() == Action::Edit {
-                                                "Successfully updated"
-                                            } else {
-                                                ""
-                                            }
-                                        }
+                                        {if action() == Action::Edit { "Successfully updated" } else { "" }}
                                     }
                                 }
                             }
@@ -173,20 +167,16 @@ pub fn EntityLinkPage(props: EntityLinkPageProps) -> Element {
                                 log::debug!("Calling handle_delete ...");
                                 handle_delete(&id(), action_done, err).await;
                             });
-                        }
+                        },
                     }
                 }
             } else if action_done() {
                 AcknowledgeModal {
                     title: "Confirmation",
-                    content: if action() == Action::Delete {
-                        vec!["The entity link has been successfully deleted.".into()]
-                    } else {
-                        vec!["The entity link has been successfully updated.".into()]
-                    },
+                    content: if action() == Action::Delete { vec!["The entity link has been successfully deleted.".into()] } else { vec!["The entity link has been successfully updated.".into()] },
                     action_handler: move |_| {
                         navigator().push(Route::EntityLinkListPage {});
-                    }
+                    },
                 }
             }
         }

@@ -42,11 +42,19 @@ pub fn EntityLinkForm(props: EntityLinkFormProps) -> Element {
     rsx! {
         div { class: "flex py-2",
             label { class: "pr-3 py-2 min-w-36 text-gray-500", "Source entity" }
-            Select { items: source_entities_id_name, selected_item_id: source_entity_id, disabled: is_view }
+            Select {
+                items: source_entities_id_name,
+                selected_item_id: source_entity_id,
+                disabled: is_view,
+            }
         }
         div { class: "flex py-2",
             label { class: "pr-3 py-2 min-w-36 text-gray-500", "Target entity" }
-            Select { items: target_entities_id_name, selected_item_id: target_entity_id, disabled: is_view }
+            Select {
+                items: target_entities_id_name,
+                selected_item_id: target_entity_id,
+                disabled: is_view,
+            }
         }
         div {
             class: "text-gray-400 mt-8 mb-4",
@@ -76,7 +84,7 @@ pub fn EntityLinkForm(props: EntityLinkFormProps) -> Element {
                                         "[EntityForm] After the change, text attr is {:?} and all text_attrs are {:?}",
                                         text_attrs().entry(id), text_attrs()
                                     );
-                                }
+                                },
                             }
                         }
                     }
@@ -102,7 +110,7 @@ pub fn EntityLinkForm(props: EntityLinkFormProps) -> Element {
                                                 log::warn!("[EntityForm] value {} cannot be parsed as i16", value);
                                             }
                                         });
-                                }
+                                },
                             }
                         }
                     }
@@ -128,7 +136,7 @@ pub fn EntityLinkForm(props: EntityLinkFormProps) -> Element {
                                                 log::warn!("[EntityForm] value {} cannot be parsed as i32", value);
                                             }
                                         });
-                                }
+                                },
                             }
                         }
                     }
@@ -146,7 +154,7 @@ pub fn EntityLinkForm(props: EntityLinkFormProps) -> Element {
                                         .write()
                                         .entry(id)
                                         .and_modify(|attr| { attr.value = evt.value() == "true" });
-                                }
+                                },
                             }
                         }
                     }

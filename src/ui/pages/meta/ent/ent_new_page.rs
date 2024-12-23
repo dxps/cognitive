@@ -112,7 +112,7 @@ pub fn EntityNewPage() -> Element {
                             Link {
                                 class: "text-gray-500 hover:text-gray-800 px-2 rounded-xl transition duration-200",
                                 to: Route::EntityListPage {},
-                                "x"
+                                "X"
                             }
                         }
                         div { class: "flex py-4",

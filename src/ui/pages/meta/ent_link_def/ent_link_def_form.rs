@@ -65,7 +65,7 @@ pub fn EntityLinkDefForm(props: EntityLinkDefFormProps) -> Element {
                         if !is_view {
                             _ = evt.set_focus(true).await;
                         }
-                    }
+                    },
                 }
             }
             div { class: "flex",
@@ -79,16 +79,24 @@ pub fn EntityLinkDefForm(props: EntityLinkDefFormProps) -> Element {
                     maxlength: 256,
                     oninput: move |evt| {
                         description.set(evt.value());
-                    }
+                    },
                 }
             }
             div { class: "flex",
                 label { class: "pr-3 py-2 min-w-32 text-gray-500", "Source" }
-                Select { items: ent_defs, selected_item_id: source_ent_def_id, disabled: is_view }
+                Select {
+                    items: ent_defs,
+                    selected_item_id: source_ent_def_id,
+                    disabled: is_view,
+                }
             }
             div { class: "flex",
                 label { class: "pr-3 py-2 min-w-32 text-gray-500", "Target" }
-                Select { items: ent_defs, selected_item_id: target_ent_def_id, disabled: is_view }
+                Select {
+                    items: ent_defs,
+                    selected_item_id: target_ent_def_id,
+                    disabled: is_view,
+                }
             }
             div { class: "flex",
                 label { class: "pr-3 py-2 min-w-32 text-gray-500", "Cardinality" }
@@ -96,7 +104,7 @@ pub fn EntityLinkDefForm(props: EntityLinkDefFormProps) -> Element {
                     items: cardinality_options,
                     selected_item_id: cardinality_id,
                     default_selected_item_id: Some(cardinality_id()),
-                    disabled: is_view
+                    disabled: is_view,
                 }
             }
             div { class: "flex mb-12",
@@ -128,17 +136,13 @@ pub fn EntityLinkDefForm(props: EntityLinkDefFormProps) -> Element {
             }
             div {
                 class: "flex",
-                display: if action == "View" || action == "Delete" || (action == "Edit" && action_done()) {
-                    "none"
-                } else {
-                    "block"
-                },
+                display: if action == "View" || action == "Delete" || (action == "Edit" && action_done()) { "none" } else { "block" },
                 label { class: "pr-3 py-1 min-w-28", "" }
                 p { class: "text-gray-500 font-sm",
-                    "Select an attribute definition to include it in this entity link definition."
+                    "Optionally, add one or more attribute definitions to it."
                 }
                 select {
-                    class: "px-3 py-1 min-w-80",
+                    class: "px-3 py-2 min-w-80",
                     multiple: false,
                     disabled: is_view,
                     oninput: move |evt| {

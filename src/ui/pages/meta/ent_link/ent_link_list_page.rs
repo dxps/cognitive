@@ -76,7 +76,7 @@ fn EntityLinkCard(item: EntityLink) -> Element {
                             " → "
                             Link {
                                 to: Route::EntityPage {
-                                    id: item.source_entity_id.clone(),
+                                    id: item.target_entity_id.clone(),
                                 },
                                 onclick: move |evt: Event<MouseData>| evt.stop_propagation(),
                                 "{item.target_entity_id}"
