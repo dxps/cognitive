@@ -261,7 +261,7 @@ async fn init(
         Ok(source_entities) => {
             let mut id_name_map = IndexMap::new();
             for ent in source_entities {
-                id_name_map.insert(ent.id, format!("{}: {}", ent.listing_attr_name, ent.listing_attr_value));
+                id_name_map.insert(ent.id, ent.listing_attr_value);
             }
             source_entities_id_name.set(id_name_map);
         }
@@ -273,7 +273,7 @@ async fn init(
         Ok(target_entities) => {
             let mut id_name_map = IndexMap::new();
             for ent in target_entities {
-                id_name_map.insert(ent.id, format!("{}: {}", ent.listing_attr_name, ent.listing_attr_value));
+                id_name_map.insert(ent.id, ent.listing_attr_value);
             }
             target_entities_id_name.set(id_name_map);
         }
