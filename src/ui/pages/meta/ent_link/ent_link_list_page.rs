@@ -13,14 +13,23 @@ use crate::{
 #[component]
 pub fn EntityLinkListPage() -> Element {
     //
-    let mut entries = use_signal::<Vec<EntityLink>>(|| vec![]);
+    let mut entries = use_signal::<Vec<(EntityLink, String, String)>>(|| vec![]);
 
     use_future(move || async move {
         match list_entity_links().await {
             Ok(items) => {
                 UI_STATE.get_ent_defs().await;
                 UI_STATE.get_ent_link_def_list().await;
-                entries.set(items);
+                let entries_tuples = items
+                    .into_iter()
+                    .map(|item| {
+                        let ent_link_def = UI_STATE.get_ent_link_def_sync(&item.def_id).unwrap();
+                        let source_ent_def = UI_STATE.get_ent_def_sync(&ent_link_def.source_entity_def_id).unwrap();
+                        let target_ent_def = UI_STATE.get_ent_def_sync(&ent_link_def.target_entity_def_id).unwrap();
+                        (item, source_ent_def.name, target_ent_def.name)
+                    })
+                    .collect();
+                entries.set(entries_tuples);
             }
             Err(e) => {
                 // TODO: Capture the error and display it.
@@ -50,7 +59,11 @@ pub fn EntityLinkListPage() -> Element {
                             p { class: "pb-4 text-gray-500", "There are no entries." }
                         }
                         for item in entries() {
-                            EntityLinkCard { item: item.clone() }
+                            EntityLinkCard {
+                                item: item.0,
+                                source_ent_def_name: item.1,
+                                target_ent_def_name: item.2,
+                            }
                         }
                     }
                 }
@@ -60,7 +73,7 @@ pub fn EntityLinkListPage() -> Element {
 }
 
 #[component]
-fn EntityLinkCard(item: EntityLink) -> Element {
+fn EntityLinkCard(item: EntityLink, source_ent_def_name: String, target_ent_def_name: String) -> Element {
     //
     rsx! {
         Link {
@@ -70,13 +83,13 @@ fn EntityLinkCard(item: EntityLink) -> Element {
             div { class: "flex flex-col px-3 py-2 my-3 bg-white rounded-lg border hover:bg-slate-100 hover:border-slate-100 transition duration-200",
                 div { class: "flex justify-between text-gray-600",
                     div {
-                        p { class: "leading-snug tracking-normal antialiased",
+                        p { class: "text-sm leading-snug tracking-normal antialiased",
                             Link {
                                 to: Route::EntityPage {
                                     id: item.source_entity_id.clone(),
                                 },
                                 onclick: move |evt: Event<MouseData>| evt.stop_propagation(),
-                                "{UI_STATE.get_ent_def_sync(&UI_STATE.get_ent_link_def_sync(&item.def_id).unwrap().source_entity_def_id).unwrap().name} ({item.source_entity_id})"
+                                "{source_ent_def_name} ({item.source_entity_id})"
                             }
                             " → "
                             Link {
@@ -84,7 +97,7 @@ fn EntityLinkCard(item: EntityLink) -> Element {
                                     id: item.target_entity_id.clone(),
                                 },
                                 onclick: move |evt: Event<MouseData>| evt.stop_propagation(),
-                                "{UI_STATE.get_ent_def_sync(&UI_STATE.get_ent_link_def_sync(&item.def_id).unwrap().target_entity_def_id).unwrap().name} ({item.target_entity_id})"
+                                "{target_ent_def_name} ({item.target_entity_id})"
                             }
                         }
                     }

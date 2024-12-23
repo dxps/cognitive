@@ -40,8 +40,8 @@ pub fn EntityLinkPage(props: EntityLinkPageProps) -> Element {
     let update_btn_disabled = use_memo(move || source_entity_def_id().is_empty() || target_entity_def_id().is_empty());
     let mut show_delete_confirm = use_signal(|| false);
     let mut action = use_signal(|| Action::View);
-    let action_done = use_signal(|| false);
-    let err: Signal<Option<String>> = use_signal(|| None);
+    let mut action_done = use_signal(|| false);
+    let mut err: Signal<Option<String>> = use_signal(|| None);
 
     use_future(move || async move {
         init(
@@ -98,16 +98,6 @@ pub fn EntityLinkPage(props: EntityLinkPageProps) -> Element {
                                 },
                                 "Delete"
                             }
-                            // Show the buttons's action result in the UI.
-                            div { class: "min-w-[400px] max-w-[400px] text-sm flex justify-center items-center",
-                                if err().is_some() {
-                                    span { class: "text-red-600", {err().unwrap()} }
-                                } else if action_done() {
-                                    span { class: "text-green-600",
-                                        {if action() == Action::Edit { "Successfully updated" } else { "" }}
-                                    }
-                                }
-                            }
                             button {
                                 class: "bg-gray-100 hover:bg-green-100 min-w-[90px] disabled:text-gray-300 hover:disabled:bg-gray-100 drop-shadow-sm px-4 rounded-md",
                                 disabled: update_btn_disabled,
@@ -132,11 +122,11 @@ pub fn EntityLinkPage(props: EntityLinkPageProps) -> Element {
                                                             smallint_attrs().values().cloned().collect(),
                                                             int_attrs().values().cloned().collect(),
                                                             boolean_attrs().values().cloned().collect(),
+                                                            action,
                                                             action_done,
                                                             err,
                                                         )
                                                         .await;
-                                                    action.set(Action::View);
                                                 }
                                             }
                                             _ => {}
@@ -171,12 +161,23 @@ pub fn EntityLinkPage(props: EntityLinkPageProps) -> Element {
                     }
                 }
             } else if action_done() {
-                AcknowledgeModal {
-                    title: "Confirmation",
-                    content: if action() == Action::Delete { vec!["The entity link has been successfully deleted.".into()] } else { vec!["The entity link has been successfully updated.".into()] },
-                    action_handler: move |_| {
-                        navigator().push(Route::EntityLinkListPage {});
-                    },
+                if err().is_none() {
+                    AcknowledgeModal {
+                        title: "Confirmation",
+                        content: if action() == Action::Delete { vec!["The entity link has been successfully deleted.".into()] } else { vec!["The entity link has been successfully updated.".into()] },
+                        action_handler: move |_| {
+                            navigator().push(Route::EntityLinkListPage {});
+                        },
+                    }
+                } else {
+                    AcknowledgeModal {
+                        title: "Error",
+                        content: vec!["Failed to update the entity link. Reason:".into(), err.unwrap()],
+                        action_handler: move |_| {
+                            action_done.set(false);
+                            err.set(None);
+                        },
+                    }
                 }
             }
         }
@@ -297,10 +298,18 @@ async fn handle_update(
     smallint_attributes: Vec<SmallintAttribute>,
     int_attributes: Vec<IntegerAttribute>,
     boolean_attributes: Vec<BooleanAttribute>,
-    mut saved: Signal<bool>,
+    mut action: Signal<Action>,
+    mut action_done: Signal<bool>,
     mut err: Signal<Option<String>>,
 ) {
     //
+    if (source_entity_id == Id::default()) || (target_entity_id == Id::default()) {
+        action_done.set(true);
+        action.set(Action::Edit);
+        err.set(Some("Both source and target entities must be selected.".to_string()));
+        return;
+    }
+
     let item = EntityLink {
         id: ent_link_id.clone(),
         kind: Name::default(), // Not used further.
@@ -317,11 +326,13 @@ async fn handle_update(
 
     match update_entity_link(item).await {
         Ok(_) => {
-            saved.set(true);
+            action_done.set(true);
+            action.set(Action::View);
             err.set(None);
         }
         Err(e) => {
-            saved.set(false);
+            action_done.set(true);
+            action.set(Action::Edit);
             err.set(Some(e.to_string()));
         }
     }
@@ -336,7 +347,7 @@ async fn handle_delete(id: &Id, mut action_done: Signal<bool>, mut err: Signal<O
             err.set(None);
         }
         Err(e) => {
-            action_done.set(false);
+            action_done.set(true);
             err.set(Some(e.to_string()));
         }
     }
