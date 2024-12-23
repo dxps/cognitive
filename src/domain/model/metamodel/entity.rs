@@ -36,7 +36,6 @@ pub struct Entity {
 
 impl Entity {
     pub fn new(
-        kind: String,
         def_id: Id,
         attributes_order: Vec<(AttributeValueType, Id)>,
         text_attributes: Vec<TextAttribute>,
@@ -49,7 +48,7 @@ impl Entity {
     ) -> Self {
         Self {
             id: Id::default(),
-            kind,
+            kind: String::default(),
             def_id,
             attributes_order,
             text_attributes,

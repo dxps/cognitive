@@ -159,7 +159,10 @@ pub fn EntityLinkNewPage() -> Element {
                             div { class: "flex",
                                 p { class: "py-2 pr-4 text-gray-600 block", "Kind:" }
                                 if !ent_link_defs().is_empty() {
-                                    Select { items: ent_link_kinds, selected_item_id: selected_kind_id }
+                                    Select {
+                                        items: ent_link_kinds,
+                                        selected_item_id: selected_kind_id,
+                                    }
                                 }
                             }
                         } else {
@@ -172,7 +175,7 @@ pub fn EntityLinkNewPage() -> Element {
                                 smallint_attrs,
                                 int_attrs,
                                 boolean_attrs,
-                                action: Action::Edit
+                                action: Action::Edit,
                             }
                         }
                         div { class: "grid justify-items-end mt-8",
@@ -185,7 +188,6 @@ pub fn EntityLinkNewPage() -> Element {
                                             navigator().push(Route::EntityListPage {});
                                         } else {
                                             handle_create_ent_link(
-                                                    selected_kind_name(),
                                                     selected_kind_id(),
                                                     source_entity_id(),
                                                     target_entity_id(),
@@ -217,7 +219,7 @@ pub fn EntityLinkNewPage() -> Element {
                         content: vec!["The entity link has been successfully created.".into()],
                         action_handler: move |_| {
                             navigator().push(Route::EntityLinkListPage {});
-                        }
+                        },
                     }
                 } else {
                     AcknowledgeModal {
@@ -225,7 +227,7 @@ pub fn EntityLinkNewPage() -> Element {
                         content: vec!["Failed to create the entity link. Reason:".into(), err.unwrap()],
                         action_handler: move |_| {
                             navigator().push(Route::EntityListPage {});
-                        }
+                        },
                     }
                 }
             }
@@ -234,7 +236,6 @@ pub fn EntityLinkNewPage() -> Element {
 }
 
 async fn handle_create_ent_link(
-    kind: String, // TODO: Review the usage of kind.
     def_id: Id,
     source_entity_id: Id,
     target_entity_id: Id,
@@ -247,7 +248,6 @@ async fn handle_create_ent_link(
 ) -> Option<Id> {
     //
     let ent_link = EntityLink::from(
-        kind,
         def_id,
         source_entity_id,
         target_entity_id,

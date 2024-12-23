@@ -149,7 +149,6 @@ pub fn EntityNewPage() -> Element {
                                             navigator().push(Route::EntityListPage {});
                                         } else {
                                             handle_create_ent(
-                                                    selected_kind_name(),
                                                     selected_kind_id(),
                                                     attributes_order(),
                                                     text_attrs().values().cloned().collect(),
@@ -201,7 +200,6 @@ pub fn EntityNewPage() -> Element {
 }
 
 async fn handle_create_ent(
-    kind: String, // TODO: Review its usage.
     def_id: Id,
     attributes_order: Vec<(AttributeValueType, Id)>,
     text_attrs: Vec<TextAttribute>,
@@ -217,7 +215,6 @@ async fn handle_create_ent(
     //
 
     let ent = Entity::new(
-        kind,
         def_id,
         attributes_order,
         text_attrs,

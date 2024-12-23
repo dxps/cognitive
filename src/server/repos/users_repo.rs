@@ -279,7 +279,7 @@ impl From<sqlx::Error> for AppError {
         let mut app_err = AppError::Ignorable;
         log::debug!("from(sqlx:Error): err={:?}", err);
         if err.as_database_error().is_some() {
-            // TODO: For now, any db error is considered as internal error.
+            // FYI: For now, any db error is considered as internal error.
             app_err = AppError::InternalErr
         }
         app_err

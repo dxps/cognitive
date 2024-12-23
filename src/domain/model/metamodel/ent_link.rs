@@ -56,7 +56,6 @@ impl EntityLink {
     }
 
     pub fn from(
-        kind: String,
         def_id: Id,
         source_entity_id: Id,
         target_entity_id: Id,
@@ -67,7 +66,7 @@ impl EntityLink {
     ) -> Self {
         Self::new(
             Id::default(),
-            kind,
+            String::default(),
             def_id,
             source_entity_id,
             target_entity_id,
