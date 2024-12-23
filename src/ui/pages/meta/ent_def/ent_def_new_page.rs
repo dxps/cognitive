@@ -83,7 +83,7 @@ pub fn EntityDefNewPage() -> Element {
                             all_attr_defs,
                             action: Action::Edit,
                             action_done,
-                            err
+                            err,
                         }
                         div { class: "flex justify-end mt-8",
                             button {
@@ -136,7 +136,7 @@ pub fn EntityDefNewPage() -> Element {
                         content: vec!["The entity definition has been successfully created.".into()],
                         action_handler: move |_| {
                             navigator().push(Route::EntityDefListPage {});
-                        }
+                        },
                     }
                 } else {
                     AcknowledgeModal {
@@ -144,7 +144,7 @@ pub fn EntityDefNewPage() -> Element {
                         content: vec!["Failed to create the entity definition. Reason:".into(), err.unwrap()],
                         action_handler: move |_| {
                             navigator().push(Route::EntityDefListPage {});
-                        }
+                        },
                     }
                 }
             }

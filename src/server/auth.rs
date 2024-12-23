@@ -48,10 +48,6 @@ impl std::error::Error for AuthSessionLayerNotFound {}
 
 impl IntoResponse for AuthSessionLayerNotFound {
     fn into_response(self) -> Response {
-        (
-            http::status::StatusCode::INTERNAL_SERVER_ERROR,
-            "AuthSession layer was not found!",
-        )
-            .into_response()
+        (http::status::StatusCode::INTERNAL_SERVER_ERROR, "AuthSession layer was not found!").into_response()
     }
 }

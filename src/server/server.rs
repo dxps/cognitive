@@ -26,10 +26,7 @@ pub fn start_web_server(app_fn: fn() -> Element) {
         log::info!("Connecting to the database ...");
         let pg_pool = connect_to_pgdb().await;
         if pg_pool.is_err() {
-            log::error!(
-                "Failed to connect to database due to '{}'. Exiting now!",
-                pg_pool.unwrap_err()
-            );
+            log::error!("Failed to connect to database due to '{}'. Exiting now!", pg_pool.unwrap_err());
             return;
         }
         let pg_pool = pg_pool.unwrap();

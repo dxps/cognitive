@@ -117,7 +117,7 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
                             all_attr_defs,
                             action: action(),
                             action_done,
-                            err
+                            err,
                         }
                         div { class: "flex justify-between mt-8",
                             button {
@@ -201,20 +201,16 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
                                 log::debug!("[ent_def_page] Calling handle_delete ...");
                                 handle_delete(&id(), action_done, err, err_refs).await;
                             });
-                        }
+                        },
                     }
                 }
             } else if action_done() {
                 AcknowledgeModal {
                     title: "Confirmation",
-                    content: if action() == Action::Delete {
-                        vec!["The entity definition has been successfully deleted.".into()]
-                    } else {
-                        vec!["The entity definition has been successfully updated.".into()]
-                    },
+                    content: if action() == Action::Delete { vec!["The entity definition has been successfully deleted.".into()] } else { vec!["The entity definition has been successfully updated.".into()] },
                     action_handler: move |_| {
                         navigator().push(Route::EntityDefListPage {});
-                    }
+                    },
                 }
             } else if err().is_some() {
                 AcknowledgeModal {
@@ -224,7 +220,7 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
                     links: err_refs(),
                     action_handler: move |_| {
                         err.set(None);
-                    }
+                    },
                 }
             }
         }

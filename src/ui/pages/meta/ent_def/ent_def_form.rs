@@ -66,7 +66,7 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
                         if !is_view {
                             _ = evt.set_focus(true).await;
                         }
-                    }
+                    },
                 }
             }
             div { class: "flex",
@@ -80,19 +80,14 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
                     maxlength: 256,
                     oninput: move |evt| {
                         description.set(evt.value());
-                    }
+                    },
                 }
             }
             div { class: "flex",
                 p { class: "min-w-32 text-gray-500", "Attributes" }
                 div {
                     for (index , (id , (name , desc))) in ordered_included_attr_defs().into_iter().enumerate() {
-                        div {
-                            class: if is_view {
-                                "flex justify-between min-w-80"
-                            } else {
-                                "flex justify-between min-w-80 cursor-move"
-                            },
+                        div { class: if is_view { "flex justify-between min-w-80" } else { "flex justify-between min-w-80 cursor-move" },
                             p {
                                 class: "pl-3 pr-3",
                                 draggable: if is_view { false } else { true },
@@ -164,11 +159,7 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
             hr { class: "mt-8 mb-1" }
             div {
                 class: "flex",
-                display: if action == "View" || action == "Delete" || (action == "Edit" && action_done()) {
-                    "none"
-                } else {
-                    "block"
-                },
+                display: if action == "View" || action == "Delete" || (action == "Edit" && action_done()) { "none" } else { "block" },
                 label { class: "pr-3 py-1 min-w-28", "" }
                 p { class: "text-gray-500 font-sm", "Select an attribute definition to include." }
                 select {
