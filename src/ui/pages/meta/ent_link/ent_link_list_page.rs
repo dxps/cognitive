@@ -6,6 +6,7 @@ use crate::{
     ui::{
         comps::{Breadcrumb, Nav},
         routes::Route,
+        UI_STATE,
     },
 };
 
@@ -16,7 +17,11 @@ pub fn EntityLinkListPage() -> Element {
 
     use_future(move || async move {
         match list_entity_links().await {
-            Ok(items) => entries.set(items),
+            Ok(items) => {
+                UI_STATE.get_ent_defs().await;
+                UI_STATE.get_ent_link_def_list().await;
+                entries.set(items);
+            }
             Err(e) => {
                 // TODO: Capture the error and display it.
                 log::error!("Failed to list entity links: {}", e)
@@ -71,7 +76,7 @@ fn EntityLinkCard(item: EntityLink) -> Element {
                                     id: item.source_entity_id.clone(),
                                 },
                                 onclick: move |evt: Event<MouseData>| evt.stop_propagation(),
-                                "{item.source_entity_id}"
+                                "{UI_STATE.get_ent_def_sync(&UI_STATE.get_ent_link_def_sync(&item.def_id).unwrap().source_entity_def_id).unwrap().name} ({item.source_entity_id})"
                             }
                             " → "
                             Link {
@@ -79,7 +84,7 @@ fn EntityLinkCard(item: EntityLink) -> Element {
                                     id: item.target_entity_id.clone(),
                                 },
                                 onclick: move |evt: Event<MouseData>| evt.stop_propagation(),
-                                "{item.target_entity_id}"
+                                "{UI_STATE.get_ent_def_sync(&UI_STATE.get_ent_link_def_sync(&item.def_id).unwrap().target_entity_def_id).unwrap().name} ({item.target_entity_id})"
                             }
                         }
                     }

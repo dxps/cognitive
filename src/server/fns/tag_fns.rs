@@ -1,10 +1,11 @@
 use crate::domain::model::{Id, Tag};
 use dioxus_fullstack::prelude::*;
+use server_fn::codec::GetUrl;
 
 #[cfg(feature = "server")]
 use crate::server::Session;
 
-#[server(endpoint = "get_tags")]
+#[server(endpoint = "get_tags", input = GetUrl)]
 pub async fn get_tags() -> Result<Vec<Tag>, ServerFnError> {
     //
     let session: Session = extract().await?;

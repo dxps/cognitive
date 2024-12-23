@@ -325,30 +325,6 @@ async fn handle_update(
             err.set(Some(e.to_string()));
         }
     }
-
-    // let ent = Entity::new_with_id_attrs(
-    //     ent_id,
-    //     kind,
-    //     def_id,
-    //     text_attributes,
-    //     smallint_attributes,
-    //     int_attributes,
-    //     boolean_attributes,
-    //     listing_attr_def_id,
-    // );
-
-    //
-
-    // match update_entity(ent).await {
-    //     Ok(_) => {
-    //         saved.set(true);
-    //         err.set(None);
-    //     }
-    //     Err(e) => {
-    //         saved.set(false);
-    //         err.set(Some(e.to_string()));
-    //     }
-    // }
 }
 
 async fn handle_delete(id: &Id, mut action_done: Signal<bool>, mut err: Signal<Option<String>>) {

@@ -11,14 +11,13 @@ use crate::{
 };
 use dioxus::prelude::*;
 use indexmap::IndexMap;
-use std::sync::Arc;
 
 #[component]
 pub fn AttributeDefListPage() -> Element {
     //
     let mut entries = use_signal::<Vec<AttributeDef>>(|| vec![]);
 
-    let mut tags = use_signal(|| Arc::new(IndexMap::new()));
+    let mut tags = use_signal(|| IndexMap::new());
 
     use_future(move || async move {
         tags.set(UI_STATE.get_tags().await);
@@ -62,7 +61,7 @@ pub fn AttributeDefListPage() -> Element {
 #[derive(Props, PartialEq, Clone)]
 pub struct AttrDefCardProps {
     pub attr_def: AttributeDef,
-    pub tags: Arc<IndexMap<Id, Tag>>,
+    pub tags: IndexMap<Id, Tag>,
 }
 
 #[component]
@@ -91,11 +90,12 @@ fn AttrDefCard(props: AttrDefCardProps) -> Element {
                 div { class: "flex justify-between text-gray-500 px-2",
                     div {
                         class: "flex justify-between text-xs leading-5 text-gray-500 pt-1",
-                        dangerous_inner_html: "{attr_def.description.unwrap_or_default()} &nbsp;"
+                        dangerous_inner_html: "{attr_def.description.unwrap_or_default()} &nbsp;",
                     }
-                    {   if attr_def.tag_id.is_some() {
-                        let tag_id = attr_def.tag_id.unwrap();
-                        match tags.get(&tag_id) {
+                    {
+                        if attr_def.tag_id.is_some() {
+                            let tag_id = attr_def.tag_id.unwrap();
+                            match tags.get(&tag_id) {
                                 Some(tag) => {
                                     rsx! {
                                         div { class: "flex pt-0.5",
@@ -109,9 +109,10 @@ fn AttrDefCard(props: AttrDefCardProps) -> Element {
                                     rsx! {}
                                 }
                             }
-                        }
-                        else {
-                            rsx! { p { {attr_def.tag_id.unwrap_or_default().to_string()} } }
+                        } else {
+                            rsx! {
+                                p { {attr_def.tag_id.unwrap_or_default().to_string()} }
+                            }
                         }
                     }
                 }

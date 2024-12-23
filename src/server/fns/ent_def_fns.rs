@@ -25,10 +25,10 @@ pub async fn list_entity_defs_refs_by_attr_def_id(attr_def_id: Id) -> Result<Vec
 
 /// List the entities definitions.
 #[server(endpoint = "admin/list_ent_defs", input = GetUrl)]
-pub async fn list_entities_defs() -> Result<Vec<EntityDef>, ServerFnError> {
+pub async fn list_entities_defs() -> Result<IndexMap<Id, EntityDef>, ServerFnError> {
     let session: Session = extract().await?;
-    let result = session.4.list().await;
-    result.map_err(|e| e.into())
+    let items = session.4.list().await?;
+    Ok(IndexMap::from_iter(items.into_iter().map(|item| (item.id.clone(), item))))
 }
 
 /// Create an entity definition.

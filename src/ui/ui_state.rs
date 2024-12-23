@@ -14,14 +14,16 @@ use super::pages::Name;
 pub struct UiState {
     pub app_ready: GlobalSignal<bool>,
 
-    pub tags: GlobalSignal<Arc<IndexMap<Id, Tag>>>,
+    /// ordered map of tags
+    pub tags: GlobalSignal<IndexMap<Id, Tag>>,
 
     /// the ordered list of tags
     pub tags_list: GlobalSignal<Arc<Vec<Tag>>>,
 
     pub tags_loaded: GlobalSignal<bool>,
 
-    pub ent_defs_list: GlobalSignal<Vec<EntityDef>>,
+    /// ordered map of entity definitions
+    pub ent_defs: GlobalSignal<IndexMap<Id, EntityDef>>,
 
     pub ent_link_def_list: GlobalSignal<Vec<EntityLinkDef>>,
 }
@@ -30,10 +32,10 @@ impl UiState {
     pub const fn new() -> Self {
         Self {
             app_ready: GlobalSignal::new(|| false),
-            tags: GlobalSignal::new(|| Arc::new(IndexMap::new())),
+            tags: GlobalSignal::new(|| IndexMap::new()),
             tags_list: GlobalSignal::new(|| Arc::new(Vec::new())),
             tags_loaded: GlobalSignal::new(|| false),
-            ent_defs_list: GlobalSignal::new(|| Vec::new()),
+            ent_defs: GlobalSignal::new(|| IndexMap::new()),
             ent_link_def_list: GlobalSignal::new(|| Vec::new()),
         }
     }
@@ -42,14 +44,14 @@ impl UiState {
     // Tags
     // ----
 
-    pub async fn get_tags(&self) -> Arc<IndexMap<Id, Tag>> {
+    pub async fn get_tags(&self) -> IndexMap<Id, Tag> {
         if self.tags.read().is_empty() {
             let res = get_tags().await;
             match res {
                 Ok(tags) => {
                     *self.tags_list.write() = Arc::new(tags.clone());
                     let tags_map: IndexMap<Id, Tag> = tags.into_iter().map(|tag| (tag.id.clone(), tag)).collect();
-                    let tags_map = Arc::new(tags_map);
+                    //let tags_map = Arc::new(tags_map);
                     *self.tags.write() = tags_map;
                 }
                 Err(e) => log::error!(">>> [UiState.get_tags] Failed to get tags: {}", e),
@@ -73,10 +75,9 @@ impl UiState {
     }
 
     pub async fn add_tag(&self, tag: Tag) {
-        let tags = self.tags.read().clone();
-        let mut tags = tags.deref().clone();
+        let mut tags = self.tags.read().clone();
         tags.insert(tag.id.clone(), tag.clone());
-        *self.tags.write() = Arc::new(tags);
+        *self.tags.write() = tags;
         let tags_list = self.tags_list.read().clone();
         let mut tags_list = tags_list.deref().clone();
         tags_list.push(tag);
@@ -95,7 +96,7 @@ impl UiState {
                 }
             })
             .collect();
-        *self.tags.write() = Arc::new(updated_tags);
+        *self.tags.write() = updated_tags;
 
         let tags_list = self.tags_list.read().clone();
         let updated_tags_list: Vec<Tag> = tags_list
@@ -119,7 +120,7 @@ impl UiState {
             .map(|(k, v)| (k.clone(), v.clone()))
             .collect();
         log::debug!("[UiState.remove_tag] Updated tags: {:?}", updated_tags);
-        *self.tags.write() = Arc::new(updated_tags);
+        *self.tags.write() = updated_tags;
 
         let tags_list = self.tags_list.read().clone();
         let updated_tags_list: Vec<Tag> = tags_list.iter().filter(|t| t.id != id).map(|t| t.clone()).collect();
@@ -133,10 +134,10 @@ impl UiState {
     /// Get the entities definitions.<br/>
     /// If they haven't been loaded yet, it fetches them from the server.
     pub async fn get_ent_defs_list(&self) -> Vec<EntityDef> {
-        if self.ent_defs_list.read().is_empty() {
+        if self.ent_defs.read().is_empty() {
             self.get_ent_defs_from_server().await;
         };
-        self.ent_defs_list.read().clone()
+        self.ent_defs.read().values().cloned().collect()
     }
 
     pub async fn get_ent_defs(&self) -> IndexMap<Id, Name> {
@@ -145,7 +146,7 @@ impl UiState {
     }
 
     pub async fn get_ent_def(&self, id: &Id) -> Option<EntityDef> {
-        if self.ent_defs_list.read().is_empty() {
+        if self.ent_defs.read().is_empty() {
             self.get_ent_defs_from_server().await;
         };
         self.get_ent_def_sync(id)
@@ -155,7 +156,7 @@ impl UiState {
         match list_entities_defs().await {
             Ok(ent_defs) => {
                 log::debug!("[UiState.get_ent_defs_from_server] Got entity defs: {:?}", ent_defs);
-                *self.ent_defs_list.write() = ent_defs;
+                *self.ent_defs.write() = ent_defs;
             }
             Err(e) => {
                 log::error!("[UiState.get_ent_defs_from_server] Failed to fetch entity defs. Cause: '{e}'.");
@@ -164,35 +165,30 @@ impl UiState {
     }
 
     pub fn get_ent_def_sync(&self, id: &Id) -> Option<EntityDef> {
-        self.ent_defs_list
-            .read()
-            .iter()
-            .find(|item| item.id == *id)
-            .map(|item| item.clone())
+        self.ent_defs.read().get(id).cloned()
     }
 
     pub fn add_ent_def(&self, ent_def: EntityDef) {
-        let mut ent_defs = self.ent_defs_list.read().clone();
+        let mut ent_defs = self.ent_defs.read().clone();
         log::debug!(
             "[UiState.add_ent_def] Adding ent_def: {:?} to existing ent_defs: {:?}",
             ent_def,
             ent_defs
         );
-        ent_defs.push(ent_def);
-        *self.ent_defs_list.write() = ent_defs;
+        ent_defs.insert(ent_def.id.clone(), ent_def);
+        *self.ent_defs.write() = ent_defs;
     }
 
     pub fn update_ent_def(&self, ent_def: EntityDef) {
-        let mut ent_defs = self.ent_defs_list.read().clone();
-        ent_defs.retain(|ed| ed.id != ent_def.id);
-        ent_defs.push(ent_def);
-        *self.ent_defs_list.write() = ent_defs;
+        let mut ent_defs = self.ent_defs.read().clone();
+        ent_defs.insert(ent_def.id.clone(), ent_def);
+        *self.ent_defs.write() = ent_defs;
     }
 
     pub fn remove_ent_def(&self, id: &Id) {
-        let mut ent_defs = self.ent_defs_list.read().clone();
-        ent_defs.retain(|ent_def| ent_def.id != *id);
-        *self.ent_defs_list.write() = ent_defs;
+        let mut ent_defs = self.ent_defs.read().clone();
+        ent_defs.swap_remove(id);
+        *self.ent_defs.write() = ent_defs;
     }
 
     // -----------------------
