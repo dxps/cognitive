@@ -64,12 +64,31 @@ fn EntityLinkCard(item: EntityLink) -> Element {
             },
             div { class: "flex flex-col px-3 py-2 my-3 bg-white rounded-lg border hover:bg-slate-100 hover:border-slate-100 transition duration-200",
                 div { class: "flex justify-between text-gray-600",
-                    p { class: "font-medium leading-snug tracking-normal antialiased",
-                        "{item.kind}"
+                    div {
+                        p { class: "leading-snug tracking-normal antialiased",
+                            Link {
+                                to: Route::EntityPage {
+                                    id: item.source_entity_id.clone(),
+                                },
+                                onclick: move |evt: Event<MouseData>| evt.stop_propagation(),
+                                "{item.source_entity_id}"
+                            }
+                            " → "
+                            Link {
+                                to: Route::EntityPage {
+                                    id: item.source_entity_id.clone(),
+                                },
+                                onclick: move |evt: Event<MouseData>| evt.stop_propagation(),
+                                "{item.target_entity_id}"
+                            }
+                        }
                     }
-                }
-                div {
-                    pre { class: "text-xs leading-5 text-gray-600 pt-1", " " }
+                    div { class: "flex",
+                        p { class: "mt-1 text-xs leading-snug tracking-normal antialiased pr-1",
+                            "{item.kind}"
+                        }
+                        img { class: "h-4 w-4 mt-1", src: "/struct.png" }
+                    }
                 }
             }
         }

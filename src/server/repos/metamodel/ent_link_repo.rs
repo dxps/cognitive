@@ -148,8 +148,7 @@ impl EntityLinkRepo {
         match sqlx::query_as::<_, EntityLink>(
             "SELECT el.id, el.def_id, el.source_entity_id, el.target_entity_id, eld.name as kind
              FROM entity_links el 
-             JOIN entity_link_defs eld
-             ON el.def_id = eld.id
+             JOIN entity_link_defs eld ON el.def_id = eld.id
              WHERE el.id = $1",
         )
         .bind(id.as_str())
@@ -226,15 +225,12 @@ impl EntityLinkRepo {
 
         let mut txn = self.dbcp.begin().await?;
 
-        if let Err(e) = sqlx::query(
-            "UPDATE entity_links SET source_entity_id = $2, target_entity_id = $3 
-             WHERE id = $1",
-        )
-        .bind(&item.id.as_str())
-        .bind(&item.source_entity_id.as_str())
-        .bind(&item.target_entity_id.as_str())
-        .execute(&mut *txn)
-        .await
+        if let Err(e) = sqlx::query("UPDATE entity_links SET source_entity_id = $2, target_entity_id = $3 WHERE id = $1")
+            .bind(&item.id.as_str())
+            .bind(&item.source_entity_id.as_str())
+            .bind(&item.target_entity_id.as_str())
+            .execute(&mut *txn)
+            .await
         {
             txn.rollback().await?;
             log::error!("Failed to update entity link w/ id:'{}'. Reason: '{}'.", item.id, e);
