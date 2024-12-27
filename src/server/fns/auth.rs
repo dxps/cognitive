@@ -16,7 +16,7 @@ use server_fn::codec::{GetUrl, PostUrl};
 pub async fn login(email: String, password: String) -> Result<UserAccount, ServerFnError> {
     //
     let session: Session = extract().await?;
-    let account = session.1.authenticate_user(email, password).await?;
+    let account = session.user_mgmt().authenticate_user(email, password).await?;
     session.login_user(account.id.clone());
     debug!("[login] Logged-in user with account: {:?}", account);
     Ok(account)
@@ -32,7 +32,7 @@ pub async fn logout() -> Result<(), ServerFnError> {
 #[server(endpoint = "get_user_name", input = GetUrl)]
 pub async fn get_user_name() -> Result<String, ServerFnError> {
     let session: Session = extract().await?;
-    let name = match session.0.current_user {
+    let name = match session.current_user() {
         Some(user) => user.username,
         None => "".to_string(),
     };

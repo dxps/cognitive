@@ -68,8 +68,8 @@ async fn handle_socket(mut socket: WebSocket, who: SocketAddr) {
 
     // Since each client gets individual statemachine, we can pause handling
     // when necessary to wait for some external event (in this case illustrated by sleeping).
-    // Waiting for this client to finish getting its greetings does not prevent other clients from
-    // connecting to server and receiving their greetings.
+    // Waiting for this client to finish getting its greetings does not prevent other clients
+    // from connecting to server and receiving their greetings.
     for i in 1..5 {
         if socket.send(Message::Text(format!("Hi {i} times!"))).await.is_err() {
             log::debug!("WebSocket client '{who}' abruptly disconnected.");
@@ -84,7 +84,7 @@ async fn handle_socket(mut socket: WebSocket, who: SocketAddr) {
 
     // Spawn a task that will push several messages to the client (does not matter what client does)
     let mut send_task = tokio::spawn(async move {
-        let n_msg = 20;
+        let n_msg = 10;
         for i in 0..n_msg {
             // In case of any websocket error, we exit.
             if sender.send(Message::Text(format!("Server message {i} ..."))).await.is_err() {
@@ -142,7 +142,7 @@ async fn handle_socket(mut socket: WebSocket, who: SocketAddr) {
     log::debug!("Websocket context {who} destroyed");
 }
 
-/// helper to print contents of messages to stdout. Has special treatment for Close.
+/// A helper to print contents of messages to stdout. Has special treatment for Close.
 #[cfg(feature = "server")]
 fn process_message(msg: Message, who: SocketAddr) -> ControlFlow<(), ()> {
     match msg {

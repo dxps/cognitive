@@ -9,7 +9,7 @@ use crate::server::Session;
 pub async fn get_tags() -> Result<Vec<Tag>, ServerFnError> {
     //
     let session: Session = extract().await?;
-    let tags = session.2.list().await?;
+    let tags = session.tag_mgmt().list().await?;
     Ok(tags)
 }
 
@@ -17,7 +17,7 @@ pub async fn get_tags() -> Result<Vec<Tag>, ServerFnError> {
 pub async fn create_tag(name: String, description: Option<String>) -> Result<Id, ServerFnError> {
     //
     let session: Session = extract().await?;
-    let tags = session.2.add(name, description).await?;
+    let tags = session.tag_mgmt().add(name, description).await?;
     Ok(tags)
 }
 
@@ -25,12 +25,12 @@ pub async fn create_tag(name: String, description: Option<String>) -> Result<Id,
 pub async fn update_tag(tag: Tag) -> Result<(), ServerFnError> {
     //
     let session: Session = extract().await?;
-    session.2.update(tag).await.map(|_| Ok(()))?
+    session.tag_mgmt().update(tag).await.map(|_| Ok(()))?
 }
 
 #[server(endpoint = "remove_tag")]
 pub async fn remove_tag(id: Id) -> Result<(), ServerFnError> {
     //
     let session: Session = extract().await?;
-    session.2.remove(id).await.map(|_| Ok(()))?
+    session.tag_mgmt().remove(id).await.map(|_| Ok(()))?
 }

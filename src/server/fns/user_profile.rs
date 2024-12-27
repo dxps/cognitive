@@ -46,7 +46,7 @@ pub async fn set_user_profile_new_password(
 
     let session: Session = extract().await?;
 
-    if let Err(err) = session.1.update_password(&user_id, curr_password, new_password).await {
+    if let Err(err) = session.user_mgmt().update_password(&user_id, curr_password, new_password).await {
         return Ok(Err(err.to_string()));
     }
 

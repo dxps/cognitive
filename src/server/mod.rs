@@ -6,8 +6,6 @@ pub mod fns;
 #[cfg(feature = "server")]
 pub mod model;
 
-////////////////////////////////////////////////////////////////////////////////
-
 #[cfg(feature = "server")]
 mod auth;
 

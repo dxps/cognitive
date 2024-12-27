@@ -11,7 +11,7 @@ use server_fn::codec::GetUrl;
 #[server(endpoint = "admin/list_ent_defs_id_name", input = GetUrl)]
 pub async fn list_entities_defs_id_name() -> Result<IndexMap<Id, String>, ServerFnError> {
     let session: Session = extract().await?;
-    let result = session.4.list_ids_names().await?;
+    let result = session.ent_def_mgmt().list_ids_names().await?;
     Ok(result)
 }
 
@@ -19,7 +19,7 @@ pub async fn list_entities_defs_id_name() -> Result<IndexMap<Id, String>, Server
 #[server(endpoint = "admin/list_entity_defs_refs_by_attr_def_id", input = GetUrl)]
 pub async fn list_entity_defs_refs_by_attr_def_id(attr_def_id: Id) -> Result<Vec<(Id, String)>, ServerFnError> {
     let session: Session = extract().await?;
-    let result = session.4.list_refs_by_attr_def_id(attr_def_id).await?;
+    let result = session.ent_def_mgmt().list_refs_by_attr_def_id(attr_def_id).await?;
     Ok(result)
 }
 
@@ -27,7 +27,7 @@ pub async fn list_entity_defs_refs_by_attr_def_id(attr_def_id: Id) -> Result<Vec
 #[server(endpoint = "admin/list_ent_defs", input = GetUrl)]
 pub async fn list_entities_defs() -> Result<IndexMap<Id, EntityDef>, ServerFnError> {
     let session: Session = extract().await?;
-    let items = session.4.list().await?;
+    let items = session.ent_def_mgmt().list().await?;
     Ok(IndexMap::from_iter(items.into_iter().map(|item| (item.id.clone(), item))))
 }
 
@@ -35,7 +35,7 @@ pub async fn list_entities_defs() -> Result<IndexMap<Id, EntityDef>, ServerFnErr
 #[server(endpoint = "admin/create_ent_defs")]
 pub async fn create_entity_def(item: EntityDef) -> Result<Id, ServerFnError> {
     let session: Session = extract().await?;
-    let result = session.4.add(item).await;
+    let result = session.ent_def_mgmt().add(item).await;
     result.map_err(|e| e.into())
 }
 
@@ -43,7 +43,7 @@ pub async fn create_entity_def(item: EntityDef) -> Result<Id, ServerFnError> {
 #[server(endpoint = "admin/get_ent_def", input = GetUrl)]
 pub async fn get_entity_def(id: Id) -> Result<Option<EntityDef>, ServerFnError> {
     let session: Session = extract().await?;
-    let ent_def = session.4.get(&id).await;
+    let ent_def = session.ent_def_mgmt().get(&id).await;
     Ok(ent_def)
 }
 
@@ -51,7 +51,7 @@ pub async fn get_entity_def(id: Id) -> Result<Option<EntityDef>, ServerFnError> 
 #[server(endpoint = "admin/update_ent_defs")]
 pub async fn update_entity_def(ent_def: EntityDef) -> Result<(), ServerFnError> {
     let session: Session = extract().await?;
-    let result = session.4.update(&ent_def).await;
+    let result = session.ent_def_mgmt().update(&ent_def).await;
     session
         .5
         .update_listing_addr_name(&ent_def.id, &ent_def.listing_attr_def_id)
@@ -63,6 +63,6 @@ pub async fn update_entity_def(ent_def: EntityDef) -> Result<(), ServerFnError> 
 #[server(endpoint = "admin/remove_ent_defs")]
 pub async fn remove_entity_def(id: Id) -> Result<(), ServerFnError> {
     let session: Session = extract().await?;
-    let result = session.4.remove(&id).await;
+    let result = session.ent_def_mgmt().remove(&id).await;
     result.map_err(|e| e.into())
 }

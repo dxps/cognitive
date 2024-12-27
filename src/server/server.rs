@@ -34,7 +34,6 @@ pub fn start_web_server(app_fn: fn() -> Element) {
 
         // This defaults as normal cookies.
         let session_config = SessionConfig::default().with_table_name("user_sessions");
-        let auth_config = AuthConfig::<Id>::default().with_anonymous_user_id(Some("iH26rJ8Cp".into()));
         let session_store = SessionPgSessionStore::new(Some(pg_pool.clone().into()), session_config)
             .await
             .unwrap();
@@ -45,6 +44,8 @@ pub fn start_web_server(app_fn: fn() -> Element) {
             .await
             .expect("Self registering admin user failed");
 
+        let auth_config = AuthConfig::<Id>::default().with_anonymous_user_id(Some("iH26rJ8Cp".into()));
+
         let web_api_router = Router::new()
             // Server side render the application, serve static assets, and register server functions.
             .serve_dioxus_application(ServeConfig::builder().build(), move || VirtualDom::new(app_fn))
@@ -54,8 +55,6 @@ pub fn start_web_server(app_fn: fn() -> Element) {
             .layer(Extension(state));
 
         let ws_router = Router::new().route("/", get(ws_handler));
-        // .serve_dioxus_application(ServeConfig::builder().build(), move || VirtualDom::new(app_fn))
-        // .await;
 
         let router = web_api_router.nest("/ws", ws_router);
 
@@ -63,7 +62,6 @@ pub fn start_web_server(app_fn: fn() -> Element) {
         let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
 
         axum::serve(listener, router.into_make_service_with_connect_info::<SocketAddr>())
-            // axum::serve(listener, web_api_router.into_make_service_with_connect_info::<SocketAddr>())
             .await
             .unwrap();
     });

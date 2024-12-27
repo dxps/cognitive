@@ -10,7 +10,7 @@ use crate::server::Session;
 #[server(endpoint = "admin/list_attr_defs", input = GetUrl)]
 pub async fn list_attribute_defs() -> Result<Vec<AttributeDef>, ServerFnError> {
     let session: Session = extract().await?;
-    let attr_defs = session.3.list().await;
+    let attr_defs = session.attr_def_mgmt().list().await;
     Ok(attr_defs)
 }
 
@@ -18,7 +18,7 @@ pub async fn list_attribute_defs() -> Result<Vec<AttributeDef>, ServerFnError> {
 #[server(endpoint = "admin/get_attr_def", input = GetUrl)]
 pub async fn get_attribute_def(id: Id) -> Result<Option<AttributeDef>, ServerFnError> {
     let session: Session = extract().await?;
-    let attr_def = session.3.get(&id).await;
+    let attr_def = session.attr_def_mgmt().get(&id).await;
     Ok(attr_def)
 }
 
@@ -27,7 +27,7 @@ pub async fn get_attribute_def(id: Id) -> Result<Option<AttributeDef>, ServerFnE
 pub async fn create_attribute_def(item: AttributeDef) -> Result<Id, ServerFnError> {
     //
     let session: Session = extract().await?;
-    session.3.add(item).await.map(|id| Ok(id))?
+    session.attr_def_mgmt().add(item).await.map(|id| Ok(id))?
 }
 
 /// Update an attribute definition.
@@ -36,7 +36,12 @@ pub async fn update_attribute_def(attr_def: AttributeDef) -> Result<(), ServerFn
     //
     log::debug!("Updating attribute def: {:?}", attr_def);
     let session: Session = extract().await?;
-    if let Err(e) = session.3.update(&attr_def).await.map(|_| Ok::<_, ServerFnError>(()))? {
+    if let Err(e) = session
+        .attr_def_mgmt()
+        .update(&attr_def)
+        .await
+        .map(|_| Ok::<_, ServerFnError>(()))?
+    {
         return Err(e);
     };
     session
@@ -51,5 +56,5 @@ pub async fn update_attribute_def(attr_def: AttributeDef) -> Result<(), ServerFn
 pub async fn remove_attr_def(id: Id) -> Result<(), ServerFnError> {
     //
     let session: Session = extract().await?;
-    session.3.remove(id).await.map(|_| Ok(()))?
+    session.attr_def_mgmt().remove(id).await.map(|_| Ok(()))?
 }

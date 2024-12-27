@@ -24,6 +24,40 @@ pub struct Session(
     pub Arc<EntityLinkMgmt>,
 );
 
+impl Session {
+    pub fn current_user(&self) -> Option<UserAccount> {
+        self.0.current_user.clone()
+    }
+
+    pub fn user_mgmt(&self) -> Arc<UserMgmt> {
+        self.1.clone()
+    }
+
+    pub fn tag_mgmt(&self) -> Arc<TagMgmt> {
+        self.2.clone()
+    }
+
+    pub fn attr_def_mgmt(&self) -> Arc<AttributeDefMgmt> {
+        self.3.clone()
+    }
+
+    pub fn ent_def_mgmt(&self) -> Arc<EntityDefMgmt> {
+        self.4.clone()
+    }
+
+    pub fn ent_mgmt(&self) -> Arc<EntityMgmt> {
+        self.5.clone()
+    }
+
+    pub fn ent_link_def_mgmt(&self) -> Arc<EntityLinkDefMgmt> {
+        self.6.clone()
+    }
+
+    pub fn ent_link_mgmt(&self) -> Arc<EntityLinkMgmt> {
+        self.7.clone()
+    }
+}
+
 impl std::ops::Deref for Session {
     type Target = AuthSession<UserAccount, Id, SessionPgPool, PgPool>;
 
