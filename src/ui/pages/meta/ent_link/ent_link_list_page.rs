@@ -105,7 +105,7 @@ fn EntityLinkCard(item: EntityLink, source_ent_def_name: String, target_ent_def_
                         p { class: "mt-1 text-xs leading-snug tracking-normal antialiased pr-1",
                             "{item.kind}"
                         }
-                        img { class: "h-4 w-4 mt-1", src: "/struct.png" }
+                        img { class: "h-4 w-4 mt-1", src: "/assets/struct.png" }
                     }
                 }
             }

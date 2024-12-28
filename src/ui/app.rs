@@ -1,6 +1,8 @@
 use crate::ui::{routes::Route, ui_state::UI_STATE, UiStorage};
 use dioxus::prelude::*;
 
+const FAVICON: Asset = asset!("/assets/favicon.ico");
+
 #[component]
 pub fn App() -> Element {
     //
@@ -22,6 +24,9 @@ pub fn App() -> Element {
     });
 
     rsx! {
+        // Global app resources
+        document::Link { rel: "icon", href: FAVICON }
+
         Router::<Route> {}
     }
 }

@@ -66,7 +66,7 @@ fn NavSep() -> Element {
 fn Logo() -> Element {
     rsx! {
         div {
-            img { src: "/logo.png", alt: "logo", class: "h-8" }
+            img { src: "/assets/logo.png", alt: "logo", class: "h-8" }
         }
     }
 }

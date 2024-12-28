@@ -84,13 +84,13 @@ fn AttrDefCard(props: AttrDefCardProps) -> Element {
                         p { class: "text-xs text-slate-500 leading-snug tracking-normal antialiased pr-1",
                             "{attr_def.value_type.label()}"
                         }
-                        img { class: "h-4 w-4 mt-px", src: "/struct.png" }
+                        img { class: "h-4 w-4 mt-px", src: "/assets/struct.png" }
                     }
                 }
                 div { class: "flex justify-between text-gray-500 px-2",
                     div {
                         class: "flex justify-between text-xs leading-5 text-gray-500 pt-1",
-                        dangerous_inner_html: "{attr_def.description.unwrap_or_default()} &nbsp;",
+                        dangerous_inner_html: "{attr_def.description.clone().unwrap_or_default()} &nbsp;",
                     }
                     {
                         if attr_def.tag_id.is_some() {

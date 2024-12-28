@@ -157,7 +157,7 @@ pub fn EntityLinkDefForm(props: EntityLinkDefFormProps) -> Element {
                             value: "{id}",
                             selected: "{selected_attr_def_id() == id}",
                             if desc.is_some() {
-                                "{name}   ({desc.unwrap()})"
+                                "{name}   ({desc.as_ref().unwrap()})"
                             } else {
                                 "{name}"
                             }

@@ -148,7 +148,7 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
                             value: "{id}",
                             selected: "{listing_attr_def_id() == id}",
                             if desc.is_some() {
-                                "{name}   ({desc.unwrap()})"
+                                "{name}   ({desc.as_ref().unwrap()})"
                             } else {
                                 "{name}"
                             }
@@ -178,7 +178,7 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
                             value: "{id}",
                             selected: "{selected_attr_def_id() == id}",
                             if desc.is_some() {
-                                "{name}   ({desc.unwrap()})"
+                                "{name}   ({desc.as_ref().unwrap()})"
                             } else {
                                 "{name}"
                             }

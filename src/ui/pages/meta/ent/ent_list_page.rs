@@ -75,7 +75,7 @@ fn EntityCard(ent: Entity) -> Element {
                         p { class: "mt-1 text-xs leading-snug tracking-normal antialiased pr-1",
                             "{ent.kind}"
                         }
-                        img { class: "h-4 w-4 mt-1", src: "/struct.png" }
+                        img { class: "h-4 w-4 mt-1", src: "/assets/struct.png" }
                     }
                 }
             }

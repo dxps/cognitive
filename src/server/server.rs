@@ -48,8 +48,7 @@ pub fn start_web_server(app_fn: fn() -> Element) {
 
         let web_api_router = Router::new()
             // Server side render the application, serve static assets, and register server functions.
-            .serve_dioxus_application(ServeConfig::builder().build(), move || VirtualDom::new(app_fn))
-            .await
+            .serve_dioxus_application(ServeConfigBuilder::default(), app_fn)
             .layer(AuthSessionLayer::<UserAccount, Id, SessionPgPool, PgPool>::new(Some(pg_pool)).with_config(auth_config))
             .layer(SessionLayer::new(session_store))
             .layer(Extension(state));

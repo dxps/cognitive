@@ -66,7 +66,7 @@ fn TagCard(item: Tag) -> Element {
                 }
                 div {
                     class: "flex justify-between text-xs leading-5 text-gray-500 pt-1",
-                    dangerous_inner_html: "{item.description.unwrap_or_default()} &nbsp;"
+                    dangerous_inner_html: "{item.description.clone().unwrap_or_default()} &nbsp;",
                 }
             }
         }
