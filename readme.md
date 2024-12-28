@@ -1,6 +1,6 @@
-# Akasha
+# Cognitive
 
-A generic ecosystem of knowledge and with cognitive functions.
+A space of knowledge and with cognitive functions.
 
 Currently, the focus is on the knowledge: the structure (of entities with their attributes) and links (between entities).<br/>
 Later, the cognitive functions will be introduced through a pluggable mechanism. Most probably, a WASM based server side implementation.

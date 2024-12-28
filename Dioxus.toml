@@ -3,7 +3,7 @@
 #============
 
 # App (Project) Name
-name = "akasha"
+name = "cognitive"
 
 # Dioxus App Default Platform
 # desktop, web
@@ -20,7 +20,7 @@ asset_dir = "assets"
 #========
 
 # HTML title tag content
-title = "Akasha"
+title = "Cognitive"
 
 #============
 [web.watcher]

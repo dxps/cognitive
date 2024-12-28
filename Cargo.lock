@@ -77,46 +77,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "akasha"
-version = "0.4.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "axum",
- "axum-extra",
- "axum_session",
- "axum_session_auth",
- "axum_session_sqlx",
- "chrono",
- "console_log",
- "dioxus",
- "dioxus-fullstack",
- "dioxus-web",
- "dotenvy",
- "fastrand",
- "futures",
- "futures-util",
- "getrandom",
- "http 1.1.0",
- "indexmap",
- "log",
- "md5",
- "nid",
- "serde",
- "serde_json",
- "simple_logger",
- "sqlx",
- "strum",
- "thiserror",
- "tokio",
- "tokio-tungstenite",
- "tower 0.5.1",
- "tower-http 0.6.2",
- "tracing",
- "web-sys",
-]
-
-[[package]]
 name = "allocator-api2"
 version = "0.2.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -578,6 +538,46 @@ checksum = "773f3b9af64447d2ce9850330c473515014aa235e6a783b02db81ff39e4a3dad"
 dependencies = [
  "crypto-common",
  "inout",
+]
+
+[[package]]
+name = "cognitive"
+version = "0.4.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "axum",
+ "axum-extra",
+ "axum_session",
+ "axum_session_auth",
+ "axum_session_sqlx",
+ "chrono",
+ "console_log",
+ "dioxus",
+ "dioxus-fullstack",
+ "dioxus-web",
+ "dotenvy",
+ "fastrand",
+ "futures",
+ "futures-util",
+ "getrandom",
+ "http 1.1.0",
+ "indexmap",
+ "log",
+ "md5",
+ "nid",
+ "serde",
+ "serde_json",
+ "simple_logger",
+ "sqlx",
+ "strum",
+ "thiserror",
+ "tokio",
+ "tokio-tungstenite",
+ "tower 0.5.1",
+ "tower-http 0.6.2",
+ "tracing",
+ "web-sys",
 ]
 
 [[package]]

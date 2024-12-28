@@ -18,12 +18,12 @@ fi
 
 DB_IMAGE="postgres:16"
 
-# Check if a custom user has been set, otherwise default to 'akasha'.
-DB_USER="${POSTGRES_USER:=akasha}"
-# Check if a custom password has been set, otherwise default to 'akasha'.
-DB_PASSWORD="${POSTGRES_PASSWORD:=akasha}"
-# Check if a custom password has been set, otherwise default to 'akasha'.
-DB_NAME="${POSTGRES_DB:=akasha}"
+# Check if a custom user has been set, otherwise default to 'cognitive'.
+DB_USER="${POSTGRES_USER:=cognitive}"
+# Check if a custom password has been set, otherwise default to 'cognitive'.
+DB_PASSWORD="${POSTGRES_PASSWORD:=cognitive}"
+# Check if a custom password has been set, otherwise default to 'cognitive'.
+DB_NAME="${POSTGRES_DB:=cognitive}"
 # Check if a custom port has been set, otherwise default to '5443'.
 DB_PORT="${POSTGRES_PORT:=5443}"
 # Check if a custom host has been set, otherwise default to 'localhost'.
@@ -33,7 +33,7 @@ DB_HOST="${POSTGRES_HOST:=localhost}"
 if [[ -z "${SKIP_DOCKER}" ]]
 then
   # if a postgres container is running, print instructions to kill it and exit.
-  RUNNING_POSTGRES_CONTAINER=$(docker ps --filter 'name=akasha' --format '{{.ID}}')
+  RUNNING_POSTGRES_CONTAINER=$(docker ps --filter 'name=cognitive' --format '{{.ID}}')
   if [[ -n $RUNNING_POSTGRES_CONTAINER ]]; then
     echo >&2 "There is a postgres container already running."
     echo >&2 "Terminate it with `docker kill ${RUNNING_POSTGRES_CONTAINER}`"
@@ -46,7 +46,7 @@ then
       -e POSTGRES_DB=${DB_NAME} \
       -p "${DB_PORT}":5432 \
       -d \
-      --name "akasha_$(date '+%Y%m%d_%H%M%S')" \
+      --name "cognitive_$(date '+%Y%m%d_%H%M%S')" \
       ${DB_IMAGE} -N 300
       # ^ Increased the maximum number of connections for testing purposes.
 fi

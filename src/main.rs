@@ -1,11 +1,11 @@
 #![allow(non_snake_case)]
 
 #[cfg(feature = "server")]
-use akasha::{server, ui};
+use cognitive::{server, ui};
 
 #[cfg(feature = "web")]
 #[cfg(not(feature = "server"))]
-use akasha::ui;
+use cognitive::ui;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     //

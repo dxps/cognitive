@@ -1,5 +1,5 @@
 [package]
-name = "akasha"
+name = "cognitive"
 version = "0.4.0"
 authors = ["dxps <marius.ileana@gmail.com>"]
 edition = "2021"
