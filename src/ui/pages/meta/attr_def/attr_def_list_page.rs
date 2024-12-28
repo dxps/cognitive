@@ -100,7 +100,7 @@ fn AttrDefCard(props: AttrDefCardProps) -> Element {
                                     rsx! {
                                         div { class: "flex pt-0.5",
                                             p { class: "text-xs leading-5 pr-1 text-gray-400", "{tag.name.clone()}" }
-                                            img { class: "h-4 w-4 mt-0.5", src: "/tag.png" }
+                                            img { class: "h-4 w-4 mt-0.5", src: "/assets/tag.png" }
                                         }
                                     }
                                 }
