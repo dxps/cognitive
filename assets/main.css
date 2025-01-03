@@ -891,6 +891,10 @@ select[disabled]:focus {
   display: block;
 }
 
+.inline-block {
+  display: inline-block;
+}
+
 .inline {
   display: inline;
 }
@@ -1365,6 +1369,10 @@ select[disabled]:focus {
 
 .text-center {
   text-align: center;
+}
+
+.align-middle {
+  vertical-align: middle;
 }
 
 .font-\[sans-serif\] {

@@ -46,7 +46,7 @@ pub fn AttributeDefForm(props: AttributeDefFormProps) -> Element {
                     },
                     onmounted: move |evt| async move {
                         _ = evt.set_focus(is_edit).await;
-                    }
+                    },
                 }
             }
             div { class: "flex",
@@ -61,7 +61,7 @@ pub fn AttributeDefForm(props: AttributeDefFormProps) -> Element {
                     readonly: is_view,
                     oninput: move |evt| {
                         description.set(evt.value());
-                    }
+                    },
                 }
             }
             div { class: "flex",
@@ -99,7 +99,7 @@ pub fn AttributeDefForm(props: AttributeDefFormProps) -> Element {
                 }
                 if action == "Edit" {
                     div { class: "group flex relative",
-                        span { class: "text-xs text-gray-400 hover:text-gray-600 cursor-pointer pl-2 pt-3",
+                        span { class: "flex text-xs text-gray-400 hover:text-gray-600 cursor-pointer pl-2 items-center",
                             "🛈"
                         }
                         span { class: "group-hover:opacity-100 transition-opacity bg-gray-500 px-1 text-sm text-white rounded-md opacity-0 m-8 py-2 mx-auto absolute right-0 w-48 text-center",
@@ -120,7 +120,7 @@ pub fn AttributeDefForm(props: AttributeDefFormProps) -> Element {
                         readonly: is_view,
                         oninput: move |evt| {
                             default_value.set(evt.value());
-                        }
+                        },
                     }
                 } else {
                     input {
@@ -130,7 +130,7 @@ pub fn AttributeDefForm(props: AttributeDefFormProps) -> Element {
                         readonly: is_view,
                         oninput: move |evt| {
                             default_value.set(evt.value());
-                        }
+                        },
                     }
                 }
             }
@@ -155,7 +155,7 @@ pub fn AttributeDefForm(props: AttributeDefFormProps) -> Element {
                         if is_edit {
                             is_required.set(evt.value().parse().unwrap_or_default());
                         }
-                    }
+                    },
                 }
             }
             div { class: "flex",
