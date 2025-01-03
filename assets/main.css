@@ -1079,12 +1079,20 @@ select[disabled]:focus {
   flex-wrap: wrap;
 }
 
+.items-start {
+  align-items: flex-start;
+}
+
 .items-end {
   align-items: flex-end;
 }
 
 .items-center {
   align-items: center;
+}
+
+.justify-start {
+  justify-content: flex-start;
 }
 
 .justify-end {
@@ -1373,6 +1381,10 @@ select[disabled]:focus {
 
 .pt-8 {
   padding-top: 2rem;
+}
+
+.pl-1 {
+  padding-left: 0.25rem;
 }
 
 .text-center {

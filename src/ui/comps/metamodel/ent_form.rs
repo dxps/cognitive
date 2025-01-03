@@ -38,7 +38,7 @@ pub fn EntityForm(props: EntityFormProps) -> Element {
             div { class: "space-y-0",
                 //
                 for (value_type , id) in attributes_order() {
-                    div { class: "flex",
+                    div { class: "flex justify-start items-center",
                         if value_type == AttributeValueType::Text {
                             label { class: "pr-3 py-2 min-w-36 text-gray-600",
                                 "{text_attrs().get(&id).unwrap().name}:"
@@ -107,7 +107,7 @@ pub fn EntityForm(props: EntityFormProps) -> Element {
                                 "{boolean_attrs().get(&id).unwrap().name}:"
                             }
                             input {
-                                class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300 min-w-80",
+                                class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300",
                                 r#type: "checkbox",
                                 checked: "{boolean_attrs().get(&id).unwrap().value}",
                                 readonly: is_view,
@@ -122,6 +122,9 @@ pub fn EntityForm(props: EntityFormProps) -> Element {
                                         .get(& id).unwrap().name, boolean_attrs().get(& id).unwrap().value
                                     );
                                 },
+                            }
+                            span { class: "text-sm text-gray-500 pl-1",
+                                "({boolean_attrs().get(&id).unwrap().value})"
                             }
                         }
                     }
