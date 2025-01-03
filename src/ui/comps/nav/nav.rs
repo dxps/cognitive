@@ -42,6 +42,13 @@ fn render_itself() -> Element {
                     }
                 }
                 NavSep {}
+                li {
+                    Link {
+                        class: "text-sm text-gray-600 py-2 px-4 hover:bg-gray-100 rounded-lg transition duration-200",
+                        to: Route::AdminPage {},
+                        "Admin"
+                    }
+                }
             }
             NavUserMenu {}
         }

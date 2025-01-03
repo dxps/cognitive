@@ -87,7 +87,7 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
                 p { class: "min-w-32 text-gray-500", "Attributes" }
                 div {
                     for (index , (id , (name , desc))) in ordered_included_attr_defs().into_iter().enumerate() {
-                        div { class: if is_view { "flex justify-between min-w-80" } else { "flex justify-between min-w-80 cursor-move" },
+                        div { class: if is_view { "flex justify-between min-w-80" } else { "flex justify-between min-w-80 cursor-row-resize" },
                             p {
                                 class: "pl-3 pr-3",
                                 draggable: if is_view { false } else { true },

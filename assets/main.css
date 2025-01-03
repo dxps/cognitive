@@ -1059,6 +1059,14 @@ select[disabled]:focus {
   cursor: pointer;
 }
 
+.cursor-row-resize {
+  cursor: row-resize;
+}
+
+.cursor-ns-resize {
+  cursor: ns-resize;
+}
+
 .flex-row {
   flex-direction: row;
 }
