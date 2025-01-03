@@ -107,10 +107,10 @@ pub fn EntityForm(props: EntityFormProps) -> Element {
                                 "{boolean_attrs().get(&id).unwrap().name}:"
                             }
                             input {
-                                class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300",
+                                class: "px-3 py-2 my-1 rounded-lg outline-none border-1 focus:border-green-300 disabled:accent-green-600",
                                 r#type: "checkbox",
                                 checked: "{boolean_attrs().get(&id).unwrap().value}",
-                                readonly: is_view,
+                                disabled: is_view,
                                 oninput: move |evt| {
                                     let id = id.clone();
                                     boolean_attrs
@@ -123,7 +123,7 @@ pub fn EntityForm(props: EntityFormProps) -> Element {
                                     );
                                 },
                             }
-                            span { class: "text-sm text-gray-500 pl-1",
+                            span { class: if is_view { "text-sm text-gray-900 pl-1" } else { "text-sm text-gray-500 pl-1" },
                                 "({boolean_attrs().get(&id).unwrap().value})"
                             }
                         }

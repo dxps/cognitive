@@ -1548,9 +1548,18 @@ select[disabled]:focus {
   color: rgb(255 255 255 / var(--tw-text-opacity, 1));
 }
 
+.text-gray-900 {
+  --tw-text-opacity: 1;
+  color: rgb(17 24 39 / var(--tw-text-opacity, 1));
+}
+
 .antialiased {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.accent-green-900 {
+  accent-color: #14532d;
 }
 
 .opacity-0 {
@@ -1744,6 +1753,19 @@ select[disabled]:focus {
 .disabled\:text-white:disabled {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity, 1));
+}
+
+.disabled\:text-gray-900:disabled {
+  --tw-text-opacity: 1;
+  color: rgb(17 24 39 / var(--tw-text-opacity, 1));
+}
+
+.disabled\:accent-green-900:disabled {
+  accent-color: #14532d;
+}
+
+.disabled\:accent-green-600:disabled {
+  accent-color: #16a34a;
 }
 
 .disabled\:hover\:bg-gray-200:hover:disabled {
