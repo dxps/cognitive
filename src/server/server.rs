@@ -97,7 +97,8 @@ fn init_logging() {
         .with_module_level("axum_session", Info)
         .with_module_level("axum_session_auth", Warn)
         .with_module_level("dioxus_core", Warn)
-        .with_module_level("dioxus_signals", Info)
+        .with_module_level("dioxus_signals", Warn)
+        .with_module_level("warnings", Warn)
         .with_module_level("tracing", Warn)
         .init()
         .unwrap();

@@ -67,7 +67,7 @@ pub fn AttributeDefForm(props: AttributeDefFormProps) -> Element {
             div { class: "flex",
                 label { class: "pr-3 py-1 min-w-28 text-gray-500", "Value Type" }
                 select {
-                    class: "px-3 min-w-80",
+                    class: "px-3 min-w-80 outline-none",
                     multiple: false,
                     disabled: is_view || is_edit,
                     oninput: move |evt| {
@@ -157,11 +157,18 @@ pub fn AttributeDefForm(props: AttributeDefFormProps) -> Element {
                         }
                     },
                 }
+                p { class: "pl-3 py-1",
+                    if is_required() {
+                        "(yes)"
+                    } else {
+                        "(no)"
+                    }
+                }
             }
             div { class: "flex",
                 label { class: "pr-3 py-1 min-w-28 text-gray-500", "Tag" }
                 select {
-                    class: "px-3 min-w-80",
+                    class: "px-3 min-w-80 outline-none",
                     multiple: false,
                     disabled: is_view,
                     oninput: move |evt| {

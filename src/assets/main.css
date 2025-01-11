@@ -58,7 +58,7 @@
 
 	/* Defaults for dropdowns. */
 	select {
-		@apply bg-white rounded-lg outline-none border-[1.4px] border-slate-300 px-3;
+		@apply bg-white rounded-lg outline-none border-[1.4px] border-slate-300 py-2 px-3;
 	}
 	select:disabled {
 		@apply border-slate-200;
