@@ -53,12 +53,14 @@ pub fn start_web_server(app_fn: fn() -> Element) {
             .layer(SessionLayer::new(session_store))
             .layer(Extension(state));
 
+        // WebSocket router.
         let ws_router = Router::new().route("/", get(ws_handler));
 
         let router = web_api_router.nest("/ws", ws_router);
 
-        let addr = std::net::SocketAddr::from(([127, 0, 0, 1], 3001));
-        let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
+        // Connect to the IP and PORT environment variables.
+        let socket_addr = dioxus_cli_config::fullstack_address_or_localhost();
+        let listener = tokio::net::TcpListener::bind(&socket_addr).await.unwrap();
 
         axum::serve(listener, router.into_make_service_with_connect_info::<SocketAddr>())
             .await
