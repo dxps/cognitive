@@ -26,21 +26,12 @@ impl AttributeDefMgmt {
     }
 
     /// Add a new attribute definition. It returns the id of the stored entry.
-    pub async fn add(&self, item: AttributeDef) -> AppResult<Id> {
+    pub async fn add(&self, mut item: AttributeDef) -> AppResult<Id> {
         //
         let id = Id::new();
-        self.attr_repo
-            .add(
-                &id,
-                item.name,
-                item.description,
-                item.value_type.to_string(),
-                item.default_value,
-                item.is_required,
-                item.tag_id,
-            )
-            .await
-            .map(|_| id)
+        log::debug!("Adding {:?} ...", item);
+        item.id = id.clone();
+        self.attr_repo.add(&item).await.map(|_| id)
     }
 
     /// Update an existing attribute definition.

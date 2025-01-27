@@ -45,28 +45,19 @@ impl AttributeDefRepo {
     }
 
     /// Add a new attribute definition. It returns the id of the repository entry.
-    pub async fn add(
-        &self,
-        id: &Id,
-        name: String,
-        description: Option<String>,
-        value_type: String,
-        default_value: String,
-        is_required: bool,
-        tag_id: Option<Id>,
-    ) -> AppResult<()> {
+    pub async fn add(&self, item: &AttributeDef) -> AppResult<()> {
         //
         sqlx::query(
             "INSERT INTO attribute_defs (id, name, description, value_type, default_value, required, tag_id)
              VALUES ($1, $2, $3, $4, $5, $6, $7)",
         )
-        .bind(&id.as_str())
-        .bind(name)
-        .bind(description)
-        .bind(value_type)
-        .bind(default_value)
-        .bind(is_required)
-        .bind(tag_id)
+        .bind(&item.id.as_str())
+        .bind(&item.name)
+        .bind(&item.description)
+        .bind(item.value_type.to_string())
+        .bind(&item.default_value)
+        .bind(item.is_required)
+        .bind(item.tag_id.as_ref().map(|id| id.as_str()))
         .execute(self.dbcp.as_ref())
         .await
         .map(|_| Ok(()))
