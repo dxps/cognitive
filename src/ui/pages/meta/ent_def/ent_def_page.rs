@@ -67,16 +67,16 @@ pub fn EntityDefPage(props: EntityDefPageProps) -> Element {
         }
     });
 
-    // React to DnD changes.
+    // React to DnD changes that happened in the form (`EntityDefForm` component).
     use_effect(move || {
         let (source_attr_index, target_attr_index) = ordered_included_attrs_order_change();
         if !ordered_included_attrs_dragging_in_progress() && source_attr_index != target_attr_index {
-            let mut changed_attr_defs = included_attr_defs.clone();
             let range: &mut dyn Iterator<Item = usize> = if source_attr_index < target_attr_index {
                 &mut (source_attr_index..target_attr_index)
             } else {
                 &mut (target_attr_index..source_attr_index).rev().into_iter()
             };
+            let mut changed_attr_defs = included_attr_defs.clone();
             for index in range {
                 changed_attr_defs.swap_indices(index, index + 1);
             }

@@ -49,6 +49,7 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
 
     rsx! {
         div { class: "mt-4 space-y-4",
+            // "Name" section.
             div { class: "flex",
                 label { class: "pr-3 py-2 min-w-32 text-gray-500", "Name" }
                 input {
@@ -69,6 +70,7 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
                     },
                 }
             }
+            // "Description" section.
             div { class: "flex",
                 label { class: "pr-3 py-2 min-w-32 text-gray-500", "Description" }
                 textarea {
@@ -83,6 +85,7 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
                     },
                 }
             }
+            // "Attributes" section.
             div { class: "flex",
                 p { class: "min-w-32 text-gray-500", "Attributes" }
                 div {
@@ -133,6 +136,7 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
                     }
                 }
             }
+            // "Listing attribute" section.
             div { class: "flex",
                 label { class: "pr-3 py-2 min-w-32 text-gray-500", "Listing attribute" }
                 select {
@@ -157,6 +161,7 @@ pub fn EntityDefForm(props: EntityDefFormProps) -> Element {
                 }
             }
             hr { class: "mt-8 mb-1" }
+            // "Select an attribute definition to include" section.
             div {
                 class: "flex",
                 display: if action == "View" || action == "Delete" || (action == "Edit" && action_done()) { "none" } else { "block" },
