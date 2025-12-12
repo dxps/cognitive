@@ -56,3 +56,12 @@ server = [
     "dep:tracing", 
     "dep:simple_logger"
 ]
+
+#################
+[profile.release]
+#################
+
+lto = true
+opt-level = 3
+strip = true
+

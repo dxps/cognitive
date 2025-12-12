@@ -2,6 +2,7 @@
 // the server side //
 /////////////////////
 
+#[cfg(feature = "server")]
 use dioxus::fullstack::Lazy;
 
 #[cfg(feature = "server")]
