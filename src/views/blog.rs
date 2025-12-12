@@ -1,7 +1,7 @@
 use crate::Route;
 use dioxus::prelude::*;
 
-const BLOG_CSS: Asset = asset!("/assets/styling/blog.css");
+const BLOG_CSS: Asset = asset!("/assets/styles/blog.css");
 
 /// The Blog page component that will be rendered when the current route is `[Route::Blog]`.
 ///

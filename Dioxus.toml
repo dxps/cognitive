@@ -1,21 +1,37 @@
+#############
 [application]
+#############
 
+#########
 [web.app]
+#########
 
 # HTML title tag content
 title = "cognitive"
 
-# include `assets` in web platform
-[web.resource]
 
-# Additional CSS style files
+##############
+[web.resource]
+##############
+# It includes `assets` in web platform.
+
+# Additional CSS style files.
 style = []
 
 # Additional JavaScript files
 script = []
 
+##################
 [web.resource.dev]
+##################
 
 # Javascript code file
 # serve: [dev-server] only
 script = []
+
+#######################
+[web.resource.tailwind]
+#######################
+
+input = "src/assets/styles/tailwind.css"
+output = "assets/styles/tailwind.css"
