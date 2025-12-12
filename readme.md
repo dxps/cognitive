@@ -2,7 +2,7 @@
 
 This is a new version of the Cognitive app, built with Dioxus 0.7.x.
 
-The previous version was built with Dioxus 0.6 and is stored in [attic](./attic).
+The previous version was built with Dioxus 0.6 and is stored in [\_attic](./_attic).
 
 <br/>
 

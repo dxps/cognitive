@@ -1,0 +1,17 @@
+name: cognitive
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: cognitive
+    ports:
+      - "5454:5432"
+    environment:
+      POSTGRES_USER: cognitive
+      POSTGRES_PASSWORD: cognitive
+      POSTGRES_DB: cognitive
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+volumes:
+  pg_data:

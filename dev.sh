@@ -1,4 +1,4 @@
 #!/bin/sh
 
-dx serve --platform web
+dx serve --hotpatch --platform web
 

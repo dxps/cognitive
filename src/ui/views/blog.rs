@@ -1,4 +1,4 @@
-use crate::Route;
+use crate::ui::Route;
 use dioxus::prelude::*;
 
 const BLOG_CSS: Asset = asset!("/assets/styles/blog.css");
