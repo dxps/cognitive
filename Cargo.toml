@@ -1,67 +1,16 @@
-#########
-[package]
-#########
+###########
+[workspace]
+###########
+
+members = [ "backend", "frontend", "shlib"]
+resolver = "2"
+
+###################
+[workspace.package]
+###################
 
 name = "cognitive"
-version = "0.1.1"
-authors = ["dxps <marius.ileana@gmail.com>"]
+version = "2.0.0-alpha.1"
 edition = "2024"
-
-##############
-[dependencies]
-##############
-
-dioxus = { version = "0.7.2", features = [ "router", "fullstack" ] }
-
-anyhow = { version = "1.0.100" }
-thiserror = { version = "2.0.17" }
-
-sqlx = { version="0.8.6", features = [ 
-    "macros", 
-    "migrate", 
-    "postgres", 
-    "runtime-tokio-rustls"
-], optional = true }
-
-dotenvy = { version = "0.15.7", optional = true }
-log = { version = "0.4.29", optional = true }
-tracing = { version = "0.1.43", optional = true }
-simple_logger = { version = "5.1.0", optional = true }
-
-##########
-[features]
-##########
-
-default = ["web"]
-
-# The feature that are only required for the web = ["dioxus/web"] build target should be optional
-# and only enabled in the web = ["dioxus/web"] feature.
-web = ["dioxus/web"]
-
-# The feature that are only required for the desktop = ["dioxus/desktop"] build target should be optional
-# and only enabled in the desktop = ["dioxus/desktop"] feature.
-desktop = ["dioxus/desktop"]
-
-# The feature that are only required for the mobile = ["dioxus/mobile"] build target should be optional
-# and only enabled in the mobile = ["dioxus/mobile"] feature.
-mobile = ["dioxus/mobile"]
-
-# The feature that are only required for the server = ["dioxus/server"] build target should be optional
-# and only enabled in the server = ["dioxus/server"] feature.
-server = [
-    "dioxus/server", 
-    "dep:dotenvy",
-    "dep:sqlx",
-    "dep:log", 
-    "dep:tracing", 
-    "dep:simple_logger"
-]
-
-#################
-[profile.release]
-#################
-
-lto = true
-opt-level = 3
-strip = true
-
+license = "MIT OR Apache-2.0"
+authors = ["dxps <dev@devisions.io>"]

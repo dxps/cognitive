@@ -1,1 +1,0 @@
-Used https://isotropic.co/hex-color-to-css-filter to generate the filter rule based on the target color.
