@@ -6,6 +6,10 @@ This is the back-end side of the project.
 
 ## Setup
 
+### Prerequisites
+
+-   `sqlx-cli`
+
 ### Start the database
 
 Run these to start a PostgreSQL container.

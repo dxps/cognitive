@@ -18,7 +18,7 @@ pub fn start_web_server() {
                 );
                 return;
             }
-            let _pg_pool = pg_pool.unwrap();
+            let pg_pool = pg_pool.unwrap();
             log::info!("Connected to the database.");
         });
 }

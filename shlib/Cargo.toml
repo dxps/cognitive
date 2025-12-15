@@ -3,8 +3,8 @@
 #########
 
 name = "shlib"
-description = "library that is shared between back-end and front-end sides"
-version = "0.1.0"
+description = "The library that is shared between back-end and front-end sides."
+version = "2.0.0-alpha.1"
 edition = "2024"
 
 ##############
@@ -12,4 +12,7 @@ edition = "2024"
 ##############
 
 anyhow = { version = "1.0.100" }
+dioxus = { version = "0.7.2" }
 thiserror = { version = "2.0.17" }
+serde = { version = "1.0.228" }
+
