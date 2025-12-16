@@ -1,6 +1,6 @@
 use std::{net::SocketAddr, sync::Arc};
 
-use axum::{Extension, Router};
+use axum::Router;
 use axum_session::{SessionConfig, SessionLayer};
 use axum_session_auth::{AuthConfig, AuthSessionLayer};
 use axum_session_sqlx::{SessionPgPool, SessionPgSessionStore};
@@ -9,7 +9,10 @@ use sqlx::PgPool;
 
 use crate::{
     domain::logic::UserMgmt,
-    infra::{AuthUserAccount, ServerState, connect_to_pgdb},
+    infra::{
+        AuthUserAccount, ServerState, connect_to_pgdb,
+        http_api::{self},
+    },
 };
 
 pub fn start_web_server() {
@@ -36,6 +39,7 @@ pub fn start_web_server() {
             // `rest_mode` feature of axum_session is used. This disables cookies and uses the header values instead.
             // The header name used for the session id is what is configured as the session name (`with_session_name(...)`).
             let session_config = SessionConfig::default()
+                .with_mode(axum_session::SessionMode::OptIn)
                 .with_table_name("user_sessions")
                 .with_session_name("cognitive_token");
             let session_store =
@@ -56,9 +60,10 @@ pub fn start_web_server() {
                     .with_config(auth_config);
 
             let web_api_router = Router::new()
+                .route("/login", axum::routing::post(http_api::login))
                 .layer(auth_layer)
                 .layer(SessionLayer::new(session_store))
-                .layer(Extension(state));
+                .with_state(state);
 
             let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
             let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
@@ -69,12 +74,14 @@ pub fn start_web_server() {
 }
 
 fn init_logging() {
-    use log::LevelFilter::{Info, Warn};
+    use log::LevelFilter::{Debug, Info, Warn};
 
     simple_logger::SimpleLogger::new()
+        .with_module_level("server", Debug) // The logging level for this crate.
         .with_module_level("sqlx", Info)
         .with_module_level("tungstenite", Info)
         .with_module_level("tokio_tungstenite", Info)
+        .with_module_level("axum", Info)
         .with_module_level("axum_session", Info)
         .with_module_level("axum_session_auth", Warn)
         .with_module_level("dioxus_core", Warn)

@@ -49,7 +49,13 @@ impl UserMgmt {
 
     pub async fn authenticate_user(&self, email: String, pwd: String) -> AppResult<UserAccount> {
         //
-        let user_entry = self.user_repo.get_by_email(&email).await?;
+        let user_entry = self.user_repo.get_by_email(&email).await.map_err(|err| {
+            if err == AppError::ResourceNotFound {
+                AppError::Unauthorized("wrong credentials".into())
+            } else {
+                err
+            }
+        })?;
         match Self::check_password(&pwd, &user_entry.password, &user_entry.salt) {
             true => Ok(user_entry.into()),
             false => Err(AppError::Unauthorized("wrong credentials".into())),

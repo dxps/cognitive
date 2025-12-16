@@ -1,5 +1,8 @@
 use std::sync::Arc;
 
+use async_trait::async_trait;
+use axum::extract::{FromRef, FromRequestParts};
+use http::{StatusCode, request::Parts};
 use sqlx::PgPool;
 
 use crate::{domain::logic::UserMgmt, infra::UserRepo};
@@ -16,5 +19,17 @@ impl ServerState {
         let user_mgmt = Arc::new(UserMgmt::new(users_repo));
 
         Self { user_mgmt }
+    }
+}
+
+impl<S> FromRequestParts<S> for ServerState
+where
+    Self: FromRef<S>,
+    S: Send + Sync,
+{
+    type Rejection = (StatusCode, String);
+
+    async fn from_request_parts(_parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
+        Ok(Self::from_ref(state))
     }
 }

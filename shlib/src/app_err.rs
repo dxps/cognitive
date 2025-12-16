@@ -3,11 +3,14 @@ use thiserror::Error;
 
 pub type AppResult<T> = std::result::Result<T, AppError>;
 
-#[derive(Debug, Error)]
+#[derive(Debug, Error, PartialEq)]
 pub enum AppError {
     //
     #[error("{0} already exists")]
     AlreadyExists(String),
+
+    #[error("")]
+    ResourceNotFound,
 
     /// Commonly used to indicate that an item deletion cannot be done since
     /// it is referred (mainly at the database level through a foreign key).

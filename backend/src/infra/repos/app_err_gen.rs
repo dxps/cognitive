@@ -1,10 +1,10 @@
 use shlib::AppError;
 
 pub fn new_app_error_from_sqlx(err: sqlx::Error) -> AppError {
-    log::debug!("from(sqlx:Error): err={:?}", err);
+    log::trace!("from(sqlx:Error): err={:?}", err);
 
     let msg = match &err {
-        sqlx::Error::RowNotFound => AppError::Err("Record not found".to_string()),
+        sqlx::Error::RowNotFound => AppError::ResourceNotFound,
         _ => {
             // FYI: For now, any specifically unhandled error is considered as internal error.
             if let Some(db_err) = err.as_database_error() {

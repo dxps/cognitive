@@ -1,0 +1,41 @@
+use axum::{Json, extract::State};
+use axum_session::Session;
+use axum_session_sqlx::SessionPgPool;
+use http::StatusCode;
+use log::debug;
+use shlib::http_dtos::{ErrorResponse, LoginRequest, LoginResponse};
+
+use crate::infra::ServerState;
+
+pub async fn login(
+    State(state): State<ServerState>,
+    session: Session<SessionPgPool>,
+    Json(payload): Json<LoginRequest>,
+) -> Result<(StatusCode, Json<LoginResponse>), (StatusCode, Json<ErrorResponse>)> {
+    //
+    debug!("Received login request '{:?}'.", payload);
+
+    state
+        .user_mgmt
+        .authenticate_user(payload.email, payload.password)
+        .await
+        .map_err(|err| match err {
+            shlib::AppError::Unauthorized(msg) => (StatusCode::UNAUTHORIZED, Json(msg.into())),
+            _ => {
+                debug!("Login error: {:?}", err);
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(ErrorResponse {
+                        error: "Internal server error".to_owned(),
+                    }),
+                )
+            }
+        })?;
+
+    let response = LoginResponse {
+        access_token: session.get_session_id(),
+        token_type: "Bearer",
+        expires_in: 3600,
+    };
+    Ok((StatusCode::OK, Json(response)))
+}
