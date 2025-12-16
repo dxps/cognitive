@@ -1,13 +1,12 @@
 use anyhow::Ok;
 
-mod database;
 mod domain;
-mod server;
+mod infra;
 
 fn main() -> Result<(), anyhow::Error> {
     dotenvy::dotenv()?;
 
-    server::start_web_server();
+    infra::start_web_server();
 
     Ok(())
 }

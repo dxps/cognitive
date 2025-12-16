@@ -1,3 +1,9 @@
+mod app_err_gen;
+pub use app_err_gen::*;
+
+mod user_repo;
+pub use user_repo::*;
+
 use shlib::AppError;
 use sqlx::{PgPool, postgres::PgPoolOptions};
 
