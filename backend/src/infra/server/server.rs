@@ -10,7 +10,7 @@ use sqlx::PgPool;
 use crate::{
     domain::logic::UserMgmt,
     infra::{
-        AuthUserAccount, ServerState, connect_to_pgdb,
+        AuthUserAccount, SESSION_NAME, SESSION_TABLE, ServerState, connect_to_pgdb,
         http_api::{self},
     },
 };
@@ -40,8 +40,8 @@ pub fn start_web_server() {
             // The header name used for the session id is what is configured as the session name (`with_session_name(...)`).
             let session_config = SessionConfig::default()
                 .with_mode(axum_session::SessionMode::OptIn)
-                .with_table_name("user_sessions")
-                .with_session_name("cognitive_token");
+                .with_table_name(SESSION_TABLE)
+                .with_session_name(SESSION_NAME);
             let session_store =
                 SessionPgSessionStore::new(Some(pg_pool.clone().into()), session_config)
                     .await
@@ -60,7 +60,8 @@ pub fn start_web_server() {
                     .with_config(auth_config);
 
             let web_api_router = Router::new()
-                .route("/login", axum::routing::post(http_api::login))
+                .route("/auth/login", axum::routing::post(http_api::login))
+                .route("/auth/logout", axum::routing::post(http_api::logout))
                 .layer(auth_layer)
                 .layer(SessionLayer::new(session_store))
                 .with_state(state);

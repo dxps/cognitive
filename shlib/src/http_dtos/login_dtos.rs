@@ -8,7 +8,6 @@ pub struct LoginRequest {
 
 #[derive(Debug, Serialize)]
 pub struct LoginResponse {
-    pub access_token: String,
-    pub token_type: &'static str, // "Bearer"
-    pub expires_in: i64,          // seconds
+    pub session: String,
+    pub expires_in: i64, // seconds
 }

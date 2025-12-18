@@ -32,10 +32,19 @@ pub async fn login(
             }
         })?;
 
+    session.set_store(true);
+
     let response = LoginResponse {
-        access_token: session.get_session_id(),
-        token_type: "Bearer",
-        expires_in: 3600,
+        session: session.get_session_id(),
+        expires_in: 3600, // TODO
     };
     Ok((StatusCode::OK, Json(response)))
+}
+
+pub async fn logout(session: Session<SessionPgPool>) -> StatusCode {
+    //
+    let sid = session.get_session_id();
+    session.destroy();
+    debug!("User logged out, session {} cleared.", sid);
+    StatusCode::NO_CONTENT
 }

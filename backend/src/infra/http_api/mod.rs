@@ -1,2 +1,2 @@
-mod login_api;
-pub use login_api::*;
+mod auth_api;
+pub use auth_api::*;

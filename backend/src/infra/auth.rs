@@ -5,6 +5,9 @@ use axum_session_auth::*;
 use shlib::domain::model::{Id, UserAccount};
 use sqlx::PgPool;
 
+pub const SESSION_NAME: &str = "Authorization";
+pub const SESSION_TABLE: &str = "user_sessions";
+
 // ---------------------------------
 //          AuthUserAccount
 // ---------------------------------
