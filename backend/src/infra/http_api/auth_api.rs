@@ -5,7 +5,7 @@ use http::StatusCode;
 use log::debug;
 use shlib::http_dtos::{ErrorResponse, LoginRequest, LoginResponse};
 
-use crate::infra::ServerState;
+use crate::infra::{SESSION_MAX_LIFESPAN, ServerState};
 
 pub async fn login(
     State(state): State<ServerState>,
@@ -36,7 +36,7 @@ pub async fn login(
 
     let response = LoginResponse {
         session: session.get_session_id(),
-        expires_in: 3600, // TODO
+        expires_in_seconds: SESSION_MAX_LIFESPAN.num_seconds(),
     };
     Ok((StatusCode::OK, Json(response)))
 }

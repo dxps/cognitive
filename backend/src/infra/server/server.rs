@@ -12,6 +12,7 @@ use crate::{
     infra::{
         AuthUserAccount, SESSION_NAME, SESSION_TABLE, ServerState, connect_to_pgdb,
         http_api::{self},
+        init_auth_layer, init_session_layer,
     },
 };
 
@@ -36,34 +37,20 @@ pub fn start_web_server() {
             let pg_pool = pg_pool.unwrap();
             log::info!("Connected to the database.");
 
-            // `rest_mode` feature of axum_session is used. This disables cookies and uses the header values instead.
-            // The header name used for the session id is what is configured as the session name (`with_session_name(...)`).
-            let session_config = SessionConfig::default()
-                .with_mode(axum_session::SessionMode::OptIn)
-                .with_table_name(SESSION_TABLE)
-                .with_session_name(SESSION_NAME);
-            let session_store =
-                SessionPgSessionStore::new(Some(pg_pool.clone().into()), session_config)
-                    .await
-                    .unwrap();
-
             let state = ServerState::new(Arc::new(pg_pool.clone()));
 
             register_admin_user(&state.user_mgmt)
                 .await
                 .expect("Self registering admin user failed");
 
-            let auth_config =
-                AuthConfig::<Id>::default().with_anonymous_user_id(Some("iH26rJ8Cp".into()));
-            let auth_layer =
-                AuthSessionLayer::<AuthUserAccount, Id, SessionPgPool, PgPool>::new(Some(pg_pool))
-                    .with_config(auth_config);
+            let auth_layer = init_auth_layer(&pg_pool).await;
+            let session_layer = init_session_layer(&pg_pool).await;
 
             let web_api_router = Router::new()
                 .route("/auth/login", axum::routing::post(http_api::login))
                 .route("/auth/logout", axum::routing::post(http_api::logout))
                 .layer(auth_layer)
-                .layer(SessionLayer::new(session_store))
+                .layer(session_layer)
                 .with_state(state);
 
             let addr = SocketAddr::from(([127, 0, 0, 1], 3000));

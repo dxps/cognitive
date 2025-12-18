@@ -9,5 +9,5 @@ pub struct LoginRequest {
 #[derive(Debug, Serialize)]
 pub struct LoginResponse {
     pub session: String,
-    pub expires_in: i64, // seconds
+    pub expires_in_seconds: i64, // seconds
 }
