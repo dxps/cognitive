@@ -134,9 +134,8 @@ async fn shutdown_signal() {
     #[cfg(not(unix))]
     let terminate = std::future::pending::<()>();
 
-    let msg = "Shutting down ...";
     tokio::select! {
-        _ = ctrl_c => {},
-        _ = terminate => {},
+        _ = ctrl_c => { log::info!("Ctrl-C signal received. Starting graceful shutdown ..."); },
+        _ = terminate => { log::info!("Termination signal received. Starting graceful shutdown ..."); },
     }
 }
