@@ -8,4 +8,3 @@ mod repos;
 pub use repos::*;
 
 mod http_api;
-pub use http_api::*;

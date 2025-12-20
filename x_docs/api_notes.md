@@ -10,8 +10,8 @@ The login API operation can be used like this:
 
 ```shell
 curl -X POST -H "Content-Type: application/json" \
-    -d '{"email": "admin@local", "password": "admin"}' \
-    http://localhost:3000/auth/login
+    -d '{ "email": "admin@local", "password": "admin" }' \
+    http://localhost:9011/auth/login
 ```
 
 and it responds with HTTP status code `200` and a body like this:
@@ -27,7 +27,7 @@ The logout API operation can be used like this:
 
 ```shell
 curl -X POST -H "Authorization: 7ebf679c-7519-4a61-927e-b0597b3b8184" \
-    http://localhost:3000/auth/logout
+    http://localhost:9011/auth/logout
 ```
 
 and it responds with HTTP status code `204` (No Content).

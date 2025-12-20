@@ -1,6 +1,5 @@
 use crate::infra::UserRepo;
 use async_trait::async_trait;
-use axum::response::{IntoResponse, Response};
 use axum_session::{SessionConfig, SessionLayer, SessionMode};
 use axum_session_auth::*;
 use axum_session_sqlx::{SessionPgPool, SessionPgSessionStore};
@@ -71,37 +70,5 @@ impl Authentication<AuthUserAccount, Id, PgPool> for AuthUserAccount {
 
     fn is_anonymous(&self) -> bool {
         self.0.is_anonymous
-    }
-}
-
-#[async_trait]
-impl HasPermission<PgPool> for AuthUserAccount {
-    async fn has(&self, perm: &str, _pool: &Option<&PgPool>) -> bool {
-        self.0.permissions.iter().any(|p| p == perm)
-    }
-}
-
-// ---------------------------------
-//     AuthSessionLayerNotFound
-// ---------------------------------
-
-#[derive(Debug)]
-pub struct AuthSessionLayerNotFound;
-
-impl std::fmt::Display for AuthSessionLayerNotFound {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "AuthSession layer was not found!")
-    }
-}
-
-impl std::error::Error for AuthSessionLayerNotFound {}
-
-impl IntoResponse for AuthSessionLayerNotFound {
-    fn into_response(self) -> Response {
-        (
-            http::status::StatusCode::INTERNAL_SERVER_ERROR,
-            "AuthSession layer was not found!",
-        )
-            .into_response()
     }
 }
