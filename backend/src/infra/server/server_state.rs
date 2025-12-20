@@ -1,9 +1,7 @@
-use std::sync::Arc;
-
-use async_trait::async_trait;
 use axum::extract::{FromRef, FromRequestParts};
 use http::{StatusCode, request::Parts};
 use sqlx::PgPool;
+use std::sync::Arc;
 
 use crate::{domain::logic::UserMgmt, infra::UserRepo};
 

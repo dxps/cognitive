@@ -1,16 +1,13 @@
 use std::{net::SocketAddr, sync::Arc};
 
 use axum::Router;
-use axum_session::{SessionConfig, SessionLayer};
-use axum_session_auth::{AuthConfig, AuthSessionLayer};
-use axum_session_sqlx::{SessionPgPool, SessionPgSessionStore};
-use shlib::{AppError, AppResult, domain::model::Id};
-use sqlx::PgPool;
+use shlib::{AppError, AppResult};
+use tokio::signal;
 
 use crate::{
     domain::logic::UserMgmt,
     infra::{
-        AuthUserAccount, SESSION_NAME, SESSION_TABLE, ServerState, connect_to_pgdb,
+        ServerState, connect_to_pgdb, disconnect_from_pgdb,
         http_api::{self},
         init_auth_layer, init_session_layer,
     },
@@ -19,7 +16,7 @@ use crate::{
 pub fn start_web_server() {
     //
     init_logging();
-    log::info!("Starting the server ...");
+    log::info!("Starting up ...");
 
     tokio::runtime::Runtime::new()
         .unwrap()
@@ -37,6 +34,17 @@ pub fn start_web_server() {
             let pg_pool = pg_pool.unwrap();
             log::info!("Connected to the database.");
 
+            let http_port: u16 = std::env::var("HTTP_PORT")
+                .expect("HTTP_PORT is not set")
+                .parse()
+                .expect(
+                    format!(
+                        "HTTP_PORT (with value '{}') is not a number",
+                        std::env::var("HTTP_PORT").unwrap()
+                    )
+                    .as_str(),
+                );
+
             let state = ServerState::new(Arc::new(pg_pool.clone()));
 
             register_admin_user(&state.user_mgmt)
@@ -53,11 +61,16 @@ pub fn start_web_server() {
                 .layer(session_layer)
                 .with_state(state);
 
-            let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
+            let addr = SocketAddr::from(([127, 0, 0, 1], http_port));
             let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
 
             log::info!("Listening on {}", addr);
-            axum::serve(listener, web_api_router).await.unwrap();
+            axum::serve(listener, web_api_router)
+                .with_graceful_shutdown(shutdown_signal())
+                .await
+                .unwrap();
+            log::info!("Shutdown complete.");
+            disconnect_from_pgdb(pg_pool).await;
         });
 }
 
@@ -100,5 +113,30 @@ async fn register_admin_user(user_mgmt: &UserMgmt) -> AppResult<()> {
             }
             _ => Err(app_err),
         },
+    }
+}
+
+async fn shutdown_signal() {
+    let ctrl_c = async {
+        signal::ctrl_c()
+            .await
+            .expect("failed to install Ctrl+C handler");
+    };
+
+    #[cfg(unix)]
+    let terminate = async {
+        signal::unix::signal(signal::unix::SignalKind::terminate())
+            .expect("failed to install signal handler")
+            .recv()
+            .await;
+    };
+
+    #[cfg(not(unix))]
+    let terminate = std::future::pending::<()>();
+
+    let msg = "Shutting down ...";
+    tokio::select! {
+        _ = ctrl_c => {},
+        _ = terminate => {},
     }
 }
