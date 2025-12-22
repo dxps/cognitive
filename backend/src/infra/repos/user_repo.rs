@@ -150,7 +150,10 @@ impl UserRepo {
         .bind(salt)
         .execute(self.dbcp.as_ref())
         .await
-        .map_err(|err| new_app_error_from_sqlx(err));
+        .map_err(|err| {
+            log::error!("Failed to save user: {}", err);
+            new_app_error_from_sqlx(err)
+        });
 
         if res.is_ok() {
             for permission in permissions.iter() {
@@ -161,7 +164,10 @@ impl UserRepo {
                 .bind(&permission)
                 .execute(self.dbcp.as_ref())
                 .await
-                .map_err(|err| new_app_error_from_sqlx(err));
+                .map_err(|err| {
+                    log::error!("Failed to save user permissions: {}", err);
+                    new_app_error_from_sqlx(err)
+                });
                 if res.is_err() {
                     return AppResult::Err(res.err().unwrap());
                 }

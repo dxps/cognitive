@@ -1,7 +1,7 @@
+use nid::{Nanoid, alphabet::Base62Alphabet};
 use shlib::domain::model::Id;
 
 pub fn new_id() -> Id {
-    Id {
-        0: nid::Nanoid::<10>::new().to_string(),
-    }
+    let id: Nanoid<10, Base62Alphabet> = Nanoid::new();
+    Id { 0: id.to_string() }
 }

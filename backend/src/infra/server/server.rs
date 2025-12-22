@@ -111,7 +111,10 @@ async fn register_admin_user(user_mgmt: &UserMgmt) -> AppResult<()> {
                 log::debug!("Admin user is already registered.");
                 Ok(())
             }
-            _ => Err(app_err),
+            _ => {
+                log::debug!("Admin user registration failed: {:#?}", app_err);
+                Err(app_err)
+            }
         },
     }
 }
