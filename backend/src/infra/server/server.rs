@@ -80,6 +80,7 @@ fn init_logging() {
     simple_logger::SimpleLogger::new()
         .with_module_level("server", Debug) // The logging level for this crate.
         .with_module_level("sqlx", Info)
+        .with_module_level("sqlx::postgres", Warn)
         .with_module_level("tungstenite", Info)
         .with_module_level("tokio_tungstenite", Info)
         .with_module_level("axum", Info)

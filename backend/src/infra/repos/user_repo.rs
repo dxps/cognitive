@@ -27,7 +27,9 @@ impl UserRepo {
         .bind(email)
         .fetch_one(self.dbcp.as_ref())
         .await
-        .map_err(|err| new_app_error_from_sqlx(err))?;
+        .map_err(|err| {
+            new_app_error_from_sqlx(err, Some("failed to get user by email".to_string()))
+        })?;
 
         let user_account = UserAccount {
             id: Id::new_from(row.get("id")),
@@ -81,7 +83,9 @@ impl UserRepo {
             .bind(user_id.as_str())
             .fetch_one(self.dbcp.as_ref())
             .await
-            .map_err(|err| new_app_error_from_sqlx(err))?;
+            .map_err(|err| {
+                new_app_error_from_sqlx(err, Some("failed to get password by user id".to_string()))
+            })?;
 
         Ok(UserPasswordSalt {
             password: row.get("password"),
@@ -96,8 +100,9 @@ impl UserRepo {
             .bind(user_id.as_str())
             .execute(self.dbcp.as_ref())
             .await
-            .map_err(|err| new_app_error_from_sqlx(err))
-        {
+            .map_err(|err| {
+                new_app_error_from_sqlx(err, Some("failed to update password".to_string()))
+            }) {
             Ok(_) => Ok(()),
             Err(err) => Err(AppError::from(err)),
         }
@@ -125,7 +130,10 @@ impl UserRepo {
         .await
         {
             Ok(_) => Ok(id),
-            Err(err) => Err(new_app_error_from_sqlx(err)),
+            Err(err) => Err(new_app_error_from_sqlx(
+                err,
+                Some("failed to save user".to_string()),
+            )),
         }
     }
 
@@ -150,10 +158,7 @@ impl UserRepo {
         .bind(salt)
         .execute(self.dbcp.as_ref())
         .await
-        .map_err(|err| {
-            log::error!("Failed to save user: {}", err);
-            new_app_error_from_sqlx(err)
-        });
+        .map_err(|err| new_app_error_from_sqlx(err, Some("failed to save user".to_string())));
 
         if res.is_ok() {
             for permission in permissions.iter() {
@@ -165,8 +170,10 @@ impl UserRepo {
                 .execute(self.dbcp.as_ref())
                 .await
                 .map_err(|err| {
-                    log::error!("Failed to save user permissions: {}", err);
-                    new_app_error_from_sqlx(err)
+                    new_app_error_from_sqlx(
+                        err,
+                        Some("failed to save user permissions".to_string()),
+                    )
                 });
                 if res.is_err() {
                     return AppResult::Err(res.err().unwrap());
@@ -189,7 +196,10 @@ impl UserRepo {
             .await
         {
             Ok(_) => Ok(()),
-            Err(err) => Err(new_app_error_from_sqlx(err)),
+            Err(err) => Err(new_app_error_from_sqlx(
+                err,
+                Some("failed to update user".to_string()),
+            )),
         }
     }
 }
