@@ -4,6 +4,6 @@ pub use database::*;
 
 pub mod srvfns;
 
-mod server;
+mod logging;
 #[cfg(feature = "server")]
-pub use server::*;
+pub use logging::*;
