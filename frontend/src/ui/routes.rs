@@ -1,5 +1,7 @@
-use crate::ui::views::Navbar;
-use crate::ui::views::{Blog, Home};
+use crate::ui::{
+    components::Navbar,
+    views::{Blog, Home},
+};
 use dioxus::prelude::*;
 
 #[derive(Debug, Clone, Routable, PartialEq)]

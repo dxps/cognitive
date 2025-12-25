@@ -29,9 +29,3 @@ script = []
 # serve: [dev-server] only
 script = []
 
-#######################
-[web.resource.tailwind]
-#######################
-
-input = "src/assets/styles/tailwind.css"
-output = "assets/styles/tailwind.css"

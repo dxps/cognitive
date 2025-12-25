@@ -7,7 +7,7 @@ use crate::ui::Route;
 const FAVICON: Asset = asset!("/assets/favicon.ico");
 // The asset macro also minifies some assets like CSS and JS to make bundled smaller.
 const MAIN_CSS: Asset = asset!("/assets/styles/main.css");
-const TAILWIND_CSS: Asset = asset!("/assets/styles/tailwind.css");
+const TAILWIND_CSS: Asset = asset!("/assets/tailwind.css");
 
 /// App is the main component of our app. Components are the building blocks of dioxus apps. Each component is a function
 /// that takes some props and returns an Element. In this case, App takes no props because it is the root of our app.
