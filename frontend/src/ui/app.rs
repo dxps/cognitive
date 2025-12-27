@@ -1,6 +1,6 @@
 use dioxus::prelude::*;
 
-use crate::ui::Route;
+use crate::ui::{Route, STATE};
 
 // We can import assets in dioxus with the `asset!` macro. This macro takes a path to an asset relative to the crate root.
 // The macro returns an `Asset` type that will display as the path to the asset in the browser or a local path in desktop bundles.
@@ -15,6 +15,21 @@ const TAILWIND_CSS: Asset = asset!("/assets/tailwind.css");
 /// Components should be annotated with `#[component]` to support props, better error messages, and autocomplete.
 #[component]
 pub fn App() -> Element {
+    use_future(|| async {
+        let mut state = STATE.write();
+
+        let document = web_sys::window().unwrap().document().unwrap();
+        let root = document.document_element().unwrap();
+
+        if state.is_light_theme {
+            root.class_list().remove_1("dark").unwrap();
+        } else {
+            root.class_list().add_1("dark").unwrap();
+        }
+
+        state.is_ready = true;
+    });
+
     // The `rsx!` macro lets us define HTML inside of rust. It expands to an Element with all of our HTML inside.
     rsx! {
         // Add a link to our favicon and main CSS file into the head of our app.

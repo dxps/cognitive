@@ -12,6 +12,7 @@ authors = ["dxps <dev@devisions.io>"]
 ##############
 [dependencies]
 ##############
+shlib = { path = "../shlib" }
 
 dioxus = { version = "0.7.2", features = [ "router", "fullstack" ] }
 
@@ -24,6 +25,10 @@ tracing = { version = "0.1.44", optional = true }
 simple_logger = { version = "5.1.0", optional = true }
 
 rusqlite = { version = "0.38.0", optional = true }
+
+web-sys = { version = "0.3.83", features = [
+    "Element", "DomTokenList"
+] }
 
 ##########
 [features]
