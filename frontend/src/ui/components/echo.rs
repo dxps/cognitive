@@ -1,4 +1,4 @@
-use crate::backend::srvfns::echo_server;
+use crate::be::srvfns::echo_server;
 use dioxus::prelude::*;
 
 const ECHO_CSS: Asset = asset!("/assets/styles/echo.css");

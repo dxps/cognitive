@@ -7,12 +7,12 @@ fn main() {
     dotenvy::dotenv().ok();
 
     #[cfg(feature = "server")]
-    cognitive::backend::init_logging();
+    cognitive::be::init_logging();
 
     #[cfg(feature = "server")]
     dioxus::serve(|| async move {
         //
-        cognitive::backend::print_db();
+        cognitive::be::print_db();
 
         // Create a new axum router for our Dioxus app.
         let router = dioxus::server::router(ui::App);

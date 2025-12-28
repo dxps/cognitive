@@ -7,25 +7,13 @@ use dioxus::prelude::*;
 /// The contents of the Home and Blog routes will be rendered under the outlet inside this component.
 #[component]
 pub fn Navbar() -> Element {
-    //
     if !STATE.read().is_ready {
         return rsx! { "" };
     }
-    // rsx! {
-    //     div { id: "navbar", class: "flex gap-4",
-    //         Link { class: "text-orange-300", to: Route::Home {}, "Home" }
-    //         Link { to: Route::Blog { id: 1 }, "Blog" }
-    //     }
-
-    //     // The `Outlet` component is used to render the next component inside the layout.
-    //     // In this case, it will render either the [`Home`] or [`Blog`] component depending on the current route.
-    //     Outlet::<Route> {}
-    // }
-
-    render_itself()
+    render()
 }
 
-fn render_itself() -> Element {
+fn render() -> Element {
     rsx! {
         nav { class: "absolute w-full px-4 py-2 flex justify-between items-center z-40",
             Link { class: "text-3xl font-bold leading-none", to: Route::Home {}, Logo {} }

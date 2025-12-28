@@ -7,15 +7,10 @@
     'Noto Color Emoji';
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
     monospace;
-    --color-orange-200: oklch(90.1% 0.076 70.697);
     --color-orange-300: oklch(83.7% 0.128 66.29);
-    --color-orange-400: oklch(75% 0.183 55.934);
-    --color-orange-500: oklch(70.5% 0.213 47.604);
     --color-gray-100: oklch(96.7% 0.003 264.542);
     --color-gray-300: oklch(87.2% 0.01 258.338);
-    --color-gray-400: oklch(70.7% 0.022 261.325);
     --color-gray-600: oklch(44.6% 0.03 256.802);
-    --color-white: #fff;
     --spacing: 0.25rem;
     --text-sm: 0.875rem;
     --text-sm--line-height: calc(1.25 / 0.875);
@@ -269,9 +264,6 @@
   .justify-between {
     justify-content: space-between;
   }
-  .gap-4 {
-    gap: calc(var(--spacing) * 4);
-  }
   .rounded-lg {
     border-radius: var(--radius-lg);
   }
@@ -279,17 +271,11 @@
     border-style: var(--tw-border-style);
     border-width: 1px;
   }
-  .bg-white {
-    background-color: var(--color-white);
-  }
   .px-4 {
     padding-inline: calc(var(--spacing) * 4);
   }
   .py-2 {
     padding-block: calc(var(--spacing) * 2);
-  }
-  .pt-12 {
-    padding-top: calc(var(--spacing) * 12);
   }
   .pt-14 {
     padding-top: calc(var(--spacing) * 14);
@@ -315,9 +301,6 @@
   }
   .text-gray-600 {
     color: var(--color-gray-600);
-  }
-  .text-orange-300 {
-    color: var(--color-orange-300);
   }
   .underline {
     text-decoration-line: underline;
@@ -398,11 +381,6 @@
         margin-inline-start: calc(calc(var(--spacing) * 6) * var(--tw-space-x-reverse));
         margin-inline-end: calc(calc(var(--spacing) * 6) * calc(1 - var(--tw-space-x-reverse)));
       }
-    }
-  }
-  .dark\:bg-transparent {
-    &:where(.dark, .dark *) {
-      background-color: transparent;
     }
   }
 }

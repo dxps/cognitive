@@ -11,3 +11,6 @@ pub use app::*;
 
 mod state;
 pub use state::*;
+
+mod localstorage;
+pub use localstorage::*;

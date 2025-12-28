@@ -13,7 +13,7 @@ pub async fn echo_server(input: String) -> Result<String> {
     // for the server function should either be imported inside the function
     // or imported under a `#[cfg(feature = "server")]` block.
 
-    use crate::backend::DB;
+    use crate::be::DB;
 
     // Example of using a database connection inside a server function.
     let version = DB.with(|f| {

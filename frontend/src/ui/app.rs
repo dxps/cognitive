@@ -1,6 +1,6 @@
 use dioxus::prelude::*;
 
-use crate::ui::{Route, STATE};
+use crate::ui::{Route, STATE, UiState, UiStorage};
 
 // We can import assets in dioxus with the `asset!` macro. This macro takes a path to an asset relative to the crate root.
 // The macro returns an `Asset` type that will display as the path to the asset in the browser or a local path in desktop bundles.
@@ -17,6 +17,15 @@ const TAILWIND_CSS: Asset = asset!("/assets/tailwind.css");
 pub fn App() -> Element {
     use_future(|| async {
         let mut state = STATE.write();
+
+        let storage: UiStorage<UiState> = UiStorage::new("cognitive_state").unwrap_or_default();
+        if let Some(d) = storage.data {
+            debug!("Loadedr state from storage: {:#?}", d);
+            state.is_light_theme = d.is_light_theme;
+            state.user = d.user;
+        } else {
+            debug!("No state found in storage.");
+        }
 
         let document = web_sys::window().unwrap().document().unwrap();
         let root = document.document_element().unwrap();
