@@ -1,10 +1,8 @@
-use crate::ui::{Route, STATE};
+use crate::ui::{Route, STATE, components::NavbarMenu};
 use dioxus::prelude::*;
 
 /// The Navbar component that will be rendered on all pages of our app since every page is under the layout.
-///
-/// This layout component wraps the UI of [Route::Home] and [Route::Blog] in a common navbar.
-/// The contents of the Home and Blog routes will be rendered under the outlet inside this component.
+/// The pages will be rendered under the outlet inside this component.
 #[component]
 pub fn Navbar() -> Element {
     if !STATE.read().is_ready {
@@ -36,7 +34,7 @@ fn render() -> Element {
                     }
                 }
             }
-            NavUserMenu {}
+            NavbarMenu {}
         }
         div { class: "pt-14", Outlet::<Route> {} }
     }
@@ -64,11 +62,5 @@ fn Logo() -> Element {
         div {
             img { src: LOGO, alt: "logo", class: "h-8" }
         }
-    }
-}
-
-fn NavUserMenu() -> Element {
-    rsx! {
-        div { class: "text-sm text-gray-600", "User Menu" }
     }
 }

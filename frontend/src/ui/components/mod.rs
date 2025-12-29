@@ -3,7 +3,10 @@
 //! component and an Echo component for fullstack apps to be used in our app.
 
 mod navbar;
-pub use navbar::Navbar;
+pub use navbar::*;
+
+mod navbar_menu;
+pub use navbar_menu::*;
 
 mod hero;
 pub use hero::Hero;

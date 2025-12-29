@@ -1,6 +1,6 @@
 use crate::ui::{
+    views::{AdminView, Blog, Home, LogoutView},
     components::Navbar,
-    views::{Blog, Home},
 };
 use dioxus::prelude::*;
 
@@ -19,4 +19,10 @@ pub enum Route {
         // Fields of the route variant will be passed to the component as props.
         // In this case, the blog component must accept an `id` prop of type `i32`.
         Blog { id: i32 },
+
+        #[route("/admin")]
+        AdminView {},
+
+        #[route("/logout")]
+        LogoutView {},
 }

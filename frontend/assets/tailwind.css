@@ -7,10 +7,13 @@
     'Noto Color Emoji';
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
     monospace;
+    --color-red-300: oklch(80.8% 0.114 19.571);
     --color-orange-300: oklch(83.7% 0.128 66.29);
+    --color-orange-600: oklch(64.6% 0.222 41.116);
     --color-gray-100: oklch(96.7% 0.003 264.542);
     --color-gray-300: oklch(87.2% 0.01 258.338);
     --color-gray-600: oklch(44.6% 0.03 256.802);
+    --color-white: #fff;
     --spacing: 0.25rem;
     --text-sm: 0.875rem;
     --text-sm--line-height: calc(1.25 / 0.875);
@@ -188,6 +191,12 @@
   .z-40 {
     z-index: 40;
   }
+  .z-\[1000\] {
+    z-index: 1000;
+  }
+  .float-right {
+    float: right;
+  }
   .container {
     width: 100%;
     @media (width >= 40rem) {
@@ -206,11 +215,17 @@
       max-width: 96rem;
     }
   }
+  .mt-14 {
+    margin-top: calc(var(--spacing) * 14);
+  }
+  .mr-3 {
+    margin-right: calc(var(--spacing) * 3);
+  }
+  .mr-\[46px\] {
+    margin-right: 46px;
+  }
   .block {
     display: block;
-  }
-  .contents {
-    display: contents;
   }
   .flex {
     display: flex;
@@ -227,11 +242,26 @@
   .h-8 {
     height: calc(var(--spacing) * 8);
   }
+  .max-h-96 {
+    max-height: calc(var(--spacing) * 96);
+  }
+  .min-h-full {
+    min-height: 100%;
+  }
   .w-4 {
     width: calc(var(--spacing) * 4);
   }
+  .w-20 {
+    width: calc(var(--spacing) * 20);
+  }
   .w-full {
     width: 100%;
+  }
+  .w-max {
+    width: max-content;
+  }
+  .min-w-full {
+    min-width: 100%;
   }
   .border-collapse {
     border-collapse: collapse;
@@ -255,14 +285,35 @@
   .transform {
     transform: var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
   }
+  .cursor-pointer {
+    cursor: pointer;
+  }
   .resize {
     resize: both;
+  }
+  .flex-col {
+    flex-direction: column;
   }
   .items-center {
     align-items: center;
   }
+  .items-end {
+    align-items: flex-end;
+  }
   .justify-between {
     justify-content: space-between;
+  }
+  .justify-center {
+    justify-content: center;
+  }
+  .overflow-auto {
+    overflow: auto;
+  }
+  .overflow-visible {
+    overflow: visible;
+  }
+  .rounded-full {
+    border-radius: calc(infinity * 1px);
   }
   .rounded-lg {
     border-radius: var(--radius-lg);
@@ -271,11 +322,27 @@
     border-style: var(--tw-border-style);
     border-width: 1px;
   }
+  .border-0 {
+    border-style: var(--tw-border-style);
+    border-width: 0px;
+  }
+  .bg-white {
+    background-color: var(--color-white);
+  }
   .px-4 {
     padding-inline: calc(var(--spacing) * 4);
   }
+  .px-5 {
+    padding-inline: calc(var(--spacing) * 5);
+  }
+  .px-8 {
+    padding-inline: calc(var(--spacing) * 8);
+  }
   .py-2 {
     padding-block: calc(var(--spacing) * 2);
+  }
+  .py-2\.5 {
+    padding-block: calc(var(--spacing) * 2.5);
   }
   .pt-14 {
     padding-top: calc(var(--spacing) * 14);
@@ -296,6 +363,12 @@
     --tw-font-weight: var(--font-weight-bold);
     font-weight: var(--font-weight-bold);
   }
+  .text-\[\#333\] {
+    color: #333;
+  }
+  .text-\[\#b2804c\] {
+    color: #b2804c;
+  }
   .text-gray-300 {
     color: var(--color-gray-300);
   }
@@ -304,6 +377,10 @@
   }
   .underline {
     text-decoration-line: underline;
+  }
+  .shadow-2xl {
+    --tw-shadow: 0 25px 50px -12px var(--tw-shadow-color, rgb(0 0 0 / 0.25));
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   }
   .outline {
     outline-style: var(--tw-outline-style);
@@ -318,10 +395,35 @@
     --tw-duration: 200ms;
     transition-duration: 200ms;
   }
+  .outline-none {
+    --tw-outline-style: none;
+    outline-style: none;
+  }
   .hover\:bg-gray-100 {
     &:hover {
       @media (hover: hover) {
         background-color: var(--color-gray-100);
+      }
+    }
+  }
+  .hover\:text-orange-300 {
+    &:hover {
+      @media (hover: hover) {
+        color: var(--color-orange-300);
+      }
+    }
+  }
+  .hover\:text-orange-600 {
+    &:hover {
+      @media (hover: hover) {
+        color: var(--color-orange-600);
+      }
+    }
+  }
+  .hover\:text-red-300 {
+    &:hover {
+      @media (hover: hover) {
+        color: var(--color-red-300);
       }
     }
   }
@@ -383,10 +485,15 @@
       }
     }
   }
-}
-@layer base {
-  button {
-    cursor: pointer;
+  .dark\:rounded-lg {
+    &:where(.dark, .dark *) {
+      border-radius: var(--radius-lg);
+    }
+  }
+  .dark\:bg-\[\#222532\] {
+    &:where(.dark, .dark *) {
+      background-color: #222532;
+    }
   }
 }
 @property --tw-translate-x {
@@ -437,6 +544,71 @@
   syntax: "*";
   inherits: false;
 }
+@property --tw-shadow {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0 0 #0000;
+}
+@property --tw-shadow-color {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-shadow-alpha {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 100%;
+}
+@property --tw-inset-shadow {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0 0 #0000;
+}
+@property --tw-inset-shadow-color {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-inset-shadow-alpha {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 100%;
+}
+@property --tw-ring-color {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-ring-shadow {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0 0 #0000;
+}
+@property --tw-inset-ring-color {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-inset-ring-shadow {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0 0 #0000;
+}
+@property --tw-ring-inset {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-ring-offset-width {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@property --tw-ring-offset-color {
+  syntax: "*";
+  inherits: false;
+  initial-value: #fff;
+}
+@property --tw-ring-offset-shadow {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0 0 #0000;
+}
 @property --tw-outline-style {
   syntax: "*";
   inherits: false;
@@ -465,6 +637,20 @@
       --tw-border-style: solid;
       --tw-leading: initial;
       --tw-font-weight: initial;
+      --tw-shadow: 0 0 #0000;
+      --tw-shadow-color: initial;
+      --tw-shadow-alpha: 100%;
+      --tw-inset-shadow: 0 0 #0000;
+      --tw-inset-shadow-color: initial;
+      --tw-inset-shadow-alpha: 100%;
+      --tw-ring-color: initial;
+      --tw-ring-shadow: 0 0 #0000;
+      --tw-inset-ring-color: initial;
+      --tw-inset-ring-shadow: 0 0 #0000;
+      --tw-ring-inset: initial;
+      --tw-ring-offset-width: 0px;
+      --tw-ring-offset-color: #fff;
+      --tw-ring-offset-shadow: 0 0 #0000;
       --tw-outline-style: solid;
       --tw-duration: initial;
       --tw-space-x-reverse: 0;

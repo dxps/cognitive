@@ -7,7 +7,11 @@ pub static STATE: GlobalSignal<UiState> = GlobalSignal::new(|| UiState::default(
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct UiState {
+    //
+    #[serde(skip)]
     pub is_ready: bool,
+
     pub is_light_theme: bool,
+
     pub user: Option<UserAccount>,
 }

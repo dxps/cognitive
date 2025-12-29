@@ -9,3 +9,9 @@ pub use home::Home;
 
 mod blog;
 pub use blog::Blog;
+
+mod admin_view;
+pub use admin_view::*;
+
+mod logout_view;
+pub use logout_view::*;

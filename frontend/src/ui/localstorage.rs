@@ -1,9 +1,12 @@
+use std::fmt::Debug;
+
+use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct UiStorage<T>
 where
-    T: Clone + Serialize + for<'de> Deserialize<'de>,
+    T: Clone + Debug + Serialize + for<'de> Deserialize<'de>,
 {
     pub data: Option<T>,
     localstorage: Option<web_sys::Storage>,
@@ -12,7 +15,7 @@ where
 
 impl<T> UiStorage<T>
 where
-    T: Clone + Serialize + for<'de> Deserialize<'de>,
+    T: Clone + Debug + Serialize + for<'de> Deserialize<'de>,
 {
     pub fn new(ls_key: &str) -> Result<Self, String> {
         let mut data = None;
@@ -37,17 +40,20 @@ where
     pub fn save_to_localstorage(&mut self) {
         //
         if self.data.is_some() {
+            let data = self.data.as_ref().unwrap();
             self.localstorage
                 .as_ref()
                 .unwrap()
-                .set_item(&self.ls_key, &serde_json::to_string(&self.data).unwrap())
+                .set_item(&self.ls_key, &serde_json::to_string(&data).unwrap())
                 .unwrap();
+            debug!(">>> [UiStorage] Saved to localstorage: {:#?}", data);
         } else {
             self.localstorage
                 .as_ref()
                 .unwrap()
                 .remove_item(&self.ls_key)
                 .unwrap();
+            debug!(">>> [UiStorage] Cleared localstorage.");
         }
     }
 }

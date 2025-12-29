@@ -9,6 +9,8 @@ const FAVICON: Asset = asset!("/assets/favicon.ico");
 const MAIN_CSS: Asset = asset!("/assets/styles/main.css");
 const TAILWIND_CSS: Asset = asset!("/assets/tailwind.css");
 
+pub const APP_LOCALSTORAGE_KEY: &str = "cognitive_state";
+
 /// App is the main component of our app. Components are the building blocks of dioxus apps. Each component is a function
 /// that takes some props and returns an Element. In this case, App takes no props because it is the root of our app.
 ///
@@ -18,9 +20,9 @@ pub fn App() -> Element {
     use_future(|| async {
         let mut state = STATE.write();
 
-        let storage: UiStorage<UiState> = UiStorage::new("cognitive_state").unwrap_or_default();
+        let storage: UiStorage<UiState> = UiStorage::new(APP_LOCALSTORAGE_KEY).unwrap_or_default();
         if let Some(d) = storage.data {
-            debug!("Loadedr state from storage: {:#?}", d);
+            debug!("Loaded state from storage: {:#?}", d);
             state.is_light_theme = d.is_light_theme;
             state.user = d.user;
         } else {

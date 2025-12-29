@@ -10,6 +10,12 @@ body {
 	margin: 0r;
 }
 
+button {
+	border: 0;
+	border-radius: 0.4rem;
+	cursor: pointer;
+}
+
 #hero {
 	margin: 0;
 	display: flex;
@@ -91,13 +97,21 @@ a:hover {
 	color: #dddddd;
 }
 
-a {
-	color: orange;
+.dark a {
+	color: #b2804c;
 	text-decoration: none;
 }
 
-a:hover {
+.dark button {
+	background-color: #11151f;
+}
+
+.dark a:hover,
+.dark button:hover {
 	background-color: #1e222d;
+	color: orange;
+	border: 0;
+	border-radius: 0.4rem;
 }
 
 /* Override text/link colors */
