@@ -31,7 +31,7 @@ impl UserRepo {
             new_app_error_from_sqlx(err, Some("failed to get user by email".to_string()))
         })?;
 
-        let user_account = UserAccount {
+        let mut user_account = UserAccount {
             id: Id::new_from(row.get("id")),
             email: row.get("email"),
             username: row.get("username"),
@@ -39,6 +39,16 @@ impl UserRepo {
             is_anonymous: row.get("is_anonymous"),
             permissions: Vec::new(),
         };
+
+        let permissions = sqlx::query("SELECT permission FROM user_permissions WHERE user_id = $1")
+            .bind(user_account.id.as_str())
+            .fetch_all(self.dbcp.as_ref())
+            .await
+            .map_err(|err| {
+                new_app_error_from_sqlx(err, Some("failed to get user permissions".to_string()))
+            })?;
+
+        user_account.permissions = permissions.iter().map(|r| r.get("permission")).collect();
 
         Ok(UserEntry {
             user: user_account,

@@ -14,8 +14,22 @@ curl -X POST -H "Content-Type: application/json" \
     http://localhost:9011/auth/login
 ```
 
-and it responds with HTTP status code `200` and a body like this:
-`{"session":"7ebf679c-7519-4a61-927e-b0597b3b8184","expires_in_seconds":86400}`
+and it responds with HTTP status code `200` and a body like this (formatted for human readability):
+
+```json
+{
+	"session": "de7875ef-6cc5-433b-b397-c688dcc6633f",
+	"expires_in_seconds": 86400,
+	"user": {
+		"id": "nrWKA48AeU",
+		"email": "admin@local",
+		"username": "admin",
+		"bio": "",
+		"is_anonymous": false,
+		"permissions": ["Admin::Read", "Admin::Write"]
+	}
+}
+```
 
 If the credentials (email and/or password) are incorrect, it responds with HTTP status code `401` (Unauthorized) and the body `{"error":"wrong credentials"}`.
 

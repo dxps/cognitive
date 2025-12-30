@@ -15,7 +15,7 @@ pub async fn login(
     //
     debug!("Received login request '{:?}'.", payload);
 
-    state
+    let user_account = state
         .user_mgmt
         .authenticate_user(payload.email, payload.password)
         .await
@@ -37,6 +37,7 @@ pub async fn login(
     let response = LoginResponse {
         session: session.get_session_id(),
         expires_in_seconds: SESSION_MAX_LIFESPAN.num_seconds(),
+        user: Some(user_account),
     };
     Ok((StatusCode::OK, Json(response)))
 }

@@ -1,8 +1,10 @@
 use std::{net::SocketAddr, sync::Arc};
 
 use axum::Router;
+use http::{HeaderValue, Method};
 use shlib::{AppError, AppResult};
 use tokio::signal;
+use tower_http::cors::CorsLayer;
 
 use crate::{
     domain::logic::UserMgmt,
@@ -53,12 +55,18 @@ pub fn start_web_server() {
 
             let auth_layer = init_auth_layer(&pg_pool).await;
             let session_layer = init_session_layer(&pg_pool).await;
+            let cors_layer = CorsLayer::new()
+                // set this to your actual frontend origin (Dioxus dev server, etc.)
+                .allow_origin(HeaderValue::from_static("http://localhost:8080"))
+                .allow_methods([Method::POST, Method::OPTIONS])
+                .allow_headers([http::header::CONTENT_TYPE]);
 
             let web_api_router = Router::new()
                 .route("/auth/login", axum::routing::post(http_api::login))
                 .route("/auth/logout", axum::routing::post(http_api::logout))
                 .layer(auth_layer)
                 .layer(session_layer)
+                .layer(cors_layer)
                 .with_state(state);
 
             let addr = SocketAddr::from(([127, 0, 0, 1], http_port));
