@@ -33,6 +33,7 @@ web-sys = { version = "0.3.83", features = [
     "Element", "DomTokenList", "Window", "Storage"
 ] }
 serde_json = { version = "1.0.148" }
+reqwest = { version = "0.12.28", features = [ "json" ] }
 
 ##########
 [features]

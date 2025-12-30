@@ -13,5 +13,7 @@ pub struct UiState {
 
     pub is_light_theme: bool,
 
+    pub session: Option<String>,
+
     pub user: Option<UserAccount>,
 }

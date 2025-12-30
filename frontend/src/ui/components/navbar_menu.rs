@@ -1,5 +1,5 @@
 use crate::ui::components::icons::{hamburger_icon, logout_icon, user_icon};
-use crate::ui::{Route, STATE, UiState, UiStorage};
+use crate::ui::{APP_LOCALSTORAGE_KEY, Route, STATE, UiState, UiStorage};
 use dioxus::prelude::*;
 
 /// The Navbar component that will be rendered on all pages of our app since every page is under the layout.
@@ -154,7 +154,7 @@ fn toggle_light_dark_theme() {
         root.class_list().add_1("dark").unwrap();
     }
     // Persist the state to localstorage.
-    let mut storage: UiStorage<UiState> = UiStorage::new("cognitive_state").unwrap_or_default();
+    let mut storage: UiStorage<UiState> = UiStorage::new(APP_LOCALSTORAGE_KEY).unwrap_or_default();
     storage.data = Some(state.clone());
     storage.save_to_localstorage();
 }
