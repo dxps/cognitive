@@ -326,8 +326,17 @@
     border-style: var(--tw-border-style);
     border-width: 0px;
   }
+  .bg-\[\#f1f1f3\] {
+    background-color: #f1f1f3;
+  }
+  .bg-transparent {
+    background-color: transparent;
+  }
   .bg-white {
     background-color: var(--color-white);
+  }
+  .px-2 {
+    padding-inline: calc(var(--spacing) * 2);
   }
   .px-4 {
     padding-inline: calc(var(--spacing) * 4);
@@ -490,9 +499,28 @@
       border-radius: var(--radius-lg);
     }
   }
+  .dark\:bg-\[\#0f1116\] {
+    &:where(.dark, .dark *) {
+      background-color: #0f1116;
+    }
+  }
   .dark\:bg-\[\#222532\] {
     &:where(.dark, .dark *) {
       background-color: #222532;
+    }
+  }
+  .dark\:bg-\[\#f1f1f3\] {
+    &:where(.dark, .dark *) {
+      background-color: #f1f1f3;
+    }
+  }
+  .dark\:hover\:bg-\[\#1e222d\] {
+    &:where(.dark, .dark *) {
+      &:hover {
+        @media (hover: hover) {
+          background-color: #1e222d;
+        }
+      }
     }
   }
 }

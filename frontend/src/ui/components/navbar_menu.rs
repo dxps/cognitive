@@ -17,17 +17,19 @@ pub fn NavbarMenu() -> Element {
     username.set(state.user.clone().unwrap_or_default().username.clone());
 
     rsx! {
-        div { class: "text-sm text-gray-600 hover:bg-gray-100 rounded-lg flex flex-col items-end overflow-visible",
-            button {
-                class: "px-8 py-2 align rounded-lg text-sm outline-none",
-                onclick: move |_| {
+        div { class: "text-sm text-gray-600 hover:bg-gray-100 dark:hover:bg-[#1e222d] rounded-lg flex flex-col items-end overflow-visible",
+            Link {
+                class: "px-4 py-2 align text-sm outline-none rounded-lg",
+                onclick: move |e: MouseEvent| {
+                    e.stop_propagation();
                     debug!(">>> [NavbarMenu] Open/close dropdown.");
                     let curr_val = show_dropdown();
                     *show_dropdown.write() = !curr_val;
                 },
+                to: Route::Home {},
                 div {
-                    class: "rounded-full justify-center",
-                    dangerous_inner_html: user_icon(),
+                    class: "justify-center",
+                    dangerous_inner_html: hamburger_icon(),
                 }
             }
             if show_dropdown() {
@@ -51,7 +53,6 @@ fn NavbarUserMenuDropdown(mut props: NavUserDropdownProps) -> Element {
         div {
             "style": "width: 100%; height: 1000%; padding: 0; position: absolute; top: 0; left: 0",
             onclick: move |_| {
-                debug!(">>> [NavbarUserMenuDropdown] Clicked in the outer div.");
                 *props.show_dropdown.write() = false;
             },
             div { class: "w-20 mt-14 mr-[46px] bg-white dark:bg-[#222532] z-[1000] rounded-lg shadow-2xl float-right",
@@ -94,7 +95,7 @@ fn NavbarUserMenuDropdown(mut props: NavUserDropdownProps) -> Element {
                         //         _ => rsx! {},
                         //     }
                         // }
-                        li { class: "px-4 py-2 hover:text-red-300 cursor-pointer",
+                        li { class: "px-4 py-2",
                             hr {}
                         }
                         li { class: "flex items-center text-sm cursor-pointer",
@@ -133,6 +134,17 @@ fn toggle_light_dark_theme() {
     let mut storage: UiStorage<UiState> = UiStorage::new("cognitive_state").unwrap_or_default();
     storage.data = Some(state.clone());
     storage.save_to_localstorage();
+}
+
+fn hamburger_icon() -> String {
+    r#"
+    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="2" y="6"  width="20" height="2" rx="1" />
+        <rect x="2" y="11" width="20" height="2" rx="1" />
+        <rect x="2" y="16" width="20" height="2" rx="1" />
+    </svg>
+    "#
+    .to_string()
 }
 
 fn user_icon() -> String {
