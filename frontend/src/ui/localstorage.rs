@@ -1,7 +1,8 @@
-use std::fmt::Debug;
-
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
+use std::fmt::Debug;
+
+pub const APP_LOCALSTORAGE_KEY: &str = "cognitive_state";
 
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct UiStorage<T>
@@ -53,7 +54,7 @@ where
                 .unwrap()
                 .remove_item(&self.ls_key)
                 .unwrap();
-            debug!(">>> [UiStorage] Cleared localstorage.");
+            debug!(">>> [UiStorage] Removed from localstorage.");
         }
     }
 }

@@ -14,14 +14,18 @@ pub fn Navbar() -> Element {
 fn render() -> Element {
     rsx! {
         nav { class: "absolute w-full px-4 py-2 flex justify-between items-center z-40",
-            Link { class: "text-3xl font-bold leading-none", to: Route::Home {}, Logo {} }
+            Link {
+                class: "text-3xl font-bold leading-none",
+                to: Route::HomeView {},
+                Logo {}
+            }
             ul { class: "hidden absolute top-1/2 sm:left-1/3 sm:pl-16 md:left-1/2 lg:left-1/2
                     transform -translate-y-1/2 -translate-x-1/2
                     sm:flex sm:mx-auto sm:flex sm:items-center sm:w-auto sm:space-x-3 lg:space-x-6",
                 li {
                     Link {
                         class: "text-sm text-gray-600 py-2 px-4 hover:bg-gray-100 rounded-lg transition duration-200",
-                        to: Route::Home {},
+                        to: Route::HomeView {},
                         "Home"
                     }
                 }

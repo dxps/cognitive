@@ -103,7 +103,7 @@ a:hover {
 	text-decoration: none;
 }
 
-.dark button {
+.dark button .dark div {
 	background-color: #11151f;
 }
 

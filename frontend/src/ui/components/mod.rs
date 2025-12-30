@@ -13,3 +13,6 @@ pub use hero::Hero;
 
 mod echo;
 pub use echo::Echo;
+
+mod icons;
+pub use icons::*;

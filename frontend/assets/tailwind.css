@@ -224,6 +224,15 @@
   .mr-\[46px\] {
     margin-right: 46px;
   }
+  .mr-\[52px\] {
+    margin-right: 52px;
+  }
+  .mr-\[56px\] {
+    margin-right: 56px;
+  }
+  .mr-\[64px\] {
+    margin-right: 64px;
+  }
   .block {
     display: block;
   }
@@ -407,6 +416,13 @@
   .outline-none {
     --tw-outline-style: none;
     outline-style: none;
+  }
+  .hover\:bg-\[\#e2e2e7\] {
+    &:hover {
+      @media (hover: hover) {
+        background-color: #e2e2e7;
+      }
+    }
   }
   .hover\:bg-gray-100 {
     &:hover {

@@ -1,6 +1,6 @@
 use dioxus::prelude::*;
 
-use crate::ui::{Route, STATE, UiState, UiStorage};
+use crate::ui::{APP_LOCALSTORAGE_KEY, Route, STATE, UiState, UiStorage};
 
 // We can import assets in dioxus with the `asset!` macro. This macro takes a path to an asset relative to the crate root.
 // The macro returns an `Asset` type that will display as the path to the asset in the browser or a local path in desktop bundles.
@@ -8,8 +8,6 @@ const FAVICON: Asset = asset!("/assets/favicon.ico");
 // The asset macro also minifies some assets like CSS and JS to make bundled smaller.
 const MAIN_CSS: Asset = asset!("/assets/styles/main.css");
 const TAILWIND_CSS: Asset = asset!("/assets/tailwind.css");
-
-pub const APP_LOCALSTORAGE_KEY: &str = "cognitive_state";
 
 /// App is the main component of our app. Components are the building blocks of dioxus apps. Each component is a function
 /// that takes some props and returns an Element. In this case, App takes no props because it is the root of our app.

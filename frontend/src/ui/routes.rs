@@ -1,6 +1,6 @@
 use crate::ui::{
-    views::{AdminView, Blog, Home, LogoutView},
     components::Navbar,
+    views::{AdminView, Blog, HomeView, LoginView, LogoutView, UserProfileView},
 };
 use dioxus::prelude::*;
 
@@ -11,7 +11,7 @@ pub enum Route {
     #[layout(Navbar)]
 
         #[route("/")]
-        Home {},
+        HomeView {},
         // The route attribute can include dynamic parameters that implement [`std::str::FromStr`] and [`std::fmt::Display`] 
         // with the `:` syntax. In this case, id will match any integer like `/blog/123` or `/blog/-456`.
         #[route("/blog/:id")]
@@ -20,9 +20,15 @@ pub enum Route {
         // In this case, the blog component must accept an `id` prop of type `i32`.
         Blog { id: i32 },
 
-        #[route("/admin")]
-        AdminView {},
+        #[route("/login")]
+        LoginView {},
 
         #[route("/logout")]
         LogoutView {},
+
+        #[route("/user-profile")]
+        UserProfileView {},
+
+        #[route("/admin")]
+        AdminView {},
 }
