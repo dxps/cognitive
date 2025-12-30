@@ -6,7 +6,7 @@ use crate::ui::{APP_LOCALSTORAGE_KEY, Route, STATE, UiState, UiStorage};
 // The macro returns an `Asset` type that will display as the path to the asset in the browser or a local path in desktop bundles.
 const FAVICON: Asset = asset!("/assets/favicon.ico");
 // The asset macro also minifies some assets like CSS and JS to make bundled smaller.
-const MAIN_CSS: Asset = asset!("/assets/styles/main.css");
+const MAIN_CSS: Asset = asset!("/assets/main.css");
 const TAILWIND_CSS: Asset = asset!("/assets/tailwind.css");
 
 /// App is the main component of our app. Components are the building blocks of dioxus apps. Each component is a function
