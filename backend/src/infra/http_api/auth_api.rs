@@ -46,6 +46,6 @@ pub async fn logout(session: Session<SessionPgPool>) -> StatusCode {
     //
     let sid = session.get_session_id();
     session.destroy();
-    debug!("User logged out, session {} cleared.", sid);
+    debug!("User logged out, session '{}' cleared.", sid);
     StatusCode::NO_CONTENT
 }
