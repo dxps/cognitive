@@ -49,11 +49,7 @@ where
                 .unwrap();
             debug!(">>> [UiStorage] Saved to localstorage: {:#?}", data);
         } else {
-            self.localstorage
-                .as_ref()
-                .unwrap()
-                .remove_item(&self.ls_key)
-                .unwrap();
+            self.localstorage.as_ref().unwrap().remove_item(&self.ls_key).unwrap();
             debug!(">>> [UiStorage] Removed from localstorage.");
         }
     }

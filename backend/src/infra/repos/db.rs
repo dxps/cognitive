@@ -4,10 +4,7 @@ use sqlx::{PgPool, postgres::PgPoolOptions};
 pub async fn connect_to_pgdb() -> Result<PgPool, AppError> {
     //
     let db_url = std::env::var("DATABASE_URL").map_err(|err| {
-        log::error!(
-            "Unknown DATABASE_URL environment variable. Reason: '{}'.",
-            err
-        );
+        log::error!("Unknown DATABASE_URL environment variable. Reason: '{}'.", err);
         AppError::Err("Unknown DATABASE_URL environment variable".into())
     })?;
     let pool = PgPoolOptions::new()

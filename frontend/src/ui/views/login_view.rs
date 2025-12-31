@@ -1,9 +1,6 @@
 use crate::ui::{APP_LOCALSTORAGE_KEY, Route, STATE, UiState, UiStorage};
 use dioxus::{prelude::*, router::Navigator};
-use shlib::{
-    domain::model::UserAccount,
-    http_dtos::{LoginRequest, LoginResponse},
-};
+use shlib::http_dtos::{LoginRequest, LoginResponse};
 
 #[component]
 pub fn LoginView() -> Element {
@@ -76,12 +73,7 @@ pub fn LoginView() -> Element {
     }
 }
 
-async fn handle_login(
-    email: String,
-    password: String,
-    wrong_creds: &mut Signal<bool>,
-    nav: &Navigator,
-) {
+async fn handle_login(email: String, password: String, wrong_creds: &mut Signal<bool>, nav: &Navigator) {
     let mut state = STATE.write();
 
     let input = LoginRequest {
@@ -103,14 +95,16 @@ async fn handle_login(
                     state.session = Some(rsp.session);
                     state.user = rsp.user;
                     // Persist the state to localstorage.
-                    let mut storage: UiStorage<UiState> =
-                        UiStorage::new(APP_LOCALSTORAGE_KEY).unwrap_or_default();
+                    let mut storage: UiStorage<UiState> = UiStorage::new(APP_LOCALSTORAGE_KEY).unwrap_or_default();
                     storage.data = Some(state.clone());
                     storage.save_to_localstorage();
                     nav.push(Route::HomeView {});
                 }
                 Err(e) => {
-                    log::debug!(">>> [handle_login] login err: {}", e);
+                    log::debug!(">>> [handle_login] Authentication failed. Error: {}", e);
+                    if e.to_string().contains("wrong credentials") {
+                        wrong_creds.set(true);
+                    }
                 }
             };
         }
@@ -118,24 +112,4 @@ async fn handle_login(
             log::debug!(">>> [handle_login] request err: {}", e);
         }
     }
-
-    // match login(format!("{}", email), format!("{}", password)).await {
-    //     Ok(account) => {
-    //         log::debug!(
-    //             ">>> [handle_login] Authenticated and got {:?}. Going to home ...",
-    //             account
-    //         );
-    //         let mut state = state_sgnl();
-    //         state.current_user = Some(account);
-    //         state.save_to_localstorage();
-    //         *state_sgnl.write() = state;
-    //         nav.push(Route::HomeView {});
-    //     }
-    //     Err(e) => {
-    //         log::debug!(">>> [handle_login] Authentication failed. Error: {}", e);
-    //         if e.to_string().contains("wrong credentials") {
-    //             wrong_creds.set(true);
-    //         }
-    //     }
-    // }
 }

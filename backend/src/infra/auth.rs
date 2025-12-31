@@ -11,12 +11,9 @@ pub const SESSION_NAME: &str = "Authorization";
 pub const SESSION_TABLE: &str = "user_sessions";
 pub const SESSION_MAX_LIFESPAN: Duration = Duration::days(1);
 
-pub async fn init_auth_layer(
-    pg_pool: &PgPool,
-) -> AuthSessionLayer<AuthUserAccount, Id, SessionPgPool, PgPool> {
+pub async fn init_auth_layer(pg_pool: &PgPool) -> AuthSessionLayer<AuthUserAccount, Id, SessionPgPool, PgPool> {
     let auth_config = AuthConfig::<Id>::default().with_anonymous_user_id(Some("iH26rJ8Cp".into()));
-    AuthSessionLayer::<AuthUserAccount, Id, SessionPgPool, PgPool>::new(Some(pg_pool.clone()))
-        .with_config(auth_config)
+    AuthSessionLayer::<AuthUserAccount, Id, SessionPgPool, PgPool>::new(Some(pg_pool.clone())).with_config(auth_config)
 }
 
 pub async fn init_session_layer(pg_pool: &PgPool) -> SessionLayer<SessionPgPool> {
@@ -50,10 +47,7 @@ impl From<UserAccount> for AuthUserAccount {
 
 #[async_trait]
 impl Authentication<AuthUserAccount, Id, PgPool> for AuthUserAccount {
-    async fn load_user(
-        user_id: Id,
-        pool: Option<&PgPool>,
-    ) -> Result<AuthUserAccount, anyhow::Error> {
+    async fn load_user(user_id: Id, pool: Option<&PgPool>) -> Result<AuthUserAccount, anyhow::Error> {
         let pool = pool.unwrap();
         UserRepo::get_by_id(&user_id, pool)
             .await

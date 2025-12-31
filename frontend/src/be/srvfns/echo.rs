@@ -19,10 +19,8 @@ pub async fn echo_server(input: String) -> Result<String> {
     let version = DB.with(|f| {
         use rusqlite::params;
 
-        f.query_row("SELECT sqlite_version();", params![], |row| {
-            row.get::<_, String>(0)
-        })
-        .map_err(|e| format!("Failed to get SQLite version: '{}'.", e))
+        f.query_row("SELECT sqlite_version();", params![], |row| row.get::<_, String>(0))
+            .map_err(|e| format!("Failed to get SQLite version: '{}'.", e))
     });
     info!("[echo] sqlite version: {:?}", version.unwrap_or_default());
 

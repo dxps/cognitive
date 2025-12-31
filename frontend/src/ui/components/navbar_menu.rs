@@ -144,10 +144,7 @@ fn toggle_light_dark_theme() {
     let root = document.document_element().unwrap();
     let mut state = STATE.write();
     state.is_light_theme = !state.is_light_theme;
-    debug!(
-        ">>> [toggle_light_dark_theme] is_light_theme: {}",
-        state.is_light_theme
-    );
+    debug!(">>> [toggle_light_dark_theme] is_light_theme: {}", state.is_light_theme);
     if state.is_light_theme {
         root.class_list().remove_1("dark").unwrap();
     } else {
