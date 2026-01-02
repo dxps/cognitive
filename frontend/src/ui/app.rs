@@ -1,6 +1,6 @@
 use dioxus::prelude::*;
 
-use crate::ui::{APP_LOCALSTORAGE_KEY, Route, STATE, UiState, UiStorage};
+use crate::ui::{Route, STATE, UiState};
 
 // We can import assets in dioxus with the `asset!` macro. This macro takes a path to an asset relative to the crate root.
 // The macro returns an `Asset` type that will display as the path to the asset in the browser or a local path in desktop bundles.
@@ -18,22 +18,28 @@ pub fn App() -> Element {
     use_future(|| async {
         let mut state = STATE.write();
 
-        let storage: UiStorage<UiState> = UiStorage::new(APP_LOCALSTORAGE_KEY).unwrap_or_default();
-        if let Some(d) = storage.data {
-            debug!("Loaded state from storage: {:#?}", d);
-            state.is_light_theme = d.is_light_theme;
-            state.user = d.user;
-        } else {
-            debug!("No state found in storage.");
+        let stored_state = UiState::load().await;
+        debug!("Loaded state from local store: {:#?}", stored_state);
+        match stored_state {
+            Ok(stored_state) => {
+                state.is_light_theme = stored_state.is_light_theme;
+                state.user = stored_state.user;
+            }
+            Err(e) => {
+                println!("Failed to load ui state from local store: {}", e);
+            }
         }
 
-        let document = web_sys::window().unwrap().document().unwrap();
-        let root = document.document_element().unwrap();
+        #[cfg(feature = "web")]
+        {
+            let document = web_sys::window().unwrap().document().unwrap();
+            let root = document.document_element().unwrap();
 
-        if state.is_light_theme {
-            root.class_list().remove_1("dark").unwrap();
-        } else {
-            root.class_list().add_1("dark").unwrap();
+            if state.is_light_theme {
+                root.class_list().remove_1("dark").unwrap();
+            } else {
+                root.class_list().add_1("dark").unwrap();
+            }
         }
 
         state.is_ready = true;

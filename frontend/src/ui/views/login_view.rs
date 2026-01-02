@@ -1,4 +1,4 @@
-use crate::ui::{APP_LOCALSTORAGE_KEY, Route, STATE, UiState, UiStorage};
+use crate::ui::{Route, STATE, UiState};
 use dioxus::{prelude::*, router::Navigator};
 use shlib::http_dtos::{LoginRequest, LoginResponse};
 
@@ -94,10 +94,8 @@ async fn handle_login(email: String, password: String, wrong_creds: &mut Signal<
                     wrong_creds.set(false);
                     state.session = Some(rsp.session);
                     state.user = rsp.user;
-                    // Persist the state to localstorage.
-                    let mut storage: UiStorage<UiState> = UiStorage::new(APP_LOCALSTORAGE_KEY).unwrap_or_default();
-                    storage.data = Some(state.clone());
-                    storage.save_to_localstorage();
+                    // Persist the state to local store.
+                    state.save().await;
                     nav.push(Route::HomeView {});
                 }
                 Err(e) => {

@@ -1,5 +1,5 @@
 use crate::ui::components::icons::{hamburger_icon, logout_icon, user_icon};
-use crate::ui::{APP_LOCALSTORAGE_KEY, Route, STATE, UiState, UiStorage};
+use crate::ui::{Route, STATE, UiState};
 use dioxus::prelude::*;
 
 /// The Navbar component that will be rendered on all pages of our app since every page is under the layout.
@@ -59,10 +59,12 @@ fn NavbarUserMenuDropdown(mut props: NavUserDropdownProps) -> Element {
                         li { class: "flex items-center text-sm cursor-pointer",
                             Link {
                                 class: "py-2.5 px-5 min-w-full w-max min-h-full flex",
-                                onclick: |e: MouseEvent| {
+                                onclick: move |e: MouseEvent| {
                                     e.stop_propagation();
                                     debug!(">>> [NavbarUserMenuDropdown] Toggle theme.");
-                                    toggle_light_dark_theme();
+                                    spawn(async {
+                                        toggle_light_dark_theme().await;
+                                    });
                                 },
                                 to: Route::HomeView {},
                                 "Toggle Theme"
@@ -139,19 +141,22 @@ fn NavbarUserMenuDropdown(mut props: NavUserDropdownProps) -> Element {
     }
 }
 
-fn toggle_light_dark_theme() {
-    let document = web_sys::window().unwrap().document().unwrap();
-    let root = document.document_element().unwrap();
+async fn toggle_light_dark_theme() {
     let mut state = STATE.write();
     state.is_light_theme = !state.is_light_theme;
     debug!(">>> [toggle_light_dark_theme] is_light_theme: {}", state.is_light_theme);
-    if state.is_light_theme {
-        root.class_list().remove_1("dark").unwrap();
-    } else {
-        root.class_list().add_1("dark").unwrap();
+
+    #[cfg(feature = "web")]
+    {
+        let document = web_sys::window().unwrap().document().unwrap();
+        let root = document.document_element().unwrap();
+        if state.is_light_theme {
+            root.class_list().remove_1("dark").unwrap();
+        } else {
+            root.class_list().add_1("dark").unwrap();
+        }
     }
-    // Persist the state to localstorage.
-    let mut storage: UiStorage<UiState> = UiStorage::new(APP_LOCALSTORAGE_KEY).unwrap_or_default();
-    storage.data = Some(state.clone());
-    storage.save_to_localstorage();
+
+    // Persist the state to local store.
+    state.save().await;
 }

@@ -1,5 +1,4 @@
 mod database;
-#[cfg(feature = "server")]
 pub use database::*;
 
 pub mod srvfns;

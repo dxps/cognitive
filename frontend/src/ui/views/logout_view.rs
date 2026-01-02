@@ -1,6 +1,6 @@
 use dioxus::prelude::*;
 
-use crate::ui::{APP_LOCALSTORAGE_KEY, Route, STATE, UiState, UiStorage};
+use crate::ui::{Route, STATE, UiState};
 
 #[component]
 pub fn LogoutView() -> Element {
@@ -54,10 +54,9 @@ async fn handle_logout() {
                         ">>> [handle_logout] Updated state w/ session: {:?} user: {:?}",
                         state.session, state.user
                     );
-                    // Persist the state to localstorage.
-                    let mut storage: UiStorage<UiState> = UiStorage::new(APP_LOCALSTORAGE_KEY).unwrap_or_default();
-                    storage.data = Some(state.clone());
-                    storage.save_to_localstorage();
+
+                    // Persist the state to local store.
+                    state.save().await;
                     debug!(">>> [handle_logout] Logout done.");
                 }
                 _ => {
