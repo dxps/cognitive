@@ -144,19 +144,14 @@ fn NavbarUserMenuDropdown(mut props: NavUserDropdownProps) -> Element {
 async fn toggle_light_dark_theme() {
     let mut state = STATE.write();
     state.is_light_theme = !state.is_light_theme;
-    debug!(">>> [toggle_light_dark_theme] is_light_theme: {}", state.is_light_theme);
 
-    #[cfg(feature = "web")]
-    {
-        let document = web_sys::window().unwrap().document().unwrap();
-        let root = document.document_element().unwrap();
-        if state.is_light_theme {
-            root.class_list().remove_1("dark").unwrap();
-        } else {
-            root.class_list().add_1("dark").unwrap();
-        }
-    }
+    // Apply the change.
+    if state.is_light_theme {
+        _ = document::eval(&format!("document.documentElement.removeAttribute('class');",));
+    } else {
+        _ = document::eval(&format!("document.documentElement.setAttribute('class', 'dark');",));
+    };
 
-    // Persist the state to local store.
+    // Persist the change (all state) to local store.
     state.save().await;
 }

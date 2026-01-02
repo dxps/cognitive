@@ -29,9 +29,6 @@ simple_logger = { version = "5.1.0", optional = true }
 
 rusqlite = { version = "0.38.0", optional = true }
 
-web-sys = { version = "0.3.83", features = [
-    "Element", "DomTokenList", "Window", "Storage"
-] }
 serde_json = { version = "1.0.148" }
 reqwest = { version = "0.13.1", features = [ "json" ] }
 
