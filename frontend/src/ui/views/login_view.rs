@@ -1,4 +1,4 @@
-use crate::ui::{Route, STATE, UiState};
+use crate::ui::{Route, STATE};
 use dioxus::{prelude::*, router::Navigator};
 use shlib::http_dtos::{LoginRequest, LoginResponse};
 

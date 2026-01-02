@@ -1,5 +1,5 @@
 use crate::ui::components::icons::{hamburger_icon, logout_icon, user_icon};
-use crate::ui::{Route, STATE, UiState};
+use crate::ui::{Route, STATE};
 use dioxus::prelude::*;
 
 /// The Navbar component that will be rendered on all pages of our app since every page is under the layout.
