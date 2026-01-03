@@ -17,53 +17,53 @@ pub fn LoginView() -> Element {
                 div { class: "bg-[#e2e2e7] dark:bg-[#1e222d] rounded-lg p-6",
                     div { class: "text-xl mb-6 px-2 text-center text-gray-600", "Login to your account" }
                     div { class: "mt-4 space-y-4",
-                        div {
-                            input {
-                                class: "px-3 py-3 rounded-lg outline-none border-2 focus:border-green-300",
-                                name: "email",
-                                r#type: "email",
-                                placeholder: "Email address",
-                                value: "{email}",
-                                autofocus: "true",
-                                oninput: move |evt| {
-                                    email.set(evt.value());
-                                },
-                                                        // onmounted: move |evt| async move {
-                            //     _ = evt.set_focus(true).await;
-                            // },
+                        form {
+                            onsubmit: move |e| {
+                                e.prevent_default();
+                                async move {
+                                    handle_login(email(), password(), &mut wrong_creds, &nav).await;
+                                }
+                            },
+                            div {
+                                input {
+                                    class: "px-3 py-3 rounded-lg outline-none border-2 focus:border-green-300",
+                                    name: "email",
+                                    r#type: "email",
+                                    placeholder: "Email address",
+                                    value: "{email}",
+                                    autocomplete: "email",
+                                    autofocus: "true",
+                                    oninput: move |evt| {
+                                        email.set(evt.value());
+                                    },
+                                    onmounted: move |evt| async move {
+                                        // UX: Focus the email input.
+                                        _ = evt.set_focus(true).await;
+                                    },
+                                }
                             }
-                        }
-                        div {
-                            input {
-                                class: "px-3 py-3 rounded-lg outline-none border-2 focus:border-green-300",
-                                name: "password",
-                                r#type: "password",
-                                placeholder: "Password",
-                                value: "{password}",
-                                oninput: move |e| {
-                                    password.set(e.value());
-                                },
-                                onkeypress: move |evt| {
-                                    async move {
-                                        if evt.key() == Key::Enter {
-                                            handle_login(email(), password(), &mut wrong_creds, &nav).await;
-                                        }
-                                    }
-                                },
+                            div {
+                                input {
+                                    class: "px-3 py-3 rounded-lg outline-none border-2 focus:border-green-300",
+                                    name: "password",
+                                    r#type: "password",
+                                    placeholder: "Password",
+                                    value: "{password}",
+                                    autocomplete: "current-password",
+                                    oninput: move |e| {
+                                        password.set(e.value());
+                                    },
+                                }
                             }
-                        }
-                        div { class: "text-center text-red-600 my-8",
-                            span { class: if !wrong_creds() { "hidden" }, "Wrong credentials" }
-                        }
-                        div { class: "text-center my-8",
-                            button {
-                                class: "drop-shadow-sm px-4 py-2 rounded-md",
-                                onclick: move |_| {
-                                    async move {
-                                        handle_login(email(), password(), &mut wrong_creds, &nav).await;
-                                    }
-                                },
-                                "Login"
+                            div { class: "text-center text-red-600 my-8",
+                                span { class: if !wrong_creds() { "hidden" }, "Wrong credentials" }
+                            }
+                            div { class: "text-center my-8",
+                                button {
+                                    class: "drop-shadow-sm px-4 py-2 rounded-md",
+                                    r#type: "submit",
+                                    "Login"
+                                }
                             }
                         }
                     }
