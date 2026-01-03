@@ -46,6 +46,7 @@ struct NavUserDropdownProps {
 fn NavbarUserMenuDropdown(mut props: NavUserDropdownProps) -> Element {
     //
     // let has_admin_perms = use_resource(move || async move { has_admin_permissions().await });
+    let show_dropdown = props.show_dropdown;
 
     rsx! {
         div {
@@ -61,9 +62,11 @@ fn NavbarUserMenuDropdown(mut props: NavUserDropdownProps) -> Element {
                                 class: "py-2.5 px-5 min-w-full w-max min-h-full flex",
                                 onclick: move |e: MouseEvent| {
                                     e.stop_propagation();
-                                    debug!(">>> [NavbarUserMenuDropdown] Toggle theme.");
-                                    spawn(async {
-                                        toggle_light_dark_theme().await;
+                                    // The signal must be cloned, so that it can be captured
+                                    // inside the closure below and the async task can own it.
+                                    let show_dropdown = show_dropdown.clone();
+                                    spawn(async move {
+                                        toggle_light_dark_theme(show_dropdown).await;
                                     });
                                 },
                                 to: Route::HomeView {},
@@ -141,7 +144,7 @@ fn NavbarUserMenuDropdown(mut props: NavUserDropdownProps) -> Element {
     }
 }
 
-async fn toggle_light_dark_theme() {
+async fn toggle_light_dark_theme(mut show_dropdown: Signal<bool>) {
     let mut state = STATE.write();
     state.is_light_theme = !state.is_light_theme;
 
@@ -151,7 +154,13 @@ async fn toggle_light_dark_theme() {
     } else {
         _ = document::eval(&format!("document.documentElement.setAttribute('class', 'dark');",));
     };
+    debug!(
+        ">>> [NavbarUserMenuDropdown][toggle_light_dark_theme] {} theme applied.",
+        if state.is_light_theme { "light" } else { "dark" }
+    );
 
     // Persist the change (all state) to local store.
     state.save().await;
+
+    show_dropdown.set(false);
 }
