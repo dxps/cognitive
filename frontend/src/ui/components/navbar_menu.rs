@@ -1,4 +1,5 @@
 use crate::ui::components::icons::{hamburger_icon, logout_icon, user_icon};
+use crate::ui::components::toggle_theme_icon;
 use crate::ui::{Route, STATE};
 use dioxus::prelude::*;
 
@@ -18,9 +19,11 @@ pub fn NavbarMenu() -> Element {
     username.set(state.user.clone().unwrap_or_default().username.clone());
 
     rsx! {
-        div { class: "text-sm text-gray-600 hover:bg-[#e2e2e7] dark:hover:bg-[#1e222d] rounded-lg flex flex-col items-end overflow-visible",
+        div { class: "text-sm text-gray-600 hover:bg-[#e2e2e7]
+                      dark:text-[#b2804c] dark:hover:text-orange-400
+                      rounded-lg flex flex-col items-end overflow-visible",
             button {
-                class: "px-4 py-2 align text-sm outline-none rounded-lg",
+                class: "px-4 py-2 align text-sm outline-none rounded-lg dark:bg-[#0f1116]",
                 onclick: move |_| {
                     let curr_val = show_dropdown();
                     *show_dropdown.write() = !curr_val;
@@ -54,9 +57,10 @@ fn NavbarUserMenuDropdown(mut props: NavUserDropdownProps) -> Element {
             onclick: move |_| {
                 *props.show_dropdown.write() = false;
             },
-            div { class: "w-20 mt-14 mr-[64px] bg-white dark:bg-[#222532] z-[1000] rounded-lg shadow-2xl float-right",
+            div { class: "w-20 mt-14 mr-[90px] bg-white dark:bg-[#222532] z-[1000] rounded-lg shadow-2xl float-right",
                 div {
-                    ul { class: "shadow-2xl bg-white dark:bg-[#222532] py-2 min-w-full w-max rounded-lg dark:rounded-lg border-0 max-h-96 overflow-auto",
+                    ul { class: "shadow-2xl py-2 min-w-full w-max rounded-lg
+                                border-0 max-h-96 overflow-auto bg-white dark:bg-[#222532]",
                         li { class: "flex items-center text-sm cursor-pointer",
                             Link {
                                 class: "py-2.5 px-5 min-w-full w-max min-h-full flex",
@@ -70,6 +74,10 @@ fn NavbarUserMenuDropdown(mut props: NavUserDropdownProps) -> Element {
                                     });
                                 },
                                 to: Route::HomeView {},
+                                div {
+                                    class: "mr-2",
+                                    dangerous_inner_html: toggle_theme_icon(),
+                                }
                                 "Toggle Theme"
                             }
                         }
@@ -102,7 +110,7 @@ fn NavbarUserMenuDropdown(mut props: NavUserDropdownProps) -> Element {
                         //     }
                         // }
                         li { class: "px-4 py-2",
-                            hr {}
+                            hr { class: "dark:text-gray-700" }
                         }
 
                         {
@@ -112,6 +120,7 @@ fn NavbarUserMenuDropdown(mut props: NavUserDropdownProps) -> Element {
                                         Link {
                                             class: "py-2.5 px-5 min-w-full w-max min-h-full flex",
                                             to: Route::LoginView {},
+                                            div { class: "mr-3 mt-0.5", dangerous_inner_html: logout_icon() }
                                             "  Login"
                                         }
                                     }
@@ -122,7 +131,7 @@ fn NavbarUserMenuDropdown(mut props: NavUserDropdownProps) -> Element {
                                         Link {
                                             class: "py-2.5 px-5 min-w-full w-max min-h-full flex",
                                             to: Route::UserProfileView {},
-                                            div { class: "mr-3", dangerous_inner_html: user_icon() }
+                                            div { class: "mr-3 mt-0.5", dangerous_inner_html: user_icon() }
                                             "  My profile"
                                         }
                                     }
@@ -130,7 +139,7 @@ fn NavbarUserMenuDropdown(mut props: NavUserDropdownProps) -> Element {
                                         Link {
                                             class: "py-2.5 px-5 min-w-full w-max min-h-full flex",
                                             to: Route::LogoutView {},
-                                            div { class: "mr-3", dangerous_inner_html: logout_icon() }
+                                            div { class: "mr-3 mt-0.5", dangerous_inner_html: logout_icon() }
                                             "  Logout"
                                         }
                                     }

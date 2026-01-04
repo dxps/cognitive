@@ -24,7 +24,7 @@ fn render() -> Element {
                     sm:flex sm:mx-auto sm:flex sm:items-center sm:w-auto sm:space-x-3 lg:space-x-6",
                 li {
                     Link {
-                        class: "text-sm text-gray-600 py-2 px-4 hover:bg-gray-100 rounded-lg transition duration-200",
+                        class: "text-sm py-2 px-4 rounded-lg transition duration-200",
                         to: Route::HomeView {},
                         "Home"
                     }
@@ -32,7 +32,7 @@ fn render() -> Element {
                 NavSep {}
                 li {
                     Link {
-                        class: "text-sm text-gray-600 py-2 px-4 hover:bg-gray-100 rounded-lg transition duration-200",
+                        class: "text-sm py-2 px-4 rounded-lg transition duration-200",
                         to: Route::Blog { id: 1 },
                         "Blog"
                     }

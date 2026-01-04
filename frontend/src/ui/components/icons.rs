@@ -9,6 +9,25 @@ pub fn hamburger_icon() -> String {
     .to_string()
 }
 
+pub fn toggle_theme_icon() -> String {
+    r##"
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+        width="20" height="20" fill="none" stroke="currentColor"
+        stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"
+        aria-hidden="true" focusable="false">
+    <!-- Outer circle -->
+    <circle cx="12" cy="12" r="8"/>
+    <!-- S-curve halves -->
+    <path d="M12 4a4 4 0 0 1 0 8a4 4 0 0 0 0 8"/>
+    <path d="M12 4a8 8 0 0 0 0 16"/>
+    <!-- Dots -->
+    <circle cx="12" cy="8" r="0.95" fill="currentColor" stroke="none"/>
+    <circle cx="12" cy="16" r="0.95"/>
+    </svg>
+    "##
+    .to_string()
+}
+
 pub fn user_icon() -> String {
     r#"
     <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-4 h-4" viewBox="0 0 512 512">
