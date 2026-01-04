@@ -53,11 +53,11 @@ fn NavbarUserMenuDropdown(mut props: NavUserDropdownProps) -> Element {
 
     rsx! {
         div {
-            "style": "width: 100%; height: 1000%; padding: 0; position: absolute; top: 0; left: 0",
+            "style": "width: 100%; min-height: 100dvh; z-index: 1000; padding: 0; position: absolute; top: 0; left: 0",
             onclick: move |_| {
                 *props.show_dropdown.write() = false;
             },
-            div { class: "w-20 mt-14 mr-[90px] bg-white dark:bg-[#222532] z-[1000] rounded-lg shadow-2xl float-right",
+            div { class: "w-20 mt-14 mr-[90px] bg-white dark:bg-[#222532] rounded-lg shadow-2xl float-right",
                 div {
                     ul { class: "shadow-2xl py-2 min-w-full w-max rounded-lg
                                 border-0 max-h-96 overflow-auto bg-white dark:bg-[#222532]",
