@@ -1,11 +1,10 @@
+use crate::infra::{SESSION_MAX_LIFESPAN, ServerState};
 use axum::{Json, extract::State};
 use axum_session::Session;
 use axum_session_sqlx::SessionPgPool;
 use http::StatusCode;
 use log::debug;
 use shlib::http_dtos::{ErrorResponse, LoginRequest, LoginResponse};
-
-use crate::infra::{SESSION_MAX_LIFESPAN, ServerState};
 
 pub async fn login(
     State(state): State<ServerState>,

@@ -65,7 +65,7 @@ async fn handle_logout() {
             }
         }
         Err(e) => {
-            debug!(">>> [handle_logout] request err: {}", e);
+            debug!(">>> [handle_logout] Request err: {}", e);
         }
     }
 }

@@ -1,5 +1,3 @@
-// #[cfg(feature = "web")]
-// #[cfg(not(feature = "server"))]
 use cognitive::ui;
 
 fn main() {
@@ -27,6 +25,4 @@ fn main() {
     // It takes a component and renders it with the platform feature you have enabled.
     #[cfg(not(feature = "server"))]
     dioxus::launch(ui::App);
-
-    // TODO: Graceful shutdown (at least for the database pool).
 }

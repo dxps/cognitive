@@ -66,8 +66,7 @@ fn NavbarUserMenuDropdown(mut props: NavUserDropdownProps) -> Element {
                                 class: "py-2.5 px-5 min-w-full w-max min-h-full flex",
                                 onclick: move |e: MouseEvent| {
                                     e.stop_propagation();
-                                    // The signal must be cloned, so that it can be captured
-                                    // inside the closure below and the async task can own it.
+                                    // The signal must be cloned, so the async task can own it.
                                     let show_dropdown = show_dropdown.clone();
                                     spawn(async move {
                                         toggle_light_dark_theme(show_dropdown).await;

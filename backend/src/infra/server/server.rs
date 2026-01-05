@@ -45,14 +45,16 @@ pub fn start_web_server() {
         let auth_layer = init_auth_layer(&pg_pool).await;
         let session_layer = init_session_layer(&pg_pool).await;
         let cors_layer = CorsLayer::new()
-            // set this to your actual frontend origin (Dioxus dev server, etc.)
-            .allow_origin(HeaderValue::from_static("http://localhost:8080"))
-            .allow_methods([Method::POST, Method::OPTIONS])
+            // TODO: Set this to your actual frontend origin (Dioxus dev server, etc.).
+            .allow_origin(HeaderValue::from_static("http://localhost:9010"))
+            .allow_methods([Method::POST, Method::PUT, Method::OPTIONS])
             .allow_headers([http::header::CONTENT_TYPE, http::header::AUTHORIZATION]);
 
         let web_api_router = Router::new()
             .route("/auth/login", axum::routing::post(http_api::login))
             .route("/auth/logout", axum::routing::post(http_api::logout))
+            .route("/user/profile", axum::routing::put(http_api::update_user_primary_info))
+            .route("/user/password", axum::routing::put(http_api::update_user_password))
             .layer(auth_layer)
             .layer(session_layer)
             .layer(cors_layer)

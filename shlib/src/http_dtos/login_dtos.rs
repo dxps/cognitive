@@ -1,6 +1,5 @@
-use serde::{Deserialize, Serialize};
-
 use crate::domain::model::UserAccount;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LoginRequest {
