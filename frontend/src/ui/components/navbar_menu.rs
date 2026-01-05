@@ -4,8 +4,6 @@ use crate::ui::{Route, STATE};
 use dioxus::prelude::*;
 use futures_util::StreamExt;
 
-/// The Navbar component that will be rendered on all pages of our app since every page is under the layout.
-/// The pages will be rendered under the outlet inside this component.
 #[component]
 pub fn NavbarMenu() -> Element {
     //
@@ -49,7 +47,6 @@ struct NavUserDropdownProps {
 
 fn NavbarUserMenuDropdown(mut props: NavUserDropdownProps) -> Element {
     //
-    // let has_admin_perms = use_resource(move || async move { has_admin_permissions().await });
     let mut show_dropdown = props.show_dropdown;
     let toggle_theme_coroutine = use_coroutine(move |mut rx: UnboundedReceiver<()>| async move {
         while rx.next().await.is_some() {
@@ -85,34 +82,7 @@ fn NavbarUserMenuDropdown(mut props: NavUserDropdownProps) -> Element {
                                 "Toggle theme"
                             }
                         }
-                        // li { class: "flex items-center text-[#333] hover:bg-gray-100 hover:text-orange-600 text-sm cursor-pointer",
-                        //     Link {
-                        //         class: "py-2.5 px-5 min-w-full w-max min-h-full flex text-[#333]",
-                        //         to: Route::UserProfilePage {
-                        //             username: props.username,
-                        //         },
-                        //         div {
-                        //             class: "mr-3",
-                        //             dangerous_inner_html: user_icon(),
-                        //         }
-                        //         "  My profile"
-                        //     }
-                        // }
-                        // {
-                        //     match &*has_admin_perms.read_unchecked() {
-                        //         Some(Ok(true)) => rsx! {
-                        //             li { class: "flex items-center text-[#333] hover:bg-gray-100 hover:text-orange-600 text-sm cursor-pointer",
-                        //                 Link {
-                        //                     class: "py-2.5 px-5 min-w-full w-max min-h-full flex text-[#333]",
-                        //                     to: Route::AdminView {},
-                        //                     div { class: "mr-3", dangerous_inner_html: admin_icon() }
-                        //                     "  Admin Area"
-                        //                 }
-                        //             }
-                        //         },
-                        //         _ => rsx! {},
-                        //     }
-                        // }
+
                         li { class: "px-4 py-2",
                             hr { class: "dark:text-gray-700" }
                         }

@@ -19,7 +19,7 @@ pub fn App() -> Element {
             let mut state = STATE.write();
 
             let stored_state = UiState::load().await;
-            debug!("Loaded state from local store: {:#?}", stored_state);
+            debug!("Loaded state from local store: {:?}", stored_state);
             match stored_state {
                 Ok(stored_state) => {
                     state.is_light_theme = stored_state.is_light_theme;

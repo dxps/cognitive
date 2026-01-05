@@ -1,8 +1,8 @@
 use crate::ui::{Route, STATE, components::NavbarMenu};
 use dioxus::prelude::*;
 
-/// The Navbar component that will be rendered on all pages of our app since every page is under the layout.
-/// The pages will be rendered under the outlet inside this component.
+/// `Navbar` component is rendered on all pages of our app since every page is under the layout.
+/// And those pages will be rendered under the outlet inside this component.
 #[component]
 pub fn Navbar() -> Element {
     if !STATE.read().is_ready {
