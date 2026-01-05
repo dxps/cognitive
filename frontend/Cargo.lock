@@ -528,6 +528,7 @@ dependencies = [
  "anyhow",
  "dioxus",
  "dotenvy",
+ "futures-util",
  "log",
  "reqwest 0.13.1",
  "rusqlite",

@@ -13,7 +13,7 @@
     --color-green-100: oklch(96.2% 0.044 156.743);
     --color-green-300: oklch(87.1% 0.15 154.449);
     --color-green-600: oklch(62.7% 0.194 149.214);
-    --color-gray-50: oklch(98.5% 0.002 247.839);
+    --color-green-700: oklch(52.7% 0.154 150.069);
     --color-gray-100: oklch(96.7% 0.003 264.542);
     --color-gray-300: oklch(87.2% 0.01 258.338);
     --color-gray-500: oklch(55.1% 0.027 264.364);
@@ -289,33 +289,6 @@
   .max-h-96 {
     max-height: calc(var(--spacing) * 96);
   }
-  .min-h-\[600px\] {
-    min-height: 600px;
-  }
-  .min-h-\[620px\] {
-    min-height: 620px;
-  }
-  .min-h-\[630px\] {
-    min-height: 630px;
-  }
-  .min-h-\[640px\] {
-    min-height: 640px;
-  }
-  .min-h-\[650px\] {
-    min-height: 650px;
-  }
-  .min-h-\[660px\] {
-    min-height: 660px;
-  }
-  .min-h-\[700px\] {
-    min-height: 700px;
-  }
-  .min-h-\[760px\] {
-    min-height: 760px;
-  }
-  .min-h-\[800px\] {
-    min-height: 800px;
-  }
   .min-h-full {
     min-height: 100%;
   }
@@ -333,9 +306,6 @@
   }
   .w-max {
     width: max-content;
-  }
-  .min-w-\[600px\] {
-    min-width: 600px;
   }
   .min-w-full {
     min-width: 100%;
@@ -445,9 +415,6 @@
   .p-6 {
     padding: calc(var(--spacing) * 6);
   }
-  .p-\[3\.4px\] {
-    padding: 3.4px;
-  }
   .px-2 {
     padding-inline: calc(var(--spacing) * 2);
   }
@@ -534,6 +501,9 @@
   }
   .text-green-600 {
     color: var(--color-green-600);
+  }
+  .text-green-700 {
+    color: var(--color-green-700);
   }
   .text-red-600 {
     color: var(--color-red-600);
@@ -630,9 +600,19 @@
       display: flex;
     }
   }
+  .sm\:min-h-\[650px\] {
+    @media (width >= 40rem) {
+      min-height: 650px;
+    }
+  }
   .sm\:w-auto {
     @media (width >= 40rem) {
       width: auto;
+    }
+  }
+  .sm\:min-w-\[600px\] {
+    @media (width >= 40rem) {
+      min-width: 600px;
     }
   }
   .sm\:items-center {
@@ -657,6 +637,16 @@
   .md\:left-1\/2 {
     @media (width >= 48rem) {
       left: calc(1/2 * 100%);
+    }
+  }
+  .md\:min-h-\[650px\] {
+    @media (width >= 48rem) {
+      min-height: 650px;
+    }
+  }
+  .md\:min-w-\[600px\] {
+    @media (width >= 48rem) {
+      min-width: 600px;
     }
   }
   .lg\:left-1\/2 {
@@ -696,6 +686,24 @@
   .dark\:text-gray-700 {
     &:where(.dark, .dark *) {
       color: var(--color-gray-700);
+    }
+  }
+  .dark\:hover\:bg-\[\#222532\] {
+    &:where(.dark, .dark *) {
+      &:hover {
+        @media (hover: hover) {
+          background-color: #222532;
+        }
+      }
+    }
+  }
+  .dark\:hover\:text-\[\#FFA500\] {
+    &:where(.dark, .dark *) {
+      &:hover {
+        @media (hover: hover) {
+          color: #FFA500;
+        }
+      }
     }
   }
   .dark\:hover\:text-orange-400 {

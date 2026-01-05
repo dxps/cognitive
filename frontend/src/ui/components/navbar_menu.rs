@@ -2,6 +2,7 @@ use crate::ui::components::icons::{hamburger_icon, logout_icon, user_icon};
 use crate::ui::components::toggle_theme_icon;
 use crate::ui::{Route, STATE};
 use dioxus::prelude::*;
+use futures_util::StreamExt;
 
 /// The Navbar component that will be rendered on all pages of our app since every page is under the layout.
 /// The pages will be rendered under the outlet inside this component.
@@ -49,7 +50,14 @@ struct NavUserDropdownProps {
 fn NavbarUserMenuDropdown(mut props: NavUserDropdownProps) -> Element {
     //
     // let has_admin_perms = use_resource(move || async move { has_admin_permissions().await });
-    let show_dropdown = props.show_dropdown;
+    let mut show_dropdown = props.show_dropdown;
+    let toggle_theme_coroutine = use_coroutine(move |mut rx: UnboundedReceiver<()>| async move {
+        while rx.next().await.is_some() {
+            debug!(">>> [toggle_theme_coroutine] Executing ...");
+            toggle_light_dark_theme().await;
+            show_dropdown.set(false);
+        }
+    });
 
     rsx! {
         div {
@@ -62,22 +70,19 @@ fn NavbarUserMenuDropdown(mut props: NavUserDropdownProps) -> Element {
                     ul { class: "shadow-2xl py-2 min-w-full w-max rounded-lg
                                 border-0 max-h-96 overflow-auto bg-white dark:bg-[#222532]",
                         li { class: "flex items-center text-sm cursor-pointer",
-                            Link {
-                                class: "py-2.5 px-5 min-w-full w-max min-h-full flex",
-                                onclick: move |e: MouseEvent| {
+                            div {
+                                class: "flex py-2.5 px-5 min-w-full w-max min-h-full text-green-700 hover:bg-[#e2e2e7]
+                                        dark:text-[#b2804c] dark:hover:text-[#FFA500] dark:hover:bg-[#222532]",
+                                onclick: move |e| {
                                     e.stop_propagation();
-                                    // The signal must be cloned, so the async task can own it.
-                                    let show_dropdown = show_dropdown.clone();
-                                    spawn(async move {
-                                        toggle_light_dark_theme(show_dropdown).await;
-                                    });
+                                    debug!(">>> [NavbarUserMenuDropdown] Toggling theme ...");
+                                    toggle_theme_coroutine.send(());
                                 },
-                                to: Route::HomeView {},
                                 div {
                                     class: "mr-2",
                                     dangerous_inner_html: toggle_theme_icon(),
                                 }
-                                "Toggle Theme"
+                                "Toggle theme"
                             }
                         }
                         // li { class: "flex items-center text-[#333] hover:bg-gray-100 hover:text-orange-600 text-sm cursor-pointer",
@@ -152,7 +157,7 @@ fn NavbarUserMenuDropdown(mut props: NavUserDropdownProps) -> Element {
     }
 }
 
-async fn toggle_light_dark_theme(mut show_dropdown: Signal<bool>) {
+async fn toggle_light_dark_theme() {
     let mut state = STATE.write();
     state.is_light_theme = !state.is_light_theme;
 
@@ -169,6 +174,4 @@ async fn toggle_light_dark_theme(mut show_dropdown: Signal<bool>) {
 
     // Persist the change (all state) to local store.
     state.save().await;
-
-    show_dropdown.set(false);
 }

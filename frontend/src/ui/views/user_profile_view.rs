@@ -18,7 +18,7 @@ pub fn UserProfileView() -> Element {
     rsx! {
         div { class: "flex flex-col min-h-screen",
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
-                div { class: "bg-[#e2e2e7] dark:bg-[#1e222d] rounded-lg p-6 min-w-[600px] min-h-[650px]",
+                div { class: "bg-[#e2e2e7] dark:bg-[#1e222d] rounded-lg p-6 sm:min-w-[600px] sm:min-h-[650px]",
                     h1 { class: "text-2xl text-[#333] text-center",
                         {format!("{}'s Profile", user_account.username)}
                     }
