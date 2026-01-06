@@ -2,7 +2,6 @@ use crate::ui::components::icons::{hamburger_icon, logout_icon, user_icon};
 use crate::ui::components::toggle_theme_icon;
 use crate::ui::{Route, STATE};
 use dioxus::prelude::*;
-use futures_util::StreamExt;
 
 #[component]
 pub fn NavbarMenu() -> Element {
@@ -47,14 +46,7 @@ struct NavUserDropdownProps {
 
 fn NavbarUserMenuDropdown(mut props: NavUserDropdownProps) -> Element {
     //
-    let mut show_dropdown = props.show_dropdown;
-    let toggle_theme_coroutine = use_coroutine(move |mut rx: UnboundedReceiver<()>| async move {
-        while rx.next().await.is_some() {
-            debug!(">>> [toggle_theme_coroutine] Executing ...");
-            toggle_light_dark_theme().await;
-            show_dropdown.set(false);
-        }
-    });
+    let show_dropdown = props.show_dropdown;
 
     rsx! {
         div {
@@ -72,8 +64,12 @@ fn NavbarUserMenuDropdown(mut props: NavUserDropdownProps) -> Element {
                                         dark:text-[#b2804c] dark:hover:text-[#FFA500] dark:hover:bg-[#222532]",
                                 onclick: move |e| {
                                     e.stop_propagation();
-                                    debug!(">>> [NavbarUserMenuDropdown] Toggling theme ...");
-                                    toggle_theme_coroutine.send(());
+                                    // The signal must be cloned, so that it can be captured
+                                    // inside the closure below and the async task can own it.
+                                    let show_dropdown = show_dropdown.clone();
+                                    spawn(async move {
+                                        toggle_light_dark_theme(show_dropdown).await;
+                                    });
                                 },
                                 div {
                                     class: "mr-2",
@@ -127,7 +123,7 @@ fn NavbarUserMenuDropdown(mut props: NavUserDropdownProps) -> Element {
     }
 }
 
-async fn toggle_light_dark_theme() {
+async fn toggle_light_dark_theme(mut show_dropdown: Signal<bool>) {
     let mut state = STATE.write();
     state.is_light_theme = !state.is_light_theme;
 
@@ -144,4 +140,7 @@ async fn toggle_light_dark_theme() {
 
     // Persist the change (all state) to local store.
     state.save().await;
+
+    // Close the dropdown.
+    show_dropdown.set(false);
 }
