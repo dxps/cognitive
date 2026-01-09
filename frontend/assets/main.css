@@ -4,17 +4,9 @@
 -------------------------
 */
 body {
-	/* background-color: #f1f1f3;
-	color: #111111; */
 	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 	margin: 0r;
 	min-height: 100vh;
-}
-
-button {
-	border: 0;
-	border-radius: 0.4rem;
-	cursor: pointer;
 }
 
 #hero {
@@ -84,15 +76,6 @@ button {
   DARK THEME (when .dark is present on html/body)  
 ---------------------------------------------------
 */
-/* .dark body {
-	background-color: #2a2828;
-	color: #dddddd;
-} */
-
-/* .dark a {
-	color: #b2804c;
-	text-decoration: none;
-} */
 
 /* Override text/link colors */
 .dark #links {

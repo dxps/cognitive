@@ -6,8 +6,11 @@ use shlib::{
     http_dtos::{ErrorResponse, UserPasswordUpdateRequest, UserProfileUpdateRequest},
 };
 
-const CSS_TAB_ACTIVE: &str = "rounded-lg font-semibold text-center text-sm py-2 px-4 tracking-wide cursor-pointer";
-const CSS_TAB_INACTIVE: &str = "rounded-lg text-center text-sm hover:bg-white hover:text-lilac py-2 px-4 tracking-wide cursor-pointer";
+const CSS_TAB_ACTIVE: &str = "rounded-lg font-semibold text-center text-sm my-1 px-4 py-2 tracking-wide cursor-pointer
+                              dark:bg-(--dark-bg-d1) dark:text-(--dark-fg-link)";
+const CSS_TAB_INACTIVE: &str = "rounded-lg text-center text-sm hover:bg-white hover:text-lilac 
+                                dark:bg-(--dark-bg-d1) dark:hover:bg-(--dark-bg-d1) dark:hover:text-(--dark-fg-item-hover) 
+                                my-1 px-4 py-2 tracking-wide cursor-pointer";
 
 #[component]
 pub fn UserProfileView() -> Element {
@@ -21,12 +24,12 @@ pub fn UserProfileView() -> Element {
     rsx! {
         div { class: "flex flex-col min-h-screen",
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
-                div { class: "bg-(--bg-d1) dark:bg-(--dark-bg-d1) rounded-lg p-6 sm:min-w-[600px] sm:min-h-[650px]",
+                div { class: "bg-(--bg-d1) dark:bg-(--dark-bg-d1) rounded-lg p-6 sm:min-w-[600px] sm:min-h-[600px]",
                     h1 { class: "text-xl text-center text-(--fg-item) dark:text-(--dark-fg-item)",
                         {format!("{}'s Profile", user_account.username)}
                     }
                     // The tabs.
-                    ul { class: "flex gap-4 bg-gray-100 rounded-lg my-4 px-[3.4px] w-max overflow-hidden font-sans mx-auto",
+                    ul { class: "flex gap-2 bg-(--bg-d1) dark:bg-(--dark-bg-l1) rounded-lg my-2 px-[6px] py-[1px] w-max overflow-hidden font-sans mx-auto",
                         li {
                             class: if tab_to_show() == "primary_info".to_string() { CSS_TAB_ACTIVE } else { CSS_TAB_INACTIVE },
                             onclick: move |_| tab_to_show.set("primary_info".to_string()),
@@ -103,7 +106,7 @@ fn PrimaryInfo(user_account: UserAccount) -> Element {
                     oninput: move |evt| { bio.set(evt.value()) },
                 }
             }
-            div { class: "text-center my-8",
+            div { class: "text-center mt-8 mb-2",
                 button {
                     onclick: move |_| {
                         let mut ua = user_account.clone();

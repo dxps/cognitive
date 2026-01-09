@@ -41,7 +41,7 @@
 	[type='button'],
 	[type='submit'],
 	[type='reset'] {
-		@apply inline-flex items-center justify-center gap-2
+		@apply inline-flex items-center justify-center gap-2 cursor-pointer
       border-0 rounded-md px-4 py-2 text-sm font-medium 
       bg-white text-gray-800 hover:bg-green-200
       dark:bg-(--dark-bg-item) dark:text-(--dark-fg-item) 
