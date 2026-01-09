@@ -6,3 +6,78 @@
 
 /* Make `dark:` use a `.dark` class instead of prefers-color-scheme. */
 @custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+	--bg: #f1f1f3;
+	--bg-d1: #dfe0e2;
+	--fg: #111111;
+	--bg-item: white;
+	--bg-item-hover: #e2e2e7;
+	--dark-bg: #383838;
+	--dark-bg-d1: #2a2a2a;
+	--dark-bg-l1: #3f3f3f;
+	--dark-bg-item: #484848;
+	--dark-bg-item-hover: #191a1a;
+	--dark-fg: #dddddd;
+	--dark-fg-item: var(--color-gray-300);
+	--dark-fg-item-hover: orange;
+	--dark-fg-link: #b2804c;
+}
+
+/* Global element defaults */
+@layer base {
+	html,
+	body {
+		@apply bg-(--bg) text-(--fg) dark:bg-(--dark-bg) dark:text-(--dark-fg);
+	}
+
+	/* Links */
+	a {
+		@apply text-green-700 hover:bg-[#e2e2e7] dark:text-(--dark-fg-link) dark:hover:bg-(--dark-bg-item-hover);
+	}
+
+	/* Buttons */
+	button,
+	[type='button'],
+	[type='submit'],
+	[type='reset'] {
+		@apply inline-flex items-center justify-center gap-2
+      border-0 rounded-md px-4 py-2 text-sm font-medium 
+      bg-white text-gray-800 hover:bg-green-200
+      dark:bg-(--dark-bg-item) dark:text-(--dark-fg-item) 
+      dark:hover:bg-(--dark-bg-item-hover) dark:hover:text-(--dark-fg-item-hover)
+      dark:focus:bg-(--dark-bg-item-hover) dark:focus:text-(--dark-fg-item-hover)
+      focus-visible:outline-none 
+      disabled:opacity-50 disabled:pointer-events-none;
+	}
+
+	/* Text inputs */
+	input:not([type='checkbox']):not([type='radio']),
+	textarea,
+	select {
+		@apply w-full rounded-md border border-slate-300 bg-white
+      px-3 py-2 text-sm outline-none 
+      dark:bg-(--dark-bg-item) dark:text-(--dark-fg-item) dark:border-black
+      focus:border-green-300 focus:ring-1 focus:ring-green-300
+      dark:focus:border-orange-300 dark:focus:ring-1 dark:focus:ring-orange-300
+      placeholder:text-slate-400
+      disabled:bg-slate-100 disabled:text-slate-500;
+	}
+
+	/* Optional: checkbox/radio baseline */
+	input[type='checkbox'],
+	input[type='radio'] {
+		@apply size-4 align-middle accent-sky-600;
+	}
+}
+
+/* Item */
+@utility itm {
+	@apply dark:bg-(--dark-bg-item) dark:text-gray-800 dark:hover:bg-(--dark-bg-item-hover) dark:hover:text-(--dark-fg-item-hover)
+        dark:focus:bg-(--dark-bg-item-hover) dark:focus:text-(--dark-fg-item-hover);
+}
+
+/* Item as link */
+@utility itmlnk {
+	@apply text-green-700 hover:bg-[#e2e2e7] dark:text-(--dark-fg-link) dark:hover:bg-(--dark-bg-item-hover);
+}

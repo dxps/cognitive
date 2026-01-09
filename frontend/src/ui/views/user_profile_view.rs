@@ -6,6 +6,9 @@ use shlib::{
     http_dtos::{ErrorResponse, UserPasswordUpdateRequest, UserProfileUpdateRequest},
 };
 
+const CSS_TAB_ACTIVE: &str = "rounded-lg font-semibold text-center text-sm py-2 px-4 tracking-wide cursor-pointer";
+const CSS_TAB_INACTIVE: &str = "rounded-lg text-center text-sm hover:bg-white hover:text-lilac py-2 px-4 tracking-wide cursor-pointer";
+
 #[component]
 pub fn UserProfileView() -> Element {
     //
@@ -18,19 +21,19 @@ pub fn UserProfileView() -> Element {
     rsx! {
         div { class: "flex flex-col min-h-screen",
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
-                div { class: "bg-[#e2e2e7] dark:bg-[#1e222d] rounded-lg p-6 sm:min-w-[600px] sm:min-h-[650px]",
-                    h1 { class: "text-2xl text-[#333] text-center",
+                div { class: "bg-(--bg-d1) dark:bg-(--dark-bg-d1) rounded-lg p-6 sm:min-w-[600px] sm:min-h-[650px]",
+                    h1 { class: "text-xl text-center text-(--fg-item) dark:text-(--dark-fg-item)",
                         {format!("{}'s Profile", user_account.username)}
                     }
                     // The tabs.
                     ul { class: "flex gap-4 bg-gray-100 rounded-lg my-4 px-[3.4px] w-max overflow-hidden font-sans mx-auto",
                         li {
-                            class: if tab_to_show() == "primary_info".to_string() { "text-green-600 rounded-lg font-semibold text-center text-sm bg-white py-2 px-4 tracking-wide cursor-pointer" } else { "text-gray-600 rounded-lg text-center text-sm hover:bg-white hover:text-lilac py-2 px-4 tracking-wide cursor-pointer" },
+                            class: if tab_to_show() == "primary_info".to_string() { CSS_TAB_ACTIVE } else { CSS_TAB_INACTIVE },
                             onclick: move |_| tab_to_show.set("primary_info".to_string()),
                             "Primary Info"
                         }
                         li {
-                            class: if tab_to_show() == "security".to_string() { "text-green-600 rounded-lg font-semibold text-center text-sm bg-white py-2 px-4 tracking-wide cursor-pointer" } else { "text-gray-600 rounded-lg text-center text-sm hover:bg-white hover:text-lilac py-2 px-4 tracking-wide cursor-pointer" },
+                            class: if tab_to_show() == "security".to_string() { CSS_TAB_ACTIVE } else { CSS_TAB_INACTIVE },
                             onclick: move |_| tab_to_show.set("security".to_string()),
                             "Security"
                         }
@@ -58,33 +61,42 @@ fn PrimaryInfo(user_account: UserAccount) -> Element {
     rsx! {
         div { class: "mt-8 space-y-6",
             div {
-                label { class: "text-sm text-gray-500 block mb-2", "Username" }
+                label {
+                    class: "text-sm text-gray-500 block mb-2",
+                    r#for: "username",
+                    "Username"
+                }
                 input {
                     class: "w-full",
                     r#type: "text",
+                    id: "username",
                     placeholder: "Username",
                     value: "{user_account.username}",
+                    autocomplete: false,
                     maxlength: 48,
                     oninput: move |evt| { username.set(evt.value()) },
                 }
             }
             div {
-                label { class: "text-sm text-gray-500 block mb-2", "Email" }
+                label { class: "text-sm text-gray-500 block mb-2", r#for: "email", "Email" }
                 input {
                     class: "w-full rounded-md py-2.5",
                     r#type: "text",
+                    id: "email",
                     placeholder: "Email",
                     value: "{user_account.email}",
+                    autocomplete: false,
                     maxlength: 64,
                     oninput: move |evt| { email.set(evt.value()) },
                 }
             }
             div {
-                label { class: "text-sm text-gray-500 block mb-2", "Biography" }
+                label { class: "text-sm text-gray-500 block mb-2", r#for: "bio", "Biography" }
                 textarea {
                     class: "w-full rounded-md py-2.5 px-3",
                     cols: 64,
                     rows: 6,
+                    id: "bio",
                     placeholder: "Biography",
                     value: "{user_account.bio}",
                     maxlength: 1024,
@@ -93,7 +105,6 @@ fn PrimaryInfo(user_account: UserAccount) -> Element {
             }
             div { class: "text-center my-8",
                 button {
-                    class: "bg-gray-100 hover:bg-green-100 drop-shadow-sm px-4 py-2 rounded-md",
                     onclick: move |_| {
                         let mut ua = user_account.clone();
                         async move {
@@ -143,7 +154,7 @@ fn Security(user_account: UserAccount) -> Element {
 
     rsx! {
         div { class: "mt-8 space-y-6",
-            div { class: "flex flex-row text-sm text-gray-500",
+            div { class: "flex flex-row text-sm",
                 {"Id: "}
                 {user_account.id.to_string()}
             }
@@ -182,7 +193,6 @@ fn Security(user_account: UserAccount) -> Element {
             }
             div { class: "text-center my-8",
                 button {
-                    class: "bg-gray-100 hover:bg-green-100 drop-shadow-sm px-4 py-2 rounded-md",
                     onclick: move |_| {
                         let ua = user_account.clone();
                         async move {

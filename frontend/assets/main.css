@@ -4,8 +4,8 @@
 -------------------------
 */
 body {
-	background-color: #f1f1f3;
-	color: #111111;
+	/* background-color: #f1f1f3;
+	color: #111111; */
 	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 	margin: 0r;
 	min-height: 100vh;
@@ -32,15 +32,6 @@ button {
 	color: #111111;
 	display: flex;
 	flex-direction: column;
-}
-
-a {
-	color: green;
-	text-decoration: none;
-}
-
-a:hover {
-	background-color: #e2e2e7;
 }
 
 #links a {
@@ -93,27 +84,15 @@ a:hover {
   DARK THEME (when .dark is present on html/body)  
 ---------------------------------------------------
 */
-.dark body {
-	background-color: #0f1116;
+/* .dark body {
+	background-color: #2a2828;
 	color: #dddddd;
-}
+} */
 
-.dark a {
+/* .dark a {
 	color: #b2804c;
 	text-decoration: none;
-}
-
-.dark button .dark div {
-	background-color: #11151f;
-}
-
-.dark a:hover,
-.dark button:hover {
-	background-color: #222532;
-	color: orange;
-	border: 0;
-	border-radius: 0.4rem;
-}
+} */
 
 /* Override text/link colors */
 .dark #links {

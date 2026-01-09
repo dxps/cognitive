@@ -17,11 +17,10 @@ pub fn NavbarMenu() -> Element {
     username.set(state.user.clone().unwrap_or_default().username.clone());
 
     rsx! {
-        div { class: "text-sm text-gray-600 hover:bg-[#e2e2e7]
-                      dark:text-[#b2804c] dark:hover:text-orange-400
-                      rounded-lg flex flex-col items-end overflow-visible",
+        div { class: "rounded-lg flex flex-col items-end overflow-visible",
             button {
-                class: "px-4 py-2 align text-sm outline-none rounded-lg dark:bg-[#0f1116]",
+                class: "bg-(--bg) hover:bg-(--bg-item-hover) dark:bg-(--dark-bg) dark:hover:bg-(--dark-bg-item-hover)
+                        dark:text-(--dark-fg) dark:hover:text-(--dark-fg-item-hover)",
                 onclick: move |_| {
                     let curr_val = show_dropdown();
                     *show_dropdown.write() = !curr_val;
@@ -54,14 +53,12 @@ fn NavbarUserMenuDropdown(mut props: NavUserDropdownProps) -> Element {
             onclick: move |_| {
                 *props.show_dropdown.write() = false;
             },
-            div { class: "w-20 mt-14 mr-[90px] bg-white dark:bg-[#222532] rounded-lg shadow-2xl float-right",
-                div {
-                    ul { class: "shadow-2xl py-2 min-w-full w-max rounded-lg
-                                border-0 max-h-96 overflow-auto bg-white dark:bg-[#222532]",
+            div { class: "w-20 mt-14 mr-[20px] shadow-2xl w-max float-right rounded-lg",
+                div { class: "w-max",
+                    ul { class: "rounded-lg shadow-2xl py-2 border-0 max-h-96 overflow-auto dark:bg-(--dark-bg-d1)",
                         li { class: "flex items-center text-sm cursor-pointer",
                             div {
-                                class: "flex py-2.5 px-5 min-w-full w-max min-h-full text-green-700 hover:bg-[#e2e2e7]
-                                        dark:text-[#b2804c] dark:hover:text-[#FFA500] dark:hover:bg-[#222532]",
+                                class: "flex py-2.5 px-5 min-w-full itmlnk",
                                 onclick: move |e| {
                                     e.stop_propagation();
                                     // The signal must be cloned, so that it can be captured
@@ -80,16 +77,14 @@ fn NavbarUserMenuDropdown(mut props: NavUserDropdownProps) -> Element {
                         }
 
                         li { class: "px-4 py-2",
-                            hr { class: "dark:text-gray-700" }
+                            hr { class: "text-gray-300 dark:text-gray-700" }
                         }
 
                         {
                             if props.username.is_empty() {
                                 rsx! {
                                     li { class: "flex items-center text-sm cursor-pointer",
-                                        Link {
-                                            class: "py-2.5 px-5 min-w-full w-max min-h-full flex",
-                                            to: Route::LoginView {},
+                                        Link { class: "py-2.5 px-5 min-w-full flex", to: Route::LoginView {},
                                             div { class: "mr-3 mt-0.5", dangerous_inner_html: logout_icon() }
                                             "  Login"
                                         }
@@ -98,17 +93,13 @@ fn NavbarUserMenuDropdown(mut props: NavUserDropdownProps) -> Element {
                             } else {
                                 rsx! {
                                     li { class: "flex items-center text-sm cursor-pointer",
-                                        Link {
-                                            class: "py-2.5 px-5 min-w-full w-max min-h-full flex",
-                                            to: Route::UserProfileView {},
+                                        Link { class: "py-2.5 px-5 min-w-full flex", to: Route::UserProfileView {},
                                             div { class: "mr-3 mt-0.5", dangerous_inner_html: user_icon() }
                                             "  My profile"
                                         }
                                     }
                                     li { class: "flex items-center text-sm cursor-pointer",
-                                        Link {
-                                            class: "py-2.5 px-5 min-w-full w-max min-h-full flex",
-                                            to: Route::LogoutView {},
+                                        Link { class: "py-2.5 px-5 min-w-full flex", to: Route::LogoutView {},
                                             div { class: "mr-3 mt-0.5", dangerous_inner_html: logout_icon() }
                                             "  Logout"
                                         }
