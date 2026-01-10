@@ -24,11 +24,20 @@
 	--dark-fg-link: #b2804c;
 }
 
-/* Global element defaults */
+/* 
+   -----------------------
+   Global element defaults
+   -----------------------
+*/
 @layer base {
+	html {
+		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	}
+
 	html,
 	body {
-		@apply bg-(--bg) text-(--fg) dark:bg-(--dark-bg) dark:text-(--dark-fg);
+		@apply bg-(--bg) text-(--fg) dark:bg-(--dark-bg) dark:text-(--dark-fg)
+        m-0 min-h-screen;
 	}
 
 	/* Links */

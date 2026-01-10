@@ -3,7 +3,7 @@ use dioxus::prelude::*;
 
 const ECHO_CSS: Asset = asset!("/assets/echo.css");
 
-/// Echo component that demonstrates fullstack server functions.
+/// Echo component demonstrates the usage of fullstack server functions.
 #[component]
 pub fn Echo() -> Element {
     // use_signal is a hook. Hooks in dioxus must be run in a consistent order every time the component is rendered.

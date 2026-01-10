@@ -1,8 +1,12 @@
 use dioxus::prelude::*;
 
+const HERO_CSS: Asset = asset!("/assets/hero.css");
+
 #[component]
 pub fn Hero() -> Element {
     rsx! {
+        document::Link { rel: "stylesheet", href: HERO_CSS }
+
         // We can create elements inside the rsx macro with the element name followed by a block of attributes and children.
         div {
             // Attributes should be defined in the element before any children

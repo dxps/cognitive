@@ -5,7 +5,6 @@ use dioxus::prelude::*;
 // The macro returns an `Asset` type that will display as the path to the asset in the browser or a local path in desktop bundles.
 const FAVICON: Asset = asset!("/assets/favicon.ico");
 // The asset macro also minifies some assets like CSS and JS to make bundled smaller.
-const MAIN_CSS: Asset = asset!("/assets/main.css");
 const TAILWIND_CSS: Asset = asset!("/assets/tailwind.css");
 
 /// App is the main component of our app. Components are the building blocks of dioxus apps. Each component is a function
@@ -43,7 +42,6 @@ pub fn App() -> Element {
     rsx! {
         // Add a link to our favicon and main CSS file into the head of our app.
         document::Link { rel: "icon", href: FAVICON }
-        document::Link { rel: "stylesheet", href: MAIN_CSS }
         document::Link { rel: "stylesheet", href: TAILWIND_CSS }
 
         // The router component renders the route enum we defined above. It will handle synchronization of the URL

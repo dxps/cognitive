@@ -1,8 +1,13 @@
 #blog {
-  margin-top: 50px;
+	margin-top: 50px;
 }
 
 #blog a {
-  color: #ffffff;
-  margin-top: 50px;
+	color: green;
+	padding: 1px 4px;
+	border-radius: 6px;
+}
+
+#blog a:hover {
+	background-color: #e2e2e7;
 }
