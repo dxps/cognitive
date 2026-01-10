@@ -53,7 +53,7 @@ fn NavbarUserMenuDropdown(mut props: NavUserDropdownProps) -> Element {
             onclick: move |_| {
                 *props.show_dropdown.write() = false;
             },
-            div { class: "w-20 mt-14 mr-[20px] shadow-2xl w-max float-right rounded-lg",
+            div { class: "w-20 mt-14 mr-[20px] bg-(--bg-item) dark:bg-(--dark-bg-item) drop-shadow-2xl w-max float-right rounded-lg",
                 div { class: "w-max",
                     ul { class: "rounded-lg shadow-2xl py-2 border-0 max-h-96 overflow-auto dark:bg-(--dark-bg-d1)",
                         li { class: "flex items-center text-sm cursor-pointer",

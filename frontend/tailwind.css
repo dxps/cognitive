@@ -11,6 +11,7 @@
 	--bg: #f1f1f3;
 	--bg-d1: #dfe0e2;
 	--fg: #111111;
+	--fg-item: var(--color-gray-600);
 	--fg-link: var(--color-green-700);
 	--bg-item: white;
 	--bg-item-hover: #e2e2e7;
@@ -20,7 +21,7 @@
 	--dark-bg-item: #484848;
 	--dark-bg-item-hover: #191a1a;
 	--dark-fg: #dddddd;
-	--dark-fg-item: var(--color-gray-300);
+	--dark-fg-item: var(--color-gray-400);
 	--dark-fg-item-hover: orange;
 	--dark-fg-link: #b2804c;
 }

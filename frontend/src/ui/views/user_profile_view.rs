@@ -157,87 +157,88 @@ fn Security(user_account: UserAccount) -> Element {
     let mut result_ok = use_signal(|| false);
 
     rsx! {
-        div { class: "mt-8 space-y-6",
-            div { class: "flex flex-row text-sm",
-                {"Id: "}
+
+        form {
+            class: "mt-8 space-y-6",
+            onsubmit: move |e| {
+                e.prevent_default();
+                let ua = user_account.clone();
+                async move {
+                    log::debug!(
+                        ">>> [Security] Received: curr_password: {}, new_password: {}, confirm_password: {}",
+                        curr_password(), new_password(), confirm_password()
+                    );
+                    if new_password().is_empty() || new_password() != confirm_password() {
+                        result_err
+                            .set(
+                                Some(
+                                    "The new password and confirm password do not match.".into(),
+                                ),
+                            );
+                        return;
+                    }
+                    match update_user_password(ua.id.clone(), curr_password(), new_password())
+                        .await
+                    {
+                        Ok(()) => {
+                            result_err.set(None);
+                            result_ok.set(true);
+                        }
+                        Err(e) => {
+                            result_err.set(Some(e.to_string()));
+                        }
+                    }
+                }
+            },
+            div { class: "flex flex-row text-sm text-gray-500",
+                {"User id: "}
                 {user_account.id.to_string()}
             }
             div {
-                label { class: "text-sm text-gray-500 block mb-2", "Current Password" }
+                label { class: "text-sm text-gray-500 block mb-2", "Current password" }
                 input {
                     class: "w-full",
                     r#type: "password",
                     placeholder: "Enter the current password",
-                    value: "",
+                    autocomplete: false,
                     maxlength: 48,
                     oninput: move |evt| { curr_password.set(evt.value()) },
                 }
             }
             div {
-                label { class: "text-sm text-gray-500 block mb-2", "New Password" }
+                label { class: "text-sm text-gray-500 block mb-2", "New password" }
                 input {
                     class: "w-full",
                     r#type: "password",
                     placeholder: "Enter the new password",
-                    value: "",
+                    autocomplete: false,
                     maxlength: 48,
                     oninput: move |evt| { new_password.set(evt.value()) },
                 }
             }
             div {
-                label { class: "text-sm text-gray-500 block mb-2", "Confirm New Password" }
+                label { class: "text-sm text-gray-500 block mb-2", "Confirm new password" }
                 input {
                     class: "w-full",
                     r#type: "password",
                     placeholder: "Enter the new password again",
-                    value: "",
+                    autocomplete: false,
                     maxlength: 48,
                     oninput: move |evt| { confirm_password.set(evt.value()) },
                 }
             }
             div { class: "text-center my-8",
-                button {
-                    onclick: move |_| {
-                        let ua = user_account.clone();
-                        async move {
-                            log::debug!(
-                                ">>> [Security] Received: curr_password: {}, new_password: {}, confirm_password: {}",
-                                curr_password(), new_password(), confirm_password()
-                            );
-                            if new_password().is_empty() || new_password() != confirm_password() {
-                                result_err
-                                    .set(
-                                        Some(
-                                            "The new password and confirm password do not match.".into(),
-                                        ),
-                                    );
-                                return;
-                            }
-                            match update_user_password(ua.id.clone(), curr_password(), new_password())
-                                .await
-                            {
-                                Ok(()) => {
-                                    result_err.set(None);
-                                    result_ok.set(true);
-                                }
-                                Err(e) => {
-                                    result_err.set(Some(e.to_string()));
-                                }
-                            }
-                        }
-                    },
-                    "Update"
-                }
+                button { r#type: "submit", "Update" }
             }
-            // Show the result in the UI.
-            if result_err().is_some() {
-                div { class: "text-center text-red-600 my-8",
-                    span { {result_err().unwrap()} }
-                }
-            } else if result_ok() {
-                div { class: "text-center text-green-600 my-8",
-                    span { {"Successfully updated"} }
-                }
+        }
+        // Show the result in the UI.
+        if result_err().is_some() {
+            div { class: "text-center text-red-600 my-8",
+                span { {result_err().unwrap()} }
+            }
+        } else if result_ok() {
+            div { class: "text-center text-green-600 my-8",
+                span { {"Successfully updated"} }
             }
         }
     }

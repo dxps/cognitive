@@ -17,14 +17,20 @@ pub fn LogoutView() -> Element {
     rsx! {
         div { class: "flex flex-col min-h-screen",
             div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
-                div { class: "bg-[#e2e2e7] dark:bg-[#1e222d] rounded-lg p-6",
-                    div { class: "text-lg mb-6 px-2 text-center text-gray-600", "Logged out" }
+                div { class: "bg-(--bg-d1) dark:bg-(--dark-bg-d1) rounded-lg p-6 sm:min-w-[600px] sm:min-h-[200px]",
+                    div { class: "text-lg mb-6 px-2 font-medium text-center text-(--fg-item) dark:text-(--dark-fg-item)",
+                        "Logged out"
+                    }
                     div { class: "mt-4 space-y-4",
-                        div { class: "rounded-lg p-3",
-                            div { class: "px-2", "Have a great day! See you later!" }
+                        div { class: "flex justify-center rounded-lg p-3",
+                            p { class: "px-2", "Have a great day! See you later!" }
                         }
-                        div { class: "pt-8",
-                            Link { to: Route::HomeView {}, "Back to Home" }
+                        div { class: "flex justify-center",
+                            Link {
+                                class: "text-sm py-2 px-4 rounded-lg transition duration-200",
+                                to: Route::HomeView {},
+                                "Back to Home"
+                            }
                         }
                     }
                 }
