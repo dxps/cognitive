@@ -49,6 +49,7 @@
     --bg: #f1f1f3;
     --bg-d1: #dfe0e2;
     --fg: #111111;
+    --fg-link: var(--color-green-700);
     --bg-item-hover: #e2e2e7;
     --dark-bg: #383838;
     --dark-bg-d1: #2a2a2a;
@@ -513,16 +514,15 @@
     --tw-font-weight: var(--font-weight-bold);
     font-weight: var(--font-weight-bold);
   }
-  .font-semibold {
-    --tw-font-weight: var(--font-weight-semibold);
-    font-weight: var(--font-weight-semibold);
-  }
   .tracking-wide {
     --tw-tracking: var(--tracking-wide);
     letter-spacing: var(--tracking-wide);
   }
   .text-\(--fg-item\) {
     color: var(--fg-item);
+  }
+  .text-\(--fg-link\) {
+    color: var(--fg-link);
   }
   .text-gray-300 {
     color: var(--color-gray-300);

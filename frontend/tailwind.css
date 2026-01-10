@@ -11,6 +11,7 @@
 	--bg: #f1f1f3;
 	--bg-d1: #dfe0e2;
 	--fg: #111111;
+	--fg-link: var(--color-green-700);
 	--bg-item: white;
 	--bg-item-hover: #e2e2e7;
 	--dark-bg: #383838;

@@ -6,10 +6,11 @@ use shlib::{
     http_dtos::{ErrorResponse, UserPasswordUpdateRequest, UserProfileUpdateRequest},
 };
 
-const CSS_TAB_ACTIVE: &str = "rounded-lg font-semibold text-center text-sm my-1 px-4 py-2 tracking-wide cursor-pointer
-                              dark:bg-(--dark-bg-d1) dark:text-(--dark-fg-link)";
+const CSS_TAB_ACTIVE: &str = "rounded-lg text-center text-sm my-1 px-4 py-2 tracking-wide cursor-pointer
+                              text-(--fg-link) bg-(--bg-d1) hover:bg-(--bg-item-hover)
+                              dark:bg-(--dark-bg-d1) dark:text-(--dark-fg-link) dark:hover:bg-(--dark-bg-d1)";
 const CSS_TAB_INACTIVE: &str = "rounded-lg text-center text-sm hover:bg-white hover:text-lilac 
-                                dark:bg-(--dark-bg-d1) dark:hover:bg-(--dark-bg-d1) dark:hover:text-(--dark-fg-item-hover) 
+                                dark:bg-(--dark-bg-l1) dark:hover:bg-(--dark-bg-item-hover)
                                 my-1 px-4 py-2 tracking-wide cursor-pointer";
 
 #[component]
@@ -29,7 +30,7 @@ pub fn UserProfileView() -> Element {
                         {format!("{}'s Profile", user_account.username)}
                     }
                     // The tabs.
-                    ul { class: "flex gap-2 bg-(--bg-d1) dark:bg-(--dark-bg-l1) rounded-lg my-2 px-[6px] py-[1px] w-max overflow-hidden font-sans mx-auto",
+                    ul { class: "flex gap-2 bg-(--bg) dark:bg-(--dark-bg-l1) rounded-lg my-2 px-[6px] py-[1px] w-max overflow-hidden font-sans mx-auto",
                         li {
                             class: if tab_to_show() == "primary_info".to_string() { CSS_TAB_ACTIVE } else { CSS_TAB_INACTIVE },
                             onclick: move |_| tab_to_show.set("primary_info".to_string()),
