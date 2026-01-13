@@ -1,5 +1,5 @@
 use crate::infra::{
-    ServerState,
+    ApiDoc, ServerState,
     http_api::{self},
     init_auth_layer, init_session_layer,
 };
@@ -7,6 +7,8 @@ use axum::Router;
 use http::{HeaderValue, Method};
 use sqlx::{Pool, Postgres};
 use tower_http::cors::CorsLayer;
+use utoipa::OpenApi;
+use utoipa_swagger_ui::{Config, SwaggerUi};
 
 pub async fn setup_router(pg_pool: &Pool<Postgres>) -> Router<ServerState> {
     //
@@ -18,6 +20,11 @@ pub async fn setup_router(pg_pool: &Pool<Postgres>) -> Router<ServerState> {
         .allow_methods([Method::POST, Method::PUT, Method::OPTIONS])
         .allow_headers([http::header::CONTENT_TYPE, http::header::AUTHORIZATION]);
 
+    // Swagger UI at /docs and OpenAPI JSON at /api-doc/openapi.json
+    let swagger_ui = SwaggerUi::new("/docs")
+        .url("/api-doc/openapi.json", ApiDoc::openapi())
+        .config(Config::default().doc_expansion("none"));
+
     Router::new()
         .route("/auth/login", axum::routing::post(http_api::login))
         .route("/auth/logout", axum::routing::post(http_api::logout))
@@ -26,4 +33,5 @@ pub async fn setup_router(pg_pool: &Pool<Postgres>) -> Router<ServerState> {
         .layer(auth_layer)
         .layer(session_layer)
         .layer(cors_layer)
+        .merge(swagger_ui)
 }

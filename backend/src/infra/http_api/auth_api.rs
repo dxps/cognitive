@@ -6,6 +6,14 @@ use http::StatusCode;
 use log::debug;
 use shlib::http_dtos::{ErrorResponse, LoginRequest, LoginResponse};
 
+#[utoipa::path(
+    post,
+    path = "/auth/login",
+    responses(
+        (status = 200, description = "Login successful", body = LoginResponse)
+    ),
+    tag = "Auth"
+)]
 pub async fn login(
     State(state): State<ServerState>,
     session: Session<SessionPgPool>,
@@ -41,6 +49,14 @@ pub async fn login(
     Ok((StatusCode::OK, Json(response)))
 }
 
+#[utoipa::path(
+    post,
+    path = "/auth/logout",
+    responses(
+        (status = 200, description = "Logout successful")
+    ),
+    tag = "Auth"
+)]
 pub async fn logout(session: Session<SessionPgPool>) -> StatusCode {
     //
     let sid = session.get_session_id();

@@ -1,9 +1,10 @@
 use crate::domain::model::Id;
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
 /// User account contains most of the details of a user (except password related ones).
-#[derive(Debug, Default, Clone, PartialEq, Props, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, PartialEq, Props, Serialize, Deserialize, ToSchema)]
 pub struct UserAccount {
     pub id: Id,
     pub email: String,

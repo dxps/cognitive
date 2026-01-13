@@ -1,10 +1,22 @@
+use crate::infra::ServerState;
 use axum::{Json, extract::State};
 use http::StatusCode;
 use log::debug;
 use shlib::http_dtos::{ErrorResponse, UserPasswordUpdateRequest, UserProfileUpdateRequest};
 
-use crate::infra::ServerState;
-
+#[utoipa::path(
+    put,
+    path = "/user/profile",
+    request_body(
+        content = UserProfileUpdateRequest,
+        description = "User profile primary info update request",
+        content_type = "application/json"
+    ),
+    responses(
+        (status = 200, description = "User profile updated successfully")
+    ),
+    tag = "User Settings"
+)]
 pub async fn update_user_primary_info(
     State(state): State<ServerState>,
     Json(payload): Json<UserProfileUpdateRequest>,
@@ -26,6 +38,19 @@ pub async fn update_user_primary_info(
     }
 }
 
+#[utoipa::path(
+    put,
+    path = "/user/password",
+    request_body(
+        content = UserPasswordUpdateRequest,
+        description = "User profile primary info update request",
+        content_type = "application/json"
+    ),
+    responses(
+        (status = 200, description = "User password updated successfully")
+    ),
+    tag = "User Settings"
+)]
 pub async fn update_user_password(
     State(state): State<ServerState>,
     Json(payload): Json<UserPasswordUpdateRequest>,

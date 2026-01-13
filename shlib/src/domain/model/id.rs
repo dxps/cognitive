@@ -1,6 +1,8 @@
+use serde::{Deserialize, Serialize};
 use std::{fmt::Display, str::FromStr};
+use utoipa::ToSchema;
 
-#[derive(Debug, Default, Clone, Hash, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Default, Clone, Hash, Eq, PartialEq, Serialize, Deserialize, ToSchema)]
 pub struct Id(pub String);
 
 impl Id {

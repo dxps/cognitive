@@ -1,8 +1,9 @@
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
 use crate::domain::model::{Id, UserAccount};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct UserProfileUpdateRequest {
     pub id: Id,
     pub email: String,
@@ -10,7 +11,7 @@ pub struct UserProfileUpdateRequest {
     pub bio: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct UserPasswordUpdateRequest {
     pub id: Id,
     pub curr_password: String,
