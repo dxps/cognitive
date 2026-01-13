@@ -1,19 +1,10 @@
-use std::{net::SocketAddr, sync::Arc};
-
-use axum::Router;
-use http::{HeaderValue, Method};
-use shlib::{AppError, AppResult};
-use tokio::signal;
-use tower_http::cors::CorsLayer;
-
 use crate::{
     domain::logic::UserMgmt,
-    infra::{
-        ServerState, connect_to_pgdb, disconnect_from_pgdb,
-        http_api::{self},
-        init_auth_layer, init_session_layer,
-    },
+    infra::{ServerState, connect_to_pgdb, disconnect_from_pgdb, setup_router},
 };
+use shlib::{AppError, AppResult};
+use std::{net::SocketAddr, sync::Arc};
+use tokio::signal;
 
 pub fn start_web_server() {
     //
@@ -42,23 +33,7 @@ pub fn start_web_server() {
             .await
             .expect("Self registering admin user failed");
 
-        let auth_layer = init_auth_layer(&pg_pool).await;
-        let session_layer = init_session_layer(&pg_pool).await;
-        let cors_layer = CorsLayer::new()
-            // TODO: Set this to your actual frontend origin (Dioxus dev server, etc.).
-            .allow_origin(HeaderValue::from_static("http://localhost:9010"))
-            .allow_methods([Method::POST, Method::PUT, Method::OPTIONS])
-            .allow_headers([http::header::CONTENT_TYPE, http::header::AUTHORIZATION]);
-
-        let web_api_router = Router::new()
-            .route("/auth/login", axum::routing::post(http_api::login))
-            .route("/auth/logout", axum::routing::post(http_api::logout))
-            .route("/user/profile", axum::routing::put(http_api::update_user_primary_info))
-            .route("/user/password", axum::routing::put(http_api::update_user_password))
-            .layer(auth_layer)
-            .layer(session_layer)
-            .layer(cors_layer)
-            .with_state(state);
+        let web_api_router = setup_router(&pg_pool).await.with_state(state);
 
         let addr = SocketAddr::from(([127, 0, 0, 1], http_port));
         let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
@@ -68,6 +43,7 @@ pub fn start_web_server() {
             .with_graceful_shutdown(shutdown_signal())
             .await
             .unwrap();
+
         log::info!("Shutdown complete.");
         disconnect_from_pgdb(pg_pool).await;
     });
