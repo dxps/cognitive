@@ -2,7 +2,7 @@ use crate::infra::ServerState;
 use axum::{Json, extract::State};
 use http::StatusCode;
 use log::debug;
-use shlib::http_dtos::{ErrorResponse, UserPasswordUpdateRequest, UserProfileUpdateRequest};
+use shlib::http_dtos::{ErrorResponse, UserProfileUpdateRequest};
 
 #[utoipa::path(
     put,
@@ -15,7 +15,7 @@ use shlib::http_dtos::{ErrorResponse, UserPasswordUpdateRequest, UserProfileUpda
     responses(
         (status = 200, description = "User profile updated successfully")
     ),
-    tag = "User Settings"
+    tag = "User Info & Settings"
 )]
 pub async fn update_user_primary_info(
     State(state): State<ServerState>,
@@ -34,47 +34,6 @@ pub async fn update_user_primary_info(
                     error: "Internal server error".to_owned(),
                 }),
             ))
-        }
-    }
-}
-
-#[utoipa::path(
-    put,
-    path = "/user/password",
-    request_body(
-        content = UserPasswordUpdateRequest,
-        description = "User profile primary info update request",
-        content_type = "application/json"
-    ),
-    responses(
-        (status = 200, description = "User password updated successfully")
-    ),
-    tag = "User Settings"
-)]
-pub async fn update_user_password(
-    State(state): State<ServerState>,
-    Json(payload): Json<UserPasswordUpdateRequest>,
-) -> Result<StatusCode, (StatusCode, Json<ErrorResponse>)> {
-    //
-    debug!("[update_user_password] Received '{:#?}'.", payload);
-
-    match state
-        .user_mgmt
-        .update_password(&payload.id, payload.curr_password, payload.new_password)
-        .await
-    {
-        Ok(()) => Ok(StatusCode::NO_CONTENT),
-        Err(err) => {
-            debug!("[update_user_password] Error: {}", err);
-            match err {
-                shlib::AppError::Unauthorized(msg) => Err((StatusCode::UNAUTHORIZED, Json(ErrorResponse { error: msg }))),
-                _ => Err((
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    Json(ErrorResponse {
-                        error: "Internal server error".to_owned(),
-                    }),
-                )),
-            }
         }
     }
 }

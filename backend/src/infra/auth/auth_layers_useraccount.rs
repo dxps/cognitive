@@ -4,12 +4,14 @@ use axum_session::{SessionConfig, SessionLayer, SessionMode};
 use axum_session_auth::*;
 use axum_session_sqlx::{SessionPgPool, SessionPgSessionStore};
 use chrono::Duration;
+use serde::{Deserialize, Serialize};
 use shlib::domain::model::{Id, UserAccount};
 use sqlx::PgPool;
 
 pub const SESSION_NAME: &str = "Authorization";
 pub const SESSION_TABLE: &str = "user_sessions";
 pub const SESSION_MAX_LIFESPAN: Duration = Duration::days(1);
+pub const SESSION_CURRENT_USER_KEY: &str = "current_user";
 
 pub async fn init_auth_layer(pg_pool: &PgPool) -> AuthSessionLayer<AuthUserAccount, Id, SessionPgPool, PgPool> {
     let auth_config = AuthConfig::<Id>::default().with_anonymous_user_id(Some("iH26rJ8Cp".into()));
@@ -36,7 +38,7 @@ pub async fn init_session_layer(pg_pool: &PgPool) -> SessionLayer<SessionPgPool>
 
 /// To mitigate the orphan rule, we implement the traits for UserAccount here.
 /// Both `UserAccount` and `Authentication` are defined outside of this crate.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct AuthUserAccount(pub UserAccount);
 
 impl From<UserAccount> for AuthUserAccount {
@@ -64,5 +66,12 @@ impl Authentication<AuthUserAccount, Id, PgPool> for AuthUserAccount {
 
     fn is_anonymous(&self) -> bool {
         self.0.is_anonymous
+    }
+}
+
+#[async_trait]
+impl HasPermission<PgPool> for AuthUserAccount {
+    async fn has(&self, perm: &str, _pool: &Option<&PgPool>) -> bool {
+        self.0.permissions.contains(&perm.to_string())
     }
 }

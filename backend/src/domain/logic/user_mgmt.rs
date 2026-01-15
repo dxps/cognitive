@@ -1,9 +1,9 @@
+use crate::infra::{AuthUserAccount, UserRepo};
+use axum_session_auth::Rights;
 use shlib::{
     AppError, AppResult,
     domain::model::{Id, UserAccount},
 };
-
-use crate::infra::UserRepo;
 use std::sync::Arc;
 
 #[derive(Clone)]
@@ -86,5 +86,14 @@ impl UserMgmt {
         //
         let digest = md5::compute(format!("@{salt}${input_pwd}").as_bytes());
         pwd == format!("{:x}", digest)
+    }
+
+    pub async fn had_admin_permissions(&self, account: &AuthUserAccount) -> bool {
+        //
+        let method = axum::http::Method::POST;
+        axum_session_auth::Auth::<AuthUserAccount, Id, sqlx::PgPool>::build([axum::http::Method::POST], false)
+            .requires(Rights::any([Rights::permission("Admin::Read"), Rights::permission("Admin::Write")]))
+            .validate(&account, &method, None)
+            .await
     }
 }

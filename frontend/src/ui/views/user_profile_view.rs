@@ -280,7 +280,7 @@ async fn update_user_password(id: Id, curr_password: String, new_password: Strin
     };
 
     match reqwest::Client::new()
-        .put("http://localhost:9011/user/password")
+        .put("http://localhost:9011/auth/password")
         .json(&input)
         .send()
         .await
