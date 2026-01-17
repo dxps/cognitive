@@ -2,7 +2,7 @@ use crate::infra::{AuthUserAccount, UserRepo};
 use axum_session_auth::Rights;
 use shlib::{
     AppError, AppResult,
-    domain::model::{Id, UserAccount},
+    domain::model::{ADMIN_READ_PERMISSION, ADMIN_WRITE_PERMISSION, Id, UserAccount},
 };
 use std::sync::Arc;
 
@@ -88,11 +88,14 @@ impl UserMgmt {
         pwd == format!("{:x}", digest)
     }
 
-    pub async fn had_admin_permissions(&self, account: &AuthUserAccount) -> bool {
+    pub async fn is_admin(&self, account: &AuthUserAccount) -> bool {
         //
         let method = axum::http::Method::POST;
         axum_session_auth::Auth::<AuthUserAccount, Id, sqlx::PgPool>::build([axum::http::Method::POST], false)
-            .requires(Rights::any([Rights::permission("Admin::Read"), Rights::permission("Admin::Write")]))
+            .requires(Rights::any([
+                Rights::permission(ADMIN_READ_PERMISSION),
+                Rights::permission(ADMIN_WRITE_PERMISSION),
+            ]))
             .validate(&account, &method, None)
             .await
     }

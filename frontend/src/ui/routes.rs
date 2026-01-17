@@ -1,8 +1,11 @@
 use crate::ui::{
     components::Navbar,
-    views::{AdminView, Blog, HomeView, LoginView, LogoutView, UserProfileView},
+    views::{
+        AdminView, AttributeTemplateView, Blog, HomeView, LinkView, LoginView, LogoutView, ObjectTemplateView, ObjectView, UserProfileView,
+    },
 };
 use dioxus::prelude::*;
+use shlib::domain::model::Id;
 
 #[derive(Debug, Clone, Routable, PartialEq)]
 #[rustfmt::skip] 
@@ -31,4 +34,16 @@ pub enum Route {
 
         #[route("/admin")]
         AdminView {},
+
+        #[route("/objects/:id")]
+        ObjectView {id: Id},
+
+        #[route("/templates/objects/:id")]
+        ObjectTemplateView {id: Id},
+
+        #[route("/templates/attributes/:id")]
+        AttributeTemplateView {id: Id},
+
+        #[route("/links/:id")]
+        LinkView {id: Id},
 }

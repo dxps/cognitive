@@ -1,4 +1,4 @@
-use crate::domain::model::Id;
+use crate::domain::model::{ADMIN_READ_PERMISSION, ADMIN_WRITE_PERMISSION, Id};
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
@@ -12,6 +12,14 @@ pub struct UserAccount {
     pub bio: String,
     pub is_anonymous: bool,
     pub permissions: Vec<String>,
+}
+
+impl UserAccount {
+    pub fn is_admin(&self) -> bool {
+        self.permissions
+            .iter()
+            .all(|p| p.starts_with(ADMIN_READ_PERMISSION) || p.starts_with(ADMIN_WRITE_PERMISSION))
+    }
 }
 
 #[derive(Debug)]

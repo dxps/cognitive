@@ -77,11 +77,11 @@ pub async fn logout(session: Session<SessionPgPool>) -> StatusCode {
     ),
     tag = "Auth"
 )]
-pub async fn has_admin_permissions(State(state): State<ServerState>, session: Session<SessionPgPool>) -> StatusCode {
+pub async fn is_admin(State(state): State<ServerState>, session: Session<SessionPgPool>) -> StatusCode {
     //
     if let Some(curr_account) = session.get::<AuthUserAccount>(SESSION_CURRENT_USER_KEY) {
         // Let's check permissions only and not worry about if the user is anonymous or not.
-        if state.user_mgmt.had_admin_permissions(&curr_account).await {
+        if state.user_mgmt.is_admin(&curr_account).await {
             return StatusCode::OK;
         }
     }

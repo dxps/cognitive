@@ -20,4 +20,17 @@ mod logout_view;
 pub use logout_view::*;
 
 mod user_profile_view;
+
 pub use user_profile_view::*;
+
+mod obj_view;
+pub use obj_view::*;
+
+mod obj_tmpl_view;
+pub use obj_tmpl_view::*;
+
+mod attr_tmpl_view;
+pub use attr_tmpl_view::*;
+
+mod link_view;
+pub use link_view::*;

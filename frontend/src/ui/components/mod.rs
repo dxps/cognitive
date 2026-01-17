@@ -16,3 +16,6 @@ pub use echo::Echo;
 
 mod icons;
 pub use icons::*;
+
+mod modals;
+pub use modals::*;

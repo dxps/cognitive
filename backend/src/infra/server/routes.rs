@@ -28,7 +28,7 @@ pub async fn setup_router(pg_pool: &Pool<Postgres>) -> Router<ServerState> {
     Router::new()
         .route("/auth/login", axum::routing::post(http_api::login))
         .route("/auth/logout", axum::routing::post(http_api::logout))
-        .route("/auth/is_admin", axum::routing::get(http_api::has_admin_permissions))
+        .route("/auth/is_admin", axum::routing::get(http_api::is_admin))
         .route("/auth/password", axum::routing::put(http_api::update_user_password))
         .route("/user/profile", axum::routing::put(http_api::update_user_primary_info))
         .layer(auth_layer)
