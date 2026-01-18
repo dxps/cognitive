@@ -18,10 +18,11 @@ pub fn App() -> Element {
             let mut state = STATE.write();
 
             let stored_state = UiState::load().await;
-            debug!("Loaded state from local store: {:?}", stored_state);
+            debug!(">>> [App] Loaded state from local store: {:?}", stored_state);
             match stored_state {
                 Ok(stored_state) => {
                     state.is_light_theme = stored_state.is_light_theme;
+                    state.session = stored_state.session;
                     state.user = stored_state.user;
                     if stored_state.is_light_theme {
                         _ = document::eval(&format!("document.documentElement.removeAttribute('class');",));
@@ -35,6 +36,8 @@ pub fn App() -> Element {
             }
 
             state.is_ready = true;
+
+            debug!(">>> [App] UI State inited: {:#?}", *state);
         });
     });
 

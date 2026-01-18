@@ -22,14 +22,15 @@ pub struct UiState {
 impl UiState {
     pub async fn load() -> Result<Self, AppError> {
         load_ui_state().await.map_err(|e: ServerFnError| {
-            error!("Failed to load ui state: {}", e);
+            error!(">>> [UiState::load] Failed to load ui state: {}", e);
             AppError::InternalErr(e.to_string())
         })
     }
 
     pub async fn save(&self) {
+        debug!(">>> [UiState::save] Saving ui state '{:#?}' ...", self);
         if let Err(e) = save_ui_state(self.clone()).await {
-            error!("Failed to save ui state: {}", e);
+            error!(">>> [UiState::save] Failed to save ui state: '{}'.", e);
         };
     }
 }
