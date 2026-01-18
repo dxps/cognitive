@@ -36,8 +36,6 @@ pub fn App() -> Element {
             }
 
             state.is_ready = true;
-
-            debug!(">>> [App] UI State inited: {:#?}", *state);
         });
     });
 

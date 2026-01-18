@@ -1,7 +1,8 @@
 use crate::ui::{
     components::Navbar,
     views::{
-        AdminView, AttributeTemplateView, Blog, HomeView, LinkView, LoginView, LogoutView, ObjectTemplateView, ObjectView, UserProfileView,
+        AttributeTemplateView, Blog, DataMgmtView, HomeView, LinkView, LoginView, LogoutView, ObjectTemplateView, ObjectView,
+        UserProfileView,
     },
 };
 use dioxus::prelude::*;
@@ -32,8 +33,8 @@ pub enum Route {
         #[route("/user-profile")]
         UserProfileView {},
 
-        #[route("/admin")]
-        AdminView {},
+        #[route("/mgmt/data")]
+        DataMgmtView {},
 
         #[route("/objects/:id")]
         ObjectView {id: Id},

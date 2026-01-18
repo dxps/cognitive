@@ -1,5 +1,5 @@
 use crate::ui::components::icons::{hamburger_icon, logout_icon, user_icon};
-use crate::ui::components::toggle_theme_icon;
+use crate::ui::components::{data_mgmt_icon, toggle_theme_icon};
 use crate::ui::{Route, STATE};
 use dioxus::prelude::*;
 
@@ -46,7 +46,7 @@ struct NavUserDropdownProps {
 fn NavbarUserMenuDropdown(mut props: NavUserDropdownProps) -> Element {
     //
     let show_dropdown = props.show_dropdown;
-
+    let is_admin = STATE.read().user.as_ref().map_or(false, |user| user.is_admin());
     rsx! {
         div {
             "style": "width: 100%; min-height: 100dvh; z-index: 1000; padding: 0; position: absolute; top: 0; left: 0",
@@ -98,6 +98,16 @@ fn NavbarUserMenuDropdown(mut props: NavUserDropdownProps) -> Element {
                                             "  My profile"
                                         }
                                     }
+                                    if is_admin {
+                                        li { class: "flex items-center text-sm cursor-pointer",
+                                            Link { class: "py-2.5 px-5 min-w-full flex", to: Route::DataMgmtView {},
+                                                div { class: "mr-3 mt-0.5", dangerous_inner_html: data_mgmt_icon() }
+                                                "  Data Mgmt"
+                                            }
+                                        }
+                                    }
+
+            
                                     li { class: "flex items-center text-sm cursor-pointer",
                                         Link { class: "py-2.5 px-5 min-w-full flex", to: Route::LogoutView {},
                                             div { class: "mr-3 mt-0.5", dangerous_inner_html: logout_icon() }

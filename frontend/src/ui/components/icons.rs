@@ -47,8 +47,8 @@ pub fn user_icon() -> String {
 
 pub fn admin_icon() -> String {
     r#"
-    <svg fill="\#000000" class="w-4 h-4" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" 
-    xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve">
+    <svg fill="currentColor" class="w-4 h-4" viewBox="0 0 512 512" version="1.1" 
+    id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve">
         <g>
             <g>
                 <path d="M235.082,392.745c-5.771,0-10.449,4.678-10.449,10.449v4.678c0,5.771,4.678,10.449,10.449,10.449
@@ -109,6 +109,59 @@ pub fn logout_icon() -> String {
                2.663 2.657 2.657 0 0 0 2.645-2.663c0-.812-.363-1.542-.936-2.03a.265.266 0 0 0-.17-.066z"
             data-original="\#000000"></path>
     </svg>
+    "#
+    .to_string()
+}
+
+pub fn data_mgmt_icon() -> String {
+    r#"
+<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-4 h-4"
+  viewBox="4.4 3.2 14.4 15.2"
+  role="img"
+  aria-labelledby="dataManagementTitle"
+>
+  <title id="dataManagementTitle">Data management</title>
+  <g
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <!-- Database (narrow stacked cylinder) -->
+    <ellipse cx="10" cy="6" rx="5" ry="2.2" />
+    <path d="M5 9.5c0 1.2 2.24 2.2 5 2.2s5-1 5-2.2" />
+    <path d="M5 13c0 1.2 2.24 2.2 5 2.2" />
+    <path d="M5 6v7" />
+    <path d="M15 6v3.5" />
+
+    <!-- Gear -->
+    <g transform="translate(15.5 15)">
+      <path
+        d="
+          M0 -2.6
+          L0.5 -1.8
+          L1.5 -1.7
+          L1.8 -0.8
+          L2.6 0
+          L1.8 0.8
+          L1.5 1.7
+          L0.5 1.8
+          L0 2.6
+          L-0.5 1.8
+          L-1.5 1.7
+          L-1.8 0.8
+          L-2.6 0
+          L-1.8 -0.8
+          L-1.5 -1.7
+          L-0.5 -1.8
+          Z
+        "
+      />
+      <circle cx="0" cy="0" r="0.9" />
+    </g>
+  </g>
+</svg>
     "#
     .to_string()
 }

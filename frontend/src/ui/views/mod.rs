@@ -10,8 +10,8 @@ pub use home_view::HomeView;
 mod blog_view;
 pub use blog_view::Blog;
 
-mod admin_view;
-pub use admin_view::*;
+mod data_mgmt_view;
+pub use data_mgmt_view::*;
 
 mod login_view;
 pub use login_view::*;

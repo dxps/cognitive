@@ -102,7 +102,9 @@ async fn handle_login(email: String, password: String, wrong_creds: &mut Signal<
                     wrong_creds.set(false);
                     state.session = Some(rsp.session);
                     state.user = rsp.user;
-                    // Persist the state to local store.
+                    // Persist the state to local store:
+                    // - on Web, it's the front-end's dedicated service (not the back-end).
+                    // - on Mobile, it's also the front-end's dedicated service that runs on the mobile device.
                     state.save().await;
                     nav.push(Route::HomeView {});
                 }

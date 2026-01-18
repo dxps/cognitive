@@ -1,6 +1,5 @@
-use dioxus::prelude::*;
-
 use crate::ui::{Route, STATE};
+use dioxus::prelude::*;
 
 #[component]
 pub fn LogoutView() -> Element {

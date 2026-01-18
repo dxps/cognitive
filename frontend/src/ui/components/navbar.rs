@@ -12,6 +12,7 @@ pub fn Navbar() -> Element {
 }
 
 fn render() -> Element {
+    let is_admin = STATE.read().user.as_ref().map_or(false, |user| user.is_admin());
     rsx! {
         nav { class: "absolute w-full px-4 py-2 flex justify-between items-center z-40",
             Link {
@@ -35,6 +36,16 @@ fn render() -> Element {
                         class: "text-sm py-2 px-4 rounded-lg transition duration-200",
                         to: Route::Blog { id: 1 },
                         "Blog"
+                    }
+                }
+                if is_admin {
+                    NavSep {}
+                    li {
+                        Link {
+                            class: "text-sm py-2 px-4 rounded-lg transition duration-200",
+                            to: Route::DataMgmtView {},
+                            "Data Mgmt"
+                        }
                     }
                 }
             }
