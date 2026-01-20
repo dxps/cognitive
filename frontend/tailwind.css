@@ -24,6 +24,8 @@
 	--dark-fg-item: var(--color-gray-400);
 	--dark-fg-item-hover: orange;
 	--dark-fg-link: #b2804c;
+	--text-xl: 1.1rem;
+	--nav-height: 30px;
 }
 
 /* 
@@ -53,8 +55,8 @@
 	[type='submit'],
 	[type='reset'] {
 		@apply inline-flex items-center justify-center gap-2 cursor-pointer
-      border-0 rounded-md px-4 py-2 text-sm font-medium 
-      bg-white text-gray-800 hover:bg-green-200
+      border-0 rounded-md px-4 py-1 text-sm font-medium 
+      bg-gray-100 text-gray-800 hover:bg-green-200
       dark:bg-(--dark-bg-item) dark:text-(--dark-fg-item) 
       dark:hover:bg-(--dark-bg-item-hover) dark:hover:text-(--dark-fg-item-hover)
       dark:focus:bg-(--dark-bg-item-hover) dark:focus:text-(--dark-fg-item-hover)

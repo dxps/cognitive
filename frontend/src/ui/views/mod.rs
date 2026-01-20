@@ -7,9 +7,6 @@
 mod home_view;
 pub use home_view::HomeView;
 
-mod blog_view;
-pub use blog_view::Blog;
-
 mod data_mgmt_view;
 pub use data_mgmt_view::*;
 

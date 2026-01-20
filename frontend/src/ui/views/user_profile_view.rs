@@ -6,12 +6,12 @@ use shlib::{
     http_dtos::{ErrorResponse, UserPasswordUpdateRequest, UserProfileUpdateRequest},
 };
 
-const CSS_TAB_ACTIVE: &str = "rounded-lg text-center text-sm my-1 px-4 py-2 tracking-wide cursor-pointer
-                              text-(--fg-link) bg-(--bg-d1) hover:bg-(--bg-item-hover)
+const CSS_TAB_ACTIVE: &str = "rounded-lg text-center text-sm my-1 px-4 py-1 tracking-wide cursor-pointer
+                              text-(--fg-link) bg-white hover:bg-(--bg-item-hover)
                               dark:bg-(--dark-bg-d1) dark:text-(--dark-fg-link) dark:hover:bg-(--dark-bg-d1)";
 const CSS_TAB_INACTIVE: &str = "rounded-lg text-center text-sm hover:bg-white hover:text-lilac 
                                 dark:bg-(--dark-bg-l1) dark:hover:bg-(--dark-bg-item-hover)
-                                my-1 px-4 py-2 tracking-wide cursor-pointer";
+                                my-1 px-4 py-1 tracking-wide cursor-pointer";
 
 #[component]
 pub fn UserProfileView() -> Element {
@@ -23,14 +23,14 @@ pub fn UserProfileView() -> Element {
     let mut tab_to_show = use_signal(|| "primary_info".to_string());
 
     rsx! {
-        div { class: "flex flex-col min-h-screen",
-            div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
-                div { class: "bg-(--bg-d1) dark:bg-(--dark-bg-d1) rounded-lg p-6 sm:min-w-[600px] sm:min-h-[600px]",
+        div { class: "pt-[var(--nav-height)] min-h-[calc(100vh-var(--nav-height))] flex",
+            div { class: "flex flex-col grow justify-center items-center py-6 drop-shadow-2xl",
+                div { class: "bg-white dark:bg-(--dark-bg-d1) rounded-lg p-4 sm:min-w-[600px] sm:min-h-[560px]",
                     h1 { class: "text-xl text-center text-(--fg-item) dark:text-(--dark-fg-item)",
                         {format!("{}'s Profile", user_account.username)}
                     }
                     // The tabs.
-                    ul { class: "flex gap-2 bg-(--bg) dark:bg-(--dark-bg-l1) rounded-lg my-2 px-[6px] py-[1px] w-max overflow-hidden font-sans mx-auto",
+                    ul { class: "flex gap-2 bg-(--bg) dark:bg-(--dark-bg-l1) rounded-lg my-2 px-[6px] w-max overflow-hidden mx-auto",
                         li {
                             class: if tab_to_show() == "primary_info".to_string() { CSS_TAB_ACTIVE } else { CSS_TAB_INACTIVE },
                             onclick: move |_| tab_to_show.set("primary_info".to_string()),

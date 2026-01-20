@@ -14,7 +14,7 @@ pub fn Navbar() -> Element {
 fn render() -> Element {
     let is_admin = STATE.read().user.as_ref().map_or(false, |user| user.is_admin());
     rsx! {
-        nav { class: "absolute w-full px-4 py-2 flex justify-between items-center z-40",
+        nav { class: "fixed top-0 w-full px-4 py-1 flex justify-between items-center z-40 bg-(--bg) dark:bg-(--dark-bg)",
             Link {
                 class: "text-3xl font-bold leading-none",
                 to: Route::HomeView {},
@@ -30,14 +30,6 @@ fn render() -> Element {
                         "Home"
                     }
                 }
-                NavSep {}
-                li {
-                    Link {
-                        class: "text-sm py-2 px-4 rounded-lg transition duration-200",
-                        to: Route::Blog { id: 1 },
-                        "Blog"
-                    }
-                }
                 if is_admin {
                     NavSep {}
                     li {
@@ -51,7 +43,7 @@ fn render() -> Element {
             }
             NavbarMenu {}
         }
-        div { class: "pt-14", Outlet::<Route> {} }
+        Outlet::<Route> {}
     }
 }
 
@@ -75,7 +67,7 @@ const LOGO: Asset = asset!("/assets/logo.png");
 fn Logo() -> Element {
     rsx! {
         div {
-            img { src: LOGO, alt: "logo", class: "h-8" }
+            img { src: LOGO, alt: "logo", class: "h-7" }
         }
     }
 }

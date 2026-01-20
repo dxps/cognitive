@@ -6,8 +6,9 @@ use dioxus::prelude::*;
 //
 // When the server function is called from the client, it will just serialize the arguments,
 // call the API, and deserialize the response.
-#[post("/api/echo")]
-pub async fn echo_server(input: String) -> Result<String> {
+
+#[post("/api/db-info")]
+pub async fn fe_db_info() -> Result<String> {
     // The body of server function like this comment are only included on the server. If you have
     // any server-only logic like database queries, you can put it here. Any imports
     // for the server function should either be imported inside the function
@@ -20,9 +21,8 @@ pub async fn echo_server(input: String) -> Result<String> {
         use rusqlite::params;
 
         f.query_row("SELECT sqlite_version();", params![], |row| row.get::<_, String>(0))
-            .map_err(|e| format!("Failed to get SQLite version: '{}'.", e))
+            .map_err(|e| format!("Failed to get sqlite version: '{}'.", e))
     });
-    info!("[echo] sqlite version: {:?}", version.unwrap_or_default());
 
-    Ok(input)
+    Ok(format!("[echo] sqlite version: {:?}", version.unwrap_or_default()))
 }

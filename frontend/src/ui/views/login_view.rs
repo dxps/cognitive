@@ -12,9 +12,9 @@ pub fn LoginView() -> Element {
     let nav = use_navigator();
 
     rsx! {
-        div { class: "flex flex-col min-h-screen",
-            div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
-                div { class: "bg-(--bg-d1) dark:bg-(--dark-bg-d1) rounded-lg p-6 sm:min-w-[600px] sm:min-h-[200px]",
+        div { class: "pt-[var(--nav-height)] min-h-[calc(100vh-var(--nav-height))] flex",
+            div { class: "flex flex-col grow justify-center items-center py-3 drop-shadow-2xl",
+                div { class: "bg-white dark:bg-(--dark-bg-d1) rounded-lg p-6 sm:min-w-[600px] sm:min-h-[200px]",
                     div { class: "text-xl mb-6 px-2 text-center text-(--fg-item) dark:text-(--dark-fg-item)",
                         "Login to your account"
                     }
@@ -69,7 +69,7 @@ pub fn LoginView() -> Element {
                         }
                         div { class: "text-center my-8",
                             button {
-                                class: "drop-shadow-sm px-4 py-2 rounded-md",
+                                class: "rounded-md",
                                 r#type: "submit",
                                 name: "loginBtn",
                                 "Login"

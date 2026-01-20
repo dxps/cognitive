@@ -8,12 +8,6 @@ pub use navbar::*;
 mod navbar_menu;
 pub use navbar_menu::*;
 
-mod hero;
-pub use hero::Hero;
-
-mod echo;
-pub use echo::Echo;
-
 mod icons;
 pub use icons::*;
 
