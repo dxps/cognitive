@@ -34,7 +34,7 @@ pub fn LoginView() -> Element {
                             }
                             input {
                                 class: "px-3 py-2 rounded-lg outline-none",
-                                name: "email",
+                                id: "email",
                                 r#type: "email",
                                 value: "{email}",
                                 autocomplete: "email",
@@ -55,7 +55,7 @@ pub fn LoginView() -> Element {
                             }
                             input {
                                 class: "px-3 py-2 rounded-lg outline-none",
-                                name: "password",
+                                id: "password",
                                 r#type: "password",
                                 value: "{password}",
                                 autocomplete: false,
@@ -71,6 +71,7 @@ pub fn LoginView() -> Element {
                             button {
                                 class: "drop-shadow-sm px-4 py-2 rounded-md",
                                 r#type: "submit",
+                                name: "loginBtn",
                                 "Login"
                             }
                         }

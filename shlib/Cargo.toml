@@ -11,10 +11,10 @@ edition = "2024"
 [dependencies]
 ##############
 
-anyhow = { version = "=1.0.100" }
-dioxus = { version = "=0.7.2" }
+anyhow    = { version = "=1.0.100" }
+dioxus    = { version = "=0.7.3" }
 thiserror = { version = "=2.0.18" }
-serde = { version = "1.0.228" }
-utoipa = { version = "5.4.0" }
-strum = { version = "=0.27.2", features = ["derive"] }
+serde     = { version = "=1.0.228" }
+utoipa    = { version = "=5.4.0" }
+strum     = { version = "=0.27.2", features = ["derive"] }
 

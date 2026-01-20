@@ -24,7 +24,7 @@ axum = { version = "=0.8.8", features = [ "macros", "json" ] }
 axum_session = { version = "=0.17.1", features = [ "rest_mode" ] }
 axum_session_auth = { version = "=0.17.0" }
 axum_session_sqlx = { version = "=0.6.1", features = [ "postgres" ] }
-chrono = { version = "=0.4.42" }
+chrono = { version = "=0.4.43" }
 dotenvy = { version = "=0.15.7" }
 fastrand = { version = "=2.3.0" }
 http = { version = "=1.4.0" }
