@@ -9,6 +9,7 @@ use shlib::{
 use sqlx::{PgPool, Row, postgres::PgRow};
 use std::sync::Arc;
 
+/// Repository for user accounts.
 pub struct UserRepo {
     dbcp: Arc<PgPool>,
 }

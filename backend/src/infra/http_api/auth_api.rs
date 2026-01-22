@@ -20,7 +20,7 @@ pub async fn login(
     Json(payload): Json<LoginRequest>,
 ) -> Result<(StatusCode, Json<LoginResponse>), (StatusCode, Json<ErrorResponse>)> {
     //
-    debug!("Received login request '{:?}'.", payload);
+    debug!("[login] Received '{:?}'.", payload);
 
     let user_account = state
         .user_mgmt

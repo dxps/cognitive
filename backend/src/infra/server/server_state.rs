@@ -1,13 +1,16 @@
+use crate::{
+    domain::logic::{AttributeTemplateMgmt, UserMgmt},
+    infra::{AttributeTemplateRepo, UserRepo},
+};
 use axum::extract::{FromRef, FromRequestParts};
 use http::{StatusCode, request::Parts};
 use sqlx::PgPool;
 use std::sync::Arc;
 
-use crate::{domain::logic::UserMgmt, infra::UserRepo};
-
 #[derive(Clone)]
 pub struct ServerState {
     pub user_mgmt: Arc<UserMgmt>,
+    pub attr_tmpl_mgmt: Arc<AttributeTemplateMgmt>,
 }
 
 impl ServerState {
@@ -15,8 +18,10 @@ impl ServerState {
         //
         let users_repo = Arc::new(UserRepo::new(db_pool.clone()));
         let user_mgmt = Arc::new(UserMgmt::new(users_repo));
+        let attr_tmpl_repo = Arc::new(AttributeTemplateRepo::new(db_pool.clone()));
+        let attr_tmpl_mgmt = Arc::new(AttributeTemplateMgmt::new(attr_tmpl_repo));
 
-        Self { user_mgmt }
+        Self { user_mgmt, attr_tmpl_mgmt }
     }
 }
 

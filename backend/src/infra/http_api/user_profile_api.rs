@@ -22,12 +22,12 @@ pub async fn update_user_primary_info(
     Json(payload): Json<UserProfileUpdateRequest>,
 ) -> Result<StatusCode, (StatusCode, Json<ErrorResponse>)> {
     //
-    debug!("[save_user_profile_primary_info] Received payload='{:#?}'.", payload);
+    debug!("[update_user_primary_info] Received payload='{:#?}'.", payload);
 
     match state.user_mgmt.update_user_account(payload.into()).await {
         Ok(()) => Ok(StatusCode::NO_CONTENT),
         Err(err) => {
-            debug!("[save_user_profile_primary_info] Error: {}", err);
+            debug!("[update_user_primary_info] Error: {}", err);
             Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(ErrorResponse {
