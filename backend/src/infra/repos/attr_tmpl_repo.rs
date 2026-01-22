@@ -18,44 +18,56 @@ impl AttributeTemplateRepo {
         Self { dbcp }
     }
 
-    pub async fn get(&self, id: &Id) -> Option<AttributeTemplate> {
+    pub async fn get(&self, id: &Id) -> AppResult<Option<AttributeTemplate>> {
         //
-        let item = sqlx::query_as::<_, AttributeTemplatePg>(
-            "SELECT id, name, description, value_type, default_value, required, tag_id 
-             FROM attribute_defs WHERE id = $1",
+        let rs = sqlx::query_as::<_, AttributeTemplatePg>(
+            "SELECT id, name, description, value_type, default_value, required
+             FROM attribute_tmpls WHERE id = $1",
         )
         .bind(id.as_str())
         .fetch_one(self.dbcp.as_ref())
-        .await
-        .ok();
+        .await;
+        let item = match rs {
+            Err(e) => {
+                log::error!("Failed to get attribute template '{}'. Reason: '{}'.", id.as_str(), e);
+                None
+            }
+            Ok(record) => Some(record.into()),
+        };
 
-        item.map(|r| r.into())
+        Ok(item)
     }
 
-    pub async fn list(&self, pagination_opts: Option<&Pagination>) -> Vec<AttributeTemplate> {
+    pub async fn list(&self, pagination_opts: Option<&Pagination>) -> AppResult<Vec<AttributeTemplate>> {
         //
         let (offset, limit) = Pagination::from(pagination_opts).get_offset_limit();
         let query = format!(
-            "SELECT id, name, description, value_type, default_value, required, tag_id 
-             FROM attribute_defs ORDER BY name LIMIT {limit} OFFSET {offset}"
+            "SELECT id, name, description, value_type, default_value, required
+             FROM attribute_tmpls ORDER BY name LIMIT {limit} OFFSET {offset}"
         );
         log::debug!("Listing attribute defs w/ limit: {}, offset: {}.", limit, offset);
-
-        let items = sqlx::query_as::<_, AttributeTemplatePg>(query.as_str())
+        let rs = sqlx::query_as::<_, AttributeTemplatePg>(query.as_str())
             .fetch_all(self.dbcp.as_ref())
-            .await
-            .ok()
-            .unwrap_or_default();
+            .await;
 
-        items.into_iter().map(|r| r.into()).collect()
+        match rs {
+            Err(e) => {
+                log::error!("Failed to list attribute templates. Reason: '{}'.", e);
+                AppResult::Err(e.to_string().into())
+            }
+            Ok(records) => {
+                let items = records.into_iter().map(|r| r.into()).collect();
+                Ok(items)
+            }
+        }
     }
 
     /// Add a new attribute template. It returns the id of the repository entry.
     pub async fn add(&self, item: &AttributeTemplate) -> AppResult<()> {
         //
         sqlx::query(
-            "INSERT INTO attribute_defs (id, name, description, value_type, default_value, required, tag_id)
-             VALUES ($1, $2, $3, $4, $5, $6, $7)",
+            "INSERT INTO attribute_tmpls (id, name, description, value_type, default_value, required)
+             VALUES ($1, $2, $3, $4, $5, $6)",
         )
         .bind(&item.id.as_str())
         .bind(&item.name)
@@ -71,7 +83,7 @@ impl AttributeTemplateRepo {
                 AppError::NameDescriptionNotUnique
             } else {
                 log::error!("Failed to add attribute template. Reason: '{}'.", e);
-                AppError::Err("An internal error occurred.".into())
+                AppError::InternalErrEmpty
             }
         })?
     }
@@ -80,7 +92,7 @@ impl AttributeTemplateRepo {
     pub async fn update(&self, item: &AttributeTemplate) -> AppResult<()> {
         //
         sqlx::query(
-            "UPDATE attribute_defs 
+            "UPDATE attribute_tmpls 
              SET name=$2, description=$3, value_type=$4, default_value=$5, required=$6
              WHERE id = $1",
         )
@@ -98,7 +110,7 @@ impl AttributeTemplateRepo {
                 AppError::NameDescriptionNotUnique
             } else {
                 log::error!("Failed to update attribute template. Reason: '{}'.", e);
-                AppError::Err("An internal error occurred.".into())
+                AppError::InternalErrEmpty
             }
         })?
     }
@@ -117,13 +129,13 @@ impl AttributeTemplateRepo {
                     if let Some(db_err_code) = db_err.code() {
                         if db_err_code.as_ref() == PG_FK_VIOLATION_CODE {
                             return AppResult::Err(AppError::Err(
-                                "Cannot delete attribute template because it is included in the following entity templates:".to_string(),
+                                "Cannot delete attribute template because it is included in the entity template(s).".to_string(),
                             ));
                         }
                     }
                 }
-                log::error!("Failed to delete entry: {}", e);
-                AppResult::Err(AppError::InternalErr("An internal error occurred.".into()))
+                log::error!("Failed to delete attribute template. Reason: '{}'.", e);
+                AppResult::Err(AppError::InternalErrEmpty)
             }
         }
     }

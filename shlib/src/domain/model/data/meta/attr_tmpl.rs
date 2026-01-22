@@ -1,8 +1,9 @@
 use crate::domain::model::{AttributeValueType, Id};
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
 /// The template for an attribute.
-#[derive(Debug, Default, PartialEq, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, PartialEq, Clone, Serialize, Deserialize, ToSchema)]
 pub struct AttributeTemplate {
     pub id: Id,
     pub name: String,

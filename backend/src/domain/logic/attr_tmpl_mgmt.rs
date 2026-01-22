@@ -16,12 +16,12 @@ impl AttributeTemplateMgmt {
         Self { repo }
     }
 
-    pub async fn get(&self, id: &Id) -> Option<AttributeTemplate> {
+    pub async fn get(&self, id: &Id) -> AppResult<Option<AttributeTemplate>> {
         //
         self.repo.get(id).await
     }
 
-    pub async fn list(&self) -> Vec<AttributeTemplate> {
+    pub async fn list(&self) -> AppResult<Vec<AttributeTemplate>> {
         //
         self.repo.list(None).await
     }

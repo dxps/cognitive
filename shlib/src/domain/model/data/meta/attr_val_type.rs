@@ -1,8 +1,9 @@
 use serde::{Deserialize, Serialize};
 use strum::Display;
+use utoipa::ToSchema;
 
 /// The type of the value of an attribute.
-#[derive(Debug, Default, PartialEq, Clone, Display, Serialize, Deserialize)]
+#[derive(Debug, Default, PartialEq, Clone, Display, Serialize, Deserialize, ToSchema)]
 pub enum AttributeValueType {
     //
     /// This is mapped to PostgreSQL's `TEXT` data type.
