@@ -3,7 +3,7 @@ use crate::infra::{
     http_api::{self},
     init_auth_layer, init_session_layer,
 };
-use axum::Router;
+use axum::{Router, routing::*};
 use http::{HeaderValue, Method};
 use sqlx::{Pool, Postgres};
 use tower_http::cors::CorsLayer;
@@ -23,15 +23,17 @@ pub async fn setup_router(pg_pool: &Pool<Postgres>) -> Router<ServerState> {
     // Swagger UI at /docs and OpenAPI JSON at /api-doc/openapi.json
     let swagger_ui = SwaggerUi::new("/docs")
         .url("/api-doc/openapi.json", ApiDoc::openapi())
-        .config(Config::default().doc_expansion("none"));
+        .config(Config::default().doc_expansion("none").display_request_duration(true));
 
     Router::new()
-        .route("/auth/login", axum::routing::post(http_api::login))
-        .route("/auth/logout", axum::routing::post(http_api::logout))
-        .route("/auth/is_admin", axum::routing::get(http_api::is_admin))
-        .route("/auth/password", axum::routing::put(http_api::update_user_password))
-        .route("/user/profile", axum::routing::put(http_api::update_user_primary_info))
-        .route("/data/templates/attributes", axum::routing::get(http_api::list_attribute_templates))
+        .route("/auth/login", post(http_api::login))
+        .route("/auth/logout", post(http_api::logout))
+        .route("/auth/is_admin", get(http_api::is_admin))
+        .route("/auth/password", put(http_api::update_user_password))
+        .route("/user/profile", put(http_api::update_user_primary_info))
+        .route("/data/templates/attributes", get(http_api::list_attribute_templates))
+        .route("/data/templates/attributes", post(http_api::add_attribute_template))
+        .route("/data/templates/attributes/{id}", delete(http_api::remove_attribute_template))
         .layer(auth_layer)
         .layer(session_layer)
         .layer(cors_layer)
