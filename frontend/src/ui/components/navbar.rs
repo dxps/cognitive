@@ -35,8 +35,8 @@ fn render() -> Element {
                     li {
                         Link {
                             class: "text-sm py-2 px-4 rounded-lg transition duration-200",
-                            to: Route::DataMgmtView {},
-                            "Data Mgmt"
+                            to: Route::DataView {},
+                            "Data"
                         }
                     }
                 }

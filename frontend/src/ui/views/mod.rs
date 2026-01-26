@@ -7,8 +7,8 @@
 mod home_view;
 pub use home_view::HomeView;
 
-mod data_mgmt_view;
-pub use data_mgmt_view::*;
+mod data_view;
+pub use data_view::*;
 
 mod login_view;
 pub use login_view::*;
@@ -25,6 +25,9 @@ pub use obj_view::*;
 
 mod obj_tmpl_view;
 pub use obj_tmpl_view::*;
+
+mod attr_tmpls_list_view;
+pub use attr_tmpls_list_view::*;
 
 mod attr_tmpl_view;
 pub use attr_tmpl_view::*;

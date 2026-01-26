@@ -1,7 +1,8 @@
 use crate::ui::{
     components::Navbar,
     views::{
-        AttributeTemplateView, DataMgmtView, HomeView, LinkView, LoginView, LogoutView, ObjectTemplateView, ObjectView, UserProfileView,
+        AttributeTemplateView, AttributeTemplatesListView, DataView, HomeView, LinkView, LoginView, LogoutView, ObjectTemplateView,
+        ObjectView, UserProfileView,
     },
 };
 use dioxus::prelude::*;
@@ -25,21 +26,24 @@ pub enum Route {
         #[route("/user-profile")]
         UserProfileView {},
 
-        #[route("/mgmt/data")]
-        DataMgmtView {},
+        #[route("/data")]
+        DataView {},
+
+        #[route("/data/templates/attributes")]
+        AttributeTemplatesListView {},
 
         // The route attribute can include dynamic parameters that implement [`std::str::FromStr`] and [`std::fmt::Display`] 
         // with the `:` syntax. In this case, id will match any integer like `/templates/attributes/123`.
-        #[route("/templates/attributes/:id")]
+        #[route("/data/templates/attributes/:id")]
         AttributeTemplateView {id: Id},
 
-        #[route("/objects/:id")]
+        #[route("/data/objects/:id")]
         ObjectView {id: Id},
 
-        #[route("/templates/objects/:id")]
+        #[route("/data/templates/objects/:id")]
         ObjectTemplateView {id: Id},
 
-        #[route("/links/:id")]
+        #[route("/data/links/:id")]
         LinkView {id: Id},
 
 }

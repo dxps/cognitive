@@ -47,7 +47,7 @@ pub async fn list_attribute_templates(
         content_type = "application/json"
     ),
     responses(
-        (status = 200, description = "The attribute template was added successfully.", body = [AttributeTemplate])
+        (status = 201, description = "The attribute template was added successfully.", body = [AttributeTemplate])
     ),
     tag = "Attribute Templates"
 )]

@@ -100,9 +100,9 @@ fn NavbarUserMenuDropdown(mut props: NavUserDropdownProps) -> Element {
                                     }
                                     if is_admin {
                                         li { class: "flex items-center text-sm cursor-pointer",
-                                            Link { class: "py-2.5 px-5 min-w-full flex", to: Route::DataMgmtView {},
+                                            Link { class: "py-2.5 px-5 min-w-full flex", to: Route::DataView {},
                                                 div { class: "mr-3 mt-0.5", dangerous_inner_html: data_mgmt_icon() }
-                                                "  Data Mgmt"
+                                                "  Data"
                                             }
                                         }
                                     }

@@ -1,7 +1,10 @@
 use crate::be::{load_ui_state, save_ui_state};
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
-use shlib::{AppError, domain::model::UserAccount};
+use shlib::{
+    AppError,
+    domain::model::{AttributeTemplate, UserAccount},
+};
 
 /// The global state of the UI.
 pub static STATE: GlobalSignal<UiState> = GlobalSignal::new(|| UiState::default());
@@ -17,6 +20,9 @@ pub struct UiState {
     pub session: Option<String>,
 
     pub user: Option<UserAccount>,
+
+    #[serde(skip)]
+    pub attr_tmpls_cache: Vec<AttributeTemplate>,
 }
 
 impl UiState {
