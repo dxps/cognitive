@@ -16,3 +16,6 @@ pub use modals::*;
 
 mod card;
 pub use card::*;
+
+mod metamodel;
+pub use metamodel::*;

@@ -29,6 +29,9 @@ pub use obj_tmpl_view::*;
 mod attr_tmpls_list_view;
 pub use attr_tmpls_list_view::*;
 
+mod attr_tmpl_new_view;
+pub use attr_tmpl_new_view::*;
+
 mod attr_tmpl_view;
 pub use attr_tmpl_view::*;
 

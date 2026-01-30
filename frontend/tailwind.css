@@ -65,16 +65,17 @@
 	}
 
 	/* Text inputs */
-	input:not([type='checkbox']):not([type='radio']),
+	/* input:not([type='checkbox']):not([type='radio']), */
+	input,
 	textarea,
 	select {
 		@apply w-full rounded-md border border-slate-300 bg-white
-      px-3 py-2 text-sm outline-none 
-      dark:bg-(--dark-bg-item) dark:text-(--dark-fg-item) dark:border-black
-      focus:border-green-300 focus:ring-1 focus:ring-green-300
-      dark:focus:border-orange-300 dark:focus:ring-1 dark:focus:ring-orange-300
-      placeholder:text-slate-400
-      disabled:bg-slate-100 disabled:text-slate-500;
+        px-3 py-2 text-sm outline-none 
+        dark:bg-(--dark-bg-item) dark:text-(--dark-fg-item) dark:border-black
+        focus:border-green-300 focus:ring-1 focus:ring-green-300
+        dark:focus:border-orange-300 dark:focus:ring-1 dark:focus:ring-orange-300
+        placeholder:text-slate-400
+        disabled:bg-slate-100 disabled:text-slate-500;
 	}
 
 	/* Optional: checkbox/radio baseline */
