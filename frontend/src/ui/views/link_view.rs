@@ -1,4 +1,4 @@
-use crate::ui::{Route, STATE};
+use crate::ui::{Route, STATE, components::Card};
 use dioxus::prelude::*;
 use shlib::domain::model::{Id, UserAccount};
 
@@ -9,16 +9,18 @@ pub fn LinkView(id: Id) -> Element {
         use_navigator().push(Route::LoginView {});
         UserAccount::default()
     });
+    if !user_account.is_admin() {
+        use_navigator().push(Route::HomeView {});
+    }
 
     rsx! {
-        div { class: "flex flex-col min-h-screen",
-            div { class: "flex flex-col min-h-screen justify-center items-center drop-shadow-2xl",
-                div { class: "bg-(--bg-d1) dark:bg-(--dark-bg-d1) rounded-lg p-6 sm:min-w-[600px] sm:min-h-[600px]",
-                    h1 { class: "text-xl text-center text-(--fg-item) dark:text-(--dark-fg-item)",
-                        "Link View"
-                    }
-                }
-            }
+        Card {
+            header: rsx! {
+                h1 { class: "text-xl text-center text-(--fg-item) dark:text-(--dark-fg-item)", "Link View" }
+            },
+            content: rsx! {
+                div {}
+            },
         }
     }
 }

@@ -13,3 +13,6 @@ pub use icons::*;
 
 mod modals;
 pub use modals::*;
+
+mod card;
+pub use card::*;

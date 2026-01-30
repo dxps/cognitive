@@ -1,4 +1,4 @@
-use crate::ui::{Route, STATE};
+use crate::ui::{Route, STATE, components::Card};
 use dioxus::prelude::*;
 
 #[component]
@@ -14,26 +14,26 @@ pub fn LogoutView() -> Element {
     });
 
     rsx! {
-        div { class: "pt-[var(--nav-height)] min-h-[calc(100vh-var(--nav-height))] flex",
-            div { class: "flex flex-col grow justify-center items-center py-6 drop-shadow-2xl",
-                div { class: "bg-white dark:bg-(--dark-bg-d1) rounded-lg p-6 sm:min-w-[600px] sm:min-h-[200px]",
-                    div { class: "text-lg mb-6 px-2 font-medium text-center text-(--fg-item) dark:text-(--dark-fg-item)",
-                        "Logged out"
+        Card {
+            header: rsx! {
+                div { class: "text-lg mb-6 px-2 font-medium text-center text-(--fg-item) dark:text-(--dark-fg-item)",
+                    "Logged out"
+                }
+            },
+            content: rsx! {
+                div { class: "mt-4 space-y-4",
+                    div { class: "flex justify-center rounded-lg p-3",
+                        p { class: "px-2", "Have a great day! See you later!" }
                     }
-                    div { class: "mt-4 space-y-4",
-                        div { class: "flex justify-center rounded-lg p-3",
-                            p { class: "px-2", "Have a great day! See you later!" }
-                        }
-                        div { class: "flex justify-center",
-                            Link {
-                                class: "text-sm py-2 px-4 rounded-lg transition duration-200",
-                                to: Route::HomeView {},
-                                "Back to Home"
-                            }
+                    div { class: "flex justify-center",
+                        Link {
+                            class: "text-sm py-2 px-4 rounded-lg transition duration-200",
+                            to: Route::HomeView {},
+                            "Back to Home"
                         }
                     }
                 }
-            }
+            },
         }
     }
 }

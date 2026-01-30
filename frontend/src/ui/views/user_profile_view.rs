@@ -1,4 +1,4 @@
-use crate::ui::{Route, STATE};
+use crate::ui::{Route, STATE, components::Card};
 use dioxus::prelude::*;
 use shlib::{
     AppError, AppResult,
@@ -23,32 +23,33 @@ pub fn UserProfileView() -> Element {
     let mut tab_to_show = use_signal(|| "primary_info".to_string());
 
     rsx! {
-        div { class: "pt-[var(--nav-height)] min-h-[calc(100vh-var(--nav-height))] flex",
-            div { class: "flex flex-col grow justify-center items-center py-6 drop-shadow-2xl",
-                div { class: "bg-white dark:bg-(--dark-bg-d1) rounded-lg p-4 sm:min-w-[600px] sm:min-h-[560px]",
-                    h1 { class: "text-xl text-center text-(--fg-item) dark:text-(--dark-fg-item)",
-                        {format!("{}'s Profile", user_account.username)}
+        Card {
+            header: rsx! {
+                h1 { class: "text-xl text-center text-(--fg-item) dark:text-(--dark-fg-item)",
+                    {format!("{}'s Profile", user_account.username)}
+                }
+            },
+            content: rsx! {
+
+                // The tabs.
+                ul { class: "flex gap-2 bg-(--bg) dark:bg-(--dark-bg-l1) rounded-lg my-2 px-[6px] w-max overflow-hidden mx-auto",
+                    li {
+                        class: if tab_to_show() == "primary_info".to_string() { CSS_TAB_ACTIVE } else { CSS_TAB_INACTIVE },
+                        onclick: move |_| tab_to_show.set("primary_info".to_string()),
+                        "Primary Info"
                     }
-                    // The tabs.
-                    ul { class: "flex gap-2 bg-(--bg) dark:bg-(--dark-bg-l1) rounded-lg my-2 px-[6px] w-max overflow-hidden mx-auto",
-                        li {
-                            class: if tab_to_show() == "primary_info".to_string() { CSS_TAB_ACTIVE } else { CSS_TAB_INACTIVE },
-                            onclick: move |_| tab_to_show.set("primary_info".to_string()),
-                            "Primary Info"
-                        }
-                        li {
-                            class: if tab_to_show() == "security".to_string() { CSS_TAB_ACTIVE } else { CSS_TAB_INACTIVE },
-                            onclick: move |_| tab_to_show.set("security".to_string()),
-                            "Security"
-                        }
-                    }
-                    if tab_to_show() == "primary_info".to_string() {
-                        PrimaryInfo { user_account }
-                    } else if tab_to_show() == "security".to_string() {
-                        Security { user_account }
+                    li {
+                        class: if tab_to_show() == "security".to_string() { CSS_TAB_ACTIVE } else { CSS_TAB_INACTIVE },
+                        onclick: move |_| tab_to_show.set("security".to_string()),
+                        "Security"
                     }
                 }
-            }
+                if tab_to_show() == "primary_info".to_string() {
+                    PrimaryInfo { user_account }
+                } else if tab_to_show() == "security".to_string() {
+                    Security { user_account }
+                }
+            },
         }
     }
 }

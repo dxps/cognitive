@@ -1,4 +1,4 @@
-use crate::ui::{Route, STATE};
+use crate::ui::{Route, STATE, components::Card};
 use dioxus::{prelude::*, router::Navigator};
 use shlib::http_dtos::{LoginRequest, LoginResponse};
 
@@ -12,72 +12,60 @@ pub fn LoginView() -> Element {
     let nav = use_navigator();
 
     rsx! {
-        div { class: "pt-[var(--nav-height)] min-h-[calc(100vh-var(--nav-height))] flex",
-            div { class: "flex flex-col grow justify-center items-center py-3 drop-shadow-2xl",
-                div { class: "bg-white dark:bg-(--dark-bg-d1) rounded-lg p-6 sm:min-w-[600px] sm:min-h-[200px]",
-                    div { class: "text-xl mb-6 px-2 text-center text-(--fg-item) dark:text-(--dark-fg-item)",
-                        "Login to your account"
+        Card {
+            header: rsx! {
+                div { class: "text-xl mb-6 px-2 text-center text-(--fg-item) dark:text-(--dark-fg-item)",
+                    "Login to your account"
+                }
+            },
+            content: rsx! {
+
+                form {
+                    class: "mt-4 space-y-4",
+                    onsubmit: move |e| {
+                        e.prevent_default();
+                        async move {
+                            handle_login(email(), password(), &mut wrong_creds, &nav).await;
+                        }
+                    },
+                    div {
+                        label { class: "text-sm text-gray-500 block mb-2", r#for: "email", "Email" }
+                        input {
+                            class: "px-3 py-2 rounded-lg outline-none",
+                            id: "email",
+                            r#type: "email",
+                            value: "{email}",
+                            autocomplete: "email",
+                            oninput: move |evt| {
+                                email.set(evt.value());
+                            },
+                            onmounted: move |evt| async move {
+                                // UX: Focus the email input.
+                                _ = evt.set_focus(true).await;
+                            },
+                        }
                     }
-                    form {
-                        class: "mt-4 space-y-4",
-                        onsubmit: move |e| {
-                            e.prevent_default();
-                            async move {
-                                handle_login(email(), password(), &mut wrong_creds, &nav).await;
-                            }
-                        },
-                        div {
-                            label {
-                                class: "text-sm text-gray-500 block mb-2",
-                                r#for: "email",
-                                "Email"
-                            }
-                            input {
-                                class: "px-3 py-2 rounded-lg outline-none",
-                                id: "email",
-                                r#type: "email",
-                                value: "{email}",
-                                autocomplete: "email",
-                                oninput: move |evt| {
-                                    email.set(evt.value());
-                                },
-                                onmounted: move |evt| async move {
-                                    // UX: Focus the email input.
-                                    _ = evt.set_focus(true).await;
-                                },
-                            }
+                    div {
+                        label { class: "text-sm text-gray-500 block mb-2", r#for: "password", "Password" }
+                        input {
+                            class: "px-3 py-2 rounded-lg outline-none",
+                            id: "password",
+                            r#type: "password",
+                            value: "{password}",
+                            autocomplete: false,
+                            oninput: move |e| {
+                                password.set(e.value());
+                            },
                         }
-                        div {
-                            label {
-                                class: "text-sm text-gray-500 block mb-2",
-                                r#for: "password",
-                                "Password"
-                            }
-                            input {
-                                class: "px-3 py-2 rounded-lg outline-none",
-                                id: "password",
-                                r#type: "password",
-                                value: "{password}",
-                                autocomplete: false,
-                                oninput: move |e| {
-                                    password.set(e.value());
-                                },
-                            }
-                        }
-                        div { class: "text-center text-red-600 my-8",
-                            span { class: if !wrong_creds() { "hidden" }, "Wrong credentials" }
-                        }
-                        div { class: "text-center my-8",
-                            button {
-                                class: "rounded-md",
-                                r#type: "submit",
-                                name: "loginBtn",
-                                "Login"
-                            }
-                        }
+                    }
+                    div { class: "text-center text-red-600 my-8",
+                        span { class: if !wrong_creds() { "hidden" }, "Wrong credentials" }
+                    }
+                    div { class: "text-center my-8",
+                        button { class: "rounded-md", r#type: "submit", name: "loginBtn", "Login" }
                     }
                 }
-            }
+            },
         }
     }
 }

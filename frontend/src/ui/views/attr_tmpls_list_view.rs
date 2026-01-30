@@ -1,4 +1,4 @@
-use crate::ui::{Route, STATE};
+use crate::ui::{Route, STATE, components::Card};
 use dioxus::prelude::*;
 use shlib::domain::model::{AttributeTemplate, UserAccount};
 
@@ -30,64 +30,63 @@ pub fn AttributeTemplatesListView() -> Element {
     });
 
     rsx! {
-        div { class: "pt-[var(--nav-height)] min-h-[calc(100vh-var(--nav-height))] flex",
-            div { class: "flex flex-col grow justify-center items-center py-6 drop-shadow-2xl",
-                div { class: "bg-white dark:bg-(--dark-bg-d1) rounded-lg p-4 sm:min-w-[600px] sm:min-h-[500px]",
-                    h1 { class: "text-xl text-center text-(--fg-item) dark:text-(--dark-fg-item)",
-                        "Attribute Templates"
+        Card {
+            header: rsx! {
+                h1 { class: "text-xl text-center text-(--fg-item) dark:text-(--dark-fg-item)",
+                    "Templates for Attributes"
+                }
+            },
+            content: rsx! {
+                table { class: "w-full mt-8 mb-4 text-sm text-left rounded-lg overflow-hidden",
+                    thead { class: "text-xs text-(--fg-item) bg-(--bg) dark:text-(--dark-fg-item) dark:bg-(--dark-bg-l1)",
+                        tr {
+                            td { class: "px-2 py-2", "name" }
+                            td { class: "px-2 py-2", "description" }
+                        }
                     }
-
-                    table { class: "w-full mt-8 mb-4 text-sm text-left rounded-lg overflow-hidden",
-                        thead { class: "text-xs text-(--fg-item) bg-(--bg) dark:text-(--dark-fg-item) dark:bg-(--dark-bg-l1)",
-                            tr {
-                                td { class: "px-2 py-2", "name" }
-                                td { class: "px-2 py-2", "description" }
-                            }
-                        }
-                        tbody {
-                            {
-                                entries
-                                    .iter()
-                                    .map(|attr_tmpl| {
-                                        let id = attr_tmpl.id.clone();
-                                        rsx! {
-                                            tr {
-                                                key: "{attr_tmpl.id}",
-                                                onclick: move |_| {
-                                                    use_navigator()
-                                                        .push(Route::AttributeTemplateView {
-                                                            id: id.clone(),
-                                                        });
-                                                },
-                                                class: "hover:bg-gray-100 font-medium text-(--fg-item) hover:text-(--fg-link) hover:bg(--bg-item-hover) dark:text-(--dark-fg-item) dark:hover:bg-(--dark-bg-item-hover) dark:hover:text-(--dark-fg-item-hover) cursor-pointer",
-                                                td { class: "px-2 py-2", "{attr_tmpl.name}" }
-                                                td { class: "px-2 py-2", "{attr_tmpl.description.as_deref().unwrap_or_default()}" }
-                                            }
+                    tbody {
+                        {
+                            entries
+                                .iter()
+                                .map(|attr_tmpl| {
+                                    let id = attr_tmpl.id.clone();
+                                    rsx! {
+                                        tr {
+                                            key: "{attr_tmpl.id}",
+                                            onclick: move |_| {
+                                                use_navigator()
+                                                    .push(Route::AttributeTemplateView {
+                                                        id: id.clone(),
+                                                    });
+                                            },
+                                            class: "hover:bg-gray-100 font-medium text-(--fg-item) hover:text-(--fg-link) hover:bg(--bg-item-hover) dark:text-(--dark-fg-item) dark:hover:bg-(--dark-bg-item-hover) dark:hover:text-(--dark-fg-item-hover) cursor-pointer",
+                                            td { class: "px-2 py-2", "{attr_tmpl.name}" }
+                                            td { class: "px-2 py-2", "{attr_tmpl.description.as_deref().unwrap_or_default()}" }
                                         }
-                                    })
-                            }
-                            if entries.is_empty() {
-                                tr {
-                                    td { class: "py-4", colspan: "2", " " }
-                                }
+                                    }
+                                })
+                        }
+                        if entries.is_empty() {
+                            tr {
+                                td { class: "py-4", colspan: "2", " " }
                             }
                         }
-                        tfoot {
-                            tr {
-                                td {
-                                    class: "px-2 py-2 text-xs text-right text-(--fg-item) bg-(--bg) dark:text-(--dark-fg-item) dark:bg-(--dark-bg-l1)",
-                                    colspan: "2",
-                                    if entries.len() == 1 {
-                                        "1 entry"
-                                    } else {
-                                        "{entries.len()} entries"
-                                    }
+                    }
+                    tfoot {
+                        tr {
+                            td {
+                                class: "px-2 py-2 text-xs text-right text-(--fg-item) bg-(--bg) dark:text-(--dark-fg-item) dark:bg-(--dark-bg-l1)",
+                                colspan: "2",
+                                if entries.len() == 1 {
+                                    "1 entry"
+                                } else {
+                                    "{entries.len()} entries"
                                 }
                             }
                         }
                     }
                 }
-            }
+            },
         }
     }
 }
