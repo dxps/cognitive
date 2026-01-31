@@ -75,7 +75,55 @@ pub async fn add_attribute_template(
 }
 
 #[utoipa::path(
-    post,
+    get,
+    path = "/data/templates/attributes/{id}",
+    description = "Update an attribute templates.",
+    params(
+        ("id" = String, Path, description = "ID of the attribute template to update")
+    ),
+    request_body(
+        content = AttributeTemplate,
+        description = "The attribute template to update.",
+        content_type = "application/json"
+    ),
+    responses(
+        (status = 200, description = "The attribute template was updated successfully.", body = [AttributeTemplate])
+    ),
+    tag = "Attribute Templates"
+)]
+pub async fn get_attribute_template(
+    State(state): State<ServerState>,
+    Path(id): Path<Id>,
+) -> Result<(StatusCode, Json<AttributeTemplate>), (StatusCode, Json<ErrorResponse>)> {
+    //
+    let res = state.attr_tmpl_mgmt.get(&id).await;
+    match res {
+        Ok(item) => {
+            if let Some(attr_tmpl) = item {
+                Ok((StatusCode::OK, Json(attr_tmpl)))
+            } else {
+                Err((
+                    StatusCode::NOT_FOUND,
+                    Json(ErrorResponse {
+                        error: "Attribute template not found".to_owned(),
+                    }),
+                ))
+            }
+        }
+        Err(e) => {
+            log::error!("Failed to get attribute template. Reason: '{}'.", e);
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(ErrorResponse {
+                    error: "Internal server error".to_owned(),
+                }),
+            ));
+        }
+    }
+}
+
+#[utoipa::path(
+    put,
     path = "/data/templates/attributes/{id}",
     description = "Update an attribute templates.",
     params(
@@ -93,7 +141,7 @@ pub async fn add_attribute_template(
 )]
 pub async fn update_attribute_template(
     State(state): State<ServerState>,
-    Json(mut attr_tmpl): Json<AttributeTemplate>,
+    Json(attr_tmpl): Json<AttributeTemplate>,
 ) -> Result<(StatusCode, Json<AttributeTemplate>), (StatusCode, Json<ErrorResponse>)> {
     //
     let id_result = state.attr_tmpl_mgmt.update(&attr_tmpl).await;

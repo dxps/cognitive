@@ -50,7 +50,7 @@ pub fn AttributeTemplateForm(props: AttrTemplateFormProps) -> Element {
                     class: "min-w-80",
                     rows: 4,
                     cols: 32,
-                    placeholder: "an optional description",
+                    placeholder: if action == "Create" { "an optional description" } else { "" },
                     value: "{description}",
                     maxlength: 256,
                     readonly: is_view,
@@ -104,7 +104,7 @@ pub fn AttributeTemplateForm(props: AttrTemplateFormProps) -> Element {
                     input {
                         class: "min-w-80",
                         r#type: "text",
-                        placeholder: "an optional default value",
+                        placeholder: if action == "Create" { "an optional default value" } else { "" },
                         value: "{default_value()}",
                         maxlength: 64,
                         readonly: is_view,

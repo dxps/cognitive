@@ -6,7 +6,10 @@ use crate::{
     },
 };
 use dioxus::prelude::*;
-use shlib::domain::model::{AttributeTemplate, AttributeValueType, Id, UserAccount};
+use shlib::{
+    AppResult,
+    domain::model::{AttributeTemplate, AttributeValueType, Id, UserAccount},
+};
 
 #[component]
 pub fn AttributeTemplateView(id: Id) -> Element {
@@ -19,14 +22,28 @@ pub fn AttributeTemplateView(id: Id) -> Element {
         use_navigator().push(Route::HomeView {});
     }
 
-    let name = use_signal(|| "".to_string());
-    let description = use_signal(|| "".to_string());
-    let value_type = use_signal(|| "text".to_string());
-    let default_value = use_signal(|| "".to_string());
-    let is_required = use_signal(|| false);
+    let mut name = use_signal(|| "".to_string());
+    let mut description = use_signal(|| "".to_string());
+    let mut value_type = use_signal(|| "text".to_string());
+    let mut default_value = use_signal(|| "".to_string());
+    let mut is_required = use_signal(|| false);
 
     let create_btn_disabled = use_memo(move || name().is_empty());
     let err: Signal<Option<String>> = use_signal(|| None);
+
+    let iid = id.clone();
+    use_future(move || {
+        let iid = id.clone();
+        async move {
+            if let Ok(Some(item)) = get(iid.clone()).await {
+                name.set(item.name.clone());
+                description.set(item.description.clone().unwrap_or_default());
+                value_type.set(item.value_type.to_string());
+                default_value.set(item.default_value.clone());
+                is_required.set(item.is_required);
+            }
+        }
+    });
 
     rsx! {
         Card {
@@ -41,14 +58,15 @@ pub fn AttributeTemplateView(id: Id) -> Element {
                         value_type,
                         default_value,
                         is_required,
-                        action: Action::Create,
+                        action: Action::View,
                     }
                     div { class: "grid justify-items-end mt-8",
                         button {
                             disabled: create_btn_disabled(),
                             onclick: move |_| {
+                                let id = iid.clone();
                                 handle_update(
-                                    id.clone(),
+                                    id,
                                     name(),
                                     description(),
                                     value_type(),
@@ -57,11 +75,34 @@ pub fn AttributeTemplateView(id: Id) -> Element {
                                     err,
                                 )
                             },
-                            "Create"
+                            "Edit"
                         }
                     }
                 }
             },
+        }
+    }
+}
+
+async fn get(id: Id) -> AppResult<Option<AttributeTemplate>> {
+    //
+    if let Some(item) = STATE.read().attr_tmpls_cache.get(&id).cloned() {
+        Ok(Some(item))
+    } else {
+        match reqwest::Client::new()
+            .get(format!("http://localhost:9011/data/templates/attributes/{}", id))
+            .send()
+            .await
+        {
+            Ok(rsp) => {
+                if rsp.status() == reqwest::StatusCode::OK {
+                    if let Ok(attr_tmpl) = rsp.json::<AttributeTemplate>().await {
+                        return Ok(Some(attr_tmpl));
+                    }
+                }
+                Ok(None)
+            }
+            Err(e) => AppResult::Err(e.to_string().into()),
         }
     }
 }

@@ -33,6 +33,7 @@ pub async fn setup_router(pg_pool: &Pool<Postgres>) -> Router<ServerState> {
         .route("/user/profile", put(http_api::update_user_primary_info))
         .route("/data/templates/attributes", get(http_api::list_attribute_templates))
         .route("/data/templates/attributes", post(http_api::add_attribute_template))
+        .route("/data/templates/attributes/{id}", get(http_api::get_attribute_template))
         .route("/data/templates/attributes/{id}", put(http_api::update_attribute_template))
         .route("/data/templates/attributes/{id}", delete(http_api::remove_attribute_template))
         .layer(auth_layer)
