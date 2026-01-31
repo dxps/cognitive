@@ -26,14 +26,13 @@ pub fn AttributeTemplateNewView() -> Element {
     let is_required = use_signal(|| false);
 
     let create_btn_disabled = use_memo(move || name().is_empty());
-    let mut err: Signal<Option<String>> = use_signal(|| None);
-    let mut action_done = use_signal(|| false);
+    let err: Signal<Option<String>> = use_signal(|| None);
 
     rsx! {
         Card {
             header: rsx! {
                 h1 { class: "text-xl text-center text-(--fg-item) dark:text-(--dark-fg-item)",
-                    "New Template for an Attribute"
+                    "New Attribute Template"
                 }
             },
             content: rsx! {
@@ -50,11 +49,15 @@ pub fn AttributeTemplateNewView() -> Element {
                         button {
                             disabled: create_btn_disabled(),
                             onclick: move |_| {
-                                handle_add(name(), description(), value_type(), default_value(), is_required())
+                                handle_add(
+                                    name(),
+                                    description(),
+                                    value_type(),
+                                    default_value(),
+                                    is_required(),
+                                    err,
+                                )
                             },
-                            if action_done() {
-                                "Close"
-                            }
                             "Create"
                         }
                     }
@@ -64,7 +67,14 @@ pub fn AttributeTemplateNewView() -> Element {
     }
 }
 
-async fn handle_add(name: String, description: String, value_type: String, default_value: String, is_required: bool) {
+async fn handle_add(
+    name: String,
+    description: String,
+    value_type: String,
+    default_value: String,
+    is_required: bool,
+    mut err: Signal<Option<String>>,
+) {
     //
     let item = AttributeTemplate {
         id: Id::default(),
@@ -83,14 +93,19 @@ async fn handle_add(name: String, description: String, value_type: String, defau
         Ok(rsp) => {
             if rsp.status() == reqwest::StatusCode::CREATED {
                 if let Ok(attr_tmpl) = rsp.json::<AttributeTemplate>().await {
-                    use_navigator().push(Route::AttributeTemplateView { id: attr_tmpl.id });
+                    STATE.write().attr_tmpls_cache.insert(attr_tmpl.id.clone(), attr_tmpl);
+                    use_navigator().push(Route::AttributeTemplatesListView {});
                 }
             } else {
-                error!("Failed to add attribute template. Reason: '{}'.", rsp.status());
+                let msg = format!("Failed to add attribute template. Got HTTP status: {}", rsp.status());
+                error!(msg);
+                err.set(Some(msg));
             }
         }
         Err(e) => {
-            error!("Failed to send request to add attribute template. Reason: '{}'.", e);
+            let msg = format!("Failed to add attribute template. Reason: {}", e);
+            error!(msg);
+            err.set(Some(msg));
         }
     }
 }

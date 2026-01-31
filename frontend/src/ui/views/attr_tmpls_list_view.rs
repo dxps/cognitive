@@ -14,7 +14,7 @@ pub fn AttributeTemplatesListView() -> Element {
         use_navigator().push(Route::HomeView {});
     }
 
-    let mut entries = use_signal::<Vec<AttributeTemplate>>(|| state.attr_tmpls_cache.clone());
+    let mut entries = use_signal::<Vec<AttributeTemplate>>(|| state.attr_tmpls_cache.values().cloned().collect());
 
     let attr_tmpls_not_fetched = state.attr_tmpls_cache.is_empty();
     log::info!(">>> [AttributeTemplatesListView] attr_tmpls_not_fetched={}", attr_tmpls_not_fetched);
@@ -23,7 +23,11 @@ pub fn AttributeTemplatesListView() -> Element {
         if attr_tmpls_not_fetched {
             spawn(async move {
                 let fetched_entries = fetch_attribute_templates().await;
-                STATE.write().attr_tmpls_cache = fetched_entries.clone();
+                let cache = &mut STATE.write().attr_tmpls_cache;
+                cache.clear();
+                fetched_entries.iter().for_each(|attr_tmpl| {
+                    cache.insert(attr_tmpl.id.clone(), attr_tmpl.clone());
+                });
                 entries.set(fetched_entries);
             });
         }

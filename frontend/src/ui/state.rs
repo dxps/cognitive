@@ -1,9 +1,10 @@
 use crate::be::{load_ui_state, save_ui_state};
 use dioxus::prelude::*;
+use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use shlib::{
     AppError,
-    domain::model::{AttributeTemplate, UserAccount},
+    domain::model::{AttributeTemplate, Id, UserAccount},
 };
 
 /// The global state of the UI.
@@ -22,7 +23,7 @@ pub struct UiState {
     pub user: Option<UserAccount>,
 
     #[serde(skip)]
-    pub attr_tmpls_cache: Vec<AttributeTemplate>,
+    pub attr_tmpls_cache: IndexMap<Id, AttributeTemplate>,
 }
 
 impl UiState {
