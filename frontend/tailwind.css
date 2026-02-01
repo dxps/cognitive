@@ -82,7 +82,7 @@
 	/* Optional: checkbox/radio baseline */
 	input[type='checkbox'],
 	input[type='radio'] {
-		@apply size-4 align-middle accent-sky-600;
+		@apply size-4 align-middle accent-green-600 dark:accent-orange-400;
 	}
 }
 

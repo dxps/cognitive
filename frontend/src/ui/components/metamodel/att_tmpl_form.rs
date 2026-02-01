@@ -1,3 +1,4 @@
+use crate::model::Action;
 use dioxus::prelude::*;
 
 #[derive(Props, PartialEq, Clone, Debug)]
@@ -7,7 +8,7 @@ pub struct AttrTemplateFormProps {
     pub value_type: Signal<String>,
     pub default_value: Signal<String>,
     pub is_required: Signal<bool>,
-    pub action: String,
+    pub action: Signal<Action>,
 }
 
 #[component]
@@ -22,8 +23,14 @@ pub fn AttributeTemplateForm(props: AttrTemplateFormProps) -> Element {
         action,
     } = props;
 
-    let is_view = action == "View";
-    let is_edit = action == "Edit";
+    let is_view = action() == Action::View;
+    let is_create = action() == Action::Create;
+    let is_edit = action() == Action::Edit;
+
+    info!(
+        "action: {:?}, is_view: {}, is_create: {}, is_edit: {}",
+        action, is_view, is_create, is_edit
+    );
 
     rsx! {
         div { class: "mt-8 space-y-4",
@@ -50,7 +57,7 @@ pub fn AttributeTemplateForm(props: AttrTemplateFormProps) -> Element {
                     class: "min-w-80",
                     rows: 4,
                     cols: 32,
-                    placeholder: if action == "Create" { "an optional description" } else { "" },
+                    placeholder: if is_create { "an optional description" } else { "" },
                     value: "{description}",
                     maxlength: 256,
                     readonly: is_view,
@@ -87,10 +94,10 @@ pub fn AttributeTemplateForm(props: AttrTemplateFormProps) -> Element {
                         "Timestamp"
                     }
                 }
-                if action == "Edit" {
+                if is_edit {
                     div { class: "group flex relative",
                         span { class: "flex text-xs text-gray-400 hover:text-gray-600 cursor-pointer pl-2 items-center",
-                            "🛈"
+                            "ⓘ"
                         }
                         span { class: "group-hover:opacity-100 transition-opacity bg-gray-500 px-1 text-sm text-white rounded-md opacity-0 m-8 py-2 mx-auto absolute right-0 w-48 text-center",
                             "The value type cannot be changed."
@@ -98,13 +105,17 @@ pub fn AttributeTemplateForm(props: AttrTemplateFormProps) -> Element {
                     }
                 }
             }
-            div { class: "flex py-2",
-                label { class: "pr-3 py-1 min-w-28 text-gray-500", "Default Value" }
+            div { class: "flex items-center",
+                label {
+                    class: "pr-3 py-1 min-w-28 text-gray-500",
+                    r#for: "default_value",
+                    "Default Value"
+                }
                 if value_type() != "boolean" {
                     input {
                         class: "min-w-80",
                         r#type: "text",
-                        placeholder: if action == "Create" { "an optional default value" } else { "" },
+                        id: "default_value",
                         value: "{default_value()}",
                         maxlength: 64,
                         readonly: is_view,
@@ -126,7 +137,7 @@ pub fn AttributeTemplateForm(props: AttrTemplateFormProps) -> Element {
             div { class: "flex items-center",
                 label {
                     class: "pr-3 py-1 min-w-28 text-gray-500",
-                    cursor: if is_edit { "pointer" } else { "default" },
+                    cursor: if !is_edit { "pointer" } else { "default" },
                     r#for: "is_required",
                     onclick: move |_| {
                         if is_edit {
@@ -146,6 +157,7 @@ pub fn AttributeTemplateForm(props: AttrTemplateFormProps) -> Element {
                             is_required.set(evt.value().parse().unwrap_or_default());
                         }
                     },
+
                 }
             }
         }

@@ -24,6 +24,7 @@ pub fn AttributeTemplateNewView() -> Element {
     let value_type = use_signal(|| "text".to_string());
     let default_value = use_signal(|| "".to_string());
     let is_required = use_signal(|| false);
+    let action = use_signal(|| Action::Create);
 
     let create_btn_disabled = use_memo(move || name().is_empty());
     let err: Signal<Option<String>> = use_signal(|| None);
@@ -43,7 +44,7 @@ pub fn AttributeTemplateNewView() -> Element {
                         value_type,
                         default_value,
                         is_required,
-                        action: Action::Create,
+                        action,
                     }
                     div { class: "grid justify-items-end mt-8",
                         button {

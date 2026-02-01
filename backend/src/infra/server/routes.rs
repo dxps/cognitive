@@ -17,7 +17,7 @@ pub async fn setup_router(pg_pool: &Pool<Postgres>) -> Router<ServerState> {
     let cors_layer = CorsLayer::new()
         // TODO: Set this to your actual frontend origin (Dioxus dev server, etc.).
         .allow_origin(HeaderValue::from_static("http://localhost:9010"))
-        .allow_methods([Method::POST, Method::PUT, Method::OPTIONS])
+        .allow_methods([Method::OPTIONS, Method::POST, Method::PUT, Method::DELETE, Method::GET])
         .allow_headers([http::header::CONTENT_TYPE, http::header::AUTHORIZATION]);
 
     // Swagger UI at /docs and OpenAPI JSON at /api-doc/openapi.json

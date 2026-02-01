@@ -28,10 +28,13 @@ pub fn AttributeTemplateView(id: Id) -> Element {
     let mut default_value = use_signal(|| "".to_string());
     let mut is_required = use_signal(|| false);
 
-    let create_btn_disabled = use_memo(move || name().is_empty());
+    let action = use_signal(|| Action::View);
+    let do_action_disabled = use_memo(move || name().is_empty());
     let err: Signal<Option<String>> = use_signal(|| None);
 
-    let iid = id.clone();
+    let did = id.clone(); // id to delete
+    let eid = id.clone(); // id to edit
+
     use_future(move || {
         let iid = id.clone();
         async move {
@@ -48,7 +51,17 @@ pub fn AttributeTemplateView(id: Id) -> Element {
     rsx! {
         Card {
             header: rsx! {
-                h1 { class: "text-xl text-center text-(--fg-item) dark:text-(--dark-fg-item)", "Attribute Template" }
+                div { class: "flex mb-8",
+                    h1 { class: "flex-grow text-xl text-center text-(--fg-item) dark:text-(--dark-fg-item)",
+                        "Attribute Template"
+                    }
+                    Link {
+                        class: "text-xl px-2 rounded-full transition duration-200",
+                        to: Route::AttributeTemplatesListView {
+                        },
+                        "x"
+                    }
+                }
             },
             content: rsx! {
                 div {
@@ -58,25 +71,55 @@ pub fn AttributeTemplateView(id: Id) -> Element {
                         value_type,
                         default_value,
                         is_required,
-                        action: Action::View,
+                        action,
                     }
-                    div { class: "grid justify-items-end mt-8",
+                    div { class: "flex justify-between mt-8",
                         button {
-                            disabled: create_btn_disabled(),
                             onclick: move |_| {
-                                let id = iid.clone();
-                                handle_update(
-                                    id,
-                                    name(),
-                                    description(),
-                                    value_type(),
-                                    default_value(),
-                                    is_required(),
-                                    err,
-                                )
+                                let did = did.clone();
+                                spawn(async move {
+                                    let id = did.clone();
+                                    handle_delete(id).await;
+                                });
                             },
-                            "Edit"
+                            "Delete"
                         }
+                        button {
+                            disabled: do_action_disabled(),
+                            onclick: move |_| {
+                                let mut action = action.clone();
+                                let iid = eid.clone();
+                                let name = name.clone();
+                                let description = description.clone();
+                                let value_type = value_type.clone();
+                                let default_value = default_value.clone();
+                                let is_required = is_required.clone();
+                                let err = err.clone();
+                                spawn(async move {
+                                    if action() == Action::View {
+                                        action.set(Action::Edit);
+                                    } else {
+                                        let id = iid.clone();
+                                        handle_update(
+                                                id,
+                                                name(),
+                                                description(),
+                                                value_type(),
+                                                default_value(),
+                                                is_required(),
+                                                err,
+                                            )
+                                            .await;
+                                    }
+                                });
+                            },
+                            if action() == Action::Edit {
+                                "Save"
+                            } else {
+                                "Edit"
+                            }
+                        }
+
                     }
                 }
             },
@@ -147,6 +190,26 @@ async fn handle_update(
             let msg = format!("Failed to add attribute template. Reason: {}", e);
             error!(msg);
             err.set(Some(msg));
+        }
+    }
+}
+
+async fn handle_delete(id: Id) {
+    //
+    match reqwest::Client::new()
+        .delete(format!("http://localhost:9011/data/templates/attributes/{}", id))
+        .send()
+        .await
+    {
+        Ok(rsp) => {
+            if rsp.status() == reqwest::StatusCode::NO_CONTENT {
+                STATE.write().attr_tmpls_cache.shift_remove(&id);
+                use_navigator().push(Route::AttributeTemplatesListView {});
+            }
+        }
+        Err(e) => {
+            let msg = format!("Failed to delete attribute template. Reason: {}", e);
+            error!(msg);
         }
     }
 }
