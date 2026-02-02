@@ -2,6 +2,9 @@ use crate::ui::{Route, STATE, components::Card};
 use dioxus::prelude::*;
 use shlib::domain::model::{AttributeTemplate, UserAccount};
 
+const ENTRY_CSS_CLASS: &str = "hover:bg-gray-100 font-medium text-(--fg-item) hover:text-(--fg-link) hover:bg(--bg-item-hover) 
+                               dark:text-(--dark-fg-item) dark:hover:bg-(--dark-bg-item-hover) dark:hover:text-(--dark-fg-item-hover) cursor-pointer";
+
 #[component]
 pub fn AttributeTemplatesListView() -> Element {
     //
@@ -70,7 +73,7 @@ pub fn AttributeTemplatesListView() -> Element {
                                                         id: id.clone(),
                                                     });
                                             },
-                                            class: "hover:bg-gray-100 font-medium text-(--fg-item) hover:text-(--fg-link) hover:bg(--bg-item-hover) dark:text-(--dark-fg-item) dark:hover:bg-(--dark-bg-item-hover) dark:hover:text-(--dark-fg-item-hover) cursor-pointer",
+                                            class: ENTRY_CSS_CLASS,
                                             td { class: "px-2 py-2", "{attr_tmpl.name}" }
                                             td { class: "px-2 py-2", "{attr_tmpl.description.as_deref().unwrap_or_default()}" }
                                         }

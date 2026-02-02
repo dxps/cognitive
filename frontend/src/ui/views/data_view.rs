@@ -33,11 +33,6 @@ pub fn DataView() -> Element {
                         }
                         Link {
                             class: "py-2 px-4 rounded-lg transition duration-200",
-                            to: Route::HomeView {},
-                            "Object Links"
-                        }
-                        Link {
-                            class: "py-2 px-4 rounded-lg transition duration-200",
                             to: Route::AttributeTemplatesListView {
                             },
                             "Attributes"
@@ -51,11 +46,6 @@ pub fn DataView() -> Element {
                             class: "py-2 px-4 rounded-lg transition duration-200",
                             to: Route::HomeView {},
                             "Objects"
-                        }
-                        Link {
-                            class: "py-2 px-4 rounded-lg transition duration-200",
-                            to: Route::HomeView {},
-                            "Object Links"
                         }
                     }
                 }

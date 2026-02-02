@@ -27,11 +27,6 @@ pub fn AttributeTemplateForm(props: AttrTemplateFormProps) -> Element {
     let is_create = action() == Action::Create;
     let is_edit = action() == Action::Edit;
 
-    info!(
-        "action: {:?}, is_view: {}, is_create: {}, is_edit: {}",
-        action, is_view, is_create, is_edit
-    );
-
     rsx! {
         div { class: "mt-8 space-y-4",
             div { class: "flex",

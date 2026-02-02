@@ -32,8 +32,16 @@ pub fn AttributeTemplateNewView() -> Element {
     rsx! {
         Card {
             header: rsx! {
-                h1 { class: "text-xl text-center text-(--fg-item) dark:text-(--dark-fg-item)",
-                    "New Attribute Template"
+                div { class: "flex mb-8",
+                    h1 { class: "flex-grow text-xl text-center text-(--fg-item) dark:text-(--dark-fg-item)",
+                        "New Attribute Templates"
+                    }
+                    Link {
+                        class: "text-xl px-2 rounded-full transition duration-200",
+                        to: Route::AttributeTemplatesListView {
+                        },
+                        "x"
+                    }
                 }
             },
             content: rsx! {
