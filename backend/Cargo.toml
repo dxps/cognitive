@@ -28,6 +28,7 @@ chrono = { version = "=0.4.43" }
 dotenvy = { version = "=0.15.7" }
 fastrand = { version = "=2.3.0" }
 http = { version = "=1.4.0" }
+indexmap = { version = "=2.13.0", features = [ "serde" ] }
 log = { version = "=0.4.29" }
 md5 = { version = "=0.8.0" }
 nid = { version = "=3.0.0" }

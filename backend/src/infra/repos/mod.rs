@@ -1,6 +1,8 @@
 mod app_err_gen;
 pub use app_err_gen::*;
 
+mod consts;
+
 mod db;
 pub use db::*;
 
@@ -10,4 +12,5 @@ pub use user_repo::*;
 mod attr_tmpl_repo;
 pub use attr_tmpl_repo::*;
 
-mod consts;
+mod obj_tmpl_repo;
+pub use obj_tmpl_repo::*;

@@ -7,8 +7,8 @@ pub use user::*;
 mod auth;
 pub use auth::*;
 
-mod item;
-pub use item::*;
+mod item_type;
+pub use item_type::*;
 
 mod data;
 pub use data::*;
